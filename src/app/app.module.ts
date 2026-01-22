@@ -13,6 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.component';
 import { ReusableTableComponent } from './components/reusable/reusable-table/reusable-table.component';
+import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { HeaderComponent } from './layout/header/header.component';
 
 @NgModule({
@@ -21,6 +22,7 @@ import { HeaderComponent } from './layout/header/header.component';
     DashboardComponent,
     DashboardkpiComponent,
     ReusableTableComponent,
+    ReusableBreadcrumComponent,
     HeaderComponent,
   ],
   imports: [
