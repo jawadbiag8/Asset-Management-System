@@ -13,13 +13,15 @@ import { MatChipsModule } from '@angular/material/chips';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.component';
 import { ReusableTableComponent } from './components/reusable/reusable-table/reusable-table.component';
+import { HeaderComponent } from './layout/header/header.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
     DashboardkpiComponent,
-    ReusableTableComponent
+    ReusableTableComponent,
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -32,6 +34,6 @@ import { ReusableTableComponent } from './components/reusable/reusable-table/reu
     MatChipsModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

@@ -6,10 +6,10 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  standalone: true, // standalone component
+  standalone: false, // standalone component
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [CommonModule, HeaderComponent, RouterOutlet],
+  // imports: [CommonModule, HeaderComponent, RouterOutlet],
 })
 export class AppComponent implements OnInit {
   showHeader = false; // initially hide header to avoid blink
