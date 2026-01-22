@@ -1,0 +1,83 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo-icon">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="30" cy="30" r="28" stroke="#0D9488" stroke-width="2"/>
+          <path d="M20 20L40 40M40 20L20 40" stroke="#0D9488" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="login-title">CITIZEN EXPERIENCE DASHBOARD</h1>
+      <div class="sub-logo">
+        <span class="sub-logo-text">Pakistan</span>
+        <span class="sub-logo-divider">|</span>
+        <span class="sub-logo-text">Digital Authority</span>
+        <span class="sub-logo-icon">P</span>
+      </div>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            class="form-control"
+            [class.is-invalid]="submitted && f['username'].errors"
+            id="username"
+            formControlName="username"
+            placeholder="superadmin"
+          />
+          <span class="input-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 10C12.7614 10 15 7.76142 15 5C15 2.23858 12.7614 0 10 0C7.23858 0 5 2.23858 5 5C5 7.76142 7.23858 10 10 10Z" fill="#6B7280"/>
+              <path d="M10 12C5.58172 12 2 14.6863 2 18V20H18V18C18 14.6863 14.4183 12 10 12Z" fill="#6B7280"/>
+            </svg>
+          </span>
+        </div>
+        <div class="invalid-feedback" *ngIf="submitted && f['username'].errors">
+          <span *ngIf="f['username'].errors && f['username'].errors['required']">Username is required</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            [class.is-invalid]="submitted && f['password'].errors"
+            id="password"
+            formControlName="password"
+            placeholder=""
+          />
+          <span class="input-icon password-toggle" (click)="togglePasswordVisibility()">
+            <svg *ngIf="!showPassword" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 4C14.4183 4 18 7.58172 18 12C18 16.4183 14.4183 20 10 20C5.58172 20 2 16.4183 2 12C2 7.58172 5.58172 4 10 4Z" stroke="#6B7280" stroke-width="1.5"/>
+              <path d="M10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8Z" stroke="#6B7280" stroke-width="1.5"/>
+              <path d="M2 2L18 18" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <svg *ngIf="showPassword" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 4C14.4183 4 18 7.58172 18 12C18 16.4183 14.4183 20 10 20C5.58172 20 2 16.4183 2 12C2 7.58172 5.58172 4 10 4Z" stroke="#6B7280" stroke-width="1.5"/>
+              <path d="M10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8Z" fill="#6B7280"/>
+            </svg>
+          </span>
+        </div>
+        <div class="invalid-feedback" *ngIf="submitted && f['password'].errors">
+          <span *ngIf="f['password'].errors && f['password'].errors['required']">Password is required</span>
+          <span *ngIf="f['password'].errors && f['password'].errors['minlength']">Password must be at least 6 characters</span>
+        </div>
+      </div>
+
+      <div class="mb-3" *ngIf="errorMessage">
+        <div class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <button type="submit" class="btn-signin" [disabled]="submitted && loginForm.invalid">
+        Sign In
+      </button>
+    </form>
+  </div>
+</div>
