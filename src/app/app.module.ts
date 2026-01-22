@@ -5,16 +5,33 @@ import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.component';
+import { ReusableTableComponent } from './components/reusable/reusable-table/reusable-table.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    AppComponent,
+    DashboardComponent,
+    DashboardkpiComponent,
+    ReusableTableComponent
+  ],
   imports: [
     BrowserModule,
     CommonModule,
     RouterModule.forRoot(routes),
-    AppComponent
+    BrowserAnimationsModule,
+    MatIconModule,
+    MatTableModule,
+    MatButtonModule,
+    MatChipsModule,
   ],
   providers: [],
-  bootstrap: []
+  bootstrap: [AppComponent]
 })
 export class AppModule { }
