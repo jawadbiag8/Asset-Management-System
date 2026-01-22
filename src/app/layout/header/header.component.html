@@ -7,9 +7,21 @@
     </div>
 
     <nav class="nav" [class.open]="menuOpen">
-      <a class="active">Dashboard</a>
-      <a>Assets</a>
-      <a>Incidents</a>
+      <a
+        [class.active]="activeLink === 'dashboard'"
+        (click)="setActive('dashboard')"
+      >
+        Dashboard
+      </a>
+      <a [class.active]="activeLink === 'assets'" (click)="setActive('assets')">
+        Assets
+      </a>
+      <a
+        [class.active]="activeLink === 'incidents'"
+        (click)="setActive('incidents')"
+      >
+        Incidents
+      </a>
     </nav>
   </div>
 
@@ -21,13 +33,11 @@
       PM Dashboard
     </button>
 
-    <div class="user">
-      <img src="Images/Dashboard/profile.svg" alt="user" />
-      <div class="info">
-        <span class="name">Username</span>
-        <span class="role">Admin</span>
-      </div>
-    </div>
+    <!-- LOGOUT -->
+    <button class="action-btn">
+      <img src="Images/Dashboard/log-out.svg" alt="logout icon" />
+      Logout
+    </button>
 
     <!-- MOBILE MENU ICON -->
     <button class="menu-btn" (click)="menuOpen = !menuOpen">☰</button>
