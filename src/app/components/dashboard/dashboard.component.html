@@ -15,5 +15,16 @@
 
     </div>
 
+    <!-- Table with Filters and Search -->
+    <div class="mt-5">
+        <app-reusable-table 
+            [config]="tableConfigWithData()"
+            [filters]="tableFilters()"
+            [searchValue]="searchValue()"
+            (searchChange)="onSearchChange($event)"
+            (filterRemove)="onFilterRemove($event)"
+            (filterClick)="onFilterClick($event)">
+        </app-reusable-table>
+    </div>
 
 </div>
