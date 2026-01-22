@@ -8,11 +8,13 @@ import { routes } from './app.routes';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DashboardComponent
+    DashboardComponent,
+    DashboardkpiComponent
   ],
   imports: [
     BrowserModule,

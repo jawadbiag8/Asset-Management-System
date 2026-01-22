@@ -24,10 +24,13 @@ body {
     --bs-btn-disabled-bg: #006666;
     --bs-btn-disabled-border-color: #006666;
 }
-html, body { height: 100%; }
-
 
 .badge-success {
   color: var(--Green, #10B981) !important;
   background: var(--Light-Green, #D1FAE5);
+}
+
+hr{
+  border: 1px solid var(--Borders, #E5E7EB);
+  opacity: 1;
 }

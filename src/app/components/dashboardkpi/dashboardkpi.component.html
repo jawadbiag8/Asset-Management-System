@@ -1,0 +1,22 @@
+<div>
+    <div class="card p-3 h-100 dashboard-card">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h1 class="digitalAssetsTitle">{{ item.value }}</h1>
+            <span class="badge badge-success d-flex align-items-center gap-2 badge-weight">
+                {{ item.subValue }}
+                <!-- <mat-icon class="badge-icon">keyboard_arrow_up</mat-icon> -->
+                <mat-icon class="badge-icon">keyboard_arrow_down</mat-icon>
+            </span>
+        </div>
+
+        <h5 class="dashboard-title mb-2">{{ item.title }}</h5>
+        <p class="dashboard-subtitle text-muted mt-3">{{ item.subTitle }}</p>
+        
+        <hr>
+
+        <div class="d-flex justify-content-between align-items-center dashboard-footer">
+            <p class="dashboard-subtitle text-muted">{{ item.subValueText }}</p>
+            <mat-icon class="dashboard-chevron">keyboard_arrow_right</mat-icon>
+        </div>
+    </div>
+</div>
