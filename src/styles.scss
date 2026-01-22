@@ -1,0 +1,33 @@
+/* Apply Inter globally */
+* {
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #F8F8F8;
+}
+
+.btn-primary {
+    --bs-btn-color: white;
+    --bs-btn-bg: #006666;
+    --bs-btn-border-color: #006666;
+    --bs-btn-hover-color: white;
+    --bs-btn-hover-bg: #006666;
+    --bs-btn-hover-border-color: #006666;
+    --bs-btn-focus-shadow-rgb: 49, 132, 253;
+    --bs-btn-active-color: white;
+    --bs-btn-active-bg: #006666;
+    --bs-btn-active-border-color: #006666;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: white;
+    --bs-btn-disabled-bg: #006666;
+    --bs-btn-disabled-border-color: #006666;
+}
+html, body { height: 100%; }
+
+
+.badge-success {
+  color: var(--Green, #10B981) !important;
+  background: var(--Light-Green, #D1FAE5);
+}
