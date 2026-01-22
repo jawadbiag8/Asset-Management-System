@@ -1,0 +1,35 @@
+<header class="header">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="logo">
+      <img src="Images/Dashboard/logo.svg" alt="logo" class="logo-img" />
+      <span class="title">Citizen Experience Dashboard</span>
+    </div>
+
+    <nav class="nav" [class.open]="menuOpen">
+      <a class="active">Dashboard</a>
+      <a>Assets</a>
+      <a>Incidents</a>
+    </nav>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <button class="pm-btn">
+      <!-- PROFILE SVG NEXT TO PM DASHBOARD -->
+      <img src="Images/Dashboard/windows.svg" alt="pm icon" class="pm-icon" />
+      PM Dashboard
+    </button>
+
+    <div class="user">
+      <img src="Images/Dashboard/profile.svg" alt="user" />
+      <div class="info">
+        <span class="name">Username</span>
+        <span class="role">Admin</span>
+      </div>
+    </div>
+
+    <!-- MOBILE MENU ICON -->
+    <button class="menu-btn" (click)="menuOpen = !menuOpen">☰</button>
+  </div>
+</header>

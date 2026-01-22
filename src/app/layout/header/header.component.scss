@@ -1,0 +1,149 @@
+/* ================= HEADER ================= */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  height: 82px;
+}
+
+/* LEFT */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #008080;
+  }
+}
+
+.logo-img {
+  width: 48px;
+  height: 48px;
+}
+
+.pm-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
+}
+
+/* NAVIGATION */
+.nav {
+  display: flex;
+  gap: 12px; /* smaller gap to match screenshot */
+
+  a {
+    font-size: 14px;
+    color: #475569;
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+
+    &.active {
+      background-color: #66B3B3;
+      color: #fff; 
+      font-weight: 600;
+            text-decoration: none;
+    }
+
+    &:hover:not(.active) {
+      background-color: #e0f7f7; /* subtle hover */
+      color: #008080;
+    }
+  }
+}
+
+/* RIGHT */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pm-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #14b8a6;
+  background: transparent;
+  color: #14b8a6;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .role {
+      font-size: 11px;
+      color: #64748b;
+    }
+  }
+}
+
+.menu-btn {
+  display: none;
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .nav {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    flex-direction: column;
+    padding: 16px;
+    display: none;
+
+    &.open {
+      display: flex;
+    }
+  }
+
+  .pm-btn,
+  .user {
+    display: none;
+  }
+
+  .menu-btn {
+    display: block;
+  }
+}
