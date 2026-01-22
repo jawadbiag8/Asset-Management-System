@@ -4,7 +4,7 @@
         <h1 class="digitalAssetsTitle">Digital Assets Monitoring Dashboard</h1>
 
         <div class="d-flex align-items-center gap-2">
-            <img src="/assets/Grid.svg" alt="Grid Icon" class="grid-icon" (click)="onGridIconClick()">
+            <img [src]="dashboardKpis().isVisible ? '/assets/Grid.svg' : '/assets/Grid-hide.svg'" alt="Grid Icon" class="grid-icon" (click)="onGridIconClick()">
             <button class="btn btn-primary d-flex align-items-center gap-2">
                 <mat-icon>add</mat-icon> Add Digital Assets
             </button>
