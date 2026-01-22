@@ -7,6 +7,9 @@
     background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
     height: 82px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 /* LEFT */
@@ -60,6 +63,11 @@
             text-decoration: none;
         }
     }
+
+    /* Hide mobile logout button on desktop */
+    .mobile-logout {
+        display: none;
+    }
 }
 
 
@@ -80,7 +88,7 @@
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 14px;
-            font-weight: 600;
+    font-weight: 600;
     cursor: pointer;
 }
 
@@ -93,16 +101,16 @@
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 14px;
-            font-weight: 600;
+    font-weight: 600;
     cursor: pointer;
-  border: 1px solid #d1d5db;
-  color: #374151;
+    border: 1px solid #d1d5db;
+    color: #374151;
 }
 
 /* ICON */
 .action-btn img {
-  width: 24px;
-  height: 24px;
+    width: 24px;
+    height: 24px;
 }
 
 
@@ -116,23 +124,39 @@
 
 /* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
+    .header {
+        z-index: 1000;
+    }
+
     .nav {
-        position: absolute;
-        top: 64px;
+        position: fixed;
+        top: 82px;
         left: 0;
         width: 100%;
         background: #fff;
         flex-direction: column;
         padding: 16px;
         display: none;
+        gap: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 999;
+        max-height: calc(100vh - 82px);
+        overflow-y: auto;
 
         &.open {
             display: flex;
         }
+
+        .mobile-logout {
+            display: flex;
+            margin-top: 8px;
+            width: 100%;
+            justify-content: center;
+        }
     }
 
     .pm-btn,
-    .user {
+    .action-btn {
         display: none;
     }
 
