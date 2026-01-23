@@ -1,4 +1,6 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-header',
@@ -9,30 +11,36 @@ import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
 export class HeaderComponent {
   menuOpen = false;
   activeLink: string = 'dashboard'; // default active
-  profileDropdownOpen = false;
 
-  @ViewChild('profileDropdown', { static: false }) profileDropdown!: ElementRef;
+  constructor(
+    private apiService: ApiService,
+    private router: Router
+  ) {}
 
   setActive(link: string) {
     this.activeLink = link;
   }
 
-  toggleProfileDropdown() {
-    this.profileDropdownOpen = !this.profileDropdownOpen;
-    console.log('Profile dropdown open:', this.profileDropdownOpen);
-  }
-
-  closeProfileDropdown() {
-    this.profileDropdownOpen = false;
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (this.profileDropdown && this.profileDropdownOpen) {
-      const target = event.target as HTMLElement;
-      if (!this.profileDropdown.nativeElement.contains(target)) {
-        this.closeProfileDropdown();
+  logout() {
+    // Call logout API
+    this.apiService.post('Auth/logout', {}).subscribe({
+      next: () => {
+        // Clear token and user data
+        this.apiService.removeAuthToken();
+        
+        // Close mobile menu if open
+        this.menuOpen = false;
+        
+        // Redirect to login
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        // Even if API call fails, clear local data and logout
+        console.error('Logout error:', error);
+        this.apiService.removeAuthToken();
+        this.menuOpen = false;
+        this.router.navigate(['/login']);
       }
-    }
+    });
   }
 }
