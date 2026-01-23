@@ -49,7 +49,7 @@ export class ApiService {
 
   // Assets
 
-  getAssets(searchQuery: HttpParams): Observable<ApiResponse<any>> {
+  getAssets(searchQuery?: HttpParams): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset`;
     return this.http.get<ApiResponse<any>>(url, { params: searchQuery });
   }

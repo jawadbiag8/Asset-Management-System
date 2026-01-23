@@ -206,7 +206,7 @@ export class MinistryDetailComponent implements AfterViewInit {
     // Add your filter removal logic here
   }
 
-  onFilterClick(filterId: string) {
+  onFilterClick(filterId: string | any) {
     // Add your filter dropdown logic here
     console.log('Filter clicked:', filterId);
   }
