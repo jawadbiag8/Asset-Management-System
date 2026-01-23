@@ -23,6 +23,8 @@ import { ManageDigitalAssetsComponent } from './components/manage-digital-assets
 import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ReusableInputComponent } from './components/reusable/reusable-input/reusable-input.component';
 import { HeaderComponent } from './layout/header/header.component';
+import { AssetsByMinistryComponent } from './components/assets/assetsByMinistry/assets-by-ministry.component';
+import { ActiveIncidentsComponent } from './components/incidents/active-incidents/active-incidents.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 import { ApiInterceptor } from './interceptors/api.interceptor';
@@ -37,6 +39,8 @@ import { ApiInterceptor } from './interceptors/api.interceptor';
     ReusableBreadcrumComponent,
     ReusableInputComponent,
     HeaderComponent,
+    AssetsByMinistryComponent,
+    ActiveIncidentsComponent,
     MinistryDetailComponent,
   ],
   imports: [
