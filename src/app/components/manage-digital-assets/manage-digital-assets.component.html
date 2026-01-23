@@ -1,0 +1,138 @@
+<div class="container-fluid p-4">
+
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+
+            <!-- Page Header -->
+            <div class="page-header mb-4">
+                <h1 class="page-title">{{ pageInfo().title }}</h1>
+                <p class="page-subtitle">{{ pageInfo().subtitle }}</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="form-card">
+                <form [formGroup]="digitalAssetForm" (ngSubmit)="onSubmit()">
+                    <!-- Section 1: Basic Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Basic Information</h2>
+
+                        <div class="info-box">
+                            <mat-icon class="info-icon">info</mat-icon>
+                            <span class="info-text">Provide the essential details to identify and categorize your
+                                digital asset.</span>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <!-- Ministry Field - Using direct props -->
+                                <app-reusable-input label="Ministry" type="select" [options]="ministryOptions"
+                                    hint="Select the primary ministry responsible for this asset"
+                                    [control]="getControl('ministry')">
+                                </app-reusable-input>
+
+                                <!-- Website/Application Name Field - Using direct props -->
+                                <app-reusable-input label="Website / Application Name" type="text"
+                                    placeholder="e.g Health Portal" hint="The display name for this digital asset"
+                                    [control]="getControl('websiteName')">
+                                </app-reusable-input>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <!-- Department Field - Using direct props -->
+                                <app-reusable-input label="Department" type="text"
+                                    placeholder="e.g Health services Department"
+                                    hint="Enter the specific department or division"
+                                    [control]="getControl('department')">
+                                </app-reusable-input>
+
+                                <!-- URL Field - Using direct props -->
+                                <app-reusable-input label="URL" type="text" placeholder="https://example.gov"
+                                    hint="Full URL including protocol (https://)" [errorMessages]="urlErrorMessages"
+                                    [control]="getControl('url')">
+                                </app-reusable-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Compliance Configuration -->
+                    <div class="form-section">
+                        <h2 class="section-title">Compliance & Impact</h2>
+
+                        <div class="info-box">
+                            <mat-icon class="info-icon">info</mat-icon>
+                            <span class="info-text">Define compliance requirements and citizen impact level</span>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Left Column -->
+                            <div class="col-md-12">
+                                <!-- Compliance Requirements Field -->
+                                <app-reusable-input label="Citizen Impact Level" type="select"
+                                    placeholder="Enter citizen impact level"
+                                    hint="How critical this asset is to citizens" 
+                                    [control]="getControl('citizenImpactLevel')">
+                                </app-reusable-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Additional Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Additional Information</h2>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Full Width -->
+                            <div class="col-12">
+                                <!-- Description Field -->
+                                <app-reusable-input label="Description" type="textarea"
+                                    placeholder="Provide additional context about this digital asset"
+                                    hint="Optional: Add notes or sepcial requirements" [rows]="4"
+                                    [control]="getControl('description')">
+                                </app-reusable-input>
+                            </div>
+                            <div class="col-6">
+                                <!-- Primary Contact Field -->
+                                <app-reusable-input label="Primary Contact" type="text"
+                                    placeholder="Name" hint="Person responsible for this asset"
+                                    [control]="getControl('primaryContact')">
+                                </app-reusable-input>
+                            </div>
+                            <div class="col-6">
+                                <!-- Secondary Contact Field -->
+                                <app-reusable-input label="Secondary Contact" type="text"
+                                    placeholder="Name" hint="Backup person responsible for this asset"
+                                    hint="Enter the secondary contact name" [control]="getControl('secondaryContact')">
+                                </app-reusable-input>
+                            </div>
+                            <div class="col-6">
+                                <!-- Primary Contact Email Field -->
+                                <app-reusable-input label="Contact Email" type="email"
+                                    placeholder="Enter the primary contact email" hint="Email for incident notifications"
+                                    [control]="getControl('primaryContactEmail')">
+                                </app-reusable-input>
+                            </div>
+                            <div class="col-6">
+                                <!-- Secondary Contact Email Field -->
+                                <app-reusable-input label="Contact Email" type="email"
+                                    placeholder="Email" hint="Email for incident notifications"
+                                    hint="Enter the secondary contact email"
+                                    [control]="getControl('secondaryContactEmail')">
+                                </app-reusable-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" routerLink="/dashboard">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Digital Asset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+</div>

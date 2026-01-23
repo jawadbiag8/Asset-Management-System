@@ -5,9 +5,9 @@
 
         <div class="d-flex align-items-center gap-2">
             <img [src]="dashboardKpis().isVisible ? '/assets/Grid.svg' : '/assets/Grid-hide.svg'" alt="Grid Icon" class="grid-icon" (click)="onGridIconClick()">
-            <button class="btn btn-primary d-flex align-items-center gap-2">
+            <a routerLink="/add-digital-assets" class="btn btn-primary d-flex align-items-center gap-2" style="text-decoration: none;">
                 <mat-icon>add</mat-icon> Add Digital Assets
-            </button>
+            </a>
         </div>
     </div>
 

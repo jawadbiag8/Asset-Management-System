@@ -4,7 +4,6 @@ import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-header',
-  // imports: [],
   standalone: false,
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -41,7 +40,7 @@ export class HeaderComponent {
   logout() {
     // Close profile dropdown
     this.closeProfileDropdown();
-    
+
     // Call logout API
     this.apiService.post('Auth/logout', {}).subscribe({
       next: () => {
