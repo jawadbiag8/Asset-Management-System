@@ -10,7 +10,7 @@
       <a
         routerLink="/dashboard"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{exact: false}"
+        [routerLinkActiveOptions]="{ exact: false }"
         (click)="menuOpen = false"
       >
         Dashboard
@@ -18,7 +18,7 @@
       <a
         routerLink="/ministry-detail"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{exact: false}"
+        [routerLinkActiveOptions]="{ exact: false }"
         (click)="menuOpen = false"
       >
         Assets
@@ -26,14 +26,14 @@
       <a
         routerLink="#"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{exact: false}"
+        [routerLinkActiveOptions]="{ exact: false }"
         (click)="menuOpen = false"
       >
         Incidents
       </a>
 
       <!-- MOBILE LOGOUT BUTTON -->
-      <button class="action-btn mobile-logout">
+      <button class="action-btn mobile-logout" (click)="logout()">
         <img src="Images/Dashboard/log-out.svg" alt="logout icon" />
         Logout
       </button>
@@ -83,7 +83,7 @@
       <div class="dropdown-menu" [class.open]="profileDropdownOpen">
         <button
           class="dropdown-item logout-item"
-          (click)="closeProfileDropdown()"
+          (click)="logout()"
         >
           <img src="Images/Dashboard/log-out.svg" alt="logout icon" />
           <span>Logout</span>
