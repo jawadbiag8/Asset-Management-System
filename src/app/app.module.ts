@@ -15,6 +15,7 @@ import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.co
 import { ReusableTableComponent } from './components/reusable/reusable-table/reusable-table.component';
 import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { HeaderComponent } from './layout/header/header.component';
+import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { HeaderComponent } from './layout/header/header.component';
     ReusableTableComponent,
     ReusableBreadcrumComponent,
     HeaderComponent,
+    MinistryDetailComponent,
   ],
   imports: [
     BrowserModule,

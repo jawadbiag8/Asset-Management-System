@@ -8,17 +8,26 @@
 
     <nav class="nav" [class.open]="menuOpen">
       <a
-        [class.active]="activeLink === 'dashboard'"
-        (click)="setActive('dashboard')"
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: false}"
+        (click)="menuOpen = false"
       >
         Dashboard
       </a>
-      <a [class.active]="activeLink === 'assets'" (click)="setActive('assets')">
+      <a
+        routerLink="/ministry-detail"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: false}"
+        (click)="menuOpen = false"
+      >
         Assets
       </a>
       <a
-        [class.active]="activeLink === 'incidents'"
-        (click)="setActive('incidents')"
+        routerLink="#"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: false}"
+        (click)="menuOpen = false"
       >
         Incidents
       </a>

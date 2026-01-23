@@ -9,14 +9,9 @@ import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
 })
 export class HeaderComponent {
   menuOpen = false;
-  activeLink: string = 'dashboard'; // default active
   profileDropdownOpen = false;
 
   @ViewChild('profileDropdown', { static: false }) profileDropdown!: ElementRef;
-
-  setActive(link: string) {
-    this.activeLink = link;
-  }
 
   toggleProfileDropdown() {
     this.profileDropdownOpen = !this.profileDropdownOpen;
