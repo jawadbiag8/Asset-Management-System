@@ -1,0 +1,35 @@
+<div class="container-fluid p-4">
+  <app-reusable-breadcrum
+    [breadcrumbs]="[
+      { label: 'Dashboard', path: '/dashboard' },
+      { label: 'Assets', path: '/ministry-detail' },
+      { label: 'Ministry of Health' },
+    ]"
+  ></app-reusable-breadcrum>
+  
+  <div class="page-header">
+    <h1 class="digitalAssetsTitle">Ministry of Health - Digital Assets</h1>
+    <button class="btn-add-asset" (click)="onAddAsset()">
+      <mat-icon>add</mat-icon>
+      Add Digital Assets
+    </button>
+  </div>
+  
+  <div #tableContainer>
+    <app-reusable-table
+      [config]="tableConfigWithData()"
+      [searchValue]="searchValue()"
+      [filters]="tableFilters()"
+      (searchChange)="onSearchChange($event)"
+      (filterRemove)="onFilterRemove($event)"
+      (filterClick)="onFilterClick($event)"
+    ></app-reusable-table>
+  </div>
+
+  <div class="active-incidents-section">
+    <h2 class="incidents-title">Active Incidents</h2>
+    <div class="incidents-empty-state">
+      <p>No active incidents at this time.</p>
+    </div>
+  </div>
+</div>

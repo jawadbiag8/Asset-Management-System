@@ -22,6 +22,7 @@ import { ManageDigitalAssetsComponent } from './components/manage-digital-assets
 import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ReusableInputComponent } from './components/reusable/reusable-input/reusable-input.component';
 import { HeaderComponent } from './layout/header/header.component';
+import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { HeaderComponent } from './layout/header/header.component';
     ReusableBreadcrumComponent,
     ReusableInputComponent,
     HeaderComponent,
+    MinistryDetailComponent,
   ],
   imports: [
     BrowserModule,

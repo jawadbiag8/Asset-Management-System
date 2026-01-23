@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 /**
  * Reusable Table Component
@@ -57,8 +57,7 @@ export interface TableColumn {
   iconBgColor?: string; // Icon background color (CSS variable or hex)
   
   // For 'link' cells
-  linkField?: string; // Field name for URL
-  linkPrefix?: string; // URL prefix (e.g., 'https://')
+  linkField?: string; // Field name for full URL
   
   // For 'text-with-color' cells
   textColor?: string; // Color class name (e.g., 'success', 'success-light')
@@ -88,7 +87,7 @@ export interface TableConfig {
   styleUrl: './reusable-table.component.scss',
   standalone: false,
 })
-export class ReusableTableComponent implements OnInit {
+export class ReusableTableComponent implements OnInit, OnChanges {
   @Input() config!: TableConfig;
   @Input() searchValue: string = ''; // Search value controlled from parent
   @Input() filters: FilterPill[] = []; // Filters controlled from parent
@@ -99,6 +98,9 @@ export class ReusableTableComponent implements OnInit {
   
   displayedColumns: string[] = [];
   sortState: { [key: string]: 'asc' | 'desc' | null } = {};
+  sortedData: any[] = [];
+  filteredData: any[] = [];
+  private originalData: any[] = [];
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -108,11 +110,87 @@ export class ReusableTableComponent implements OnInit {
     if (this.config?.filters && this.filters.length === 0) {
       this.filters = this.config.filters;
     }
+    // Initialize data
+    this.originalData = [...(this.config?.data || [])];
+    this.sortedData = [...this.originalData];
+    this.applySearch();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Update data when config changes
+    if (changes['config'] && this.config?.data) {
+      this.originalData = [...this.config.data];
+      this.sortedData = [...this.originalData];
+      // Reapply search
+      this.applySearch();
+      // Reapply current sort if any
+      const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+      if (activeSort) {
+        this.applySort(activeSort, this.sortState[activeSort]!);
+      }
+    }
+    
+    // Update when search value changes
+    if (changes['searchValue']) {
+      this.applySearch();
+      // Reapply current sort if any
+      const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+      if (activeSort) {
+        this.applySort(activeSort, this.sortState[activeSort]!);
+      }
+    }
   }
 
   onSearchChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchChange.emit(value);
+    // Apply search immediately
+    this.applySearch();
+    // Reapply current sort if any
+    const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+    if (activeSort) {
+      this.applySort(activeSort, this.sortState[activeSort]!);
+    }
+  }
+
+  private applySearch() {
+    if (!this.searchValue || this.searchValue.trim() === '') {
+      this.sortedData = [...this.originalData];
+      this.filteredData = [...this.originalData];
+      return;
+    }
+
+    const searchTerm = this.searchValue.toLowerCase().trim();
+    this.filteredData = this.originalData.filter(row => {
+      // Search across all columns
+      return this.config.columns.some(column => {
+        let cellValue: any = '';
+        
+        // Get cell value based on column type
+        if (column.cellType === 'text' || column.cellType === 'two-line' || column.cellType === 'text-with-color') {
+          const primary = this.getNestedValue(row, column.primaryField || column.key);
+          const secondary = this.getNestedValue(row, column.secondaryField || '');
+          cellValue = `${primary || ''} ${secondary || ''}`.trim();
+        } else if (column.cellType === 'badge' || column.cellType === 'badge-with-subtext') {
+          const badge = this.getNestedValue(row, column.badgeField || column.key);
+          const subtext = this.getNestedValue(row, column.subtextField || '');
+          cellValue = `${badge || ''} ${subtext || ''}`.trim();
+        } else if (column.cellType === 'link') {
+          const primary = this.getNestedValue(row, column.primaryField || '');
+          const link = this.getNestedValue(row, column.linkField || '');
+          cellValue = `${primary || ''} ${link || ''}`.trim();
+        } else {
+          cellValue = this.getNestedValue(row, column.primaryField || column.key);
+        }
+
+        // Convert to string and search
+        const valueStr = String(cellValue || '').toLowerCase();
+        return valueStr.includes(searchTerm);
+      });
+    });
+
+    // Update sorted data with filtered data
+    this.sortedData = [...this.filteredData];
   }
 
   onFilterRemove(filterId: string) {
@@ -124,19 +202,97 @@ export class ReusableTableComponent implements OnInit {
   }
 
   onSort(columnKey: string) {
+    const column = this.config.columns.find(col => col.key === columnKey);
+    if (!column || column.sortable === false) return;
+
     const currentSort = this.sortState[columnKey];
+    let newSort: 'asc' | 'desc' | null;
+    
     if (currentSort === 'asc') {
-      this.sortState[columnKey] = 'desc';
+      newSort = 'desc';
     } else if (currentSort === 'desc') {
-      this.sortState[columnKey] = null;
+      newSort = null;
     } else {
-      this.sortState[columnKey] = 'asc';
+      newSort = 'asc';
     }
+
     // Reset other columns
     Object.keys(this.sortState).forEach(key => {
       if (key !== columnKey) {
         this.sortState[key] = null;
       }
+    });
+
+    this.sortState[columnKey] = newSort;
+
+    // Apply sorting
+    if (newSort) {
+      this.applySort(columnKey, newSort);
+    } else {
+      // Reset to filtered data order (or original if no search)
+      this.sortedData = this.searchValue && this.searchValue.trim() 
+        ? [...this.filteredData] 
+        : [...this.originalData];
+    }
+  }
+
+  private applySort(columnKey: string, direction: 'asc' | 'desc') {
+    const column = this.config.columns.find(col => col.key === columnKey);
+    if (!column) return;
+
+    // Determine which field to sort by
+    let sortField: string;
+    if (column.cellType === 'text' || column.cellType === 'two-line' || column.cellType === 'text-with-color') {
+      sortField = column.primaryField || column.key;
+    } else if (column.cellType === 'badge' || column.cellType === 'badge-with-subtext') {
+      sortField = column.badgeField || column.key;
+    } else if (column.cellType === 'link') {
+      sortField = column.linkField || column.primaryField || column.key;
+    } else {
+      sortField = column.key;
+    }
+
+    // Use filtered data if search is active, otherwise use original data
+    const dataToSort = this.searchValue && this.searchValue.trim() 
+      ? [...this.filteredData] 
+      : [...this.originalData];
+
+    // Sort the data
+    this.sortedData = dataToSort.sort((a, b) => {
+      const aValue = this.getNestedValue(a, sortField);
+      const bValue = this.getNestedValue(b, sortField);
+
+      // Handle null/undefined values
+      if (aValue == null && bValue == null) return 0;
+      if (aValue == null) return direction === 'asc' ? -1 : 1;
+      if (bValue == null) return direction === 'asc' ? 1 : -1;
+
+      // Convert to comparable values
+      let aCompare: any = aValue;
+      let bCompare: any = bValue;
+
+      // Handle numbers (including percentages)
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const aNum = parseFloat(aValue.replace('%', '').replace(',', ''));
+        const bNum = parseFloat(bValue.replace('%', '').replace(',', ''));
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          aCompare = aNum;
+          bCompare = bNum;
+        } else {
+          // String comparison
+          aCompare = aValue.toLowerCase();
+          bCompare = bValue.toLowerCase();
+        }
+      }
+
+      // Compare values
+      if (aCompare < bCompare) {
+        return direction === 'asc' ? -1 : 1;
+      }
+      if (aCompare > bCompare) {
+        return direction === 'asc' ? 1 : -1;
+      }
+      return 0;
     });
   }
 

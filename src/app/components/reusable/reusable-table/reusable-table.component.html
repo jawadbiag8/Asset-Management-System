@@ -41,7 +41,7 @@
 
     <!-- Table -->
     <div class="table-container">
-        <table mat-table [dataSource]="config.data" class="assets-table" [style.min-width]="config.minWidth || '1400px'">
+        <table mat-table [dataSource]="sortedData" class="assets-table" [style.min-width]="config.minWidth || '1400px'">
             @for(column of config.columns; track column.key) {
             <ng-container [matColumnDef]="column.key">
                 <th mat-header-cell *matHeaderCellDef [style.width]="column.width">
@@ -74,7 +74,7 @@
                     @case('link') {
                         <div class="two-line-cell">
                             <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
-                            <a [href]="(column.linkPrefix || 'https://') + getCellValue(row, column.linkField || '')" 
+                            <a [href]="getCellValue(row, column.linkField || '')" 
                                target="_blank" 
                                class="line-link">
                                 {{ getCellValue(row, column.linkField || '') }}
