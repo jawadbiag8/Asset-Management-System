@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
 
 @Component({
   selector: 'app-manage-digital-assets',
@@ -21,6 +22,11 @@ export class ManageDigitalAssetsComponent implements OnInit {
   });
 
   digitalAssetForm: FormGroup;
+
+  breadcrumbs: BreadcrumbItem[] = [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Add Digital Assets' }
+  ];
 
   ministryOptions = [{ label: 'Ministry of Health', value: 'Ministry of Health' },
   { label: 'Ministry of Education', value: 'Ministry of Education' },
