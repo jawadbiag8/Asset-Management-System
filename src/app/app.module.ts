@@ -23,6 +23,7 @@ import { ReusableBreadcrumComponent } from './components/reusable/reusable-bread
 import { ReusableInputComponent } from './components/reusable/reusable-input/reusable-input.component';
 import { HeaderComponent } from './layout/header/header.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     ReusableBreadcrumComponent,
     ReusableInputComponent,
     HeaderComponent,
+    MinistryDetailComponent,
   ],
   imports: [
     BrowserModule,

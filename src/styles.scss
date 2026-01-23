@@ -13,6 +13,7 @@
   --color-bg-quaternary: #F3F4F6;
   --color-bg-hover: #F9FAFB;
 
+
   /* Text Colors */
   --color-text-primary: #111827;
   --color-text-secondary: #374151;
@@ -20,9 +21,11 @@
   --color-text-quaternary: #9CA3AF;
   --color-text-white: #FFFFFF;
 
+
   /* Border Colors */
   --color-border: #E5E7EB;
   --color-border-hover: #E5E7EB;
+
 
   /* Green Colors (Success) */
   --color-green: #10B981;
@@ -48,6 +51,7 @@
 
   --color-red: #EF4444;
   --color-red-light: #FEE2E2;
+  --color-red-dark: #DC2626;
 }
 
 /* Apply Inter globally */
@@ -96,4 +100,7 @@ hr {
 @import './styles/theme';
 
 /* You can add global styles to this file, and also import other style files */
-html, body { height: 100%; }
+html,
+body {
+  height: 100%;
+}
