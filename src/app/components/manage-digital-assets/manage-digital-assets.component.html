@@ -1,0 +1,125 @@
+<div class="container-fluid p-4">
+
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+
+            <!-- Page Header -->
+            <div class="page-header mb-4">
+                <h1 class="page-title">{{ pageInfo().title }}</h1>
+                <p class="page-subtitle">{{ pageInfo().subtitle }}</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="form-card">
+                <form [formGroup]="digitalAssetForm" (ngSubmit)="onSubmit()">
+                    <!-- Section 1: Basic Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Basic Information</h2>
+
+                        <div class="info-box">
+                            <mat-icon class="info-icon">info</mat-icon>
+                            <span class="info-text">Provide the essential details to identify and categorize your
+                                digital asset.</span>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <!-- Ministry Field -->
+                                <mat-form-field appearance="outline" class="full-width">
+                                    <mat-label>Ministry *</mat-label>
+                                    <mat-select formControlName="ministry">
+                                        <mat-option value="">Select Ministry</mat-option>
+                                        @for(ministry of ministries; track ministry) {
+                                        <mat-option [value]="ministry">{{ ministry }}</mat-option>
+                                        }
+                                    </mat-select>
+                                    <mat-hint>Select the primary ministry responsible for this asset</mat-hint>
+                                </mat-form-field>
+
+                                <!-- Website/Application Name Field -->
+                                <mat-form-field appearance="outline" class="full-width">
+                                    <mat-label>Website / Application Name *</mat-label>
+                                    <input matInput formControlName="websiteName" placeholder="e.g Health Portal">
+                                    <mat-hint>The display name for this digital asset</mat-hint>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <!-- Department Field -->
+                                <mat-form-field appearance="outline" class="full-width">
+                                    <mat-label>Department *</mat-label>
+                                    <input matInput formControlName="department"
+                                        placeholder="e.g Health services Department">
+                                    <mat-hint>Enter the specific department or division</mat-hint>
+                                </mat-form-field>
+
+                                <!-- URL Field -->
+                                <mat-form-field appearance="outline" class="full-width">
+                                    <mat-label>URL *</mat-label>
+                                    <input matInput formControlName="url" placeholder="https://example.gov">
+                                    <mat-hint>Full URL including protocol (https://)</mat-hint>
+                                    @if(digitalAssetForm.get('url')?.hasError('pattern') &&
+                                    digitalAssetForm.get('url')?.touched) {
+                                    <mat-error>Please enter a valid URL starting with http:// or https://</mat-error>
+                                    }
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Monitoring Configuration -->
+                    <div class="form-section">
+                        <h2 class="section-title">Monitoring Configuration</h2>
+
+                        <div class="info-box">
+                            <mat-icon class="info-icon">info</mat-icon>
+                            <span class="info-text">Configure how this asset will be monitored and what targets to
+                                track.</span>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <!-- Performance SLA Target Field -->
+                                <mat-form-field appearance="outline" class="full-width">
+                                    <mat-label>Performance SLA Target (%) *</mat-label>
+                                    <input matInput type="number" formControlName="performanceSlaTarget"
+                                        placeholder="99">
+                                    <mat-hint>Target uptime percentage (e.g., 99.0% or 99.5%)</mat-hint>
+                                    @if(digitalAssetForm.get('performanceSlaTarget')?.hasError('min') ||
+                                    digitalAssetForm.get('performanceSlaTarget')?.hasError('max')) {
+                                    <mat-error>Please enter a value between 0 and 100</mat-error>
+                                    }
+                                </mat-form-field>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <!-- Monitoring Frequency Field -->
+                                <mat-form-field appearance="outline" class="full-width">
+                                    <mat-label>Monitoring Frequency</mat-label>
+                                    <mat-select formControlName="monitoringFrequency">
+                                        @for(frequency of monitoringFrequencies; track frequency) {
+                                        <mat-option [value]="frequency">{{ frequency }}</mat-option>
+                                        }
+                                    </mat-select>
+                                    <mat-hint>How often to check asset availability</mat-hint>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" routerLink="/dashboard">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Digital Asset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+</div>
