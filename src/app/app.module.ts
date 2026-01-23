@@ -18,6 +18,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.component';
 import { ReusableTableComponent } from './components/reusable/reusable-table/reusable-table.component';
 import { ManageDigitalAssetsComponent } from './components/manage-digital-assets/manage-digital-assets.component';
+import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
+import { HeaderComponent } from './layout/header/header.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,9 @@ import { ManageDigitalAssetsComponent } from './components/manage-digital-assets
     DashboardComponent,
     DashboardkpiComponent,
     ReusableTableComponent,
-    ManageDigitalAssetsComponent
+    ManageDigitalAssetsComponent,
+    ReusableBreadcrumComponent,
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +46,6 @@ import { ManageDigitalAssetsComponent } from './components/manage-digital-assets
     MatSelectModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

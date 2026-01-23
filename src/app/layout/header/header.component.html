@@ -1,0 +1,88 @@
+<header class="header">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="logo">
+      <img src="Images/Dashboard/logo.svg" alt="logo" class="logo-img" />
+      <span class="title">Citizen Experience Dashboard</span>
+    </div>
+
+    <nav class="nav" [class.open]="menuOpen">
+      <a
+        [class.active]="activeLink === 'dashboard'"
+        (click)="setActive('dashboard')"
+      >
+        Dashboard
+      </a>
+      <a [class.active]="activeLink === 'assets'" (click)="setActive('assets')">
+        Assets
+      </a>
+      <a
+        [class.active]="activeLink === 'incidents'"
+        (click)="setActive('incidents')"
+      >
+        Incidents
+      </a>
+
+      <!-- MOBILE LOGOUT BUTTON -->
+      <button class="action-btn mobile-logout">
+        <img src="Images/Dashboard/log-out.svg" alt="logout icon" />
+        Logout
+      </button>
+    </nav>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <button class="pm-btn">
+      <!-- PROFILE SVG NEXT TO PM DASHBOARD -->
+      <img src="Images/Dashboard/windows.svg" alt="pm icon" class="pm-icon" />
+      PM Dashboard
+    </button>
+
+    <!-- PROFILE DROPDOWN -->
+    <div class="profile-dropdown" #profileDropdown>
+      <div class="profile-trigger" (click)="toggleProfileDropdown()">
+        <div class="profile-icon">
+          <img
+            src="Images/Dashboard/profile.svg"
+            alt="user icon"
+            class="user-icon-img"
+          />
+        </div>
+        <div class="profile-info">
+          <span class="username">Username</span>
+          <span class="user-role">Admin</span>
+        </div>
+        <svg
+          class="dropdown-arrow"
+          [class.open]="profileDropdownOpen"
+          width="12"
+          height="8"
+          viewBox="0 0 12 8"
+          fill="none"
+        >
+          <path
+            d="M1 1L6 6L11 1"
+            stroke="#008080"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+
+      <div class="dropdown-menu" [class.open]="profileDropdownOpen">
+        <button
+          class="dropdown-item logout-item"
+          (click)="closeProfileDropdown()"
+        >
+          <img src="Images/Dashboard/log-out.svg" alt="logout icon" />
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MOBILE MENU ICON -->
+    <button class="menu-btn" (click)="menuOpen = !menuOpen">☰</button>
+  </div>
+</header>
