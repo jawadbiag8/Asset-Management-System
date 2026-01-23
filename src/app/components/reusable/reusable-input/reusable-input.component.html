@@ -4,11 +4,18 @@
     </mat-label>
 
     @if(mergedConfig.type === 'select') {
-    <mat-select [formControl]="control">
+    <mat-select [formControl]="control" [placeholder]="mergedConfig.placeholder || ''" #singleSelect>
+        <mat-option>
+            <ngx-mat-select-search [formControl]="filterControl"
+                [placeholderLabel]="'Search...'"></ngx-mat-select-search>
+        </mat-option>
         @if(!mergedConfig.required) {
         <mat-option value="">Select {{ mergedConfig.label }}</mat-option>
         }
-        @for(option of mergedConfig.options; track option.value) {
+        @if((filteredOptions | async)?.length === 0) {
+        <mat-option disabled>No data found</mat-option>
+        }
+        @for(option of filteredOptions | async; track option.value) {
         <mat-option [value]="option.value">{{ option.label }}</mat-option>
         }
     </mat-select>

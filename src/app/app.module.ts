@@ -22,6 +22,7 @@ import { ManageDigitalAssetsComponent } from './components/manage-digital-assets
 import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ReusableInputComponent } from './components/reusable/reusable-input/reusable-input.component';
 import { HeaderComponent } from './layout/header/header.component';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { HeaderComponent } from './layout/header/header.component';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    NgxMatSelectSearchModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
