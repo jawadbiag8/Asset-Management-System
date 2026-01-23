@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../../../services/api.service';
+import { ApiResponse, ApiService } from '../../../services/api.service';
 
 export interface MinistryAsset {
   ministryId: string;
@@ -32,36 +32,21 @@ export class AssetsByMinistryComponent implements OnInit {
 
     // Simulate API call delay
     setTimeout(() => {
-      this.apiService.get<MinistryAsset[]>('Asset/ministry').subscribe({
-        next: (response: MinistryAsset[]) => {
+      this.apiService.getAssets().subscribe({
+        next: (response: ApiResponse<MinistryAsset[]>) => {
           this.loading = false;
-          if (Array.isArray(response) && response.length > 0) {
-            this.ministries = response;
+          if (response.isSuccessful && response.data) {
+            this.ministries = response.data;
           } else {
-            // Load dummy data if API fails or returns empty
-            this.loadDummyData();
+            this.errorMessage = response.message || 'Failed to load ministry assets';
           }
         },
-        error: (error: any) => {
-          this.loading = false;
-          console.error('Error loading ministry assets:', error);
-          // Load dummy data on error
-          this.loadDummyData();
-        }
       });
     }, 500);
   }
 
   loadDummyData(): void {
-    // Dummy data matching the design
     this.ministries = [
-      {
-        ministryId: '1',
-        ministryName: 'Ministry of Health',
-        assetCount: 2,
-        changeCount: 2,
-        changeType: 'increase'
-      },
       {
         ministryId: '2',
         ministryName: 'Ministry of Maritime Affairs',
