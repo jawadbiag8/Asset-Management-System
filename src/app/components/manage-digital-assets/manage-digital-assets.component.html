@@ -1,8 +1,10 @@
 <div class="container-fluid p-4">
-
+    <app-reusable-breadcrum [breadcrumbs]="breadcrumbs"></app-reusable-breadcrum>
     <div class="row">
         <div class="col-3"></div>
         <div class="col-6">
+
+            <!-- Breadcrumb -->
 
             <!-- Page Header -->
             <div class="page-header mb-4">
@@ -72,7 +74,7 @@
                                 <!-- Compliance Requirements Field -->
                                 <app-reusable-input label="Citizen Impact Level" type="select"
                                     placeholder="Enter citizen impact level"
-                                    hint="How critical this asset is to citizens" 
+                                    hint="How critical this asset is to citizens"
                                     [control]="getControl('citizenImpactLevel')">
                                 </app-reusable-input>
                             </div>
@@ -95,30 +97,29 @@
                             </div>
                             <div class="col-6">
                                 <!-- Primary Contact Field -->
-                                <app-reusable-input label="Primary Contact" type="text"
-                                    placeholder="Name" hint="Person responsible for this asset"
-                                    [control]="getControl('primaryContact')">
+                                <app-reusable-input label="Primary Contact" type="text" placeholder="Name"
+                                    hint="Person responsible for this asset" [control]="getControl('primaryContact')">
                                 </app-reusable-input>
                             </div>
                             <div class="col-6">
                                 <!-- Secondary Contact Field -->
-                                <app-reusable-input label="Secondary Contact" type="text"
-                                    placeholder="Name" hint="Backup person responsible for this asset"
+                                <app-reusable-input label="Secondary Contact" type="text" placeholder="Name"
+                                    hint="Backup person responsible for this asset"
                                     hint="Enter the secondary contact name" [control]="getControl('secondaryContact')">
                                 </app-reusable-input>
                             </div>
                             <div class="col-6">
                                 <!-- Primary Contact Email Field -->
                                 <app-reusable-input label="Contact Email" type="email"
-                                    placeholder="Enter the primary contact email" hint="Email for incident notifications"
+                                    placeholder="Enter the primary contact email"
+                                    hint="Email for incident notifications"
                                     [control]="getControl('primaryContactEmail')">
                                 </app-reusable-input>
                             </div>
                             <div class="col-6">
                                 <!-- Secondary Contact Email Field -->
-                                <app-reusable-input label="Contact Email" type="email"
-                                    placeholder="Email" hint="Email for incident notifications"
-                                    hint="Enter the secondary contact email"
+                                <app-reusable-input label="Contact Email" type="email" placeholder="Email"
+                                    hint="Email for incident notifications" hint="Enter the secondary contact email"
                                     [control]="getControl('secondaryContactEmail')">
                                 </app-reusable-input>
                             </div>

@@ -1,5 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormControl, AbstractControl } from '@angular/forms';
+import { MatSelect } from '@angular/material/select';
+import { ReplaySubject, Subject, Observable } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 export interface ReusableInputOption {
   value: string | number;
@@ -24,7 +27,7 @@ export interface ReusableInputConfig {
   styleUrl: './reusable-input.component.scss',
   standalone: false,
 })
-export class ReusableInputComponent implements OnInit {
+export class ReusableInputComponent implements OnInit, OnDestroy {
   // Direct props from parent component
   @Input() label?: string;
   @Input() type?: 'text' | 'number' | 'email' | 'password' | 'textarea' | 'select';
@@ -36,6 +39,13 @@ export class ReusableInputComponent implements OnInit {
   @Input() errorMessages?: { [key: string]: string };
   
   @Input() control!: FormControl;
+
+  @ViewChild('singleSelect', { static: false }) singleSelect?: MatSelect;
+
+  // For searchable select
+  public filterControl: FormControl = new FormControl();
+  public filteredOptions: ReplaySubject<ReusableInputOption[]> = new ReplaySubject<ReusableInputOption[]>(1);
+  protected _onDestroy = new Subject<void>();
 
   // Merged configuration
   mergedConfig: ReusableInputConfig = {
@@ -66,6 +76,46 @@ export class ReusableInputComponent implements OnInit {
       options: this.options,
       errorMessages: this.errorMessages
     };
+
+    // Setup searchable select filtering
+    if (this.mergedConfig.type === 'select' && this.mergedConfig.options) {
+      // Load initial options
+      this.filteredOptions.next(this.mergedConfig.options.slice());
+
+      // Listen for search field value changes
+      this.filterControl.valueChanges
+        .pipe(takeUntil(this._onDestroy))
+        .subscribe(() => {
+          this.filterOptions();
+        });
+    }
+  }
+
+  ngOnDestroy() {
+    this._onDestroy.next();
+    this._onDestroy.complete();
+  }
+
+  protected filterOptions() {
+    if (!this.mergedConfig.options) {
+      return;
+    }
+
+    // Get the search keyword
+    let search = this.filterControl.value;
+    if (!search) {
+      this.filteredOptions.next(this.mergedConfig.options.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+
+    // Filter the options
+    this.filteredOptions.next(
+      this.mergedConfig.options.filter(option => 
+        option.label.toLowerCase().indexOf(search) > -1
+      )
+    );
   }
 
   getErrorMessage(): string {
