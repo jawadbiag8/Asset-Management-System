@@ -11,9 +11,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { ReactiveFormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.component';
 import { ReusableTableComponent } from './components/reusable/reusable-table/reusable-table.component';
+import { ManageDigitalAssetsComponent } from './components/manage-digital-assets/manage-digital-assets.component';
+import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
+import { ReusableInputComponent } from './components/reusable/reusable-input/reusable-input.component';
 import { HeaderComponent } from './layout/header/header.component';
 
 @NgModule({
@@ -22,6 +29,9 @@ import { HeaderComponent } from './layout/header/header.component';
     DashboardComponent,
     DashboardkpiComponent,
     ReusableTableComponent,
+    ManageDigitalAssetsComponent,
+    ReusableBreadcrumComponent,
+    ReusableInputComponent,
     HeaderComponent,
   ],
   imports: [
@@ -30,10 +40,14 @@ import { HeaderComponent } from './layout/header/header.component';
     HttpClientModule,
     RouterModule.forRoot(routes),
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     MatIconModule,
     MatTableModule,
     MatButtonModule,
     MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

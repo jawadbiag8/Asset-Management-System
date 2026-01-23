@@ -4,7 +4,6 @@ import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-header',
-  // imports: [],
   standalone: false,
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',

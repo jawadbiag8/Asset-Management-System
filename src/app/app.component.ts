@@ -1,15 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { UtilsService } from './services/utils.service';
-import { HeaderComponent } from './layout/header/header.component';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  standalone: false, // standalone component
+  standalone: false,
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  // imports: [CommonModule, HeaderComponent, RouterOutlet],
 })
 export class AppComponent implements OnInit {
   showHeader = false; // initially hide header to avoid blink
