@@ -24,6 +24,8 @@ import { ReusableBreadcrumComponent } from './components/reusable/reusable-bread
 import { ReusableInputComponent } from './components/reusable/reusable-input/reusable-input.component';
 import { FilterModalComponent } from './components/reusable/filter-modal/filter-modal.component';
 import { HeaderComponent } from './layout/header/header.component';
+import { AssetsByMinistryComponent } from './components/assets/assetsByMinistry/assets-by-ministry.component';
+import { ActiveIncidentsComponent } from './components/incidents/active-incidents/active-incidents.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 import { ApiInterceptor } from './interceptors/api.interceptor';
@@ -39,6 +41,8 @@ import { ApiInterceptor } from './interceptors/api.interceptor';
     ReusableInputComponent,
     FilterModalComponent,
     HeaderComponent,
+    AssetsByMinistryComponent,
+    ActiveIncidentsComponent,
     MinistryDetailComponent,
   ],
   imports: [

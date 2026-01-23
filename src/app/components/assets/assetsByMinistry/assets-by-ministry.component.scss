@@ -1,0 +1,186 @@
+.assets-by-ministry {
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.add-asset-btn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.loading,
+.error,
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #6B7280;
+  font-size: 14px;
+}
+
+.error {
+  color: #EF4444;
+  background-color: #FEE2E2;
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.ministry-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.ministry-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+  }
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.count-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+  margin: 0;
+}
+
+.change-badge {
+  background-color: #D1FAE5;
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+
+  &.increase {
+    background-color: #D1FAE5;
+    color: #10B981;
+  }
+
+  &.decrease {
+    background-color: #FEE2E2;
+    color: #EF4444;
+  }
+
+  .arrow {
+    font-size: 14px;
+    line-height: 1;
+  }
+}
+
+.ministry-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.asset-label {
+  font-size: 14px;
+  color: #6B7280;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.separator {
+  height: 1px;
+  background-color: #E5E7EB;
+  margin-bottom: 16px;
+}
+
+.view-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &:hover {
+      color: var(--color-primary-hover);
+    }
+  }
+
+  .arrow-right {
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .ministry-cards {
+    grid-template-columns: 1fr;
+  }
+}

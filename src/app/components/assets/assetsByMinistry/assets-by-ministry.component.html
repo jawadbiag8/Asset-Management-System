@@ -1,0 +1,48 @@
+<div class="assets-by-ministry">
+  <div class="section-header">
+    <h2 class="section-title">Digital Assets by Ministry</h2>
+    <button class="add-asset-btn" (click)="addDigitalAsset()">
+      + Add Digital Assets
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading ministry assets...
+  </div>
+
+  <div class="error" *ngIf="errorMessage && !loading">
+    {{ errorMessage }}
+  </div>
+
+  <div class="ministry-cards" *ngIf="!loading && !errorMessage">
+    <div class="ministry-card" *ngFor="let ministry of ministries" (click)="viewDetails(ministry.ministryId)">
+      <div class="card-top">
+        <div class="count-number">{{ ministry.assetCount }}</div>
+        <div class="change-badge"
+             *ngIf="ministry.changeCount !== undefined"
+             [class.increase]="ministry.changeType === 'increase'"
+             [class.decrease]="ministry.changeType === 'decrease'">
+          {{ ministry.changeCount > 0 ? '+' : '' }}{{ ministry.changeCount }}
+          <span class="arrow" *ngIf="ministry.changeType === 'increase'">↑</span>
+          <span class="arrow" *ngIf="ministry.changeType === 'decrease'">↓</span>
+        </div>
+      </div>
+      <div class="ministry-name">{{ ministry.ministryName }}</div>
+      <div class="asset-label">Digital Assets</div>
+      <div class="separator"></div>
+      <div class="view-details">
+        <a (click)="viewDetails(ministry.ministryId); $event.stopPropagation()">
+          View Details
+          <span class="arrow-right">></span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-data" *ngIf="!loading && !errorMessage && ministries.length === 0">
+    No ministry assets found.
+  </div>
+
+  <!-- Active Incidents Section -->
+  <app-active-incidents></app-active-incidents>
+</div>

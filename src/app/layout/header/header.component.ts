@@ -11,14 +11,15 @@ import { UtilsService } from '../../services/utils.service';
 })
 export class HeaderComponent {
   menuOpen = false;
+  profileDropdownOpen = false;
+
+  @ViewChild('profileDropdown', { static: false }) profileDropdown!: ElementRef;
+
   constructor(
     private apiService: ApiService,
     private router: Router,
     private utilsService: UtilsService
   ) {}
-  profileDropdownOpen = false;
-
-  @ViewChild('profileDropdown', { static: false }) profileDropdown!: ElementRef;
 
   toggleProfileDropdown() {
     this.profileDropdownOpen = !this.profileDropdownOpen;

@@ -5,6 +5,21 @@ import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcru
 import { ApiResponse, ApiService } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
 
+export interface DigitalAssetRequest {
+  ministryId: number;
+  departmentId: number;
+  assetName: string;
+  assetUrl: string;
+  description: string;
+  citizenImpactLevelId: number;
+  primaryContactName: string;
+  primaryContactEmail: string;
+  primaryContactPhone: string;
+  technicalContactName: string;
+  technicalContactEmail: string;
+  technicalContactPhone: string;
+}
+
 @Component({
   selector: 'app-manage-digital-assets',
   templateUrl: './manage-digital-assets.component.html',
@@ -23,21 +38,16 @@ export class ManageDigitalAssetsComponent implements OnInit {
     subtitle: ''
   });
 
-  digitalAssetForm: FormGroup;
+  digitalAssetForm!: FormGroup;
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Add Digital Assets' }
   ];
 
-  ministryOptions = [{ label: 'Ministry of Health', value: 'Ministry of Health' },
-  { label: 'Ministry of Education', value: 'Ministry of Education' },
-  { label: 'Ministry of Planning, Development & Special Initiatives', value: 'Ministry of Planning, Development & Special Initiatives' },
-  { label: 'Ministry of Finance', value: 'Ministry of Finance' }
-
-  ];
-
-  citizenImpactLevelOptions = [{ label: 'LOW', value: 'LOW' }, { label: 'MEDIUM', value: 'MEDIUM' }, { label: 'HIGH', value: 'HIGH' }];
+  ministryOptions: { label: string, value: number }[] = [];
+  departments: { label: string, value: number }[] = [];
+  citizenImpactLevelOptions: { label: string, value: number }[] = [];
 
 
   // Error messages
@@ -64,45 +74,114 @@ export class ManageDigitalAssetsComponent implements OnInit {
     private fb: FormBuilder,
     private api: ApiService,
     private utils: UtilsService
-  ) {
-    this.digitalAssetForm = this.fb.group({
-      // Basic Information
-      ministry: ['', Validators.required],
-      department: ['', Validators.required],
-      websiteName: ['', Validators.required],
-      url: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
-
-      // Compliance Configuration
-      citizenImpactLevel: ['', Validators.required],
-
-      // Additional Information
-      description: [''],
-      primaryContact: ['', Validators.required],
-      secondaryContact: ['', Validators.required],
-      primaryContactEmail: ['', Validators.required, Validators.email],
-      secondaryContactEmail: ['', Validators.required, Validators.email],
-
-    });
-  }
+  ) { }
 
   ngOnInit() {
+    this.createForm();
+
     this.pageInfo.set({
       pageState: this.route.url === '/add-digital-assets' ? 'add' : 'edit',
       title: this.route.url === '/add-digital-assets' ? 'Add New Digital Asset' : 'Edit Digital Asset',
       subtitle: this.route.url === '/add-digital-assets' ? 'Fill in the details below to add a new digital asset to the monitoring system' : 'Fill in the details below to update existing digital asset to the monitoring system'
     });
+
+    this.digitalAssetForm.get('ministryId')?.valueChanges.subscribe((value: number) => {
+      this.getDepartmentsByMinistry(value);
+    });
+
+    this.getMinistryOptions();
+    this.getCitizenImpactLevelOptions();
   }
 
-  onSubmit() {
-    console.log('Form Before:', this.digitalAssetForm.value);
 
+  createForm() {
+    this.digitalAssetForm = this.fb.group({
+      // Basic Information
+      ministryId: ['', Validators.required],
+      departmentId: [''],
+      assetName: ['', Validators.required],
+      assetUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
+
+      // Compliance Configuration
+      citizenImpactLevelId: ['', Validators.required],
+
+      // Additional Information
+      description: [''],
+      primaryContactName: ['', Validators.required],
+      primaryContactEmail: ['', Validators.required, Validators.email],
+      primaryContactPhone: ['', Validators.required],
+      technicalContactName: ['', Validators.required],
+      technicalContactEmail: ['', Validators.required, Validators.email],
+      technicalContactPhone: ['', Validators.required],
+
+    });
+  }
+
+  getMinistryOptions() {
+    this.api.getAllMinistries().subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful) {
+          this.ministryOptions = res.data.map((ministry: any) => ({ label: ministry.ministryName, value: ministry.id })) || [];
+        } else {
+          this.utils.showToast(res.message, 'Error fetching ministries', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error fetching ministries', 'error');
+      }
+    });
+  }
+
+  getDepartmentsByMinistry(ministryId: number) {
+    this.api.getDepartmentsByMinistry(ministryId).subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful) {
+          this.departments = res.data.map((department: any) => ({ label: department.departmentName, value: department.id })) || [];
+        } else {
+          this.utils.showToast(res.message, 'Error fetching departments', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error fetching departments', 'error');
+      }
+    });
+  }
+
+  getCitizenImpactLevelOptions() {
+    this.api.getLovByType('citizenImpactLevel').subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful) {
+          this.citizenImpactLevelOptions = res.data.map((citizenImpactLevel: any) => ({ label: citizenImpactLevel.name, value: citizenImpactLevel.id })) || [];
+        } else {
+          this.utils.showToast(res.message, 'Error fetching citizen impact levels', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error fetching citizen impact levels', 'error');
+      }
+    });
+  }
+
+
+  onSubmit() {
     if (this.digitalAssetForm.invalid) {
       this.digitalAssetForm.markAllAsTouched();
       return;
     }
 
-    console.log('Form submitted:', this.digitalAssetForm.value);
-    // Handle form submission
+    this.api.addAsset(this.digitalAssetForm.value).subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful) {
+          this.utils.showToast(res.message, 'Asset added successfully', 'success');
+          this.route.navigate(['/dashboard']);
+        } else {
+          this.utils.showToast(res.message, 'Error adding asset', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error adding asset', 'error');
+      }
+    });
   }
 
   // Helper method to get form control
