@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -11,15 +11,18 @@ export interface ApiResponse<T = any> {
   message?: string | null;
 }
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   private baseUrl: string = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<ApiResponse<string>> {
-    return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, { username, password });
+    return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, {
+      username,
+      password,
+    });
   }
 
   logout(): Observable<ApiResponse<any>> {
@@ -31,23 +34,27 @@ export class ApiService {
   }
 
   getDepartmentsByMinistry(ministryId: number): Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.baseUrl}/Department/ministry/${ministryId}`);
+    return this.http.get<ApiResponse>(
+      `${this.baseUrl}/Department/ministry/${ministryId}`,
+    );
   }
 
   getLovByType(lovType: 'citizenImpactLevel'): Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.baseUrl}/CommonLookup/type/${lovType}`);
+    return this.http.get<ApiResponse>(
+      `${this.baseUrl}/CommonLookup/type/${lovType}`,
+    );
   }
 
-  // Assets 
+  // Assets
 
-  getAssets(): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/Asset`);
+  // Assets
+
+  getAssets(searchQuery?: HttpParams): Observable<ApiResponse<any>> {
+    let url = `${this.baseUrl}/Asset`;
+    return this.http.get<ApiResponse<any>>(url, { params: searchQuery });
   }
 
   addAsset(asset: DigitalAssetRequest): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Asset`, asset);
   }
-
-
-
 }

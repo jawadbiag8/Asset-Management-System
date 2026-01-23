@@ -1,0 +1,45 @@
+@if (isOpen) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Filter Options</h2>
+        <button class="close-button" (click)="onClose()" type="button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        @for (filter of filters; track filter.id) {
+          @if (filter.options) {
+            <div class="filter-category">
+              <h3 class="category-title">{{ filter.label.split(':')[0] }}</h3>
+              <div class="options-grid">
+                @for (option of filter.options; track option.value) {
+                  <label class="option-radio">
+                    <input
+                      type="radio"
+                      [name]="filter.id"
+                      [value]="option.value"
+                      [checked]="isSelected(filter.id, option.value)"
+                      (change)="selectOption(filter.id, option.value)"
+                    />
+                    <span class="radio-label">{{ option.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-reset" (click)="onReset()" type="button">
+          Reset
+        </button>
+        <button class="btn-apply" (click)="onApply()" type="button">
+          Apply Filters
+        </button>
+      </div>
+    </div>
+  </div>
+}

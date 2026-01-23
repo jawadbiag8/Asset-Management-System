@@ -22,6 +22,7 @@ import { ReusableTableComponent } from './components/reusable/reusable-table/reu
 import { ManageDigitalAssetsComponent } from './components/manage-digital-assets/manage-digital-assets.component';
 import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ReusableInputComponent } from './components/reusable/reusable-input/reusable-input.component';
+import { FilterModalComponent } from './components/reusable/filter-modal/filter-modal.component';
 import { HeaderComponent } from './layout/header/header.component';
 import { AssetsByMinistryComponent } from './components/assets/assetsByMinistry/assets-by-ministry.component';
 import { ActiveIncidentsComponent } from './components/incidents/active-incidents/active-incidents.component';
@@ -38,6 +39,7 @@ import { ApiInterceptor } from './interceptors/api.interceptor';
     ManageDigitalAssetsComponent,
     ReusableBreadcrumComponent,
     ReusableInputComponent,
+    FilterModalComponent,
     HeaderComponent,
     AssetsByMinistryComponent,
     ActiveIncidentsComponent,

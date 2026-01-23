@@ -6,6 +6,7 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   TableConfig,
   TableColumn,
@@ -42,6 +43,8 @@ export class MinistryDetailComponent implements AfterViewInit {
   searchValue = signal<string>('');
   tableFilters = signal<FilterPill[]>([]);
   @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
+
+  constructor(private router: Router) {}
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
@@ -203,14 +206,14 @@ export class MinistryDetailComponent implements AfterViewInit {
     // Add your filter removal logic here
   }
 
-  onFilterClick(filterId: string) {
+  onFilterClick(filterId: string | any) {
     // Add your filter dropdown logic here
     console.log('Filter clicked:', filterId);
   }
 
   onAddAsset() {
-    // Add your logic to add new digital asset
-    console.log('Add Digital Asset clicked');
+    // Navigate to add digital assets page
+    this.router.navigate(['/add-digital-assets']);
   }
 
   ngAfterViewInit() {
