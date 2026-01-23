@@ -1,4 +1,5 @@
-@import './styles/theme';
+@use './styles/_theme' as *;
+
 /* Color Variables */
 :root {
   /* Primary Colors */

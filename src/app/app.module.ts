@@ -22,6 +22,7 @@ import { ReusableTableComponent } from './components/reusable/reusable-table/reu
 import { ManageDigitalAssetsComponent } from './components/manage-digital-assets/manage-digital-assets.component';
 import { ReusableBreadcrumComponent } from './components/reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ReusableInputComponent } from './components/reusable/reusable-input/reusable-input.component';
+import { FilterModalComponent } from './components/reusable/filter-modal/filter-modal.component';
 import { HeaderComponent } from './layout/header/header.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
@@ -36,6 +37,7 @@ import { ApiInterceptor } from './interceptors/api.interceptor';
     ManageDigitalAssetsComponent,
     ReusableBreadcrumComponent,
     ReusableInputComponent,
+    FilterModalComponent,
     HeaderComponent,
     MinistryDetailComponent,
   ],

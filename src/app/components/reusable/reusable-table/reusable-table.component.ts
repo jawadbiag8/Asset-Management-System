@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { HttpParams } from '@angular/common/http';
 
 /**
  * Reusable Table Component
@@ -63,12 +64,18 @@ export interface TableColumn {
   textColor?: string; // Color class name (e.g., 'success', 'success-light')
 }
 
-export interface FilterPill {
-  id: string;
+export interface FilterOption {
   label: string;
   value: string;
-  type: 'selected' | 'dropdown';
+}
+
+export interface FilterPill {
+  id: string;
+  label: string; // Display label (e.g., "Ministry: Health")
+  value: string; // Current selected value
   removable?: boolean;
+  options?: FilterOption[]; // Available options for this filter
+  paramKey?: string; // API parameter key (e.g., "ministry", "status")
 }
 
 export interface TableConfig {
@@ -77,6 +84,11 @@ export interface TableConfig {
   minWidth?: string; // Minimum table width (default: '1400px')
   // Search configuration
   searchPlaceholder?: string; // Placeholder text for search input
+  serverSideSearch?: boolean; // Enable server-side search (default: false)
+  searchDebounceTime?: number; // Debounce time in milliseconds (default: 500)
+  // Pagination configuration
+  defaultPage?: number; // Default page number (default: 1)
+  defaultPageSize?: number; // Default page size (default: 10)
   // Filter configuration
   filters?: FilterPill[]; // Array of filter pills to display
 }
@@ -92,15 +104,20 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   @Input() searchValue: string = ''; // Search value controlled from parent
   @Input() filters: FilterPill[] = []; // Filters controlled from parent
   
-  @Output() searchChange = new EventEmitter<string>(); // Emit search value changes
+  @Output() searchChange = new EventEmitter<string>(); // Emit search value changes (for client-side)
+  @Output() searchQuery = new EventEmitter<HttpParams>(); // Emit search query parameter as HttpParams (for server-side)
   @Output() filterRemove = new EventEmitter<string>(); // Emit when filter is removed
-  @Output() filterClick = new EventEmitter<string>(); // Emit when filter is clicked
+  @Output() filterClick = new EventEmitter<FilterPill>(); // Emit when filter is clicked with filter object
+  @Output() filterApply = new EventEmitter<{ filterId: string; selectedValues: string[] }[]>(); // Emit when filters are applied (all at once)
   
   displayedColumns: string[] = [];
   sortState: { [key: string]: 'asc' | 'desc' | null } = {};
   sortedData: any[] = [];
   filteredData: any[] = [];
   private originalData: any[] = [];
+  
+  // Filter modal state
+  isFilterModalOpen = false;
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -113,25 +130,64 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     // Initialize data
     this.originalData = [...(this.config?.data || [])];
     this.sortedData = [...this.originalData];
-    this.applySearch();
+    
+    // For server-side search, emit initial query with page and pageSize
+    if (this.config?.serverSideSearch) {
+      this.emitSearchQuery();
+    } else {
+      // For client-side search, apply search immediately
+      this.applySearch();
+    }
   }
+
 
   ngOnChanges(changes: SimpleChanges) {
     // Update data when config changes
     if (changes['config'] && this.config?.data) {
       this.originalData = [...this.config.data];
       this.sortedData = [...this.originalData];
-      // Reapply search
-      this.applySearch();
-      // Reapply current sort if any
-      const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
-      if (activeSort) {
-        this.applySort(activeSort, this.sortState[activeSort]!);
+      // Reapply search only if client-side
+      if (!this.config?.serverSideSearch) {
+        this.applySearch();
+        // Reapply current sort if any
+        const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+        if (activeSort) {
+          this.applySort(activeSort, this.sortState[activeSort]!);
+        }
       }
     }
     
     // Update when search value changes
     if (changes['searchValue']) {
+      // For server-side search, don't trigger search automatically - only on button click
+      // For client-side search, apply search immediately
+      if (!this.config?.serverSideSearch) {
+        this.applySearch();
+        // Reapply current sort if any
+        const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+        if (activeSort) {
+          this.applySort(activeSort, this.sortState[activeSort]!);
+        }
+      }
+    }
+    
+    // When filters change and server-side search is enabled, emit query with updated filters
+    if (changes['filters'] && this.config?.serverSideSearch && !changes['filters'].firstChange) {
+      // Use setTimeout to ensure filters are fully updated in parent component
+      setTimeout(() => {
+        this.emitSearchQuery();
+      }, 0);
+    }
+  }
+
+  onSearchChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    // Emit value change for parent component state management
+    this.searchChange.emit(value);
+    
+    // For client-side search, apply immediately
+    // For server-side search, don't trigger search - only on button click
+    if (!this.config?.serverSideSearch) {
       this.applySearch();
       // Reapply current sort if any
       const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
@@ -141,16 +197,43 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     }
   }
 
-  onSearchChange(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchChange.emit(value);
-    // Apply search immediately
-    this.applySearch();
-    // Reapply current sort if any
-    const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
-    if (activeSort) {
-      this.applySort(activeSort, this.sortState[activeSort]!);
+  onSearchButtonClick() {
+    if (this.config?.serverSideSearch) {
+      // For server-side search, emit query with params
+      this.emitSearchQuery();
+    } else {
+      // Client-side search - apply search
+      this.applySearch();
+      // Reapply current sort if any
+      const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+      if (activeSort) {
+        this.applySort(activeSort, this.sortState[activeSort]!);
+      }
     }
+  }
+
+  private emitSearchQuery() {
+    // Build HttpParams with page, pageSize, search, and filters
+    const page = this.config?.defaultPage || 1;
+    const pageSize = this.config?.defaultPageSize || 10;
+    const searchValue = this.searchValue?.trim() || '';
+    
+    let httpParams = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+    
+    if (searchValue) {
+      httpParams = httpParams.set('search', searchValue);
+    }
+    
+    // Add filter parameters
+    this.filters.forEach(filter => {
+      if (filter.paramKey && filter.value && filter.value !== 'All') {
+        httpParams = httpParams.set(filter.paramKey, filter.value);
+      }
+    });
+    
+    this.searchQuery.emit(httpParams);
   }
 
   private applySearch() {
@@ -195,10 +278,35 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
   onFilterRemove(filterId: string) {
     this.filterRemove.emit(filterId);
+    // Don't emit here - let parent update filters first, then filters change will trigger emitSearchQuery via ngOnChanges
   }
 
-  onFilterClick(filterId: string) {
-    this.filterClick.emit(filterId);
+  onFilterClick(filter: FilterPill) {
+    // Open modal with all filters
+    this.isFilterModalOpen = true;
+    this.filterClick.emit(filter);
+  }
+
+  onFilterApply(filterChanges: { filterId: string; selectedValues: string[] }[]) {
+    // Emit all filter changes at once
+    this.filterApply.emit(filterChanges);
+    this.isFilterModalOpen = false;
+    // Don't emit here - let parent update filters first, then parent will trigger API call
+  }
+
+  onFilterModalClose() {
+    this.isFilterModalOpen = false;
+  }
+
+  onFilterReset() {
+    // Reset all filters to "All"
+    const resetChanges = this.filters.map(filter => ({
+      filterId: filter.id,
+      selectedValues: ['All']
+    }));
+    this.filterApply.emit(resetChanges);
+    this.isFilterModalOpen = false;
+    // Don't emit here - let parent update filters first, then parent will trigger API call
   }
 
   onSort(columnKey: string) {

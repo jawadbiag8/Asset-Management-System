@@ -6,7 +6,7 @@
             @if(filters.length > 0) {
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 @for(filter of filters; track filter.id) {
-                    @if(filter.type === 'selected') {
+                    @if(filter.value && filter.value !== 'All') {
                         <span class="filter-pill filter-pill-selected" (click)="filter.removable && onFilterRemove(filter.id)">
                             {{ filter.label }}
                             @if(filter.removable) {
@@ -14,7 +14,7 @@
                             }
                         </span>
                     } @else {
-                        <span class="filter-pill filter-pill-dropdown" (click)="onFilterClick(filter.id)">
+                        <span class="filter-pill filter-pill-dropdown" (click)="onFilterClick(filter)">
                             {{ filter.label }}
                             <mat-icon class="filter-dropdown-icon">keyboard_arrow_down</mat-icon>
                         </span>
@@ -32,7 +32,11 @@
                     class="search-input" 
                     [placeholder]="config.searchPlaceholder"
                     [value]="searchValue"
-                    (input)="onSearchChange($event)">
+                    (input)="onSearchChange($event)"
+                    (keyup.enter)="onSearchButtonClick()">
+                <button class="search-button" (click)="onSearchButtonClick()" type="button">
+                    <mat-icon>search</mat-icon>
+                </button>
             </div>
             }
         </div>
@@ -121,4 +125,14 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+</div>
+
+    <!-- Filter Modal -->
+    <app-filter-modal
+        [filters]="filters"
+        [isOpen]="isFilterModalOpen"
+        (close)="onFilterModalClose()"
+        (apply)="onFilterApply($event)"
+        (reset)="onFilterReset()">
+    </app-filter-modal>
 </div>

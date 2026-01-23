@@ -1,5 +1,11 @@
-import { Component, signal, computed } from '@angular/core';
-import { TableConfig, TableColumn, FilterPill } from '../reusable/reusable-table/reusable-table.component';
+import { Component, signal, computed, OnInit } from '@angular/core';
+import {
+  TableConfig,
+  TableColumn,
+  FilterPill,
+} from '../reusable/reusable-table/reusable-table.component';
+import { ApiService } from '../../services/api.service';
+import { HttpParams } from '@angular/common/http';
 
 export interface DigitalAsset {
   id: number;
@@ -27,7 +33,8 @@ export interface DigitalAsset {
   styleUrl: './dashboard.component.scss',
   standalone: false,
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
+  constructor(private apiService: ApiService) {}
 
   searchValue = signal<string>('');
   tableFilters = signal<FilterPill[]>([
@@ -35,32 +42,59 @@ export class DashboardComponent {
       id: 'ministry',
       label: 'Ministry: Health',
       value: 'Health',
-      type: 'selected',
-      removable: true
+      removable: true,
+      paramKey: 'ministry',
+      options: [
+        { label: 'All', value: 'All' },
+        { label: 'Finance', value: 'Finance' },
+        { label: 'Transport', value: 'Transport' },
+        { label: 'Health', value: 'Health' },
+        { label: 'Education', value: 'Education' },
+        { label: 'Housing', value: 'Housing' },
+      ],
     },
     {
       id: 'status',
       label: 'Status: All',
       value: 'All',
-      type: 'dropdown'
+      paramKey: 'status',
+      options: [
+        { label: 'All', value: 'All' },
+        { label: 'Offline', value: 'Offline' },
+        { label: 'Online', value: 'Online' },
+      ],
     },
     {
       id: 'riskRating',
       label: 'Risk Rating: All',
       value: 'All',
-      type: 'dropdown'
+      paramKey: 'riskRating',
+      options: [
+        { label: 'All', value: 'All' },
+        { label: 'Amber', value: 'Amber' },
+        { label: 'Green', value: 'Green' },
+        { label: 'Red', value: 'Red' },
+      ],
     },
     {
       id: 'incidents',
       label: 'Incidents: All',
       value: 'All',
-      type: 'dropdown'
-    }
+      paramKey: 'incidents',
+      options: [
+        { label: 'All', value: 'All' },
+        { label: 'P3', value: 'P3' },
+        { label: 'P2', value: 'P2' },
+        { label: 'None', value: 'None' },
+      ],
+    },
   ]);
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
     searchPlaceholder: 'Search assets',
+    serverSideSearch: true, // Enable server-side search
+    defaultPageSize: 10, // Default page size
     columns: [
       {
         key: 'analyze',
@@ -69,7 +103,7 @@ export class DashboardComponent {
         iconName: 'bar_chart',
         iconColor: 'var(--color-blue-dark)',
         iconBgColor: 'var(--color-blue-light)',
-        sortable: true
+        sortable: true,
       },
       {
         key: 'ministryDepartment',
@@ -77,7 +111,7 @@ export class DashboardComponent {
         cellType: 'two-line',
         primaryField: 'ministry',
         secondaryField: 'department',
-        sortable: true
+        sortable: true,
       },
       {
         key: 'websiteApplication',
@@ -85,7 +119,7 @@ export class DashboardComponent {
         cellType: 'link',
         primaryField: 'websiteName',
         linkField: 'websiteUrl',
-        sortable: true
+        sortable: true,
       },
       {
         key: 'currentHealth',
@@ -93,7 +127,7 @@ export class DashboardComponent {
         cellType: 'two-line',
         primaryField: 'currentHealthStatus',
         secondaryField: 'currentHealthPercentage',
-        sortable: true
+        sortable: true,
       },
       {
         key: 'lastOutage',
@@ -101,7 +135,7 @@ export class DashboardComponent {
         cellType: 'two-line',
         primaryField: 'lastOutageStatus',
         secondaryField: 'lastOutageUpdated',
-        sortable: true
+        sortable: true,
       },
       {
         key: 'performanceSla',
@@ -111,7 +145,7 @@ export class DashboardComponent {
         subtextField: 'performanceSlaPercentage',
         badgeColor: 'var(--color-green-light)',
         badgeTextColor: 'var(--color-green-dark)',
-        sortable: true
+        sortable: true,
       },
       {
         key: 'complianceStatus',
@@ -120,7 +154,7 @@ export class DashboardComponent {
         primaryField: 'complianceStatus',
         secondaryField: 'compliancePercentage',
         textColor: 'success',
-        sortable: true
+        sortable: true,
       },
       {
         key: 'contentFreshness',
@@ -128,7 +162,7 @@ export class DashboardComponent {
         cellType: 'two-line',
         primaryField: 'contentFreshnessStatus',
         secondaryField: 'contentFreshnessUpdated',
-        sortable: true
+        sortable: true,
       },
       {
         key: 'citizenImpactLevel',
@@ -138,10 +172,10 @@ export class DashboardComponent {
         subtextField: 'satisfaction',
         badgeColor: 'var(--color-green-light)',
         badgeTextColor: 'var(--color-green-dark)',
-        sortable: true
-      }
+        sortable: true,
+      },
     ],
-    data: []
+    data: [],
   });
 
   digitalAssets = signal<DigitalAsset[]>([
@@ -162,7 +196,7 @@ export class DashboardComponent {
       contentFreshnessStatus: 'Never',
       contentFreshnessUpdated: 'Last Updated',
       citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A'
+      satisfaction: 'Satisfaction: N/A',
     },
     {
       id: 2,
@@ -181,7 +215,7 @@ export class DashboardComponent {
       contentFreshnessStatus: 'Never',
       contentFreshnessUpdated: 'Last Updated',
       citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A'
+      satisfaction: 'Satisfaction: N/A',
     },
     {
       id: 3,
@@ -200,7 +234,7 @@ export class DashboardComponent {
       contentFreshnessStatus: 'Never',
       contentFreshnessUpdated: 'Last Updated',
       citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A'
+      satisfaction: 'Satisfaction: N/A',
     },
     {
       id: 4,
@@ -219,7 +253,7 @@ export class DashboardComponent {
       contentFreshnessStatus: 'Never',
       contentFreshnessUpdated: 'Last Updated',
       citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A'
+      satisfaction: 'Satisfaction: N/A',
     },
     {
       id: 5,
@@ -238,17 +272,17 @@ export class DashboardComponent {
       contentFreshnessStatus: 'Never',
       contentFreshnessUpdated: 'Last Updated',
       citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A'
-    }
+      satisfaction: 'Satisfaction: N/A',
+    },
   ]);
 
   // Computed signal to keep table config in sync with data
   tableConfigWithData = computed<TableConfig>(() => ({
     ...this.tableConfig(),
-    data: this.digitalAssets()
+    data: this.digitalAssets(),
   }));
 
-  dashboardKpis = signal<{isVisible: boolean, data: any[]}>({
+  dashboardKpis = signal<{ isVisible: boolean; data: any[] }>({
     isVisible: true,
     data: [
       {
@@ -258,7 +292,7 @@ export class DashboardComponent {
         value: '247',
         subValue: '+12',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month'
+        subValueText: '+12 Assets from last month',
       },
       {
         id: 2,
@@ -267,7 +301,7 @@ export class DashboardComponent {
         value: '247',
         subValue: '+12',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month'
+        subValueText: '+12 Assets from last month',
       },
       {
         id: 3,
@@ -276,7 +310,7 @@ export class DashboardComponent {
         value: '247',
         subValue: '+12',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month'
+        subValueText: '+12 Assets from last month',
       },
       {
         id: 4,
@@ -285,7 +319,7 @@ export class DashboardComponent {
         value: '247',
         subValue: '+12',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month'
+        subValueText: '+12 Assets from last month',
       },
       {
         id: 5,
@@ -294,7 +328,7 @@ export class DashboardComponent {
         value: '247',
         subValue: '+12',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month'
+        subValueText: '+12 Assets from last month',
       },
       {
         id: 6,
@@ -303,7 +337,7 @@ export class DashboardComponent {
         value: '247',
         subValue: '+12',
         subValueColor: 'not-success',
-        subValueText: '+12 Assets from last month'
+        subValueText: '+12 Assets from last month',
       },
       {
         id: 7,
@@ -312,33 +346,98 @@ export class DashboardComponent {
         value: '247',
         subValue: '+12',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month'
-      }
-    ]
+        subValueText: '+12 Assets from last month',
+      },
+    ],
   });
+
+  ngOnInit() {
+    // Initial data will be loaded by table component on init
+  }
+
+  loadAssets(searchParams: HttpParams) {
+    this.apiService.getAssets(searchParams).subscribe({
+      next: (response) => {
+        if (response.isSuccessful && response.data) {
+          this.digitalAssets.set(response.data);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading assets:', error);
+      },
+    });
+  }
 
   onSearchChange(value: string) {
     this.searchValue.set(value);
-    // Add your search filtering logic here
+    // Server-side search is handled by searchQuery event
+  }
+
+  onSearchQuery(searchParams: HttpParams) {
+    // This is called when search button is clicked
+    this.loadAssets(searchParams);
   }
 
   onFilterRemove(filterId: string) {
-    this.tableFilters.update(filters =>
-      filters.filter(f => f.id !== filterId)
+    // Reset filter to "All" instead of removing it
+    this.tableFilters.update((filters) =>
+      filters.map((filter) => {
+        if (filter.id === filterId) {
+          return {
+            ...filter,
+            value: 'All',
+            label: `${filter.label.split(':')[0]}: All`,
+            removable: false,
+          };
+        }
+        return filter;
+      }),
     );
-    // Add your filter removal logic here
+    // API call will be triggered automatically by reusable-table's ngOnChanges when filters update
   }
 
-  onFilterClick(filterId: string) {
-    // Add your filter dropdown logic here
-    console.log('Filter clicked:', filterId);
+  onFilterClick(filter: FilterPill) {
+    // Modal will be opened by reusable table component
+    // This is just for any additional logic if needed
+  }
+
+  onFilterApply(filterChanges: { filterId: string; selectedValues: string[] }[]) {
+    // Update all filters at once based on changes
+    this.tableFilters.update((filters) =>
+      filters.map((filter) => {
+        const change = filterChanges.find(c => c.filterId === filter.id);
+        if (change) {
+          const selectedValue = change.selectedValues[0] || 'All';
+          const isAll = selectedValue === 'All';
+
+          // Build label based on selected value
+          let labelText = filter.label.split(':')[0];
+          if (isAll) {
+            labelText += ': All';
+          } else {
+            const option = filter.options?.find(
+              (opt) => opt.value === selectedValue,
+            );
+            labelText += `: ${option?.label || selectedValue}`;
+          }
+
+          return {
+            ...filter,
+            value: selectedValue,
+            label: labelText,
+            removable: !isAll,
+          };
+        }
+        return filter;
+      }),
+    );
+    // API call will be triggered automatically by reusable-table's ngOnChanges when filters update
   }
 
   onGridIconClick() {
-    this.dashboardKpis.update(kpis => ({
+    this.dashboardKpis.update((kpis) => ({
       ...kpis,
-      isVisible: !kpis.isVisible
+      isVisible: !kpis.isVisible,
     }));
   }
-
 }
