@@ -36,7 +36,7 @@ export class ActiveIncidentsComponent implements OnInit {
     // Simulate API call delay
     setTimeout(() => {
       this.apiService.get<ActiveIncident[]>('Incident', { Status: 'Active' }).subscribe({
-        next: (response) => {
+        next: (response: ActiveIncident[]) => {
           this.loading = false;
           if (Array.isArray(response) && response.length > 0) {
             this.incidents = response;
@@ -45,7 +45,7 @@ export class ActiveIncidentsComponent implements OnInit {
             this.incidents = [];
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           this.loading = false;
           console.error('Error loading active incidents:', error);
           // Load empty state on error

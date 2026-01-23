@@ -33,7 +33,7 @@ export class AssetsByMinistryComponent implements OnInit {
     // Simulate API call delay
     setTimeout(() => {
       this.apiService.get<MinistryAsset[]>('Asset/ministry').subscribe({
-        next: (response) => {
+        next: (response: MinistryAsset[]) => {
           this.loading = false;
           if (Array.isArray(response) && response.length > 0) {
             this.ministries = response;
@@ -42,7 +42,7 @@ export class AssetsByMinistryComponent implements OnInit {
             this.loadDummyData();
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           this.loading = false;
           console.error('Error loading ministry assets:', error);
           // Load dummy data on error
