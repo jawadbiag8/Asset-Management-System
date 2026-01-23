@@ -96,11 +96,27 @@ hr {
   opacity: 1;
 }
 
-/* Import custom Material theme */
-@import './styles/theme';
-
 /* You can add global styles to this file, and also import other style files */
 html,
 body {
   height: 100%;
+}
+
+/* Custom Toast Styles */
+::ng-deep {
+  .toast-success {
+    background-color: var(--color-green) !important;
+  }
+
+  .toast-error {
+    background-color: var(--color-red) !important;
+  }
+
+  .toast-info {
+    background-color: var(--color-blue) !important;
+  }
+
+  .toast-warning {
+    background-color: #F59E0B !important;
+  }
 }
