@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../../../services/api.service';
+import { ApiResponse, ApiService } from '../../../services/api.service';
 
 export interface ActiveIncident {
   id: string;
@@ -35,8 +35,8 @@ export class ActiveIncidentsComponent implements OnInit {
 
     // Simulate API call delay
     setTimeout(() => {
-      this.apiService.get<ActiveIncident[]>('Incident', { Status: 'Active' }).subscribe({
-        next: (response: ActiveIncident[]) => {
+      this.apiService.getAssets().subscribe({
+        next: (response: ApiResponse<ActiveIncident[]>) => {
           this.loading = false;
           if (Array.isArray(response) && response.length > 0) {
             this.incidents = response;
