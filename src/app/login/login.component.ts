@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +30,8 @@ export class LoginComponent {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
@@ -49,17 +51,46 @@ export class LoginComponent {
       return;
     }
 
-    // TODO: Implement actual authentication logic
     const { username, password } = this.loginForm.value;
 
-    // Placeholder authentication - replace with actual service call
-    console.log('Login attempt:', { username, password });
+    // Call login API
+    this.apiService.post<any>('Auth/login', {
+      username: username,
+      password: password
+    }).subscribe({
+      next: (response) => {
+        // Handle successful login
+        // ApiService extracts data from response, so response is directly the token string
+        // API response structure: { isSuccessful: true, data: "token_string" }
+        // After ApiService mapping, response = "token_string"
 
-    // Simulate successful login
-    // this.router.navigate(['/dashboard']);
+        let token: string | null = null;
 
-    // For now, just show a message
-    alert('Login functionality will be implemented with authentication service');
+        if (typeof response === 'string' && response.length > 0) {
+          // Response is directly the token string (most common case)
+          token = response;
+        } else if (response && typeof response === 'object') {
+          // Fallback: if response is still an object, check for token
+          token = response.token || response.data || null;
+        }
+
+        if (token) {
+          // Store token
+          this.apiService.setAuthToken(token);
+
+          // Navigate to dashboard
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.errorMessage = 'Invalid response from server';
+          console.error('Login response:', response);
+        }
+      },
+      error: (error) => {
+        // Handle error
+        this.errorMessage = error.message || 'Login failed. Please check your credentials.';
+        console.error('Login error:', error);
+      }
+    });
   }
 
   togglePasswordVisibility() {

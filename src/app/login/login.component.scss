@@ -68,7 +68,7 @@
   }
 
   .login-title {
-    color: #0D9488;
+    color: var(--color-primary);
     font-weight: 700;
     font-size: 18px;
     letter-spacing: 1.2px;
@@ -148,7 +148,7 @@
       }
 
       &.mat-focused .mat-mdc-form-field-outline-thick {
-        color: #0D9488;
+        color: var(--color-primary);
         border-radius: 8px;
       }
 
@@ -163,7 +163,7 @@
     }
 
     .mat-mdc-form-field.mat-focused .mat-mdc-form-field-label {
-      color: #0D9488;
+      color: var(--color-primary);
     }
 
     .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-label {
@@ -215,7 +215,7 @@
     font-size: 16px;
     font-weight: 600;
     border-radius: 6px;
-    background-color: #0D9488;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     cursor: pointer;
@@ -223,7 +223,7 @@
     margin-top: 8px;
 
     &:hover:not(:disabled) {
-      background-color: #0F766E;
+      background-color: var(--color-primary-hover);
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
     }
@@ -235,7 +235,7 @@
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      background-color: #0D9488;
+      background-color: var(--color-primary);
     }
   }
 }
