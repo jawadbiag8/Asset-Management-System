@@ -6,7 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { ApiService } from '../services/api.service';
+import { ApiService, ApiResponse } from '../services/api.service';
+import { UtilsService } from '../services/utils.service';
 
 @Component({
   selector: 'app-login',
@@ -31,7 +32,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private utilsService: UtilsService
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
@@ -54,34 +56,26 @@ export class LoginComponent {
     const { username, password } = this.loginForm.value;
 
     // Call login API
-    this.apiService.post<any>('Auth/login', {
-      username: username,
-      password: password
-    }).subscribe({
-      next: (response) => {
+    this.apiService.login(username, password).subscribe({
+      next: (response: ApiResponse<string>) => {
         // Handle successful login
-        // ApiService extracts data from response, so response is directly the token string
-        // API response structure: { isSuccessful: true, data: "token_string" }
-        // After ApiService mapping, response = "token_string"
-
-        let token: string | null = null;
-
-        if (typeof response === 'string' && response.length > 0) {
-          // Response is directly the token string (most common case)
-          token = response;
-        } else if (response && typeof response === 'object') {
-          // Fallback: if response is still an object, check for token
-          token = response.token || response.data || null;
-        }
-
-        if (token) {
-          // Store token
-          this.apiService.setAuthToken(token);
-
+        if (response.isSuccessful && response.data) {
+          const token = response.data;
+          
+          // Store token using UtilsService
+          this.utilsService.setStorage('token', token);
+          
+          // Store user data
+          const userData = {
+            username: username,
+            loginTime: new Date().toISOString()
+          };
+          this.utilsService.setStorage('user', userData);
+          
           // Navigate to dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          this.errorMessage = 'Invalid response from server';
+          this.errorMessage = response.message || 'Login failed. Please check your credentials.';
           console.error('Login response:', response);
         }
       },

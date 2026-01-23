@@ -2,6 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
+import { ApiResponse, ApiService } from '../../services/api.service';
+import { UtilsService } from '../../services/utils.service';
 
 @Component({
   selector: 'app-manage-digital-assets',
@@ -59,7 +61,9 @@ export class ManageDigitalAssetsComponent implements OnInit {
 
   constructor(
     private route: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private api: ApiService,
+    private utils: UtilsService
   ) {
     this.digitalAssetForm = this.fb.group({
       // Basic Information

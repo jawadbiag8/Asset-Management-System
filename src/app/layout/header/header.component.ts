@@ -1,6 +1,7 @@
 import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { UtilsService } from '../../services/utils.service';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +14,7 @@ export class HeaderComponent {
   constructor(
     private apiService: ApiService,
     private router: Router,
+    private utilsService: UtilsService
   ) {}
   profileDropdownOpen = false;
 
@@ -42,10 +44,10 @@ export class HeaderComponent {
     this.closeProfileDropdown();
 
     // Call logout API
-    this.apiService.post('Auth/logout', {}).subscribe({
+    this.apiService.logout().subscribe({
       next: () => {
         // Clear token and user data
-        this.apiService.removeAuthToken();
+        this.utilsService.clearStorage();
 
         // Close mobile menu if open
         this.menuOpen = false;
@@ -53,10 +55,10 @@ export class HeaderComponent {
         // Redirect to login
         this.router.navigate(['/login']);
       },
-      error: (error) => {
+      error: (error: any) => {
         // Even if API call fails, clear local data and logout
         console.error('Logout error:', error);
-        this.apiService.removeAuthToken();
+        this.utilsService.clearStorage();
         this.menuOpen = false;
         this.router.navigate(['/login']);
       },
