@@ -1,0 +1,30 @@
+<mat-form-field appearance="outline" class="full-width">
+    <mat-label>
+        {{ mergedConfig.label }}
+    </mat-label>
+
+    @if(mergedConfig.type === 'select') {
+    <mat-select [formControl]="control">
+        @if(!mergedConfig.required) {
+        <mat-option value="">Select {{ mergedConfig.label }}</mat-option>
+        }
+        @for(option of mergedConfig.options; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+    </mat-select>
+    } @else if(mergedConfig.type === 'textarea') {
+    <textarea matInput [formControl]="control" [placeholder]="mergedConfig.placeholder || ''"
+        [rows]="mergedConfig.rows || 3"></textarea>
+    } @else {
+    <input matInput [type]="mergedConfig.type || 'text'" [formControl]="control"
+        [placeholder]="mergedConfig.placeholder || ''">
+    }
+
+    @if(mergedConfig.hint && !hasError()) {
+    <mat-hint>{{ mergedConfig.hint }}</mat-hint>
+    }
+
+    @if(hasError()) {
+    <mat-error>{{ getErrorMessage() }}</mat-error>
+    }
+</mat-form-field>

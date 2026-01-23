@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-manage-digital-assets',
@@ -16,38 +16,62 @@ export class ManageDigitalAssetsComponent implements OnInit {
     subtitle: string;
   }>({
     pageState: null,
-    title: 'Manage Digital Assets',
-    subtitle: 'Manage your digital assets'
+    title: '',
+    subtitle: ''
   });
 
   digitalAssetForm: FormGroup;
 
-  ministries = [
-    'Ministry of Health',
-    'Ministry of Education',
-    'Ministry of Planning, Development & Special Initiatives',
-    'Ministry of Finance'
+  ministryOptions = [{ label: 'Ministry of Health', value: 'Ministry of Health' },
+  { label: 'Ministry of Education', value: 'Ministry of Education' },
+  { label: 'Ministry of Planning, Development & Special Initiatives', value: 'Ministry of Planning, Development & Special Initiatives' },
+  { label: 'Ministry of Finance', value: 'Ministry of Finance' }
+
   ];
 
-  monitoringFrequencies = [
-    'Every 1 minute',
-    'Every 5 minutes',
-    'Every 15 minutes',
-    'Every 30 minutes',
-    'Every 1 hour'
-  ];
+  citizenImpactLevelOptions = [{ label: 'LOW', value: 'LOW' }, { label: 'MEDIUM', value: 'MEDIUM' }, { label: 'HIGH', value: 'HIGH' }];
+
+
+  // Error messages
+  urlErrorMessages = {
+    pattern: 'Please enter a valid URL starting with http:// or https://'
+  };
+
+  performanceSlaTargetErrorMessages = {
+    min: 'Please enter a value between 0 and 100',
+    max: 'Please enter a value between 0 and 100'
+  };
+
+  complianceTargetErrorMessages = {
+    min: 'Please enter a value between 0 and 100',
+    max: 'Please enter a value between 0 and 100'
+  };
+
+  contentFreshnessThresholdErrorMessages = {
+    min: 'Please enter a value greater than 0'
+  };
 
   constructor(
     private route: Router,
     private fb: FormBuilder
   ) {
     this.digitalAssetForm = this.fb.group({
+      // Basic Information
       ministry: ['', Validators.required],
       department: ['', Validators.required],
       websiteName: ['', Validators.required],
       url: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
-      performanceSlaTarget: ['99', [Validators.required, Validators.min(0), Validators.max(100)]],
-      monitoringFrequency: ['Every 5 minutes', Validators.required]
+
+      // Compliance Configuration
+      citizenImpactLevel: ['', Validators.required],
+
+      // Additional Information
+      description: [''],
+      primaryContact: ['', Validators.required],
+      secondaryContact: ['', Validators.required],
+      primaryContactEmail: ['', Validators.required, Validators.email],
+      secondaryContactEmail: ['', Validators.required, Validators.email],
+
     });
   }
 
@@ -60,12 +84,20 @@ export class ManageDigitalAssetsComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.digitalAssetForm.valid) {
-      console.log('Form submitted:', this.digitalAssetForm.value);
-      // Handle form submission
-    } else {
+    console.log('Form Before:', this.digitalAssetForm.value);
+
+    if (this.digitalAssetForm.invalid) {
       this.digitalAssetForm.markAllAsTouched();
+      return;
     }
+
+    console.log('Form submitted:', this.digitalAssetForm.value);
+    // Handle form submission
+  }
+
+  // Helper method to get form control
+  getControl(controlName: string): FormControl {
+    return this.digitalAssetForm.get(controlName) as FormControl;
   }
 
 }

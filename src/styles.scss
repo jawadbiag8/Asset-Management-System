@@ -3,42 +3,44 @@
   /* Primary Colors */
   --color-primary: #006666;
   --color-primary-hover: #005252;
-  
+
+  --color-light-green: #66B3B340;
+
   /* Background Colors */
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #F8F8F8;
   --color-bg-tertiary: #F9FAFB;
   --color-bg-quaternary: #F3F4F6;
   --color-bg-hover: #F9FAFB;
-  
+
   /* Text Colors */
   --color-text-primary: #111827;
   --color-text-secondary: #374151;
   --color-text-tertiary: #6B7280;
   --color-text-quaternary: #9CA3AF;
   --color-text-white: #FFFFFF;
-  
+
   /* Border Colors */
   --color-border: #E5E7EB;
   --color-border-hover: #E5E7EB;
-  
+
   /* Green Colors (Success) */
   --color-green: #10B981;
   --color-green-light: #D1FAE5;
   --color-green-dark: #065F46;
-  
+
   /* Blue Colors */
   --color-blue: #0066CC;
   --color-blue-hover: #0052A3;
   --color-blue-light: #E0F2FE;
   --color-blue-light-hover: #BAE6FD;
   --color-blue-dark: #0284C7;
-  
+
   /* Filter Pill Colors */
   --color-filter-selected-bg: #006666;
   --color-filter-dropdown-bg: #F3F4F6;
   --color-filter-dropdown-bg-hover: #E5E7EB;
-  
+
   /* Search Input Colors */
   --color-search-border: #E5E7EB;
   --color-search-border-focus: #006666;
@@ -59,20 +61,20 @@ body {
 }
 
 .btn-primary {
-    --bs-btn-color: var(--color-text-white);
-    --bs-btn-bg: var(--color-primary);
-    --bs-btn-border-color: var(--color-primary);
-    --bs-btn-hover-color: var(--color-text-white);
-    --bs-btn-hover-bg: var(--color-primary);
-    --bs-btn-hover-border-color: var(--color-primary);
-    --bs-btn-focus-shadow-rgb: 49, 132, 253;
-    --bs-btn-active-color: var(--color-text-white);
-    --bs-btn-active-bg: var(--color-primary);
-    --bs-btn-active-border-color: var(--color-primary);
-    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: var(--color-text-white);
-    --bs-btn-disabled-bg: var(--color-primary);
-    --bs-btn-disabled-border-color: var(--color-primary);
+  --bs-btn-color: var(--color-text-white);
+  --bs-btn-bg: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-color: var(--color-text-white);
+  --bs-btn-hover-bg: var(--color-primary);
+  --bs-btn-hover-border-color: var(--color-primary);
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;
+  --bs-btn-active-color: var(--color-text-white);
+  --bs-btn-active-bg: var(--color-primary);
+  --bs-btn-active-border-color: var(--color-primary);
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: var(--color-text-white);
+  --bs-btn-disabled-bg: var(--color-primary);
+  --bs-btn-disabled-border-color: var(--color-primary);
 }
 
 .badge-success {
@@ -80,14 +82,15 @@ body {
   background: var(--color-green-light);
 }
 
-.badge-danger{
+.badge-danger {
   color: var(--color-red) !important;
   background: var(--color-red-light);
 }
 
-hr{
+hr {
   border: 1px solid var(--color-border);
   opacity: 1;
 }
+
 /* You can add global styles to this file, and also import other style files */
 html, body { height: 100%; }

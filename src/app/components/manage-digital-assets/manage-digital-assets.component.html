@@ -26,88 +26,101 @@
                         <div class="row g-3 mt-3">
                             <!-- Left Column -->
                             <div class="col-md-6">
-                                <!-- Ministry Field -->
-                                <mat-form-field appearance="outline" class="full-width">
-                                    <mat-label>Ministry *</mat-label>
-                                    <mat-select formControlName="ministry">
-                                        <mat-option value="">Select Ministry</mat-option>
-                                        @for(ministry of ministries; track ministry) {
-                                        <mat-option [value]="ministry">{{ ministry }}</mat-option>
-                                        }
-                                    </mat-select>
-                                    <mat-hint>Select the primary ministry responsible for this asset</mat-hint>
-                                </mat-form-field>
+                                <!-- Ministry Field - Using direct props -->
+                                <app-reusable-input label="Ministry" type="select" [options]="ministryOptions"
+                                    hint="Select the primary ministry responsible for this asset"
+                                    [control]="getControl('ministry')">
+                                </app-reusable-input>
 
-                                <!-- Website/Application Name Field -->
-                                <mat-form-field appearance="outline" class="full-width">
-                                    <mat-label>Website / Application Name *</mat-label>
-                                    <input matInput formControlName="websiteName" placeholder="e.g Health Portal">
-                                    <mat-hint>The display name for this digital asset</mat-hint>
-                                </mat-form-field>
+                                <!-- Website/Application Name Field - Using direct props -->
+                                <app-reusable-input label="Website / Application Name" type="text"
+                                    placeholder="e.g Health Portal" hint="The display name for this digital asset"
+                                    [control]="getControl('websiteName')">
+                                </app-reusable-input>
                             </div>
 
                             <!-- Right Column -->
                             <div class="col-md-6">
-                                <!-- Department Field -->
-                                <mat-form-field appearance="outline" class="full-width">
-                                    <mat-label>Department *</mat-label>
-                                    <input matInput formControlName="department"
-                                        placeholder="e.g Health services Department">
-                                    <mat-hint>Enter the specific department or division</mat-hint>
-                                </mat-form-field>
+                                <!-- Department Field - Using direct props -->
+                                <app-reusable-input label="Department" type="text"
+                                    placeholder="e.g Health services Department"
+                                    hint="Enter the specific department or division"
+                                    [control]="getControl('department')">
+                                </app-reusable-input>
 
-                                <!-- URL Field -->
-                                <mat-form-field appearance="outline" class="full-width">
-                                    <mat-label>URL *</mat-label>
-                                    <input matInput formControlName="url" placeholder="https://example.gov">
-                                    <mat-hint>Full URL including protocol (https://)</mat-hint>
-                                    @if(digitalAssetForm.get('url')?.hasError('pattern') &&
-                                    digitalAssetForm.get('url')?.touched) {
-                                    <mat-error>Please enter a valid URL starting with http:// or https://</mat-error>
-                                    }
-                                </mat-form-field>
+                                <!-- URL Field - Using direct props -->
+                                <app-reusable-input label="URL" type="text" placeholder="https://example.gov"
+                                    hint="Full URL including protocol (https://)" [errorMessages]="urlErrorMessages"
+                                    [control]="getControl('url')">
+                                </app-reusable-input>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Section 2: Monitoring Configuration -->
+                    <!-- Section Compliance Configuration -->
                     <div class="form-section">
-                        <h2 class="section-title">Monitoring Configuration</h2>
+                        <h2 class="section-title">Compliance & Impact</h2>
 
                         <div class="info-box">
                             <mat-icon class="info-icon">info</mat-icon>
-                            <span class="info-text">Configure how this asset will be monitored and what targets to
-                                track.</span>
+                            <span class="info-text">Define compliance requirements and citizen impact level</span>
                         </div>
 
                         <div class="row g-3 mt-3">
                             <!-- Left Column -->
-                            <div class="col-md-6">
-                                <!-- Performance SLA Target Field -->
-                                <mat-form-field appearance="outline" class="full-width">
-                                    <mat-label>Performance SLA Target (%) *</mat-label>
-                                    <input matInput type="number" formControlName="performanceSlaTarget"
-                                        placeholder="99">
-                                    <mat-hint>Target uptime percentage (e.g., 99.0% or 99.5%)</mat-hint>
-                                    @if(digitalAssetForm.get('performanceSlaTarget')?.hasError('min') ||
-                                    digitalAssetForm.get('performanceSlaTarget')?.hasError('max')) {
-                                    <mat-error>Please enter a value between 0 and 100</mat-error>
-                                    }
-                                </mat-form-field>
+                            <div class="col-md-12">
+                                <!-- Compliance Requirements Field -->
+                                <app-reusable-input label="Citizen Impact Level" type="select"
+                                    placeholder="Enter citizen impact level"
+                                    hint="How critical this asset is to citizens" 
+                                    [control]="getControl('citizenImpactLevel')">
+                                </app-reusable-input>
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Right Column -->
-                            <div class="col-md-6">
-                                <!-- Monitoring Frequency Field -->
-                                <mat-form-field appearance="outline" class="full-width">
-                                    <mat-label>Monitoring Frequency</mat-label>
-                                    <mat-select formControlName="monitoringFrequency">
-                                        @for(frequency of monitoringFrequencies; track frequency) {
-                                        <mat-option [value]="frequency">{{ frequency }}</mat-option>
-                                        }
-                                    </mat-select>
-                                    <mat-hint>How often to check asset availability</mat-hint>
-                                </mat-form-field>
+                    <!-- Section Additional Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">Additional Information</h2>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Full Width -->
+                            <div class="col-12">
+                                <!-- Description Field -->
+                                <app-reusable-input label="Description" type="textarea"
+                                    placeholder="Provide additional context about this digital asset"
+                                    hint="Optional: Add notes or sepcial requirements" [rows]="4"
+                                    [control]="getControl('description')">
+                                </app-reusable-input>
+                            </div>
+                            <div class="col-6">
+                                <!-- Primary Contact Field -->
+                                <app-reusable-input label="Primary Contact" type="text"
+                                    placeholder="Name" hint="Person responsible for this asset"
+                                    [control]="getControl('primaryContact')">
+                                </app-reusable-input>
+                            </div>
+                            <div class="col-6">
+                                <!-- Secondary Contact Field -->
+                                <app-reusable-input label="Secondary Contact" type="text"
+                                    placeholder="Name" hint="Backup person responsible for this asset"
+                                    hint="Enter the secondary contact name" [control]="getControl('secondaryContact')">
+                                </app-reusable-input>
+                            </div>
+                            <div class="col-6">
+                                <!-- Primary Contact Email Field -->
+                                <app-reusable-input label="Contact Email" type="email"
+                                    placeholder="Enter the primary contact email" hint="Email for incident notifications"
+                                    [control]="getControl('primaryContactEmail')">
+                                </app-reusable-input>
+                            </div>
+                            <div class="col-6">
+                                <!-- Secondary Contact Email Field -->
+                                <app-reusable-input label="Contact Email" type="email"
+                                    placeholder="Email" hint="Email for incident notifications"
+                                    hint="Enter the secondary contact email"
+                                    [control]="getControl('secondaryContactEmail')">
+                                </app-reusable-input>
                             </div>
                         </div>
                     </div>
