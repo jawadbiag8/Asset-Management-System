@@ -83,7 +83,7 @@ export class ApiService {
     );
   }
 
-  // Assets 
+  // Assets
 
   getAssets(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.baseUrl}/Asset`);
