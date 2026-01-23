@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, AbstractControl } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
 import { ReplaySubject, Subject, Observable } from 'rxjs';
@@ -27,7 +27,7 @@ export interface ReusableInputConfig {
   styleUrl: './reusable-input.component.scss',
   standalone: false,
 })
-export class ReusableInputComponent implements OnInit, OnDestroy {
+export class ReusableInputComponent implements OnInit, OnDestroy, OnChanges {
   // Direct props from parent component
   @Input() label?: string;
   @Input() type?: 'text' | 'number' | 'email' | 'password' | 'textarea' | 'select';
@@ -78,9 +78,11 @@ export class ReusableInputComponent implements OnInit, OnDestroy {
     };
 
     // Setup searchable select filtering
-    if (this.mergedConfig.type === 'select' && this.mergedConfig.options) {
-      // Load initial options
-      this.filteredOptions.next(this.mergedConfig.options.slice());
+    if (this.mergedConfig.type === 'select') {
+      // Load initial options if available
+      if (this.mergedConfig.options && this.mergedConfig.options.length > 0) {
+        this.filteredOptions.next(this.mergedConfig.options.slice());
+      }
 
       // Listen for search field value changes
       this.filterControl.valueChanges
@@ -88,6 +90,45 @@ export class ReusableInputComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.filterOptions();
         });
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Update mergedConfig when options change
+    if (changes['options']) {
+      this.mergedConfig.options = this.options;
+      
+      // Update filtered options for select type
+      if (this.mergedConfig.type === 'select') {
+        if (this.options && this.options.length > 0) {
+          this.filteredOptions.next(this.options.slice());
+          // Reset filter control to show all options
+          this.filterControl.setValue('', { emitEvent: false });
+        } else {
+          // Clear options if empty
+          this.filteredOptions.next([]);
+        }
+      }
+    }
+
+    // Update other config properties if they change
+    if (changes['label']) {
+      this.mergedConfig.label = this.label ?? '';
+    }
+    if (changes['placeholder']) {
+      this.mergedConfig.placeholder = this.placeholder;
+    }
+    if (changes['hint']) {
+      this.mergedConfig.hint = this.hint;
+    }
+    if (changes['disabled']) {
+      this.mergedConfig.disabled = this.disabled ?? false;
+    }
+    if (changes['rows']) {
+      this.mergedConfig.rows = this.rows;
+    }
+    if (changes['errorMessages']) {
+      this.mergedConfig.errorMessages = this.errorMessages;
     }
   }
 

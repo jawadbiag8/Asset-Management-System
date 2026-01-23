@@ -1,8 +1,8 @@
 <div class="container-fluid p-4">
     <app-reusable-breadcrum [breadcrumbs]="breadcrumbs"></app-reusable-breadcrum>
     <div class="row">
-        <div class="col-3"></div>
-        <div class="col-6">
+        <div class="col-md-3 col-sm-12"></div>
+        <div class="col-md-6 col-sm-12">
 
             <!-- Breadcrumb -->
 
@@ -28,32 +28,31 @@
                         <div class="row g-3 mt-3">
                             <!-- Left Column -->
                             <div class="col-md-6">
-                                <!-- Ministry Field - Using direct props -->
+                                <!-- Ministry Field -->
                                 <app-reusable-input label="Ministry" type="select" [options]="ministryOptions"
                                     hint="Select the primary ministry responsible for this asset"
-                                    [control]="getControl('ministry')">
+                                    [control]="getControl('ministryId')">
                                 </app-reusable-input>
 
-                                <!-- Website/Application Name Field - Using direct props -->
+                                <!-- Asset Name Field -->
                                 <app-reusable-input label="Website / Application Name" type="text"
                                     placeholder="e.g Health Portal" hint="The display name for this digital asset"
-                                    [control]="getControl('websiteName')">
+                                    [control]="getControl('assetName')">
                                 </app-reusable-input>
                             </div>
 
                             <!-- Right Column -->
                             <div class="col-md-6">
-                                <!-- Department Field - Using direct props -->
-                                <app-reusable-input label="Department" type="text"
-                                    placeholder="e.g Health services Department"
+                                <!-- Department Field -->
+                                <app-reusable-input label="Department" type="select" [options]="departments"
                                     hint="Enter the specific department or division"
-                                    [control]="getControl('department')">
+                                    [control]="getControl('departmentId')">
                                 </app-reusable-input>
 
-                                <!-- URL Field - Using direct props -->
+                                <!-- Asset URL Field -->
                                 <app-reusable-input label="URL" type="text" placeholder="https://example.gov"
                                     hint="Full URL including protocol (https://)" [errorMessages]="urlErrorMessages"
-                                    [control]="getControl('url')">
+                                    [control]="getControl('assetUrl')">
                                 </app-reusable-input>
                             </div>
                         </div>
@@ -71,11 +70,11 @@
                         <div class="row g-3 mt-3">
                             <!-- Left Column -->
                             <div class="col-md-12">
-                                <!-- Compliance Requirements Field -->
+                                <!-- Citizen Impact Level Field -->
                                 <app-reusable-input label="Citizen Impact Level" type="select"
-                                    placeholder="Enter citizen impact level"
+                                    [options]="citizenImpactLevelOptions" placeholder="Enter citizen impact level"
                                     hint="How critical this asset is to citizens"
-                                    [control]="getControl('citizenImpactLevel')">
+                                    [control]="getControl('citizenImpactLevelId')">
                                 </app-reusable-input>
                             </div>
                         </div>
@@ -95,32 +94,53 @@
                                     [control]="getControl('description')">
                                 </app-reusable-input>
                             </div>
-                            <div class="col-6">
-                                <!-- Primary Contact Field -->
-                                <app-reusable-input label="Primary Contact" type="text" placeholder="Name"
-                                    hint="Person responsible for this asset" [control]="getControl('primaryContact')">
+                            <div class="col-md-4">
+                                <!-- Primary Contact Name Field -->
+                                <app-reusable-input label="Primary Contact Name" type="text" placeholder="Name"
+                                    hint="Person responsible for this asset" [control]="getControl('primaryContactName')">
                                 </app-reusable-input>
                             </div>
-                            <div class="col-6">
-                                <!-- Secondary Contact Field -->
-                                <app-reusable-input label="Secondary Contact" type="text" placeholder="Name"
-                                    hint="Backup person responsible for this asset"
-                                    hint="Enter the secondary contact name" [control]="getControl('secondaryContact')">
-                                </app-reusable-input>
-                            </div>
-                            <div class="col-6">
+
+                            <div class="col-md-4">
                                 <!-- Primary Contact Email Field -->
-                                <app-reusable-input label="Contact Email" type="email"
+                                <app-reusable-input label="Primary Contact Email" type="email"
                                     placeholder="Enter the primary contact email"
                                     hint="Email for incident notifications"
                                     [control]="getControl('primaryContactEmail')">
                                 </app-reusable-input>
                             </div>
-                            <div class="col-6">
-                                <!-- Secondary Contact Email Field -->
-                                <app-reusable-input label="Contact Email" type="email" placeholder="Email"
-                                    hint="Email for incident notifications" hint="Enter the secondary contact email"
-                                    [control]="getControl('secondaryContactEmail')">
+
+                            <div class="col-md-4">
+                                <!-- Primary Contact Phone Field -->
+                                <app-reusable-input label="Primary Contact Phone" type="text"
+                                    placeholder="e.g +92-300-1234567"
+                                    hint="Phone number for primary contact"
+                                    [control]="getControl('primaryContactPhone')">
+                                </app-reusable-input>
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- Technical Contact Name Field -->
+                                <app-reusable-input label="Technical Contact Name" type="text" placeholder="Name"
+                                    hint="Technical person responsible for this asset"
+                                    [control]="getControl('technicalContactName')">
+                                </app-reusable-input>
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- Technical Contact Email Field -->
+                                <app-reusable-input label="Technical Contact Email" type="email" placeholder="Email"
+                                    hint="Email for technical notifications"
+                                    [control]="getControl('technicalContactEmail')">
+                                </app-reusable-input>
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- Technical Contact Phone Field -->
+                                <app-reusable-input label="Technical Contact Phone" type="text"
+                                    placeholder="e.g +92-300-1234567"
+                                    hint="Phone number for technical contact"
+                                    [control]="getControl('technicalContactPhone')">
                                 </app-reusable-input>
                             </div>
                         </div>
@@ -129,11 +149,12 @@
                     <!-- Form Actions -->
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" routerLink="/dashboard">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Digital Asset</button>
+                        <button type="submit" class="btn btn-primary"> {{pageInfo().pageState === 'add' ? 'Add Digital
+                            Asset' : 'Update Digital Asset'}}</button>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="col-3"></div>
+        <div class="col-md-3 col-sm-12"></div>
     </div>
 </div>

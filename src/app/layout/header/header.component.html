@@ -7,28 +7,16 @@
     </div>
 
     <nav class="nav" [class.open]="menuOpen">
-      <a
-        routerLink="/dashboard"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: false }"
-        (click)="menuOpen = false"
-      >
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }"
+        (click)="menuOpen = false">
         Dashboard
       </a>
-      <a
-        routerLink="/ministry-detail"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: false }"
-        (click)="menuOpen = false"
-      >
+      <a routerLink="/ministry-detail" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }"
+        (click)="menuOpen = false">
         Assets
       </a>
-      <a
-        routerLink="#"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: false }"
-        (click)="menuOpen = false"
-      >
+      <a routerLink="#" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }"
+        (click)="menuOpen = false">
         Incidents
       </a>
 
@@ -52,31 +40,15 @@
     <div class="profile-dropdown" #profileDropdown>
       <div class="profile-trigger" (click)="toggleProfileDropdown()">
         <div class="profile-icon">
-          <img
-            src="Images/Dashboard/profile.svg"
-            alt="user icon"
-            class="user-icon-img"
-          />
+          <img src="Images/Dashboard/profile.svg" alt="user icon" class="user-icon-img" />
         </div>
         <div class="profile-info">
           <span class="username">Username</span>
           <span class="user-role">Admin</span>
         </div>
-        <svg
-          class="dropdown-arrow"
-          [class.open]="profileDropdownOpen"
-          width="12"
-          height="8"
-          viewBox="0 0 12 8"
-          fill="none"
-        >
-          <path
-            d="M1 1L6 6L11 1"
-            stroke="#008080"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
+        <svg class="dropdown-arrow" [class.open]="profileDropdownOpen" width="12" height="8" viewBox="0 0 12 8"
+          fill="none">
+          <path d="M1 1L6 6L11 1" stroke="#008080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </div>
 
