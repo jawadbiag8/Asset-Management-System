@@ -9,15 +9,21 @@
     <nav class="nav" [class.open]="menuOpen">
       <a
         [class.active]="activeLink === 'dashboard'"
+        routerLink="/dashboard"
         (click)="setActive('dashboard')"
       >
         Dashboard
       </a>
-      <a [class.active]="activeLink === 'assets'" (click)="setActive('assets')">
+      <a 
+        [class.active]="activeLink === 'assets'" 
+        routerLink="/assets/by-ministry"
+        (click)="setActive('assets')"
+      >
         Assets
       </a>
       <a
         [class.active]="activeLink === 'incidents'"
+        routerLink="/incidents"
         (click)="setActive('incidents')"
       >
         Incidents

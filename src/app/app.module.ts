@@ -15,6 +15,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.component';
 import { ReusableTableComponent } from './components/reusable/reusable-table/reusable-table.component';
 import { HeaderComponent } from './layout/header/header.component';
+import { AssetsByMinistryComponent } from './components/assets/assetsByMinistry/assets-by-ministry.component';
+import { ActiveIncidentsComponent } from './components/incidents/active-incidents/active-incidents.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +25,8 @@ import { HeaderComponent } from './layout/header/header.component';
     DashboardkpiComponent,
     ReusableTableComponent,
     HeaderComponent,
+    AssetsByMinistryComponent,
+    ActiveIncidentsComponent,
   ],
   imports: [
     BrowserModule,
