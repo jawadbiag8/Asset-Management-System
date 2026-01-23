@@ -2,10 +2,9 @@
     <div class="card p-3 h-100 dashboard-card">
         <div class="d-flex justify-content-between align-items-start mb-3">
             <h1 class="digitalAssetsTitle">{{ item.value }}</h1>
-            <span class="badge badge-success d-flex align-items-center gap-2 badge-weight">
+            <span [ngClass]="item.subValueColor === 'success' ? 'badge badge-success' : 'badge badge-danger'" class="d-flex align-items-center gap-2 badge-weight">
                 {{ item.subValue }}
-                <!-- <mat-icon class="badge-icon">keyboard_arrow_up</mat-icon> -->
-                <mat-icon class="badge-icon">keyboard_arrow_down</mat-icon>
+                <mat-icon class="badge-icon"> {{ item.subValueColor === 'success' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
             </span>
         </div>
 

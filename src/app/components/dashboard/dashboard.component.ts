@@ -85,7 +85,6 @@ export class DashboardComponent {
         cellType: 'link',
         primaryField: 'websiteName',
         linkField: 'websiteUrl',
-        linkPrefix: 'https://',
         sortable: true
       },
       {
@@ -151,7 +150,7 @@ export class DashboardComponent {
       ministry: 'Ministry of Planning, Development & Special Initiatives',
       department: 'National Engineering Services Pakistan (Pvt.) Limited',
       websiteName: 'Ministry Website',
-      websiteUrl: 'nespak.com.pk',
+      websiteUrl: 'https://nespak.com.pk',
       currentHealthStatus: 'Unknown',
       currentHealthPercentage: '0.00%',
       lastOutageStatus: 'Never',
@@ -170,7 +169,7 @@ export class DashboardComponent {
       ministry: 'Ministry of Planning, Development & Special Initiatives',
       department: 'National Engineering Services Pakistan (Pvt.) Limited',
       websiteName: 'Ministry Website',
-      websiteUrl: 'nespak.com.pk',
+      websiteUrl: 'https://nespak.com.pk',
       currentHealthStatus: 'Unknown',
       currentHealthPercentage: '0.00%',
       lastOutageStatus: 'Never',
@@ -189,7 +188,7 @@ export class DashboardComponent {
       ministry: 'Ministry of Planning, Development & Special Initiatives',
       department: 'National Engineering Services Pakistan (Pvt.) Limited',
       websiteName: 'Ministry Website',
-      websiteUrl: 'nespak.com.pk',
+      websiteUrl: 'https://nespak.com.pk',
       currentHealthStatus: 'Unknown',
       currentHealthPercentage: '0.00%',
       lastOutageStatus: 'Never',
@@ -208,7 +207,7 @@ export class DashboardComponent {
       ministry: 'Ministry of Planning, Development & Special Initiatives',
       department: 'National Engineering Services Pakistan (Pvt.) Limited',
       websiteName: 'Ministry Website',
-      websiteUrl: 'nespak.com.pk',
+      websiteUrl: 'https://nespak.com.pk',
       currentHealthStatus: 'Unknown',
       currentHealthPercentage: '0.00%',
       lastOutageStatus: 'Never',
@@ -227,7 +226,7 @@ export class DashboardComponent {
       ministry: 'Ministry of Planning, Development & Special Initiatives',
       department: 'National Engineering Services Pakistan (Pvt.) Limited',
       websiteName: 'Ministry Website',
-      websiteUrl: 'nespak.com.pk',
+      websiteUrl: 'https://nespak.com.pk',
       currentHealthStatus: 'Unknown',
       currentHealthPercentage: '0.00%',
       lastOutageStatus: 'Never',
@@ -249,64 +248,74 @@ export class DashboardComponent {
     data: this.digitalAssets()
   }));
 
-  dashboardKpis = signal<any[]>([
-    {
-      id: 1,
-      title: 'Total  Digital Assets Monitored',
-      subTitle: 'Active monitoring across all departments',
-      value: '247',
-      subValue: '+12',
-      subValueText: '+12 Assets from last month'
-    },
-    {
-      id: 2,
-      title: 'Total  Digital Assets Monitored',
-      subTitle: 'Active monitoring across all departments',
-      value: '247',
-      subValue: '+12',
-      subValueText: '+12 Assets from last month'
-    },
-    {
-      id: 3,
-      title: 'Total  Digital Assets Monitored',
-      subTitle: 'Active monitoring across all departments',
-      value: '247',
-      subValue: '+12',
-      subValueText: '+12 Assets from last month'
-    },
-    {
-      id: 4,
-      title: 'Total  Digital Assets Monitored',
-      subTitle: 'Active monitoring across all departments',
-      value: '247',
-      subValue: '+12',
-      subValueText: '+12 Assets from last month'
-    },
-    {
-      id: 5,
-      title: 'Total  Digital Assets Monitored',
-      subTitle: 'Active monitoring across all departments',
-      value: '247',
-      subValue: '+12',
-      subValueText: '+12 Assets from last month'
-    },
-    {
-      id: 6,
-      title: 'Total  Digital Assets Monitored',
-      subTitle: 'Active monitoring across all departments',
-      value: '247',
-      subValue: '+12',
-      subValueText: '+12 Assets from last month'
-    },
-    {
-      id: 7,
-      title: 'Total  Digital Assets Monitored',
-      subTitle: 'Active monitoring across all departments',
-      value: '247',
-      subValue: '+12',
-      subValueText: '+12 Assets from last month'
-    }
-  ]);
+  dashboardKpis = signal<{isVisible: boolean, data: any[]}>({
+    isVisible: true,
+    data: [
+      {
+        id: 1,
+        title: 'Total  Digital Assets Monitored',
+        subTitle: 'Active monitoring across all departments',
+        value: '247',
+        subValue: '+12',
+        subValueColor: 'success',
+        subValueText: '+12 Assets from last month'
+      },
+      {
+        id: 2,
+        title: 'Total  Digital Assets Monitored',
+        subTitle: 'Active monitoring across all departments',
+        value: '247',
+        subValue: '+12',
+        subValueColor: 'success',
+        subValueText: '+12 Assets from last month'
+      },
+      {
+        id: 3,
+        title: 'Total  Digital Assets Monitored',
+        subTitle: 'Active monitoring across all departments',
+        value: '247',
+        subValue: '+12',
+        subValueColor: 'success',
+        subValueText: '+12 Assets from last month'
+      },
+      {
+        id: 4,
+        title: 'Total  Digital Assets Monitored',
+        subTitle: 'Active monitoring across all departments',
+        value: '247',
+        subValue: '+12',
+        subValueColor: 'success',
+        subValueText: '+12 Assets from last month'
+      },
+      {
+        id: 5,
+        title: 'Total  Digital Assets Monitored',
+        subTitle: 'Active monitoring across all departments',
+        value: '247',
+        subValue: '+12',
+        subValueColor: 'success',
+        subValueText: '+12 Assets from last month'
+      },
+      {
+        id: 6,
+        title: 'Total  Digital Assets Monitored',
+        subTitle: 'Active monitoring across all departments',
+        value: '247',
+        subValue: '+12',
+        subValueColor: 'not-success',
+        subValueText: '+12 Assets from last month'
+      },
+      {
+        id: 7,
+        title: 'Total  Digital Assets Monitored',
+        subTitle: 'Active monitoring across all departments',
+        value: '247',
+        subValue: '+12',
+        subValueColor: 'success',
+        subValueText: '+12 Assets from last month'
+      }
+    ]
+  });
 
   onSearchChange(value: string) {
     this.searchValue.set(value);
@@ -314,7 +323,7 @@ export class DashboardComponent {
   }
 
   onFilterRemove(filterId: string) {
-    this.tableFilters.update(filters => 
+    this.tableFilters.update(filters =>
       filters.filter(f => f.id !== filterId)
     );
     // Add your filter removal logic here
@@ -323,6 +332,13 @@ export class DashboardComponent {
   onFilterClick(filterId: string) {
     // Add your filter dropdown logic here
     console.log('Filter clicked:', filterId);
+  }
+
+  onGridIconClick() {
+    this.dashboardKpis.update(kpis => ({
+      ...kpis,
+      isVisible: !kpis.isVisible
+    }));
   }
 
 }
