@@ -48,8 +48,6 @@ export class ManageIncidentsComponent implements OnInit {
       securityLevels: this.api.getLovByType('citizenImpactLevel')
     }).subscribe({
       next: (responses: { assets: ApiResponse<any[]>, kpis: ApiResponse<any[]>, securityLevels: ApiResponse<any[]> }) => {
-        console.log(responses);
-
         this.assetOptions = responses.assets.data?.map((asset: any) => ({
           label: asset.name,
           value: asset.id.toString()

@@ -659,7 +659,7 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
     // Add filter parameters
     this.filters.forEach((filter) => {
-      if (filter.paramKey && filter.value && filter.value !== 'All') {
+      if (filter.paramKey && filter.value && filter.value !== '' && filter.value !== 'All') {
         httpParams = httpParams.set(filter.paramKey, filter.value);
       }
     });
@@ -731,12 +731,12 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   }
 
   onFilterRemove(filterId: string) {
-    // Reset filter to "All" instead of removing it
+    // Reset filter to "All" (empty string) instead of removing it
     this.filters = this.filters.map((filter) => {
       if (filter.id === filterId) {
         return {
           ...filter,
-          value: 'All',
+          value: '',
           label: `${filter.label.split(':')[0]}: All`,
           removable: false,
         };
@@ -767,8 +767,8 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     this.filters = this.filters.map((filter) => {
       const change = filterChanges.find((c) => c.filterId === filter.id);
       if (change) {
-        const selectedValue = change.selectedValues[0] || 'All';
-        const isAll = selectedValue === 'All';
+        const selectedValue = change.selectedValues[0] || '';
+        const isAll = selectedValue === '' || selectedValue === 'All';
 
         // Build label based on selected value
         let labelText = filter.label.split(':')[0];
@@ -809,10 +809,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   }
 
   onFilterReset() {
-    // Reset all filters to "All"
+    // Reset all filters to "All" (empty string)
     this.filters = this.filters.map((filter) => ({
       ...filter,
-      value: 'All',
+      value: '',
       label: `${filter.label.split(':')[0]}: All`,
       removable: false,
     }));

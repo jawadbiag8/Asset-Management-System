@@ -6,7 +6,7 @@
             @if(filters.length > 0) {
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 @for(filter of filters; track filter.id) {
-                    @if(filter.value && filter.value !== 'All') {
+                    @if(filter.value && filter.value !== '' && filter.value !== 'All') {
                         <span class="filter-pill filter-pill-selected" (click)="filter.removable && onFilterRemove(filter.id)">
                             {{ filter.label }}
                             @if(filter.removable) {

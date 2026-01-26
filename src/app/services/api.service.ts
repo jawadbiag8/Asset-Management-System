@@ -47,7 +47,7 @@ export class ApiService {
     );
   }
 
-  getLovByType(lovType: 'citizenImpactLevel'): Observable<ApiResponse> {
+  getLovByType(lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status'): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/CommonLookup/type/${lovType}`,
     );
@@ -55,6 +55,10 @@ export class ApiService {
 
   getAllKpis(): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/KpisLov/dropdown`);
+  }
+
+  getAllUsers(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/User/dropdown`);
   }
 
   // Assets

@@ -4,9 +4,11 @@ import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-bread
 import { HttpParams } from '@angular/common/http';
 import { UtilsService } from '../../../services/utils.service';
 import { MatDialog } from '@angular/material/dialog';
+import { forkJoin } from 'rxjs';
 import {
   TableConfig,
   TableColumn,
+  FilterPill,
 } from '../../reusable/reusable-table/reusable-table.component';
 import { ManageIncidentsComponent } from '../manage-incidents/manage-incidents.component';
 
@@ -45,6 +47,8 @@ export class ActiveIncidentsComponent implements OnInit {
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Incidents' }
   ];
+
+  tableFilters = signal<FilterPill[]>([]);
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
@@ -135,7 +139,185 @@ export class ActiveIncidentsComponent implements OnInit {
     private dialog: MatDialog
   ) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.initializeFilters();
+  }
+
+  initializeFilters(): void {
+    // Initialize filters with "All" as default
+    this.tableFilters.set([
+      {
+        id: 'ministry',
+        label: 'Ministry: All',
+        value: '',
+        removable: true,
+        paramKey: 'ministry',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'status',
+        label: 'Status: All',
+        value: '',
+        removable: true,
+        paramKey: 'status',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'severity',
+        label: 'Severity: All',
+        value: '',
+        removable: true,
+        paramKey: 'severity',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'createdBy',
+        label: 'Created by: All',
+        value: '',
+        removable: true,
+        paramKey: 'createdBy',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'assignedTo',
+        label: 'Assigned to: All',
+        value: '',
+        removable: true,
+        paramKey: 'assignedTo',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'kpi',
+        label: 'KPI: All',
+        value: '',
+        removable: true,
+        paramKey: 'kpi',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'asset',
+        label: 'Assets: All',
+        value: '',
+        removable: true,
+        paramKey: 'asset',
+        options: [{ label: 'All', value: '' }]
+      }
+    ]);
+
+    // Load filter options from APIs
+    this.loadFilterOptions();
+  }
+
+  loadFilterOptions(): void {
+    forkJoin({
+      ministries: this.apiService.getAllMinistries(),
+      severityLevels: this.apiService.getLovByType('SeverityLevel'),
+      statuses: this.apiService.getLovByType('Status'),
+      kpis: this.apiService.getAllKpis(),
+      assets: this.apiService.getAllAssets(),
+      users: this.apiService.getAllUsers()
+    }).subscribe({
+      next: (responses) => {
+        // Update Ministry filter
+        if (responses.ministries.isSuccessful) {
+          const ministryOptions = [{ label: 'All', value: '' }];
+          const ministries = Array.isArray(responses.ministries.data) ? responses.ministries.data : [];
+          ministries.forEach((ministry: any) => {
+            ministryOptions.push({
+              label: ministry.ministryName,
+              value: ministry.id?.toString()
+            });
+          });
+          this.updateFilterOptions('ministry', ministryOptions);
+        }
+
+        // Update Severity filter
+        if (responses.severityLevels.isSuccessful) {
+          const severityOptions = [{ label: 'All', value: '' }];
+          const severities = Array.isArray(responses.severityLevels.data) ? responses.severityLevels.data : [];
+          severities.forEach((severity: any) => {
+            severityOptions.push({
+              label: severity.name,
+              value: severity.id?.toString()
+            });
+          });
+          this.updateFilterOptions('severity', severityOptions);
+        }
+
+        // Update Status filter (static options)
+        if (responses.statuses.isSuccessful) {
+          const statusOptions = [{ label: 'All', value: '' }];
+          const statuses = Array.isArray(responses.statuses.data) ? responses.statuses.data : [];
+          statuses.forEach((status: any) => {
+            statusOptions.push({
+              label: status.name,
+              value: status.id?.toString()
+            });
+          });
+          this.updateFilterOptions('status', statusOptions);
+        }
+
+        // Update KPI filter
+        if (responses.kpis.isSuccessful) {
+          const kpiOptions = [{ label: 'All', value: '' }];
+          const kpis = Array.isArray(responses.kpis.data) ? responses.kpis.data : [];
+          kpis.forEach((kpi: any) => {
+            kpiOptions.push({
+              label: kpi.name,
+              value: kpi.id?.toString()
+            });
+          });
+          this.updateFilterOptions('kpi', kpiOptions);
+        }
+
+        // Update Assets filter
+        if (responses.assets.isSuccessful) {
+          const assetOptions = [{ label: 'All', value: '' }];
+          const assets = Array.isArray(responses.assets.data) ? responses.assets.data : [];
+          assets.forEach((asset: any) => {
+            assetOptions.push({
+              label: asset.name,
+              value: asset.id?.toString()
+            });
+          });
+          this.updateFilterOptions('asset', assetOptions);
+        }
+
+        // Update Created By and Assigned To filters (users)
+        if (responses.users.isSuccessful) {
+          const userOptions = [{ label: 'All', value: '' }];
+          const users = Array.isArray(responses.users.data) ? responses.users.data : [];
+          users.forEach((user: any) => {
+            userOptions.push({
+              label: user.email,
+              value: user.email
+            });
+          });
+          this.updateFilterOptions('createdBy', userOptions);
+          this.updateFilterOptions('assignedTo', userOptions);
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error loading filter options', 'error');
+        // Set default options for all filters on error
+        const defaultOptions = [{ label: 'All', value: '' }];
+        ['ministry', 'status', 'severity', 'createdBy', 'assignedTo', 'kpi', 'asset'].forEach(filterId => {
+          this.updateFilterOptions(filterId, defaultOptions);
+        });
+      }
+    });
+  }
+
+  updateFilterOptions(filterId: string, options: { label: string, value: string }[]): void {
+    this.tableFilters.update(filters => {
+      return filters.map(filter => {
+        if (filter.id === filterId) {
+          return { ...filter, options };
+        }
+        return filter;
+      });
+    });
+  }
 
   loadIncidents(searchQuery: HttpParams): void {
     this.apiService.getIncidents(searchQuery).subscribe({

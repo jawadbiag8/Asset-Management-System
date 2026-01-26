@@ -10,7 +10,10 @@
   </div>
 
   <div class="mt-5">
-    <app-reusable-table [config]="tableConfigWithData()" (searchQuery)="loadIncidents($event)">
+    <app-reusable-table 
+      [config]="tableConfigWithData()" 
+      [filters]="tableFilters()"
+      (searchQuery)="loadIncidents($event)">
     </app-reusable-table>
   </div>
 
