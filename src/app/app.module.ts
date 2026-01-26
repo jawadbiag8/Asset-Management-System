@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardkpiComponent } from './components/dashboardkpi/dashboardkpi.component';
@@ -62,6 +62,7 @@ import { LoaderComponent } from './components/loader/loader.component';
     RouterModule.forRoot(routes),
     BrowserAnimationsModule,
     ReactiveFormsModule,
+    FormsModule,
     MatIconModule,
     MatTableModule,
     MatButtonModule,

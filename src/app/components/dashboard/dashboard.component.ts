@@ -36,7 +36,6 @@ export interface DigitalAsset {
 export class DashboardComponent implements OnInit {
   constructor(private apiService: ApiService) { }
 
-  searchValue = signal<string>('');
   tableFilters = signal<FilterPill[]>([
     {
       id: 'ministry',
@@ -368,71 +367,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  onSearchChange(value: string) {
-    this.searchValue.set(value);
-    // Server-side search is handled by searchQuery event
-  }
-
-  onSearchQuery(searchParams: HttpParams) {
-    // This is called when search button is clicked
-    this.loadAssets(searchParams);
-  }
-
-  onFilterRemove(filterId: string) {
-    // Reset filter to "All" instead of removing it
-    this.tableFilters.update((filters) =>
-      filters.map((filter) => {
-        if (filter.id === filterId) {
-          return {
-            ...filter,
-            value: 'All',
-            label: `${filter.label.split(':')[0]}: All`,
-            removable: false,
-          };
-        }
-        return filter;
-      }),
-    );
-    // API call will be triggered automatically by reusable-table's ngOnChanges when filters update
-  }
-
-  onFilterClick(filter: FilterPill) {
-    // Modal will be opened by reusable table component
-    // This is just for any additional logic if needed
-  }
-
-  onFilterApply(filterChanges: { filterId: string; selectedValues: string[] }[]) {
-    // Update all filters at once based on changes
-    this.tableFilters.update((filters) =>
-      filters.map((filter) => {
-        const change = filterChanges.find(c => c.filterId === filter.id);
-        if (change) {
-          const selectedValue = change.selectedValues[0] || 'All';
-          const isAll = selectedValue === 'All';
-
-          // Build label based on selected value
-          let labelText = filter.label.split(':')[0];
-          if (isAll) {
-            labelText += ': All';
-          } else {
-            const option = filter.options?.find(
-              (opt) => opt.value === selectedValue,
-            );
-            labelText += `: ${option?.label || selectedValue}`;
-          }
-
-          return {
-            ...filter,
-            value: selectedValue,
-            label: labelText,
-            removable: !isAll,
-          };
-        }
-        return filter;
-      }),
-    );
-    // API call will be triggered automatically by reusable-table's ngOnChanges when filters update
-  }
 
   onGridIconClick() {
     this.dashboardKpis.update((kpis) => ({
