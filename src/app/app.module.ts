@@ -14,6 +14,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -29,6 +30,8 @@ import { ActiveIncidentsComponent } from './components/incidents/active-incident
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 import { ApiInterceptor } from './interceptors/api.interceptor';
+import { ConfirmationDialogComponent } from './components/reusable/confirmation-dialog/confirmation-dialog.component';
+import { LoaderComponent } from './components/loader/loader.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +47,8 @@ import { ApiInterceptor } from './interceptors/api.interceptor';
     AssetsByMinistryComponent,
     ActiveIncidentsComponent,
     MinistryDetailComponent,
+    ConfirmationDialogComponent,
+    LoaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,6 +64,7 @@ import { ApiInterceptor } from './interceptors/api.interceptor';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatDialogModule,
     NgxMatSelectSearchModule,
     ToastrModule.forRoot({
       timeOut: 7000,

@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { UtilsService } from '../services/utils.service';
+import { LoaderService } from '../services/loader.service';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
 
   constructor(
     private router: Router,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private loaderService: LoaderService
   ) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -19,6 +21,9 @@ export class ApiInterceptor implements HttpInterceptor {
     if (!req.url.startsWith(environment.apiUrl)) {
       return next.handle(req);
     }
+
+    // Show loader
+    this.loaderService.show();
 
     // Clone the request and add headers
     let clonedRequest = req.clone({
@@ -29,6 +34,10 @@ export class ApiInterceptor implements HttpInterceptor {
     return next.handle(clonedRequest).pipe(
       catchError((error: HttpErrorResponse) => {
         return this.handleError(error);
+      }),
+      finalize(() => {
+        // Hide loader when request completes (success or error)
+        this.loaderService.hide();
       })
     );
   }
