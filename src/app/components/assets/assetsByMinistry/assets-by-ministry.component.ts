@@ -20,7 +20,7 @@ export class AssetsByMinistryComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
     this.loadMinistryAssets();

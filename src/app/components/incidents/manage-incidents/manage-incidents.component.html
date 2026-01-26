@@ -1,0 +1,62 @@
+<div class="manage-incident-modal">
+  <div class="modal-header">
+    <h2 class="modal-title">Add Incident</h2>
+    <button type="button" class="btn-close" (click)="onCancel()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+      <div class="row">
+
+        <!-- Incident Title -->
+        <div class="col-12 mb-3">
+          <app-reusable-input [label]="'Incident Title'" [type]="'text'" [placeholder]="'Enter incident title'"
+            [control]="getControl('incidentTitle')" [errorMessages]="{}">
+          </app-reusable-input>
+        </div>
+
+        <!-- Asset Selection -->
+        <div class="col-12 mb-3">
+          <app-reusable-input [label]="'Asset'" [type]="'select'" [control]="getControl('assetId')"
+            [options]="assetOptions" [errorMessages]="{}">
+          </app-reusable-input>
+        </div>
+
+        <!-- KPI Selection -->
+        <div class="col-12 mb-3">
+          <app-reusable-input [label]="'KPI'" [type]="'select'" [control]="getControl('kpiId')" [options]="kpiOptions"
+            [errorMessages]="{}">
+          </app-reusable-input>
+        </div>
+
+        <!-- Security Level -->
+        <div class="col-12 mb-3">
+          <app-reusable-input [label]="'Security Level'" [type]="'select'" [control]="getControl('securityLevel')"
+            [options]="securityLevels" [errorMessages]="{}">
+          </app-reusable-input>
+        </div>
+
+        <!-- Description -->
+        <div class="col-12 mb-3">
+          <app-reusable-input [label]="'Description'" [type]="'textarea'" [placeholder]="'Enter incident description'"
+            [control]="getControl('description')" [rows]="4" [errorMessages]="{}">
+          </app-reusable-input>
+        </div>
+
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="loading">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading || incidentForm.invalid">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        {{ loading ? 'Adding...' : 'Add Incident' }}
+      </button>
+    </div>
+  </form>
+</div>

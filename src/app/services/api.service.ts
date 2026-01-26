@@ -5,6 +5,8 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { DigitalAssetRequest } from '../components/manage-digital-assets/manage-digital-assets.component';
 import { ActiveIncident } from '../components/incidents/active-incidents/active-incidents.component';
+import { IncidentRequest } from '../components/incidents/manage-incidents/manage-incidents.component';
+import { DigitalAsset } from '../components/dashboard/dashboard.component';
 
 export interface ApiResponse<T = any> {
   isSuccessful: boolean;
@@ -46,11 +48,19 @@ export class ApiService {
     );
   }
 
+  getAllKpis(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/KpisLov/dropdown`);
+  }
+
   // Assets
 
   getAssets(searchQuery?: HttpParams): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset`;
     return this.http.get<ApiResponse<any>>(url, { params: searchQuery });
+  }
+
+  getAllAssets(): Observable<ApiResponse<DigitalAsset[]>> {
+    return this.http.get<ApiResponse<DigitalAsset[]>>(`${this.baseUrl}/Asset/dropdown`);
   }
 
   addAsset(asset: DigitalAssetRequest): Observable<ApiResponse<any>> {
@@ -73,6 +83,10 @@ export class ApiService {
   getIncidents(searchQuery: HttpParams): Observable<ApiResponse<ActiveIncident[]>> {
     let url = `${this.baseUrl}/Incident`;
     return this.http.get<ApiResponse<ActiveIncident[]>>(url, { params: searchQuery });
+  }
+
+  addIncident(incident: IncidentRequest): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Incident`, incident);
   }
 
 }
