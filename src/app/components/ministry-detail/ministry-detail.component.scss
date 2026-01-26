@@ -2,9 +2,87 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     flex-wrap: wrap;
     gap: 16px;
+}
+
+// Summary Cards Section
+.summary-cards-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+
+    .summary-card {
+        background-color: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.2s;
+
+        &:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: var(--color-gray-light);
+            color: var(--color-gray-dark);
+
+            &.badge-red {
+                background-color: var(--color-red-light);
+                color: var(--color-red);
+            }
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin: 0 0 8px 0;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin: 0 0 16px 0;
+        }
+
+        .card-link {
+            font-size: 14px;
+            color: var(--color-blue);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            transition: color 0.2s;
+
+            &:hover {
+                color: var(--color-blue-hover);
+                text-decoration: underline;
+            }
+        }
+    }
 }
 
 .digitalAssetsTitle {
@@ -22,14 +100,14 @@
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background-color: var(--color-primary);
-    color: var(--color-text-white);
+    background-color: var(--color-primary, #14b8a6);
+    color: var(--color-text-white, #ffffff);
     border: none;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 
     mat-icon {
         font-size: 20px;
@@ -38,7 +116,9 @@
     }
 
     &:hover {
-        background-color: var(--color-primary-hover);
+        background-color: var(--color-primary-hover, #0d9488);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     &:active {
@@ -50,73 +130,100 @@
     cursor: pointer;
 }
 
-// Style for ACTIONS column
+// Table Styles
 ::ng-deep .assets-table {
-    td[mat-cell]:first-child {
-        div {
-            color: var(--color-blue);
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 500;
-
-            &:hover {
-                text-decoration: underline;
-                color: var(--color-blue-hover);
+    // Style for CURRENT STATUS column (4th column)
+    td[mat-cell]:nth-child(4) {
+        .badge-cell {
+            .badge {
+                font-size: 12px;
+                font-weight: 500;
+                padding: 4px 10px;
+                border-radius: 4px;
             }
         }
     }
 
-    // Style for COMPLIANCE STATUS column - use var(--color-green) instead of var(--color-green-dark)
+    // Style for CURRENT HEALTH column (6th column)
+    td[mat-cell]:nth-child(6) {
+        .two-line-cell {
+            .line-primary {
+                font-weight: 500;
+            }
+            .line-secondary {
+                font-size: 12px;
+                color: var(--color-text-secondary);
+            }
+        }
+    }
+
+    // Style for PERFORMANCE STATUS column (7th column)
     td[mat-cell]:nth-child(7) {
         .two-line-cell {
             .line-primary {
-                color: var(--color-green) !important;
+                font-weight: 500;
+            }
+            .line-secondary {
+                font-size: 12px;
+                color: var(--color-text-secondary);
             }
         }
     }
 
-    // Style for CITIZEN IMPACT LEVEL column
-    td[mat-cell]:last-child {
+    // Style for COMPLIANCE STATUS column (8th column)
+    td[mat-cell]:nth-child(8) {
+        .two-line-cell {
+            .line-primary {
+                font-weight: 500;
+            }
+            .line-secondary {
+                font-size: 12px;
+                color: var(--color-text-secondary);
+            }
+        }
+    }
+
+    // Style for RISK EXPOSURE INDEX column (9th column)
+    td[mat-cell]:nth-child(9) {
         .badge-cell {
             .badge {
-                // Default green for LOW
-                background-color: var(--color-green-light) !important;
-                color: var(--color-green-dark) !important;
+                font-size: 11px;
+                font-weight: 600;
+                padding: 4px 10px;
+                border-radius: 4px;
+                text-transform: uppercase;
+            }
+        }
+    }
 
-                // HIGH values - red background and red text (applied via JavaScript)
-                &.high-impact {
-                    background-color: var(--color-red-light) !important;
-                    color: var(--color-red) !important;
-                }
+    // Style for CITIZEN IMPACT LEVEL column (10th column)
+    td[mat-cell]:nth-child(10) {
+        .badge-cell {
+            .badge {
+                font-size: 12px;
+                font-weight: 500;
+                padding: 4px 10px;
+                border-radius: 4px;
+            }
+        }
+    }
+
+    // Style for OPEN INCIDENTS column (11th column)
+    td[mat-cell]:nth-child(11) {
+        .badge-cell {
+            .badge {
+                font-size: 14px;
+                font-weight: 600;
+            }
+            .subtext {
+                font-size: 12px;
+                color: var(--color-text-secondary);
+                margin-top: 4px;
             }
         }
     }
 }
 
-.active-incidents-section {
-    margin-top: 32px;
-
-    .incidents-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: var(--color-text-primary);
-        margin-bottom: 16px;
-    }
-
-    .incidents-empty-state {
-        background-color: var(--color-bg-primary);
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        padding: 48px 24px;
-        text-align: center;
-
-        p {
-            margin: 0;
-            font-size: 14px;
-            color: var(--color-text-tertiary);
-        }
-    }
-}
 
 // Mobile Responsive Styles
 @media (max-width: 768px) {
@@ -143,17 +250,10 @@
         font-size: 14px;
     }
 
-    .active-incidents-section {
-        margin-top: 24px;
-
-        .incidents-title {
-            font-size: 18px;
-            margin-bottom: 12px;
-        }
-
-        .incidents-empty-state {
-            padding: 32px 16px;
-        }
+    .summary-cards-section {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
     }
 
     // Table responsive adjustments
@@ -199,16 +299,22 @@
         }
     }
 
-    .active-incidents-section {
-        .incidents-title {
-            font-size: 16px;
-        }
+    .summary-cards-section {
+        gap: 12px;
 
-        .incidents-empty-state {
-            padding: 24px 12px;
+        .summary-card {
+            padding: 20px;
 
-            p {
-                font-size: 13px;
+            .card-value {
+                font-size: 28px;
+            }
+
+            .card-title {
+                font-size: 14px;
+            }
+
+            .card-subtitle {
+                font-size: 12px;
             }
         }
     }

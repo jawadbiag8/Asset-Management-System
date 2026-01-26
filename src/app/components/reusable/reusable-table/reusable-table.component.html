@@ -130,6 +130,20 @@
                         </div>
                     </div>
                     }
+                    @case('health-status') {
+                    <div class="health-status-cell">
+                        <div class="health-icon-wrapper">
+                            <div class="health-tooltip" [attr.data-status]="getCellValue(row, column.healthStatusField || '')">
+                                {{ getCellValue(row, column.healthStatusField || '') }}
+                            </div>
+                            <img [src]="getHealthIconPath(getCellValue(row, column.healthIconField || ''))" 
+                                 [alt]="getCellValue(row, column.healthStatusField || '')"
+                                 class="health-icon" 
+                                 [ngClass]="getHealthIconClass(getCellValue(row, column.healthIconField || ''))" />
+                        </div>
+                        <div class="health-percentage">{{ getCellValue(row, column.healthPercentageField || '') }}</div>
+                    </div>
+                    }
                     @default {
                     <div>{{ getCellValue(row, column.primaryField || column.key) }}</div>
                     }

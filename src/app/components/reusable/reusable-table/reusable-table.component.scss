@@ -126,8 +126,8 @@
     background: var(--color-bg-primary);
     border-radius: 8px;
     border: 1px solid var(--color-border);
-    overflow: hidden;
     overflow-x: auto;
+    overflow-y: visible;
 }
 
 .assets-table {
@@ -152,6 +152,7 @@
         font-size: 14px;
         color: var(--color-text-primary);
         vertical-align: top;
+        overflow: visible;
     }
 
     tr:last-child td {
@@ -280,6 +281,95 @@
 
 .text-success-light {
     color: var(--color-green) !important;
+}
+
+// Health Status Cell Styles
+.health-status-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    padding: 8px 0;
+    min-height: 80px;
+
+    .health-icon-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .health-tooltip {
+        background-color: #4b5563;
+        color: #ffffff;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #4b5563;
+        }
+    }
+
+    .health-icon-wrapper:hover .health-tooltip {
+        opacity: 1;
+    }
+
+    .health-icon {
+        width: 24px;
+        height: 24px;
+        margin: 4px 0;
+        display: block;
+        object-fit: contain;
+
+        &.health-icon-healthy {
+            filter: brightness(0) saturate(100%) invert(67%) sepia(47%) saturate(2000%) hue-rotate(140deg) brightness(95%) contrast(85%);
+            // Teal color: #14b8a6
+        }
+
+        &.health-icon-critical {
+            filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(1352%) hue-rotate(340deg) brightness(99%) contrast(92%);
+            // Red color: #ef4444
+        }
+
+        &.health-icon-warning {
+            filter: brightness(0) saturate(100%) invert(70%) sepia(90%) saturate(2000%) hue-rotate(350deg) brightness(98%) contrast(95%);
+            // Orange color: #f59e0b
+        }
+
+        &.health-icon-unknown {
+            filter: brightness(0) saturate(100%) invert(44%) sepia(6%) saturate(500%) hue-rotate(200deg) brightness(95%) contrast(90%);
+            // Grey color: #6b7280
+        }
+    }
+
+    .health-percentage {
+        font-size: 12px;
+        color: var(--color-text-secondary, #6b7280);
+        font-weight: 400;
+        text-align: center;
+    }
 }
 
 // Pagination Styles
