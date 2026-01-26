@@ -275,3 +275,165 @@
 .text-success-light {
     color: var(--color-green) !important;
 }
+
+// Pagination Styles
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border);
+    border-radius: 0 0 8px 8px;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .pagination-info {
+        .row-count-text {
+            font-size: 14px;
+            color: var(--color-text-tertiary);
+        }
+    }
+
+    .pagination-right-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .pagination-rows-per-page {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .rows-per-page-label {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .rows-per-page-select {
+            padding: 6px 32px 6px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--color-text-primary);
+            background-color: var(--color-bg-primary);
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            transition: border-color 0.2s;
+
+            &:focus {
+                border-color: var(--color-search-border-focus);
+            }
+
+            &:hover {
+                border-color: var(--color-border-hover);
+            }
+        }
+    }
+
+    .pagination-navigation {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .pagination-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            background-color: var(--color-bg-primary);
+            color: var(--color-green-teal);
+            cursor: pointer;
+            transition: all 0.2s;
+
+            mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+                color: var(--color-green-teal);
+            }
+
+            &:hover:not(:disabled) {
+                background-color: var(--color-bg-hover);
+                border-color: var(--color-border-hover);
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                
+                mat-icon {
+                    color: var(--color-text-tertiary);
+                }
+            }
+
+            &:active:not(:disabled) {
+                transform: scale(0.95);
+            }
+        }
+
+        .page-indicator {
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 40px;
+            text-align: center;
+            
+            .current-page {
+                color: var(--color-green-teal);
+            }
+            
+            .total-pages {
+                color: var(--color-text-primary);
+            }
+        }
+    }
+}
+
+// Empty State Styles
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    min-height: 200px;
+    background-color: var(--color-bg-primary);
+    border-radius: 8px;
+
+    .empty-state-text {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--color-text-tertiary);
+        text-align: center;
+        margin: 0;
+    }
+}
+
+// Responsive Pagination
+@media (max-width: 768px) {
+    .pagination-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+
+        .pagination-info {
+            text-align: center;
+        }
+
+        .pagination-rows-per-page {
+            justify-content: center;
+        }
+
+        .pagination-navigation {
+            justify-content: center;
+        }
+    }
+}

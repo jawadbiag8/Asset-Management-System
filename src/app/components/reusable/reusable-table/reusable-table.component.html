@@ -45,6 +45,11 @@
 
     <!-- Table -->
     <div class="table-container">
+        @if(sortedData.length === 0) {
+        <div class="empty-state">
+            <p class="empty-state-text">{{ config.emptyStateMessage || 'No data available' }}</p>
+        </div>
+        } @else {
         <table mat-table [dataSource]="sortedData" class="assets-table" [style.min-width]="config.minWidth || '1400px'">
             @for(column of config.columns; track column.key) {
             <ng-container [matColumnDef]="column.key">
@@ -60,7 +65,10 @@
                     {{ column.header }}
                     }
                 </th>
-            <td mat-cell *matCellDef="let row" [style.width]="column.width">
+            <td mat-cell *matCellDef="let row" [style.width]="column.width"
+                [matTooltip]="hasTooltip(column) ? getTooltipText(row, column) : ''"
+                [matTooltipPosition]="column.tooltipPosition || 'above'"
+                [matTooltipDisabled]="!hasTooltip(column)">
                 @switch(column.cellType) {
                     @case('icon') {
                         <div class="analyze-icon-container" [style.background-color]="column.iconBgColor || 'var(--color-blue-light)'">
@@ -87,18 +95,18 @@
                     }
                     @case('badge') {
                         <span class="badge" 
-                              [ngClass]="getBadgeClass(column.badgeColor)"
-                              [style.background-color]="column.badgeColor"
-                              [style.color]="column.badgeTextColor">
+                              [ngClass]="getBadgeClass(getBadgeColor(row, column))"
+                              [style.background-color]="getBadgeColor(row, column)"
+                              [style.color]="getBadgeTextColor(row, column)">
                             {{ getCellValue(row, column.badgeField || '') }}
                         </span>
                     }
                     @case('badge-with-subtext') {
                         <div class="badge-cell">
                             <span class="badge" 
-                                  [ngClass]="getBadgeClass(column.badgeColor)"
-                                  [style.background-color]="column.badgeColor"
-                                  [style.color]="column.badgeTextColor">
+                                  [ngClass]="getBadgeClass(getBadgeColor(row, column))"
+                                  [style.background-color]="getBadgeColor(row, column)"
+                                  [style.color]="getBadgeTextColor(row, column)">
                                 {{ getCellValue(row, column.badgeField || '') }}
                             </span>
                             <div class="line-secondary mt-1">{{ getCellValue(row, column.subtextField || '') }}</div>
@@ -124,8 +132,51 @@
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+        </table>
+        }
 </div>
+
+    <!-- Pagination -->
+    @if(sortedData.length > 0) {
+    <div class="pagination-container">
+        <div class="pagination-info">
+            <span class="row-count-text">{{ getDisplayedRange() }} of {{ effectiveTotalItems }}</span>
+        </div>
+        
+        <div class="pagination-right-section">
+            <div class="pagination-rows-per-page">
+                <span class="rows-per-page-label">Rows per page:</span>
+                <select class="rows-per-page-select" [value]="pageSize" (change)="onPageSizeChange($event)">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+
+            <div class="pagination-navigation">
+                <button 
+                    class="pagination-button" 
+                    [disabled]="currentPage === 1"
+                    (click)="onPreviousPage()"
+                    type="button">
+                    <mat-icon>chevron_left</mat-icon>
+                </button>
+                <span class="page-indicator">
+                    <span class="current-page">{{ currentPage }}</span>/<span class="total-pages">{{ totalPages }}</span>
+                </span>
+                <button 
+                    class="pagination-button" 
+                    [disabled]="currentPage === totalPages"
+                    (click)="onNextPage()"
+                    type="button">
+                    <mat-icon>chevron_right</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+    }
 
     <!-- Filter Modal -->
     <app-filter-modal

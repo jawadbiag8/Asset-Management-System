@@ -7,6 +7,7 @@ import { MinistryDetailComponent } from './components/ministry-detail/ministry-d
 import { ManageDigitalAssetsComponent } from './components/manage-digital-assets/manage-digital-assets.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
+import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 
 export const routes: Routes = [
@@ -15,33 +16,38 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: 'assets/by-ministry',
     component: AssetsByMinistryComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: 'ministry-detail',
     component: MinistryDetailComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'view-assets-detail',
+    component: ViewAssetsDetailComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'add-digital-assets',
     component: ManageDigitalAssetsComponent,
     canActivate: [AuthGuard],
-    canDeactivate: [CanDeactivateGuard]
+    canDeactivate: [CanDeactivateGuard],
   },
   {
     path: 'edit-digital-assets',
     component: ManageDigitalAssetsComponent,
     canActivate: [AuthGuard],
-    canDeactivate: [CanDeactivateGuard]
+    canDeactivate: [CanDeactivateGuard],
   },
   {
     path: 'incidents',
     component: ActiveIncidentsComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
 ];
