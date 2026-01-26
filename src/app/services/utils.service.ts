@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../environments/environment';
+import { ReusableTableComponent } from '../components/reusable/reusable-table/reusable-table.component';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UtilsService {
+  private tableComponentRef: ReusableTableComponent | null = null;
 
   constructor(private toastr: ToastrService) { }
 
@@ -124,5 +126,24 @@ export class UtilsService {
 
 
     this.toastr[msgType](errorMessage);
+  }
+
+  /**
+   * Register the table component reference for refresh functionality
+   * @param tableComponent - Reference to the ReusableTableComponent instance
+   */
+  registerTableComponent(tableComponent: ReusableTableComponent | null | undefined): void {
+    this.tableComponentRef = tableComponent || null;
+  }
+
+  /**
+   * Refresh table data by calling the refresh method on the registered table component
+   */
+  refreshTableData(): void {
+    if (this.tableComponentRef) {
+      this.tableComponentRef.onRefresh();
+    } else {
+      console.warn('Table component reference is not registered. Make sure the table component has initialized.');
+    }
   }
 }

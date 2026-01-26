@@ -2,12 +2,14 @@ import {
   Component,
   Input,
   OnInit,
+  AfterViewInit,
   OnChanges,
   SimpleChanges,
   Output,
   EventEmitter,
 } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
+import { UtilsService } from '../../../services/utils.service';
 
 /**
  * ============================================================================
@@ -478,13 +480,13 @@ export interface TableConfig {
   styleUrl: './reusable-table.component.scss',
   standalone: false,
 })
-export class ReusableTableComponent implements OnInit, OnChanges {
+export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
 
   @Output() searchQuery = new EventEmitter<HttpParams>(); // Emit search query parameter as HttpParams (for server-side)
-  
+
   // Internal search value - no longer needs to be passed from parent
   searchValue: string = '';
 
@@ -502,6 +504,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   pageSize: number = 10;
   paginatedData: any[] = [];
 
+  // Store last search params for refresh functionality
+  private lastSearchParams: HttpParams = new HttpParams();
+
   // Get effective totalItems (from input or computed from data)
   get effectiveTotalItems(): number {
     if (this.config?.serverSideSearch && this.totalItems !== undefined) {
@@ -513,6 +518,8 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     }
     return this.originalData.length;
   }
+
+  constructor(private utilsService: UtilsService) { }
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -532,6 +539,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
     // For server-side search, emit initial query with page and pageSize
     if (this.config?.serverSideSearch) {
+      // Initialize lastSearchParams with default values
+      this.lastSearchParams = new HttpParams()
+        .set('page', this.currentPage.toString())
+        .set('pageSize', this.pageSize.toString());
       this.emitSearchQuery();
     } else {
       // For client-side search, apply search immediately
@@ -540,6 +551,12 @@ export class ReusableTableComponent implements OnInit, OnChanges {
         this.applyPagination();
       }
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Register this table component with utils service after view is initialized
+    // This ensures the component is fully ready before registration
+    this.utilsService.registerTableComponent(this);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -659,12 +676,28 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
     // Add filter parameters
     this.filters.forEach((filter) => {
-      if (filter.paramKey && filter.value && filter.value !== 'All') {
+      if (filter.paramKey && filter.value && filter.value !== '' && filter.value !== 'All') {
         httpParams = httpParams.set(filter.paramKey, filter.value);
       }
     });
 
+    // Store the last search params for refresh functionality
+    this.lastSearchParams = httpParams;
+
     this.searchQuery.emit(httpParams);
+  }
+
+  onRefresh(): void {
+    console.log('onRefresh', this.lastSearchParams);
+    // Reload data with the last search parameters
+    if (this.config?.serverSideSearch) {
+      this.searchQuery.emit(this.lastSearchParams);
+    } else {
+      // For client-side, reapply search and pagination
+      this.applySearch();
+      this.currentPage = 1;
+      this.applyPagination();
+    }
   }
 
   private applySearch() {
@@ -731,12 +764,12 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   }
 
   onFilterRemove(filterId: string) {
-    // Reset filter to "All" instead of removing it
+    // Reset filter to "All" (empty string) instead of removing it
     this.filters = this.filters.map((filter) => {
       if (filter.id === filterId) {
         return {
           ...filter,
-          value: 'All',
+          value: '',
           label: `${filter.label.split(':')[0]}: All`,
           removable: false,
         };
@@ -767,8 +800,8 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     this.filters = this.filters.map((filter) => {
       const change = filterChanges.find((c) => c.filterId === filter.id);
       if (change) {
-        const selectedValue = change.selectedValues[0] || 'All';
-        const isAll = selectedValue === 'All';
+        const selectedValue = change.selectedValues[0] || '';
+        const isAll = selectedValue === '' || selectedValue === 'All';
 
         // Build label based on selected value
         let labelText = filter.label.split(':')[0];
@@ -809,10 +842,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   }
 
   onFilterReset() {
-    // Reset all filters to "All"
+    // Reset all filters to "All" (empty string)
     this.filters = this.filters.map((filter) => ({
       ...filter,
-      value: 'All',
+      value: '',
       label: `${filter.label.split(':')[0]}: All`,
       removable: false,
     }));

@@ -34,7 +34,7 @@ export interface DigitalAsset {
   standalone: false,
 })
 export class DashboardComponent implements OnInit {
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) { }
 
   tableFilters = signal<FilterPill[]>([
     {

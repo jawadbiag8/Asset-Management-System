@@ -74,13 +74,13 @@ body {
 
 .btn {
   white-space: nowrap;
-  
+
   // Mobile screens - make it btn-sm size
   @media (max-width: 767px) {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
     line-height: 1.5;
-    
+
     mat-icon {
       font-size: 18px;
       width: 18px;
@@ -144,5 +144,32 @@ body {
 
   .toast-warning {
     background-color: #F59E0B !important;
+  }
+}
+
+.pageTitle {
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 32px;
+  line-height: 100%;
+  letter-spacing: 0px;
+}
+
+// Responsive modal styles
+::ng-deep .responsive-modal {
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+    max-height: 90vh;
+    
+    @media (max-width: 767px) {
+      max-height: 95vh;
+      margin: 10px;
+      width: calc(100% - 20px) !important;
+      max-width: calc(100% - 20px) !important;
+    }
+  }
+  
+  .mat-mdc-dialog-surface {
+    overflow: hidden;
   }
 }

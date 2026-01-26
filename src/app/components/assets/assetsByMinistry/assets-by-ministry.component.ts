@@ -169,7 +169,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
   constructor(
     private apiService: ApiService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Initial data will be loaded by table component on init via searchQuery event

@@ -13,20 +13,25 @@
           @if (filter.options) {
             <div class="filter-category">
               <h3 class="category-title">{{ filter.label.split(':')[0] }}</h3>
-              <div class="options-grid">
-                @for (option of filter.options; track option.value) {
-                  <label class="option-radio">
-                    <input
-                      type="radio"
-                      [name]="filter.id"
-                      [value]="option.value"
-                      [checked]="isSelected(filter.id, option.value)"
-                      (change)="selectOption(filter.id, option.value)"
-                    />
-                    <span class="radio-label">{{ option.label }}</span>
-                  </label>
-                }
-              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select {{ filter.label.split(':')[0] }}</mat-label>
+                <mat-select 
+                  [formControl]="getSelectControl(filter.id)"
+                  (selectionChange)="onSelectChange(filter.id, $event.value)">
+                  <mat-option>
+                    <ngx-mat-select-search 
+                      [formControl]="getFilterControl(filter.id)"
+                      [placeholderLabel]="'Search...'">
+                    </ngx-mat-select-search>
+                  </mat-option>
+                  @if ((getFilteredOptions(filter.id) | async)?.length === 0) {
+                    <mat-option disabled>No data found</mat-option>
+                  }
+                  @for (option of getFilteredOptions(filter.id) | async; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
             </div>
           }
         }

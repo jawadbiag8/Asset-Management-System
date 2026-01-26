@@ -6,38 +6,47 @@
             @if(filters.length > 0) {
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 @for(filter of filters; track filter.id) {
-                    @if(filter.value && filter.value !== 'All') {
-                        <span class="filter-pill filter-pill-selected" (click)="filter.removable && onFilterRemove(filter.id)">
-                            {{ filter.label }}
-                            @if(filter.removable) {
-                                <mat-icon class="filter-close-icon">close</mat-icon>
-                            }
-                        </span>
-                    } @else {
-                        <span class="filter-pill filter-pill-dropdown" (click)="onFilterClick(filter)">
-                            {{ filter.label }}
-                            <mat-icon class="filter-dropdown-icon">keyboard_arrow_down</mat-icon>
-                        </span>
+                @if(filter.value && filter.value !== '' && filter.value !== 'All') {
+                <span class="filter-pill filter-pill-selected" (click)="filter.removable && onFilterRemove(filter.id)">
+                    {{ filter.label }}
+                    @if(filter.removable) {
+                    <mat-icon class="filter-close-icon">close</mat-icon>
                     }
+                </span>
+                } @else {
+                <span class="filter-pill filter-pill-dropdown" (click)="onFilterClick(filter)">
+                    {{ filter.label }}
+                    <mat-icon class="filter-dropdown-icon">keyboard_arrow_down</mat-icon>
+                </span>
+                }
                 }
             </div>
             }
-            
-            <!-- Search Bar -->
-            @if(config.searchPlaceholder) {
-            <div class="search-container">
-                <mat-icon class="search-icon">search</mat-icon>
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    [placeholder]="config.searchPlaceholder"
-                    [(ngModel)]="searchValue"
-                    (keyup.enter)="onSearchButtonClick()">
-                <button class="search-button" (click)="onSearchButtonClick()" type="button">
-                    <mat-icon>search</mat-icon>
-                </button>
+
+            <!-- Search Bar and Refresh Button -->
+            <div class="d-flex align-items-center gap-2">
+                @if(config.searchPlaceholder) {
+                <div class="search-container">
+                    <mat-icon class="search-icon">search</mat-icon>
+                    <input type="text" class="search-input" [placeholder]="config.searchPlaceholder"
+                        [(ngModel)]="searchValue" (keyup.enter)="onSearchButtonClick()">
+                    <button class="search-button" (click)="onSearchButtonClick()" type="button">
+                        <mat-icon>search</mat-icon>
+                    </button>
+                </div>
+                }
             </div>
-            }
+        </div>
+    </div>
+    } @else {
+    <!-- Refresh Button Only (when no filters or search) -->
+    <div class="mb-3">
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-secondary btn-sm d-flex align-items-center gap-2" (click)="onRefresh()" type="button"
+                title="Refresh">
+                <mat-icon>refresh</mat-icon>
+                <span class="d-none d-md-inline">Refresh</span>
+            </button>
         </div>
     </div>
     }
@@ -64,80 +73,76 @@
                     {{ column.header }}
                     }
                 </th>
-            <td mat-cell *matCellDef="let row" [style.width]="column.width"
-                [matTooltip]="hasTooltip(column) ? getTooltipText(row, column) : ''"
-                [matTooltipPosition]="column.tooltipPosition || 'above'"
-                [matTooltipDisabled]="!hasTooltip(column)">
-                @switch(column.cellType) {
+                <td mat-cell *matCellDef="let row" [style.width]="column.width"
+                    [matTooltip]="hasTooltip(column) ? getTooltipText(row, column) : ''"
+                    [matTooltipPosition]="column.tooltipPosition || 'above'" [matTooltipDisabled]="!hasTooltip(column)">
+                    @switch(column.cellType) {
                     @case('icon') {
-                        <div class="analyze-icon-container" [style.background-color]="column.iconBgColor || 'var(--color-blue-light)'">
-                            @if(column.iconUrl) {
-                                <img [src]="column.iconUrl" alt="icon" class="custom-icon" />
-                            } @else {
-                                <mat-icon class="analyze-icon" [style.color]="column.iconColor || 'var(--color-blue-dark)'">
-                                    {{ column.iconName || 'bar_chart' }}
-                                </mat-icon>
-                            }
-                        </div>
+                    <div class="analyze-icon-container"
+                        [style.background-color]="column.iconBgColor || 'var(--color-blue-light)'">
+                        @if(column.iconUrl) {
+                        <img [src]="column.iconUrl" alt="icon" class="custom-icon" />
+                        } @else {
+                        <mat-icon class="analyze-icon" [style.color]="column.iconColor || 'var(--color-blue-dark)'">
+                            {{ column.iconName || 'bar_chart' }}
+                        </mat-icon>
+                        }
+                    </div>
                     }
                     @case('two-line') {
-                        <div class="two-line-cell">
-                            <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
-                            <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
-                        </div>
+                    <div class="two-line-cell">
+                        <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
+                        <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
+                    </div>
                     }
                     @case('link') {
-                        <div class="two-line-cell">
-                            <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
-                            <a [href]="getCellValue(row, column.linkField || '')" 
-                               target="_blank" 
-                               class="line-link">
-                                {{ getCellValue(row, column.linkField || '') }}
-                            </a>
-                        </div>
+                    <div class="two-line-cell">
+                        <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
+                        <a [href]="getCellValue(row, column.linkField || '')" target="_blank" class="line-link">
+                            {{ getCellValue(row, column.linkField || '') }}
+                        </a>
+                    </div>
                     }
                     @case('badge') {
-                        <span class="badge" 
-                              [ngClass]="getBadgeClass(getBadgeColor(row, column))"
-                              [style.background-color]="getBadgeColor(row, column)"
-                              [style.color]="getBadgeTextColor(row, column)">
-                            {{ getCellValue(row, column.badgeField || '') }}
-                        </span>
+                    <span class="badge" [ngClass]="getBadgeClass(getBadgeColor(row, column))"
+                        [style.background-color]="getBadgeColor(row, column)"
+                        [style.color]="getBadgeTextColor(row, column)">
+                        {{ getCellValue(row, column.badgeField || '') }}
+                    </span>
                     }
                     @case('badge-with-subtext') {
-                        <div class="badge-cell">
-                            <span class="badge" 
-                                  [ngClass]="getBadgeClass(getBadgeColor(row, column))"
-                                  [style.background-color]="getBadgeColor(row, column)"
-                                  [style.color]="getBadgeTextColor(row, column)">
-                                {{ getCellValue(row, column.badgeField || '') }}
-                            </span>
-                            <div class="line-secondary mt-1">{{ getCellValue(row, column.subtextField || '') }}</div>
-                        </div>
+                    <div class="badge-cell">
+                        <span class="badge" [ngClass]="getBadgeClass(getBadgeColor(row, column))"
+                            [style.background-color]="getBadgeColor(row, column)"
+                            [style.color]="getBadgeTextColor(row, column)">
+                            {{ getCellValue(row, column.badgeField || '') }}
+                        </span>
+                        <div class="line-secondary mt-1">{{ getCellValue(row, column.subtextField || '') }}</div>
+                    </div>
                     }
                     @case('text-with-color') {
-                        <div class="two-line-cell">
-                            <div class="line-primary" [ngClass]="getTextColorClass(column.textColor)">
-                                {{ getCellValue(row, column.primaryField || '') }}
-                            </div>
-                            <div class="line-secondary" [ngClass]="getSecondaryTextColorClass(column.textColor)">
-                                {{ getCellValue(row, column.secondaryField || '') }}
-                            </div>
+                    <div class="two-line-cell">
+                        <div class="line-primary" [ngClass]="getTextColorClass(column.textColor)">
+                            {{ getCellValue(row, column.primaryField || '') }}
                         </div>
+                        <div class="line-secondary" [ngClass]="getSecondaryTextColorClass(column.textColor)">
+                            {{ getCellValue(row, column.secondaryField || '') }}
+                        </div>
+                    </div>
                     }
                     @default {
-                        <div>{{ getCellValue(row, column.primaryField || column.key) }}</div>
+                    <div>{{ getCellValue(row, column.primaryField || column.key) }}</div>
                     }
-                }
-            </td>
-        </ng-container>
-        }
+                    }
+                </td>
+            </ng-container>
+            }
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
         }
-</div>
+    </div>
 
     <!-- Pagination -->
     @if(sortedData.length > 0) {
@@ -145,7 +150,7 @@
         <div class="pagination-info">
             <span class="row-count-text">{{ getDisplayedRange() }} of {{ effectiveTotalItems }}</span>
         </div>
-        
+
         <div class="pagination-right-section">
             <div class="pagination-rows-per-page">
                 <span class="rows-per-page-label">Rows per page:</span>
@@ -159,20 +164,15 @@
             </div>
 
             <div class="pagination-navigation">
-                <button 
-                    class="pagination-button" 
-                    [disabled]="currentPage === 1"
-                    (click)="onPreviousPage()"
+                <button class="pagination-button" [disabled]="currentPage === 1" (click)="onPreviousPage()"
                     type="button">
                     <mat-icon>chevron_left</mat-icon>
                 </button>
                 <span class="page-indicator">
-                    <span class="current-page">{{ currentPage }}</span>/<span class="total-pages">{{ totalPages }}</span>
+                    <span class="current-page">{{ currentPage }}</span>/<span class="total-pages">{{ totalPages
+                        }}</span>
                 </span>
-                <button 
-                    class="pagination-button" 
-                    [disabled]="currentPage === totalPages"
-                    (click)="onNextPage()"
+                <button class="pagination-button" [disabled]="currentPage === totalPages" (click)="onNextPage()"
                     type="button">
                     <mat-icon>chevron_right</mat-icon>
                 </button>
@@ -182,11 +182,7 @@
     }
 
     <!-- Filter Modal -->
-    <app-filter-modal
-        [filters]="filters"
-        [isOpen]="isFilterModalOpen"
-        (close)="onFilterModalClose()"
-        (apply)="onFilterApply($event)"
-        (reset)="onFilterReset()">
+    <app-filter-modal [filters]="filters" [isOpen]="isFilterModalOpen" (close)="onFilterModalClose()"
+        (apply)="onFilterApply($event)" (reset)="onFilterReset()">
     </app-filter-modal>
 </div>
