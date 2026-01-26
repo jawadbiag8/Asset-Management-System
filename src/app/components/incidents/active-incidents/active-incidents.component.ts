@@ -7,8 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
 import {
   TableConfig,
-  TableColumn,
-  FilterPill,
+  FilterPill
 } from '../../reusable/reusable-table/reusable-table.component';
 import { ManageIncidentsComponent } from '../manage-incidents/manage-incidents.component';
 
@@ -41,6 +40,7 @@ export interface ActiveIncident {
 })
 
 export class ActiveIncidentsComponent implements OnInit {
+
   incidents = signal<ActiveIncident[]>([]);
 
   breadcrumbs: BreadcrumbItem[] = [
@@ -348,7 +348,6 @@ export class ActiveIncidentsComponent implements OnInit {
     });
   }
 
-
   getSeverityBadgeColor(securityLevel: string): string {
     const level = securityLevel?.toUpperCase();
     // Handle P1, P2, P3, P4 format
@@ -427,6 +426,10 @@ export class ActiveIncidentsComponent implements OnInit {
     }
   }
 
+  onRefresh(): void {
+    this.utils.refreshTableData();
+  }
+
   onAddIncident(): void {
     const dialogRef = this.dialog.open(ManageIncidentsComponent, {
       width: '90%',
@@ -438,9 +441,7 @@ export class ActiveIncidentsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        // Reload incidents after successful addition
-        const params = new HttpParams();
-        this.loadIncidents(params);
+        this.onRefresh();
       }
     });
   }

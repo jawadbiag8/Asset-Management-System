@@ -2,12 +2,14 @@ import {
   Component,
   Input,
   OnInit,
+  AfterViewInit,
   OnChanges,
   SimpleChanges,
   Output,
   EventEmitter,
 } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
+import { UtilsService } from '../../../services/utils.service';
 
 /**
  * ============================================================================
@@ -478,13 +480,13 @@ export interface TableConfig {
   styleUrl: './reusable-table.component.scss',
   standalone: false,
 })
-export class ReusableTableComponent implements OnInit, OnChanges {
+export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
 
   @Output() searchQuery = new EventEmitter<HttpParams>(); // Emit search query parameter as HttpParams (for server-side)
-  
+
   // Internal search value - no longer needs to be passed from parent
   searchValue: string = '';
 
@@ -502,6 +504,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   pageSize: number = 10;
   paginatedData: any[] = [];
 
+  // Store last search params for refresh functionality
+  private lastSearchParams: HttpParams = new HttpParams();
+
   // Get effective totalItems (from input or computed from data)
   get effectiveTotalItems(): number {
     if (this.config?.serverSideSearch && this.totalItems !== undefined) {
@@ -513,6 +518,8 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     }
     return this.originalData.length;
   }
+
+  constructor(private utilsService: UtilsService) { }
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -532,6 +539,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
     // For server-side search, emit initial query with page and pageSize
     if (this.config?.serverSideSearch) {
+      // Initialize lastSearchParams with default values
+      this.lastSearchParams = new HttpParams()
+        .set('page', this.currentPage.toString())
+        .set('pageSize', this.pageSize.toString());
       this.emitSearchQuery();
     } else {
       // For client-side search, apply search immediately
@@ -540,6 +551,12 @@ export class ReusableTableComponent implements OnInit, OnChanges {
         this.applyPagination();
       }
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Register this table component with utils service after view is initialized
+    // This ensures the component is fully ready before registration
+    this.utilsService.registerTableComponent(this);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -664,7 +681,23 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       }
     });
 
+    // Store the last search params for refresh functionality
+    this.lastSearchParams = httpParams;
+
     this.searchQuery.emit(httpParams);
+  }
+
+  onRefresh(): void {
+    console.log('onRefresh', this.lastSearchParams);
+    // Reload data with the last search parameters
+    if (this.config?.serverSideSearch) {
+      this.searchQuery.emit(this.lastSearchParams);
+    } else {
+      // For client-side, reapply search and pagination
+      this.applySearch();
+      this.currentPage = 1;
+      this.applyPagination();
+    }
   }
 
   private applySearch() {
