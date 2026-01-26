@@ -24,12 +24,15 @@ export interface ActiveIncident {
   updatedBy?: string | null;
   deletedAt?: string | null;
   deletedBy?: string | null;
-  // Additional fields for display
+  // Additional fields from backend response
+  severity?: string;
+  severityDescription?: string;
   status?: string;
+  statusSince?: string;
+  createdAgo?: string;
+  kpiDescription?: string;
   assetName?: string;
-  ministry?: string;
-  statusSince?: string; // Formatted timestamp like "Since: 2 hours ago"
-  createdAgo?: string; // Formatted timestamp like "Created: 5 mins ago"
+  ministryName?: string;
 }
 
 @Component({
@@ -49,6 +52,8 @@ export class ActiveIncidentsComponent implements OnInit {
   ];
 
   tableFilters = signal<FilterPill[]>([]);
+
+
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
@@ -71,17 +76,19 @@ export class ActiveIncidentsComponent implements OnInit {
         header: 'INCIDENT',
         cellType: 'text',
         primaryField: 'incidentTitle',
-        sortable: true,
+        cellClass: 'fw-bold',
+        sortable: false,
         width: '200px',
       },
       {
         key: 'severity',
         header: 'SEVERITY',
-        cellType: 'badge',
-        badgeField: 'securityLevel',
-        badgeColor: (row: any) => this.getSeverityBadgeColor(row.securityLevel),
-        badgeTextColor: (row: any) => this.getSeverityBadgeTextColor(row.securityLevel),
-        sortable: true,
+        cellType: 'badge-with-subtext',
+        badgeField: 'severityCode',
+        subtextField: 'severityDescription',
+        badgeColor: (row: any) => this.getSeverityBadgeColor(row.severity),
+        badgeTextColor: (row: any) => this.getSeverityBadgeTextColor(row.severity),
+        sortable: false,
         width: '150px',
       },
       {
@@ -92,7 +99,7 @@ export class ActiveIncidentsComponent implements OnInit {
         subtextField: 'statusSince',
         badgeColor: (row: any) => this.getStatusBadgeColor(row.status),
         badgeTextColor: (row: any) => this.getStatusBadgeTextColor(row.status),
-        sortable: true,
+        sortable: false,
         width: '180px',
       },
       {
@@ -101,15 +108,15 @@ export class ActiveIncidentsComponent implements OnInit {
         cellType: 'two-line',
         primaryField: 'createdBy',
         secondaryField: 'createdAgo',
-        sortable: true,
+        sortable: false,
         width: '180px',
       },
       {
         key: 'kpi',
         header: 'KPI',
         cellType: 'text',
-        primaryField: 'description',
-        sortable: true,
+        primaryField: 'kpiDescription',
+        sortable: false,
         width: '250px',
       },
       {
@@ -117,8 +124,8 @@ export class ActiveIncidentsComponent implements OnInit {
         header: 'ASSET',
         cellType: 'two-line',
         primaryField: 'assetName',
-        secondaryField: 'ministry',
-        sortable: true,
+        secondaryField: 'ministryName',
+        sortable: false,
         width: '200px',
       },
     ],
@@ -141,6 +148,9 @@ export class ActiveIncidentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeFilters();
+    // Load initial incidents data
+    const params = new HttpParams().set('page', '1').set('pageSize', '10');
+    this.loadIncidents(params);
   }
 
   initializeFilters(): void {
@@ -325,15 +335,18 @@ export class ActiveIncidentsComponent implements OnInit {
         if (response.isSuccessful) {
           const data: ActiveIncident[] = response.data.data;;
           // Process and format the incidents data
-          const processedIncidents = data.map((incident: ActiveIncident) => ({
+          const processedIncidents = data.map((incident: any) => ({
             ...incident,
             status: incident.status || 'Open',
-            statusSince: `Since: ${this.formatTimeAgo(incident.createdAt)}`,
-            createdAgo: `Created: ${this.formatTimeAgo(incident.createdAt)}`,
-            // If assetName and ministry are not in response, you may need to fetch them separately
-            // For now, using placeholder or existing data
+            statusSince: incident.statusSince ? `Since: ${incident.statusSince}` : `Since: ${this.formatTimeAgo(incident.createdAt)}`,
+            createdAgo: incident.createdAgo ? `Created: ${incident.createdAgo}` : `Created: ${this.formatTimeAgo(incident.createdAt)}`,
+            // Format severity code (P1, P2, P3, P4) from severity value
+            severityCode: this.formatSeverityCode(incident.severity),
+            severityDescription: incident.severityDescription || incident.severity || 'N/A',
+            // Use fields directly from backend response
             assetName: incident.assetName || `Asset ${incident.assetId}`,
-            ministry: incident.ministry || 'N/A'
+            ministryName: incident.ministryName || 'N/A',
+            kpiDescription: incident.kpiDescription || incident.description || 'N/A'
           }));
           this.incidents.set(processedIncidents);
         } else {
@@ -348,30 +361,46 @@ export class ActiveIncidentsComponent implements OnInit {
     });
   }
 
-  getSeverityBadgeColor(securityLevel: string): string {
-    const level = securityLevel?.toUpperCase();
-    // Handle P1, P2, P3, P4 format
-    if (level === 'P1' || level === 'P1 CRITICAL' || level === 'CRITICAL') {
+  formatSeverityCode(severity: string | undefined): string {
+    if (!severity) return 'N/A';
+    // If already in P1, P2 format, return as is
+    if (severity.toUpperCase().startsWith('P')) {
+      return severity.toUpperCase();
+    }
+    // Convert numeric severity to P format
+    const severityNum = parseInt(severity);
+    if (!isNaN(severityNum) && severityNum >= 1 && severityNum <= 4) {
+      return `P${severityNum}`;
+    }
+    return severity;
+  }
+
+  getSeverityBadgeColor(severity: string): string {
+    if (!severity) return '#F3F4F6';
+    const level = severity.toString().toUpperCase();
+    // Handle P1, P2, P3, P4 format or numeric 1, 2, 3, 4
+    if (level === 'P1' || level === '1' || level === 'P1 CRITICAL' || level === 'CRITICAL') {
       return 'var(--color-red-light)';
-    } else if (level === 'P2' || level === 'P2 HIGH' || level === 'HIGH') {
+    } else if (level === 'P2' || level === '2' || level === 'P2 HIGH' || level === 'HIGH') {
       return 'var(--color-orange-light)';
-    } else if (level === 'P3' || level === 'P3 MEDIUM' || level === 'MEDIUM' || level === 'MODERATE') {
+    } else if (level === 'P3' || level === '3' || level === 'P3 MEDIUM' || level === 'MEDIUM' || level === 'MODERATE') {
       return 'var(--color-yellow-light)';
-    } else if (level === 'P4' || level === 'P4 LOW' || level === 'LOW' || level === 'INFO') {
+    } else if (level === 'P4' || level === '4' || level === 'P4 LOW' || level === 'LOW' || level === 'INFO') {
       return 'var(--color-green-light)';
     }
     return '#F3F4F6';
   }
 
-  getSeverityBadgeTextColor(securityLevel: string): string {
-    const level = securityLevel?.toUpperCase();
-    if (level === 'P1' || level === 'P1 CRITICAL' || level === 'CRITICAL') {
+  getSeverityBadgeTextColor(severity: string): string {
+    if (!severity) return '#6B7280';
+    const level = severity.toString().toUpperCase();
+    if (level === 'P1' || level === '1' || level === 'P1 CRITICAL' || level === 'CRITICAL') {
       return 'var(--color-red)';
-    } else if (level === 'P2' || level === 'P2 HIGH' || level === 'HIGH') {
+    } else if (level === 'P2' || level === '2' || level === 'P2 HIGH' || level === 'HIGH') {
       return 'var(--color-orange)';
-    } else if (level === 'P3' || level === 'P3 MEDIUM' || level === 'MEDIUM' || level === 'MODERATE') {
+    } else if (level === 'P3' || level === '3' || level === 'P3 MEDIUM' || level === 'MEDIUM' || level === 'MODERATE') {
       return 'var(--color-yellow)';
-    } else if (level === 'P4' || level === 'P4 LOW' || level === 'LOW' || level === 'INFO') {
+    } else if (level === 'P4' || level === '4' || level === 'P4 LOW' || level === 'LOW' || level === 'INFO') {
       return 'var(--color-green-dark)';
     }
     return '#6B7280';
@@ -381,8 +410,14 @@ export class ActiveIncidentsComponent implements OnInit {
     const statusUpper = status?.toUpperCase();
     if (statusUpper === 'OPEN') {
       return '#F3F4F6'; // Grey background
+    } else if (statusUpper === 'INVESTIGATING') {
+      return '#FEE2E2'; // Light red/pink background
+    } else if (statusUpper === 'FIXING') {
+      return 'var(--color-yellow-light)'; // Yellow background
+    } else if (statusUpper === 'MONITORING') {
+      return 'var(--color-green-light)'; // Light green background
     } else if (statusUpper === 'RESOLVED' || statusUpper === 'CLOSED') {
-      return 'var(--color-green-light)';
+      return '#B2F5EA'; // Teal/blue-green background
     } else if (statusUpper === 'IN PROGRESS' || statusUpper === 'IN_PROGRESS') {
       return 'var(--color-blue-light)';
     }
@@ -393,8 +428,14 @@ export class ActiveIncidentsComponent implements OnInit {
     const statusUpper = status?.toUpperCase();
     if (statusUpper === 'OPEN') {
       return '#1F2937'; // Dark grey text
+    } else if (statusUpper === 'INVESTIGATING') {
+      return '#DC2626'; // Red text
+    } else if (statusUpper === 'FIXING') {
+      return 'var(--color-yellow)'; // Yellow text
+    } else if (statusUpper === 'MONITORING') {
+      return 'var(--color-green-dark)'; // Green text
     } else if (statusUpper === 'RESOLVED' || statusUpper === 'CLOSED') {
-      return 'var(--color-green-dark)';
+      return '#047857'; // Dark teal text
     } else if (statusUpper === 'IN PROGRESS' || statusUpper === 'IN_PROGRESS') {
       return 'var(--color-blue-dark)';
     }

@@ -441,6 +441,9 @@ export interface TableColumn {
   // For tooltip
   tooltip?: string | ((row: any) => string); // Tooltip text (static or function that returns tooltip based on row data)
   tooltipPosition?: 'above' | 'below' | 'left' | 'right' | 'before' | 'after'; // Tooltip position (default: 'above')
+
+  // For custom CSS classes
+  cellClass?: string; // CSS class name to apply to the cell content
 }
 
 export interface FilterOption {
