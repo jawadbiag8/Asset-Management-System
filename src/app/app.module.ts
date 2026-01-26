@@ -15,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -31,6 +32,8 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 import { ApiInterceptor } from './interceptors/api.interceptor';
 import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
+import { ConfirmationDialogComponent } from './components/reusable/confirmation-dialog/confirmation-dialog.component';
+import { LoaderComponent } from './components/loader/loader.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +50,8 @@ import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-
     ActiveIncidentsComponent,
     MinistryDetailComponent,
     ViewAssetsDetailComponent,
+    ConfirmationDialogComponent,
+    LoaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -63,6 +68,7 @@ import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
+    MatDialogModule,
     NgxMatSelectSearchModule,
     ToastrModule.forRoot({
       timeOut: 7000,

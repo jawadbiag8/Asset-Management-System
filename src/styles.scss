@@ -72,6 +72,24 @@ body {
   background-color: var(--color-bg-secondary);
 }
 
+.btn {
+  white-space: nowrap;
+  
+  // Mobile screens - make it btn-sm size
+  @media (max-width: 767px) {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+  }
+}
+
 .btn-primary {
   --bs-btn-color: var(--color-text-white);
   --bs-btn-bg: var(--color-primary);

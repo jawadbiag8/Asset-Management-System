@@ -1,9 +1,11 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ApiResponse, ApiService } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
+import { CanComponentDeactivate } from '../../guards/can-deactivate.guard';
 
 export interface DigitalAssetRequest {
   ministryId: number;
@@ -26,16 +28,18 @@ export interface DigitalAssetRequest {
   styleUrl: './manage-digital-assets.component.scss',
   standalone: false,
 })
-export class ManageDigitalAssetsComponent implements OnInit {
+export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactivate {
 
   pageInfo = signal<{
     pageState: 'add' | 'edit' | null;
     title: string;
     subtitle: string;
+    assetId: number | null;
   }>({
     pageState: null,
     title: '',
-    subtitle: ''
+    subtitle: '',
+    assetId: null
   });
 
   digitalAssetForm!: FormGroup;
@@ -71,9 +75,11 @@ export class ManageDigitalAssetsComponent implements OnInit {
 
   constructor(
     private route: Router,
+    private activatedRoute: ActivatedRoute,
     private fb: FormBuilder,
     private api: ApiService,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private location: Location
   ) { }
 
   ngOnInit() {
@@ -82,8 +88,26 @@ export class ManageDigitalAssetsComponent implements OnInit {
     this.pageInfo.set({
       pageState: this.route.url === '/add-digital-assets' ? 'add' : 'edit',
       title: this.route.url === '/add-digital-assets' ? 'Add New Digital Asset' : 'Edit Digital Asset',
-      subtitle: this.route.url === '/add-digital-assets' ? 'Fill in the details below to add a new digital asset to the monitoring system' : 'Fill in the details below to update existing digital asset to the monitoring system'
+      subtitle: this.route.url === '/add-digital-assets' ? 'Fill in the details below to add a new digital asset to the monitoring system' : 'Fill in the details below to update existing digital asset to the monitoring system',
+      assetId: this.route.url === '/add-digital-assets' ? null : this.activatedRoute.snapshot.queryParams['assetId']
     });
+
+    if (this.pageInfo().pageState === 'edit') {
+
+      if (!this.pageInfo().assetId) {
+        this.utils.showToast('Asset ID is required', 'Error', 'error');
+        this.route.navigate(['/dashboard']);
+        return;
+      };
+
+      this.breadcrumbs = [
+        { label: 'Dashboard', path: '/dashboard' },
+        { label: 'Edit Digital Assets' }
+      ];
+
+      this.getAssetById(this.pageInfo().assetId);
+    }
+
 
     this.digitalAssetForm.get('ministryId')?.valueChanges.subscribe((value: number) => {
       this.getDepartmentsByMinistry(value);
@@ -108,15 +132,14 @@ export class ManageDigitalAssetsComponent implements OnInit {
       // Additional Information
       description: [''],
       primaryContactName: ['', Validators.required],
-      primaryContactEmail: ['', Validators.required, Validators.email],
+      primaryContactEmail: ['', [Validators.required, Validators.email]],
       primaryContactPhone: ['', Validators.required],
       technicalContactName: ['', Validators.required],
-      technicalContactEmail: ['', Validators.required, Validators.email],
+      technicalContactEmail: ['', [Validators.required, Validators.email]],
       technicalContactPhone: ['', Validators.required],
 
     });
   }
-
   getMinistryOptions() {
     this.api.getAllMinistries().subscribe({
       next: (res: ApiResponse) => {
@@ -162,6 +185,29 @@ export class ManageDigitalAssetsComponent implements OnInit {
     });
   }
 
+  getAssetById(assetId: number | null) {
+    if (!assetId) {
+      return;
+    }
+
+    this.api.getAssetById(assetId).subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful) {
+          this.digitalAssetForm.patchValue(res.data);
+          this.digitalAssetForm.markAsPristine();
+          this.digitalAssetForm.markAsUntouched();
+        } else {
+          this.utils.showToast(res, 'Error fetching asset', 'error');
+          this.location.back();
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error fetching asset', 'error');
+        this.location.back();
+      }
+    });
+  }
+
 
   onSubmit() {
     if (this.digitalAssetForm.invalid) {
@@ -169,11 +215,31 @@ export class ManageDigitalAssetsComponent implements OnInit {
       return;
     }
 
+    if (this.pageInfo().pageState === 'edit') {
+      this.api.updateAsset(this.pageInfo().assetId, this.digitalAssetForm.value).subscribe({
+        next: (res: ApiResponse) => {
+          if (res.isSuccessful) {
+            this.utils.showToast(res.message, 'Asset updated successfully', 'success');
+            this.digitalAssetForm.markAsPristine();
+            this.route.navigateByUrl('/dashboard');
+          } else {
+            this.utils.showToast(res.message, 'Error updating asset', 'error');
+          }
+        },
+        error: (error: any) => {
+          this.utils.showToast(error, 'Error updating asset', 'error');
+        }
+      });
+
+      return
+    }
+
     this.api.addAsset(this.digitalAssetForm.value).subscribe({
       next: (res: ApiResponse) => {
         if (res.isSuccessful) {
           this.utils.showToast(res.message, 'Asset added successfully', 'success');
-          this.route.navigate(['/dashboard']);
+          this.digitalAssetForm.markAsPristine();
+          this.route.navigateByUrl('/dashboard');
         } else {
           this.utils.showToast(res.message, 'Error adding asset', 'error');
         }
@@ -187,6 +253,16 @@ export class ManageDigitalAssetsComponent implements OnInit {
   // Helper method to get form control
   getControl(controlName: string): FormControl {
     return this.digitalAssetForm.get(controlName) as FormControl;
+  }
+
+  // CanDeactivate implementation
+  canDeactivate(): boolean {
+    if (this.digitalAssetForm.dirty) {
+      // Form has unsaved changes
+      return false;
+    }
+    // Form is clean, allow navigation
+    return true;
   }
 
 }

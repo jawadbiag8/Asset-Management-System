@@ -16,7 +16,7 @@ export interface ApiResponse<T = any> {
 export class ApiService {
   private baseUrl: string = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(username: string, password: string): Observable<ApiResponse<string>> {
     return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, {
@@ -47,8 +47,6 @@ export class ApiService {
 
   // Assets
 
-  // Assets
-
   getAssets(searchQuery?: HttpParams): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset`;
     return this.http.get<ApiResponse<any>>(url, { params: searchQuery });
@@ -57,4 +55,16 @@ export class ApiService {
   addAsset(asset: DigitalAssetRequest): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Asset`, asset);
   }
+
+
+  getAssetById(assetId: number): Observable<ApiResponse<any>> {
+    let url = `${this.baseUrl}/Asset/${assetId}`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
+  updateAsset(assetId: number | null, asset: DigitalAssetRequest): Observable<ApiResponse<any>> {
+    let url = `${this.baseUrl}/Asset/${assetId}`;
+    return this.http.put<ApiResponse<any>>(url, asset);
+  }
+
 }

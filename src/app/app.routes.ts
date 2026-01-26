@@ -8,6 +8,7 @@ import { ManageDigitalAssetsComponent } from './components/manage-digital-assets
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
 import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
+import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -36,6 +37,13 @@ export const routes: Routes = [
     path: 'add-digital-assets',
     component: ManageDigitalAssetsComponent,
     canActivate: [AuthGuard],
+    canDeactivate: [CanDeactivateGuard],
+  },
+  {
+    path: 'edit-digital-assets',
+    component: ManageDigitalAssetsComponent,
+    canActivate: [AuthGuard],
+    canDeactivate: [CanDeactivateGuard],
   },
   {
     path: 'incidents',
