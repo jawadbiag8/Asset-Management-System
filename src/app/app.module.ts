@@ -14,6 +14,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
@@ -30,6 +31,7 @@ import { ActiveIncidentsComponent } from './components/incidents/active-incident
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 import { ApiInterceptor } from './interceptors/api.interceptor';
+import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
 import { ConfirmationDialogComponent } from './components/reusable/confirmation-dialog/confirmation-dialog.component';
 import { LoaderComponent } from './components/loader/loader.component';
 
@@ -47,6 +49,7 @@ import { LoaderComponent } from './components/loader/loader.component';
     AssetsByMinistryComponent,
     ActiveIncidentsComponent,
     MinistryDetailComponent,
+    ViewAssetsDetailComponent,
     ConfirmationDialogComponent,
     LoaderComponent,
   ],
@@ -64,21 +67,22 @@ import { LoaderComponent } from './components/loader/loader.component';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatTooltipModule,
     MatDialogModule,
     NgxMatSelectSearchModule,
     ToastrModule.forRoot({
       timeOut: 7000,
       positionClass: 'toast-top-right',
       closeButton: true,
-      progressBar: true
+      progressBar: true,
     }),
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiInterceptor,
-      multi: true
-    }
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
 })

@@ -1,11 +1,19 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 
 /**
  * Reusable Table Component
- * 
+ *
  * A flexible, reusable table component that supports multiple cell types and configurations.
- * 
+ *
  * Usage Example:
  * ```typescript
  * tableConfig: TableConfig = {
@@ -33,7 +41,14 @@ import { HttpParams } from '@angular/common/http';
  * ```
  */
 
-export type CellType = 'text' | 'two-line' | 'badge' | 'icon' | 'link' | 'badge-with-subtext' | 'text-with-color';
+export type CellType =
+  | 'text'
+  | 'two-line'
+  | 'badge'
+  | 'icon'
+  | 'link'
+  | 'badge-with-subtext'
+  | 'text-with-color';
 
 export interface TableColumn {
   key: string; // Unique identifier for the column
@@ -41,27 +56,31 @@ export interface TableColumn {
   cellType: CellType; // Type of cell rendering
   sortable?: boolean; // Whether column is sortable (default: true)
   width?: string; // Optional column width
-  
+
   // For 'text' and 'two-line' cells
   primaryField?: string; // Field name for primary text
   secondaryField?: string; // Field name for secondary text (two-line only)
-  
+
   // For 'badge' and 'badge-with-subtext' cells
   badgeField?: string; // Field name for badge text
-  badgeColor?: string; // Background color (CSS variable or hex)
-  badgeTextColor?: string; // Text color (CSS variable or hex)
+  badgeColor?: string | ((row: any) => string); // Background color (CSS variable or hex) or function that returns color
+  badgeTextColor?: string | ((row: any) => string); // Text color (CSS variable or hex) or function that returns color
   subtextField?: string; // Field name for subtext (badge-with-subtext only)
-  
+
   // For 'icon' cells
   iconName?: string; // Material icon name
   iconColor?: string; // Icon color (CSS variable or hex)
   iconBgColor?: string; // Icon background color (CSS variable or hex)
-  
+
   // For 'link' cells
   linkField?: string; // Field name for full URL
-  
+
   // For 'text-with-color' cells
   textColor?: string; // Color class name (e.g., 'success', 'success-light')
+
+  // For tooltip
+  tooltip?: string | ((row: any) => string); // Tooltip text (static or function that returns tooltip based on row data)
+  tooltipPosition?: 'above' | 'below' | 'left' | 'right' | 'before' | 'after'; // Tooltip position (default: 'above')
 }
 
 export interface FilterOption {
@@ -91,6 +110,8 @@ export interface TableConfig {
   defaultPageSize?: number; // Default page size (default: 10)
   // Filter configuration
   filters?: FilterPill[]; // Array of filter pills to display
+  // Empty state configuration
+  emptyStateMessage?: string; // Message to display when table has no data (default: 'No data available')
 }
 
 @Component({
@@ -103,66 +124,104 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   @Input() config!: TableConfig;
   @Input() searchValue: string = ''; // Search value controlled from parent
   @Input() filters: FilterPill[] = []; // Filters controlled from parent
-  
+  @Input() totalItems?: number; // Total items count for server-side pagination
+
   @Output() searchChange = new EventEmitter<string>(); // Emit search value changes (for client-side)
   @Output() searchQuery = new EventEmitter<HttpParams>(); // Emit search query parameter as HttpParams (for server-side)
   @Output() filterRemove = new EventEmitter<string>(); // Emit when filter is removed
   @Output() filterClick = new EventEmitter<FilterPill>(); // Emit when filter is clicked with filter object
-  @Output() filterApply = new EventEmitter<{ filterId: string; selectedValues: string[] }[]>(); // Emit when filters are applied (all at once)
-  
+  @Output() filterApply = new EventEmitter<
+    { filterId: string; selectedValues: string[] }[]
+  >(); // Emit when filters are applied (all at once)
+
   displayedColumns: string[] = [];
   sortState: { [key: string]: 'asc' | 'desc' | null } = {};
   sortedData: any[] = [];
   filteredData: any[] = [];
   private originalData: any[] = [];
-  
+
   // Filter modal state
   isFilterModalOpen = false;
 
+  // Pagination state
+  currentPage: number = 1;
+  pageSize: number = 10;
+  paginatedData: any[] = [];
+
+  // Get effective totalItems (from input or computed from data)
+  get effectiveTotalItems(): number {
+    if (this.config?.serverSideSearch && this.totalItems !== undefined) {
+      return this.totalItems;
+    }
+    // For client-side, compute from data
+    if (this.searchValue && this.searchValue.trim()) {
+      return this.filteredData.length;
+    }
+    return this.originalData.length;
+  }
+
   ngOnInit() {
     if (this.config && this.config.columns) {
-      this.displayedColumns = this.config.columns.map(col => col.key);
+      this.displayedColumns = this.config.columns.map((col) => col.key);
     }
     // Initialize filters from config if provided
     if (this.config?.filters && this.filters.length === 0) {
       this.filters = this.config.filters;
     }
-    // Initialize data - ensure it's an array
-    const data = this.config?.data;
-    this.originalData = Array.isArray(data) ? [...data] : [];
+    // Initialize pagination
+    this.currentPage = this.config?.defaultPage || 1;
+    this.pageSize = this.config?.defaultPageSize || 10;
+
+    // Initialize data
+    this.originalData = [...(this.config?.data || [])];
     this.sortedData = [...this.originalData];
-    
+
     // For server-side search, emit initial query with page and pageSize
     if (this.config?.serverSideSearch) {
       this.emitSearchQuery();
     } else {
       // For client-side search, apply search immediately
       this.applySearch();
+      if (!this.config?.serverSideSearch) {
+        this.applyPagination();
+      }
     }
   }
 
-
   ngOnChanges(changes: SimpleChanges) {
     // Update data when config changes
-    if (changes['config'] && this.config?.data && Array.isArray(this.config.data)) {
+    if (
+      changes['config'] &&
+      this.config?.data &&
+      Array.isArray(this.config.data)
+    ) {
       this.originalData = [...this.config.data];
       this.sortedData = [...this.originalData];
       // Reapply search only if client-side
       if (!this.config?.serverSideSearch) {
         this.applySearch();
         // Reapply current sort if any
-        const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+        const activeSort = Object.keys(this.sortState).find(
+          (key) => this.sortState[key] !== null,
+        );
         if (activeSort) {
           this.applySort(activeSort, this.sortState[activeSort]!);
+        } else {
+          if (!this.config?.serverSideSearch) {
+            this.applyPagination();
+          }
         }
       }
-    } else if (changes['config'] && (!this.config?.data || !Array.isArray(this.config.data))) {
+    } else if (
+      changes['config'] &&
+      (!this.config?.data || !Array.isArray(this.config.data))
+    ) {
       // If data is not an array, set empty arrays
       this.originalData = [];
       this.sortedData = [];
       this.filteredData = [];
     }
-    
+
     // Update when search value changes
     if (changes['searchValue']) {
       // For server-side search, don't trigger search automatically - only on button click
@@ -170,15 +229,26 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       if (!this.config?.serverSideSearch) {
         this.applySearch();
         // Reapply current sort if any
-        const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+        const activeSort = Object.keys(this.sortState).find(
+          (key) => this.sortState[key] !== null,
+        );
         if (activeSort) {
           this.applySort(activeSort, this.sortState[activeSort]!);
+        } else {
+          this.currentPage = 1; // Reset to first page on search
+          if (!this.config?.serverSideSearch) {
+            this.applyPagination();
+          }
         }
       }
     }
-    
+
     // When filters change and server-side search is enabled, emit query with updated filters
-    if (changes['filters'] && this.config?.serverSideSearch && !changes['filters'].firstChange) {
+    if (
+      changes['filters'] &&
+      this.config?.serverSideSearch &&
+      !changes['filters'].firstChange
+    ) {
       // Use setTimeout to ensure filters are fully updated in parent component
       setTimeout(() => {
         this.emitSearchQuery();
@@ -190,13 +260,15 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     const value = (event.target as HTMLInputElement).value;
     // Emit value change for parent component state management
     this.searchChange.emit(value);
-    
+
     // For client-side search, apply immediately
     // For server-side search, don't trigger search - only on button click
     if (!this.config?.serverSideSearch) {
       this.applySearch();
       // Reapply current sort if any
-      const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+      const activeSort = Object.keys(this.sortState).find(
+        (key) => this.sortState[key] !== null,
+      );
       if (activeSort) {
         this.applySort(activeSort, this.sortState[activeSort]!);
       }
@@ -211,7 +283,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       // Client-side search - apply search
       this.applySearch();
       // Reapply current sort if any
-      const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+      const activeSort = Object.keys(this.sortState).find(
+        (key) => this.sortState[key] !== null,
+      );
       if (activeSort) {
         this.applySort(activeSort, this.sortState[activeSort]!);
       }
@@ -220,25 +294,23 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
   private emitSearchQuery() {
     // Build HttpParams with page, pageSize, search, and filters
-    const page = this.config?.defaultPage || 1;
-    const pageSize = this.config?.defaultPageSize || 10;
     const searchValue = this.searchValue?.trim() || '';
-    
+
     let httpParams = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
-    
+      .set('page', this.currentPage.toString())
+      .set('pageSize', this.pageSize.toString());
+
     if (searchValue) {
       httpParams = httpParams.set('search', searchValue);
     }
-    
+
     // Add filter parameters
-    this.filters.forEach(filter => {
+    this.filters.forEach((filter) => {
       if (filter.paramKey && filter.value && filter.value !== 'All') {
         httpParams = httpParams.set(filter.paramKey, filter.value);
       }
     });
-    
+
     this.searchQuery.emit(httpParams);
   }
 
@@ -250,18 +322,34 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     }
 
     const searchTerm = this.searchValue.toLowerCase().trim();
-    this.filteredData = this.originalData.filter(row => {
+    this.filteredData = this.originalData.filter((row) => {
       // Search across all columns
-      return this.config.columns.some(column => {
+      return this.config.columns.some((column) => {
         let cellValue: any = '';
-        
+
         // Get cell value based on column type
-        if (column.cellType === 'text' || column.cellType === 'two-line' || column.cellType === 'text-with-color') {
-          const primary = this.getNestedValue(row, column.primaryField || column.key);
-          const secondary = this.getNestedValue(row, column.secondaryField || '');
+        if (
+          column.cellType === 'text' ||
+          column.cellType === 'two-line' ||
+          column.cellType === 'text-with-color'
+        ) {
+          const primary = this.getNestedValue(
+            row,
+            column.primaryField || column.key,
+          );
+          const secondary = this.getNestedValue(
+            row,
+            column.secondaryField || '',
+          );
           cellValue = `${primary || ''} ${secondary || ''}`.trim();
-        } else if (column.cellType === 'badge' || column.cellType === 'badge-with-subtext') {
-          const badge = this.getNestedValue(row, column.badgeField || column.key);
+        } else if (
+          column.cellType === 'badge' ||
+          column.cellType === 'badge-with-subtext'
+        ) {
+          const badge = this.getNestedValue(
+            row,
+            column.badgeField || column.key,
+          );
           const subtext = this.getNestedValue(row, column.subtextField || '');
           cellValue = `${badge || ''} ${subtext || ''}`.trim();
         } else if (column.cellType === 'link') {
@@ -269,7 +357,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
           const link = this.getNestedValue(row, column.linkField || '');
           cellValue = `${primary || ''} ${link || ''}`.trim();
         } else {
-          cellValue = this.getNestedValue(row, column.primaryField || column.key);
+          cellValue = this.getNestedValue(
+            row,
+            column.primaryField || column.key,
+          );
         }
 
         // Convert to string and search
@@ -280,6 +371,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
     // Update sorted data with filtered data
     this.sortedData = [...this.filteredData];
+    this.currentPage = 1; // Reset to first page on search
+    if (!this.config?.serverSideSearch) {
+      this.applyPagination();
+    }
   }
 
   onFilterRemove(filterId: string) {
@@ -293,7 +388,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     this.filterClick.emit(filter);
   }
 
-  onFilterApply(filterChanges: { filterId: string; selectedValues: string[] }[]) {
+  onFilterApply(
+    filterChanges: { filterId: string; selectedValues: string[] }[],
+  ) {
     // Emit all filter changes at once
     this.filterApply.emit(filterChanges);
     this.isFilterModalOpen = false;
@@ -306,9 +403,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
   onFilterReset() {
     // Reset all filters to "All"
-    const resetChanges = this.filters.map(filter => ({
+    const resetChanges = this.filters.map((filter) => ({
       filterId: filter.id,
-      selectedValues: ['All']
+      selectedValues: ['All'],
     }));
     this.filterApply.emit(resetChanges);
     this.isFilterModalOpen = false;
@@ -316,12 +413,12 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   }
 
   onSort(columnKey: string) {
-    const column = this.config.columns.find(col => col.key === columnKey);
+    const column = this.config.columns.find((col) => col.key === columnKey);
     if (!column || column.sortable === false) return;
 
     const currentSort = this.sortState[columnKey];
     let newSort: 'asc' | 'desc' | null;
-    
+
     if (currentSort === 'asc') {
       newSort = 'desc';
     } else if (currentSort === 'desc') {
@@ -331,7 +428,7 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     }
 
     // Reset other columns
-    Object.keys(this.sortState).forEach(key => {
+    Object.keys(this.sortState).forEach((key) => {
       if (key !== columnKey) {
         this.sortState[key] = null;
       }
@@ -344,21 +441,32 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       this.applySort(columnKey, newSort);
     } else {
       // Reset to filtered data order (or original if no search)
-      this.sortedData = this.searchValue && this.searchValue.trim() 
-        ? [...this.filteredData] 
-        : [...this.originalData];
+      this.sortedData =
+        this.searchValue && this.searchValue.trim()
+          ? [...this.filteredData]
+          : [...this.originalData];
+      if (!this.config?.serverSideSearch) {
+        this.applyPagination();
+      }
     }
   }
 
   private applySort(columnKey: string, direction: 'asc' | 'desc') {
-    const column = this.config.columns.find(col => col.key === columnKey);
+    const column = this.config.columns.find((col) => col.key === columnKey);
     if (!column) return;
 
     // Determine which field to sort by
     let sortField: string;
-    if (column.cellType === 'text' || column.cellType === 'two-line' || column.cellType === 'text-with-color') {
+    if (
+      column.cellType === 'text' ||
+      column.cellType === 'two-line' ||
+      column.cellType === 'text-with-color'
+    ) {
       sortField = column.primaryField || column.key;
-    } else if (column.cellType === 'badge' || column.cellType === 'badge-with-subtext') {
+    } else if (
+      column.cellType === 'badge' ||
+      column.cellType === 'badge-with-subtext'
+    ) {
       sortField = column.badgeField || column.key;
     } else if (column.cellType === 'link') {
       sortField = column.linkField || column.primaryField || column.key;
@@ -367,9 +475,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     }
 
     // Use filtered data if search is active, otherwise use original data
-    const dataToSort = this.searchValue && this.searchValue.trim() 
-      ? [...this.filteredData] 
-      : [...this.originalData];
+    const dataToSort =
+      this.searchValue && this.searchValue.trim()
+        ? [...this.filteredData]
+        : [...this.originalData];
 
     // Sort the data
     this.sortedData = dataToSort.sort((a, b) => {
@@ -408,6 +517,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       }
       return 0;
     });
+    if (!this.config?.serverSideSearch) {
+      this.applyPagination();
+    }
   }
 
   getSortIcon(columnKey: string): string {
@@ -436,6 +548,36 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     return path.split('.').reduce((current, prop) => current?.[prop], obj);
   }
 
+  getBadgeColor(row: any, column: TableColumn): string {
+    if (!column.badgeColor) return '';
+    if (typeof column.badgeColor === 'function') {
+      return column.badgeColor(row);
+    }
+    return column.badgeColor;
+  }
+
+  getBadgeTextColor(row: any, column: TableColumn): string {
+    if (!column.badgeTextColor) return '';
+    if (typeof column.badgeTextColor === 'function') {
+      return column.badgeTextColor(row);
+    }
+    return column.badgeTextColor;
+  }
+
+  getTooltipText(row: any, column: TableColumn): string {
+    if (!column.tooltip) {
+      return '';
+    }
+    if (typeof column.tooltip === 'function') {
+      return column.tooltip(row);
+    }
+    return column.tooltip;
+  }
+
+  hasTooltip(column: TableColumn): boolean {
+    return !!column.tooltip;
+  }
+
   getBadgeClass(badgeColor?: string): string {
     if (!badgeColor) return 'badge-success';
     return `badge-${badgeColor}`;
@@ -453,5 +595,90 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       return 'text-success-light';
     }
     return `text-${textColor}`;
+  }
+
+  // Pagination methods
+  applyPagination() {
+    if (this.config?.serverSideSearch) {
+      // For server-side pagination, don't slice data here
+      // Data will come from server already paginated
+      return;
+    }
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedData = this.sortedData.slice(startIndex, endIndex);
+    // Update sortedData to show paginated data in table
+    this.sortedData = this.paginatedData;
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.effectiveTotalItems / this.pageSize) || 1;
+  }
+
+  getDisplayedRange(): string {
+    const total = this.effectiveTotalItems;
+    const start = total === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, total);
+    return `${start}-${end}`;
+  }
+
+  onPageSizeChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    this.pageSize = parseInt(selectElement.value, 10);
+    this.currentPage = 1; // Reset to first page
+
+    if (this.config?.serverSideSearch) {
+      this.emitSearchQuery();
+    } else {
+      this.applyPagination();
+    }
+  }
+
+  onPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+
+      if (this.config?.serverSideSearch) {
+        this.emitSearchQuery();
+      } else {
+        this.applyPagination();
+      }
+    }
+  }
+
+  onNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+
+      if (this.config?.serverSideSearch) {
+        this.emitSearchQuery();
+      } else {
+        this.applyPagination();
+      }
+    }
+  }
+
+  onFirstPage() {
+    if (this.currentPage > 1) {
+      this.currentPage = 1;
+
+      if (this.config?.serverSideSearch) {
+        this.emitSearchQuery();
+      } else {
+        this.applyPagination();
+      }
+    }
+  }
+
+  onLastPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage = this.totalPages;
+
+      if (this.config?.serverSideSearch) {
+        this.emitSearchQuery();
+      } else {
+        this.applyPagination();
+      }
+    }
   }
 }
