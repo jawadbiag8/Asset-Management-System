@@ -426,6 +426,7 @@ export interface TableColumn {
 
   // For 'icon' cells
   iconName?: string; // Material icon name
+  iconUrl?: string; // Custom SVG icon URL path
   iconColor?: string; // Icon color (CSS variable or hex)
   iconBgColor?: string; // Icon background color (CSS variable or hex)
 

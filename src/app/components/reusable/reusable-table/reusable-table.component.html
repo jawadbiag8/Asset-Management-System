@@ -71,9 +71,13 @@
                 @switch(column.cellType) {
                     @case('icon') {
                         <div class="analyze-icon-container" [style.background-color]="column.iconBgColor || 'var(--color-blue-light)'">
-                            <mat-icon class="analyze-icon" [style.color]="column.iconColor || 'var(--color-blue-dark)'">
-                                {{ column.iconName || 'bar_chart' }}
-                            </mat-icon>
+                            @if(column.iconUrl) {
+                                <img [src]="column.iconUrl" alt="icon" class="custom-icon" />
+                            } @else {
+                                <mat-icon class="analyze-icon" [style.color]="column.iconColor || 'var(--color-blue-dark)'">
+                                    {{ column.iconName || 'bar_chart' }}
+                                </mat-icon>
+                            }
                         </div>
                     }
                     @case('two-line') {
