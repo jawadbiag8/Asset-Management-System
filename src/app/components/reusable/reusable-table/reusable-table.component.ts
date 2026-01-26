@@ -10,35 +10,392 @@ import {
 import { HttpParams } from '@angular/common/http';
 
 /**
- * Reusable Table Component
- *
- * A flexible, reusable table component that supports multiple cell types and configurations.
- *
- * Usage Example:
- * ```typescript
- * tableConfig: TableConfig = {
- *   minWidth: '1400px',
- *   columns: [
- *     {
+ * ============================================================================
+ * REUSABLE TABLE COMPONENT - COMPREHENSIVE USAGE GUIDE
+ * ============================================================================
+ * 
+ * A flexible, feature-rich table component with built-in search, filtering,
+ * pagination, sorting, and multiple cell type support.
+ * 
+ * ============================================================================
+ * BASIC USAGE
+ * ============================================================================
+ * 
+ * 1. Import the component and types:
+ *    ```typescript
+ *    import { TableConfig, TableColumn, FilterPill } from '../reusable/reusable-table/reusable-table.component';
+ *    ```
+ * 
+ * 2. Define your table configuration:
+ *    ```typescript
+ *    tableConfig: TableConfig = {
+ *      columns: [
+ *         {
+ *           key: 'name',
+ *           header: 'NAME',
+ *           cellType: 'text',
+ *           primaryField: 'name',
+ *           sortable: true,
+ *           width: '200px'
+ *         }
+ *      ],
+ *      data: yourDataArray,
+ *      searchPlaceholder: 'Search...',
+ *      serverSideSearch: false, // true for server-side, false for client-side
+ *      defaultPage: 1,
+ *      defaultPageSize: 10,
+ *      emptyStateMessage: 'No data available'
+ *    };
+ *    ```
+ * 
+ * 3. Use in template:
+ *    ```html
+ *    <app-reusable-table 
+ *      [config]="tableConfig"
+ *      [filters]="filters"
+ *      [totalItems]="totalItems"
+ *      (searchQuery)="loadData($event)">
+ *    </app-reusable-table>
+ *    ```
+ * 
+ * ============================================================================
+ * CELL TYPES & CONFIGURATION
+ * ============================================================================
+ * 
+ * 1. TEXT CELL (cellType: 'text')
+ *    - Simple text display
+ *    ```typescript
+ *    {
  *       key: 'name',
  *       header: 'NAME',
  *       cellType: 'text',
- *       primaryField: 'name',
+ *       primaryField: 'name', // Field name in data object
+ *       sortable: true,
+ *       width: '200px'
+ *    }
+ *    ```
+ * 
+ * 2. TWO-LINE CELL (cellType: 'two-line')
+ *    - Primary and secondary text
+ *    ```typescript
+ *    {
+ *       key: 'health',
+ *       header: 'HEALTH',
+ *       cellType: 'two-line',
+ *       primaryField: 'status',
+ *       secondaryField: 'percentage',
  *       sortable: true
- *     },
- *     {
+ *    }
+ *    ```
+ * 
+ * 3. BADGE CELL (cellType: 'badge')
+ *    - Colored badge with text
+ *    ```typescript
+ *    {
  *       key: 'status',
  *       header: 'STATUS',
  *       cellType: 'badge',
  *       badgeField: 'status',
- *       badgeColor: 'var(--color-green-light)',
- *       badgeTextColor: 'var(--color-green-dark)',
- *       sortable: true
- *     }
- *   ],
- *   data: [...]
- * };
+ *       badgeColor: 'var(--color-green-light)', // Static color
+ *       // OR dynamic color:
+ *       badgeColor: (row: any) => {
+ *         if (row.status === 'ACTIVE') return 'var(--color-green-light)';
+ *         return 'var(--color-red-light)';
+ *       },
+ *       badgeTextColor: 'var(--color-green-dark)', // Static
+ *       // OR dynamic:
+ *       badgeTextColor: (row: any) => this.getStatusTextColor(row),
+ *       sortable: false
+ *    }
+ *    ```
+ * 
+ * 4. BADGE WITH SUBTEXT (cellType: 'badge-with-subtext')
+ *    - Badge with additional text below
+ *    ```typescript
+ *    {
+ *       key: 'performance',
+ *       header: 'PERFORMANCE',
+ *       cellType: 'badge-with-subtext',
+ *       badgeField: 'status',
+ *       subtextField: 'percentage',
+ *       badgeColor: 'var(--color-blue-light)',
+ *       badgeTextColor: 'var(--color-blue-dark)',
+ *       sortable: false
+ *    }
+ *    ```
+ * 
+ * 5. LINK CELL (cellType: 'link')
+ *    - Clickable link with primary text
+ *    ```typescript
+ *    {
+ *       key: 'website',
+ *       header: 'WEBSITE',
+ *       cellType: 'link',
+ *       primaryField: 'websiteName',
+ *       linkField: 'websiteUrl', // Full URL field
+ *       sortable: false
+ *    }
+ *    ```
+ * 
+ * 6. ICON CELL (cellType: 'icon')
+ *    - Material icon with background
+ *    ```typescript
+ *    {
+ *       key: 'actions',
+ *       header: 'ACTIONS',
+ *       cellType: 'icon',
+ *       iconName: 'bar_chart',
+ *       iconColor: 'var(--color-blue-dark)',
+ *       iconBgColor: 'var(--color-blue-light)',
+ *       sortable: false
+ *    }
+ *    ```
+ * 
+ * 7. TEXT WITH COLOR (cellType: 'text-with-color')
+ *    - Text with color classes
+ *    ```typescript
+ *    {
+ *       key: 'compliance',
+ *       header: 'COMPLIANCE',
+ *       cellType: 'text-with-color',
+ *       primaryField: 'status',
+ *       secondaryField: 'percentage',
+ *       textColor: 'success', // 'success', 'success-light', etc.
+ *       sortable: false
+ *    }
+ *    ```
+ * 
+ * ============================================================================
+ * TOOLTIP SUPPORT
+ * ============================================================================
+ * 
+ * Add tooltips to any column:
+ * ```typescript
+ * {
+ *    key: 'name',
+ *    header: 'NAME',
+ *    cellType: 'text',
+ *    primaryField: 'name',
+ *    tooltip: 'This is a static tooltip', // Static tooltip
+ *    // OR dynamic tooltip:
+ *    tooltip: (row: any) => `Name: ${row.name}\nID: ${row.id}`, // Dynamic tooltip
+ *    tooltipPosition: 'above' // 'above' | 'below' | 'left' | 'right'
+ * }
  * ```
+ * 
+ * ============================================================================
+ * SEARCH FUNCTIONALITY
+ * ============================================================================
+ * 
+ * CLIENT-SIDE SEARCH:
+ *    - Set serverSideSearch: false (default)
+ *    - Search works automatically on all columns
+ *    - No API call needed
+ *    - Search is applied as you type
+ * 
+ * SERVER-SIDE SEARCH:
+ *    - Set serverSideSearch: true
+ *    - Handle searchQuery event in parent:
+ *    ```typescript
+ *    loadData(searchParams: HttpParams) {
+ *       this.apiService.getData(searchParams).subscribe((response: any) => {
+ *          this.tableConfig.data = response.data;
+ *          this.totalItems = response.total;
+ *          this.tableConfig = { ...this.tableConfig }; // Trigger change detection
+ *       });
+ *    }
+ *    ```
+ *    - searchParams contains: page, pageSize, search, and filter params
+ *    - Search button click triggers the search
+ * 
+ * ============================================================================
+ * FILTER FUNCTIONALITY
+ * ============================================================================
+ * 
+ * 1. Define filters:
+ *    ```typescript
+ *    filters: FilterPill[] = [
+ *       {
+ *          id: 'ministry',
+ *          label: 'Ministry: All',
+ *          value: 'All',
+ *          removable: false,
+ *          paramKey: 'ministry', // API parameter key
+ *          options: [
+ *             { label: 'All', value: 'All' },
+ *             { label: 'Health', value: 'Health' },
+ *             { label: 'Finance', value: 'Finance' }
+ *          ]
+ *       }
+ *    ];
+ *    ```
+ * 
+ * 2. Pass filters to table:
+ *    ```html
+ *    <app-reusable-table [filters]="filters" ...>
+ *    ```
+ * 
+ * 3. Filters are handled internally by table component
+ *    - Click filter pill to open modal
+ *    - Select option from dropdown
+ *    - Filter updates automatically
+ *    - For server-side: searchQuery event emits with updated filters
+ *    - No need to implement onFilterRemove, onFilterApply in parent
+ * 
+ * ============================================================================
+ * PAGINATION
+ * ============================================================================
+ * 
+ * CLIENT-SIDE PAGINATION:
+ *    - Works automatically when serverSideSearch: false
+ *    - No configuration needed
+ *    - Pagination controls appear automatically
+ * 
+ * SERVER-SIDE PAGINATION:
+ *    - Set serverSideSearch: true
+ *    - Pass totalItems:
+ *    ```typescript
+ *    totalItems = 100; // Total items from server
+ *    ```
+ *    ```html
+ *    <app-reusable-table [totalItems]="totalItems" ...>
+ *    ```
+ *    - Handle page changes in searchQuery event
+ *    - searchParams contains 'page' and 'pageSize'
+ * 
+ * PAGINATION OPTIONS:
+ *    - Default page: defaultPage: 1
+ *    - Default page size: defaultPageSize: 10
+ *    - Available page sizes: 5, 10, 25, 50, 100
+ *    - User can change page size from dropdown
+ * 
+ * ============================================================================
+ * SORTING
+ * ============================================================================
+ * 
+ * Enable sorting on any column:
+ * ```typescript
+ * {
+ *    key: 'name',
+ *    header: 'NAME',
+ *    cellType: 'text',
+ *    primaryField: 'name',
+ *    sortable: true // Enable sorting (default: true)
+ * }
+ * ```
+ * 
+ * Disable sorting:
+ * ```typescript
+ * {
+ *    sortable: false // Disable sorting
+ * }
+ * ```
+ * 
+ * - Click header to sort (asc -> desc -> unsorted)
+ * - Works automatically for client-side
+ * - For server-side: sorting params included in searchQuery event
+ * 
+ * ============================================================================
+ * EMPTY STATE
+ * ============================================================================
+ * 
+ * Show message when no data:
+ * ```typescript
+ * tableConfig: TableConfig = {
+ *    // ... other config
+ *    emptyStateMessage: 'No data available at this time.'
+ * }
+ * ```
+ * 
+ * ============================================================================
+ * COMPLETE EXAMPLE
+ * ============================================================================
+ * 
+ * ```typescript
+ * // Component
+ * export class MyComponent {
+ *    tableConfig: TableConfig = {
+ *       columns: [
+ *          {
+ *             key: 'name',
+ *             header: 'NAME',
+ *             cellType: 'text',
+ *             primaryField: 'name',
+ *             sortable: true,
+ *             width: '200px',
+ *             tooltip: (row: any) => `Full name: ${row.name}`
+ *          },
+ *          {
+ *             key: 'status',
+ *             header: 'STATUS',
+ *             cellType: 'badge',
+ *             badgeField: 'status',
+ *             badgeColor: (row: any) => this.getStatusColor(row),
+ *             badgeTextColor: (row: any) => this.getStatusTextColor(row),
+ *             sortable: false
+ *          }
+ *       ],
+ *       data: [],
+ *       searchPlaceholder: 'Search assets...',
+ *       serverSideSearch: true,
+ *       defaultPage: 1,
+ *       defaultPageSize: 10,
+ *       emptyStateMessage: 'No assets found'
+ *    };
+ * 
+ *    filters: FilterPill[] = [
+ *       {
+ *          id: 'ministry',
+ *          label: 'Ministry: All',
+ *          value: 'All',
+ *          removable: false,
+ *          paramKey: 'ministry',
+ *          options: [
+ *             { label: 'All', value: 'All' },
+ *             { label: 'Health', value: 'Health' }
+ *          ]
+ *       }
+ *    ];
+ * 
+ *    totalItems = 0;
+ * 
+ *    loadData(searchParams: HttpParams) {
+ *       this.apiService.getAssets(searchParams).subscribe((response: any) => {
+ *          this.tableConfig.data = response.data;
+ *          this.totalItems = response.total;
+ *          this.tableConfig = { ...this.tableConfig };
+ *       });
+ *    }
+ * }
+ * ```
+ * 
+ * ```html
+ * <!-- Template -->
+ * <app-reusable-table 
+ *    [config]="tableConfig"
+ *    [filters]="filters"
+ *    [totalItems]="totalItems"
+ *    (searchQuery)="loadData($event)">
+ * </app-reusable-table>
+ * ```
+ * 
+ * ============================================================================
+ * IMPORTANT NOTES
+ * ============================================================================
+ * 
+ * - All search, filter, and pagination logic is handled internally by table
+ * - Parent component only needs to handle API calls (for server-side)
+ * - No need to implement onSearchChange, onFilterRemove, etc. in parent
+ * - searchValue is managed internally by table component
+ * - Filters are updated internally when user interacts
+ * - For server-side: searchQuery event emits HttpParams with all query params
+ * - For client-side: everything works automatically
+ * - searchQuery event contains: page, pageSize, search, and all filter params
+ * - When filters change, searchQuery automatically emits (for server-side)
+ * - When page changes, searchQuery automatically emits (for server-side)
+ * - When page size changes, searchQuery automatically emits (for server-side)
+ * 
+ * ============================================================================
  */
 
 export type CellType =
@@ -122,17 +479,13 @@ export interface TableConfig {
 })
 export class ReusableTableComponent implements OnInit, OnChanges {
   @Input() config!: TableConfig;
-  @Input() searchValue: string = ''; // Search value controlled from parent
-  @Input() filters: FilterPill[] = []; // Filters controlled from parent
+  @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
 
-  @Output() searchChange = new EventEmitter<string>(); // Emit search value changes (for client-side)
   @Output() searchQuery = new EventEmitter<HttpParams>(); // Emit search query parameter as HttpParams (for server-side)
-  @Output() filterRemove = new EventEmitter<string>(); // Emit when filter is removed
-  @Output() filterClick = new EventEmitter<FilterPill>(); // Emit when filter is clicked with filter object
-  @Output() filterApply = new EventEmitter<
-    { filterId: string; selectedValues: string[] }[]
-  >(); // Emit when filters are applied (all at once)
+  
+  // Internal search value - no longer needs to be passed from parent
+  searchValue: string = '';
 
   displayedColumns: string[] = [];
   sortState: { [key: string]: 'asc' | 'desc' | null } = {};
@@ -243,23 +596,22 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       }
     }
 
-    // When filters change and server-side search is enabled, emit query with updated filters
+    // When filters change from parent (initial load only)
+    // Internal filter changes are handled in onFilterRemove/onFilterApply methods
+    // This is only for when parent updates filters externally
     if (
       changes['filters'] &&
       this.config?.serverSideSearch &&
       !changes['filters'].firstChange
     ) {
-      // Use setTimeout to ensure filters are fully updated in parent component
-      setTimeout(() => {
-        this.emitSearchQuery();
-      }, 0);
+      // Parent updated filters externally - emit query
+      this.emitSearchQuery();
     }
   }
 
   onSearchChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
-    // Emit value change for parent component state management
-    this.searchChange.emit(value);
+    this.searchValue = value;
 
     // For client-side search, apply immediately
     // For server-side search, don't trigger search - only on button click
@@ -378,23 +730,77 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   }
 
   onFilterRemove(filterId: string) {
-    this.filterRemove.emit(filterId);
-    // Don't emit here - let parent update filters first, then filters change will trigger emitSearchQuery via ngOnChanges
+    // Reset filter to "All" instead of removing it
+    this.filters = this.filters.map((filter) => {
+      if (filter.id === filterId) {
+        return {
+          ...filter,
+          value: 'All',
+          label: `${filter.label.split(':')[0]}: All`,
+          removable: false,
+        };
+      }
+      return filter;
+    });
+
+    // For server-side search, emit query with updated filters
+    if (this.config?.serverSideSearch) {
+      this.emitSearchQuery();
+    } else {
+      // For client-side, reapply search
+      this.applySearch();
+      this.currentPage = 1; // Reset to first page
+      this.applyPagination();
+    }
   }
 
   onFilterClick(filter: FilterPill) {
     // Open modal with all filters
     this.isFilterModalOpen = true;
-    this.filterClick.emit(filter);
   }
 
   onFilterApply(
     filterChanges: { filterId: string; selectedValues: string[] }[],
   ) {
-    // Emit all filter changes at once
-    this.filterApply.emit(filterChanges);
+    // Update all filters at once based on changes
+    this.filters = this.filters.map((filter) => {
+      const change = filterChanges.find((c) => c.filterId === filter.id);
+      if (change) {
+        const selectedValue = change.selectedValues[0] || 'All';
+        const isAll = selectedValue === 'All';
+
+        // Build label based on selected value
+        let labelText = filter.label.split(':')[0];
+        if (isAll) {
+          labelText += ': All';
+        } else {
+          const option = filter.options?.find(
+            (opt) => opt.value === selectedValue,
+          );
+          labelText += `: ${option?.label || selectedValue}`;
+        }
+
+        return {
+          ...filter,
+          value: selectedValue,
+          label: labelText,
+          removable: !isAll,
+        };
+      }
+      return filter;
+    });
+
     this.isFilterModalOpen = false;
-    // Don't emit here - let parent update filters first, then parent will trigger API call
+
+    // For server-side search, emit query with updated filters
+    if (this.config?.serverSideSearch) {
+      this.emitSearchQuery();
+    } else {
+      // For client-side, reapply search
+      this.applySearch();
+      this.currentPage = 1; // Reset to first page
+      this.applyPagination();
+    }
   }
 
   onFilterModalClose() {
@@ -403,13 +809,24 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
   onFilterReset() {
     // Reset all filters to "All"
-    const resetChanges = this.filters.map((filter) => ({
-      filterId: filter.id,
-      selectedValues: ['All'],
+    this.filters = this.filters.map((filter) => ({
+      ...filter,
+      value: 'All',
+      label: `${filter.label.split(':')[0]}: All`,
+      removable: false,
     }));
-    this.filterApply.emit(resetChanges);
+
     this.isFilterModalOpen = false;
-    // Don't emit here - let parent update filters first, then parent will trigger API call
+
+    // For server-side search, emit query with updated filters
+    if (this.config?.serverSideSearch) {
+      this.emitSearchQuery();
+    } else {
+      // For client-side, reapply search
+      this.applySearch();
+      this.currentPage = 1; // Reset to first page
+      this.applyPagination();
+    }
   }
 
   onSort(columnKey: string) {

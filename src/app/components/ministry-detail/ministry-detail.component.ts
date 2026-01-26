@@ -7,6 +7,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpParams } from '@angular/common/http';
 import {
   TableConfig,
   TableColumn,
@@ -40,7 +41,6 @@ export interface AssetDetail {
   styleUrl: './ministry-detail.component.scss',
 })
 export class MinistryDetailComponent implements AfterViewInit {
-  searchValue = signal<string>('');
   tableFilters = signal<FilterPill[]>([]);
   @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
 
@@ -194,21 +194,10 @@ export class MinistryDetailComponent implements AfterViewInit {
     data: this.assetDetails(),
   }));
 
-  onSearchChange(value: string) {
-    this.searchValue.set(value);
-    // Add your search filtering logic here
-  }
-
-  onFilterRemove(filterId: string) {
-    this.tableFilters.update((filters) =>
-      filters.filter((f) => f.id !== filterId),
-    );
-    // Add your filter removal logic here
-  }
-
-  onFilterClick(filterId: string | any) {
-    // Add your filter dropdown logic here
-    console.log('Filter clicked:', filterId);
+  loadAssets(searchParams: HttpParams) {
+    // Handle server-side search if needed
+    // API call will be made here when needed
+    console.log('Search params:', searchParams);
   }
 
   onAddAsset() {

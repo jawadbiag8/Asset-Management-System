@@ -31,8 +31,7 @@
                     type="text" 
                     class="search-input" 
                     [placeholder]="config.searchPlaceholder"
-                    [value]="searchValue"
-                    (input)="onSearchChange($event)"
+                    [(ngModel)]="searchValue"
                     (keyup.enter)="onSearchButtonClick()">
                 <button class="search-button" (click)="onSearchButtonClick()" type="button">
                     <mat-icon>search</mat-icon>
