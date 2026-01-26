@@ -26,10 +26,8 @@
 
     <!-- Table with Filters and Search -->
     <div class="mt-5">
-        <app-reusable-table [config]="tableConfigWithData()" [filters]="tableFilters()" [searchValue]="searchValue()"
-            (searchChange)="onSearchChange($event)" (searchQuery)="onSearchQuery($event)"
-            (filterRemove)="onFilterRemove($event)" (filterClick)="onFilterClick($event)"
-            (filterApply)="onFilterApply($event)">
+        <app-reusable-table [config]="tableConfigWithData()" [filters]="tableFilters()"
+            (searchQuery)="loadAssets($event)">
         </app-reusable-table>
     </div>
 

@@ -251,7 +251,7 @@ export class ViewAssetsDetailComponent implements OnInit {
     // Implement refresh functionality
   }
 
-  onTableSearch(params: HttpParams) {
+  loadComplianceData(params: HttpParams) {
     // Handle server-side search/pagination
     // This will be called when user searches, changes page, or changes page size
     console.log('Table search params:', params);
