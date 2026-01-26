@@ -15,19 +15,19 @@ import { UtilsService } from '../../../services/utils.service';
  * ============================================================================
  * REUSABLE TABLE COMPONENT - COMPREHENSIVE USAGE GUIDE
  * ============================================================================
- * 
+ *
  * A flexible, feature-rich table component with built-in search, filtering,
  * pagination, sorting, and multiple cell type support.
- * 
+ *
  * ============================================================================
  * BASIC USAGE
  * ============================================================================
- * 
+ *
  * 1. Import the component and types:
  *    ```typescript
  *    import { TableConfig, TableColumn, FilterPill } from '../reusable/reusable-table/reusable-table.component';
  *    ```
- * 
+ *
  * 2. Define your table configuration:
  *    ```typescript
  *    tableConfig: TableConfig = {
@@ -49,21 +49,21 @@ import { UtilsService } from '../../../services/utils.service';
  *      emptyStateMessage: 'No data available'
  *    };
  *    ```
- * 
+ *
  * 3. Use in template:
  *    ```html
- *    <app-reusable-table 
+ *    <app-reusable-table
  *      [config]="tableConfig"
  *      [filters]="filters"
  *      [totalItems]="totalItems"
  *      (searchQuery)="loadData($event)">
  *    </app-reusable-table>
  *    ```
- * 
+ *
  * ============================================================================
  * CELL TYPES & CONFIGURATION
  * ============================================================================
- * 
+ *
  * 1. TEXT CELL (cellType: 'text')
  *    - Simple text display
  *    ```typescript
@@ -76,7 +76,7 @@ import { UtilsService } from '../../../services/utils.service';
  *       width: '200px'
  *    }
  *    ```
- * 
+ *
  * 2. TWO-LINE CELL (cellType: 'two-line')
  *    - Primary and secondary text
  *    ```typescript
@@ -89,7 +89,7 @@ import { UtilsService } from '../../../services/utils.service';
  *       sortable: true
  *    }
  *    ```
- * 
+ *
  * 3. BADGE CELL (cellType: 'badge')
  *    - Colored badge with text
  *    ```typescript
@@ -110,7 +110,7 @@ import { UtilsService } from '../../../services/utils.service';
  *       sortable: false
  *    }
  *    ```
- * 
+ *
  * 4. BADGE WITH SUBTEXT (cellType: 'badge-with-subtext')
  *    - Badge with additional text below
  *    ```typescript
@@ -125,7 +125,7 @@ import { UtilsService } from '../../../services/utils.service';
  *       sortable: false
  *    }
  *    ```
- * 
+ *
  * 5. LINK CELL (cellType: 'link')
  *    - Clickable link with primary text
  *    ```typescript
@@ -138,7 +138,7 @@ import { UtilsService } from '../../../services/utils.service';
  *       sortable: false
  *    }
  *    ```
- * 
+ *
  * 6. ICON CELL (cellType: 'icon')
  *    - Material icon with background
  *    ```typescript
@@ -152,7 +152,7 @@ import { UtilsService } from '../../../services/utils.service';
  *       sortable: false
  *    }
  *    ```
- * 
+ *
  * 7. TEXT WITH COLOR (cellType: 'text-with-color')
  *    - Text with color classes
  *    ```typescript
@@ -166,11 +166,11 @@ import { UtilsService } from '../../../services/utils.service';
  *       sortable: false
  *    }
  *    ```
- * 
+ *
  * ============================================================================
  * TOOLTIP SUPPORT
  * ============================================================================
- * 
+ *
  * Add tooltips to any column:
  * ```typescript
  * {
@@ -184,17 +184,17 @@ import { UtilsService } from '../../../services/utils.service';
  *    tooltipPosition: 'above' // 'above' | 'below' | 'left' | 'right'
  * }
  * ```
- * 
+ *
  * ============================================================================
  * SEARCH FUNCTIONALITY
  * ============================================================================
- * 
+ *
  * CLIENT-SIDE SEARCH:
  *    - Set serverSideSearch: false (default)
  *    - Search works automatically on all columns
  *    - No API call needed
  *    - Search is applied as you type
- * 
+ *
  * SERVER-SIDE SEARCH:
  *    - Set serverSideSearch: true
  *    - Handle searchQuery event in parent:
@@ -207,13 +207,13 @@ import { UtilsService } from '../../../services/utils.service';
  *       });
  *    }
  *    ```
- *    - searchParams contains: page, pageSize, search, and filter params
+ *    - searchParams contains: pageNumber, pageSize, search, and filter params
  *    - Search button click triggers the search
- * 
+ *
  * ============================================================================
  * FILTER FUNCTIONALITY
  * ============================================================================
- * 
+ *
  * 1. Define filters:
  *    ```typescript
  *    filters: FilterPill[] = [
@@ -231,28 +231,28 @@ import { UtilsService } from '../../../services/utils.service';
  *       }
  *    ];
  *    ```
- * 
+ *
  * 2. Pass filters to table:
  *    ```html
  *    <app-reusable-table [filters]="filters" ...>
  *    ```
- * 
+ *
  * 3. Filters are handled internally by table component
  *    - Click filter pill to open modal
  *    - Select option from dropdown
  *    - Filter updates automatically
  *    - For server-side: searchQuery event emits with updated filters
  *    - No need to implement onFilterRemove, onFilterApply in parent
- * 
+ *
  * ============================================================================
  * PAGINATION
  * ============================================================================
- * 
+ *
  * CLIENT-SIDE PAGINATION:
  *    - Works automatically when serverSideSearch: false
  *    - No configuration needed
  *    - Pagination controls appear automatically
- * 
+ *
  * SERVER-SIDE PAGINATION:
  *    - Set serverSideSearch: true
  *    - Pass totalItems:
@@ -263,18 +263,18 @@ import { UtilsService } from '../../../services/utils.service';
  *    <app-reusable-table [totalItems]="totalItems" ...>
  *    ```
  *    - Handle page changes in searchQuery event
- *    - searchParams contains 'page' and 'pageSize'
- * 
+ *    - searchParams contains 'pageNumber' and 'pageSize'
+ *
  * PAGINATION OPTIONS:
  *    - Default page: defaultPage: 1
  *    - Default page size: defaultPageSize: 10
  *    - Available page sizes: 5, 10, 25, 50, 100
  *    - User can change page size from dropdown
- * 
+ *
  * ============================================================================
  * SORTING
  * ============================================================================
- * 
+ *
  * Enable sorting on any column:
  * ```typescript
  * {
@@ -285,22 +285,22 @@ import { UtilsService } from '../../../services/utils.service';
  *    sortable: true // Enable sorting (default: true)
  * }
  * ```
- * 
+ *
  * Disable sorting:
  * ```typescript
  * {
  *    sortable: false // Disable sorting
  * }
  * ```
- * 
+ *
  * - Click header to sort (asc -> desc -> unsorted)
  * - Works automatically for client-side
  * - For server-side: sorting params included in searchQuery event
- * 
+ *
  * ============================================================================
  * EMPTY STATE
  * ============================================================================
- * 
+ *
  * Show message when no data:
  * ```typescript
  * tableConfig: TableConfig = {
@@ -308,11 +308,11 @@ import { UtilsService } from '../../../services/utils.service';
  *    emptyStateMessage: 'No data available at this time.'
  * }
  * ```
- * 
+ *
  * ============================================================================
  * COMPLETE EXAMPLE
  * ============================================================================
- * 
+ *
  * ```typescript
  * // Component
  * export class MyComponent {
@@ -344,7 +344,7 @@ import { UtilsService } from '../../../services/utils.service';
  *       defaultPageSize: 10,
  *       emptyStateMessage: 'No assets found'
  *    };
- * 
+ *
  *    filters: FilterPill[] = [
  *       {
  *          id: 'ministry',
@@ -358,9 +358,9 @@ import { UtilsService } from '../../../services/utils.service';
  *          ]
  *       }
  *    ];
- * 
+ *
  *    totalItems = 0;
- * 
+ *
  *    loadData(searchParams: HttpParams) {
  *       this.apiService.getAssets(searchParams).subscribe((response: any) => {
  *          this.tableConfig.data = response.data;
@@ -370,21 +370,21 @@ import { UtilsService } from '../../../services/utils.service';
  *    }
  * }
  * ```
- * 
+ *
  * ```html
  * <!-- Template -->
- * <app-reusable-table 
+ * <app-reusable-table
  *    [config]="tableConfig"
  *    [filters]="filters"
  *    [totalItems]="totalItems"
  *    (searchQuery)="loadData($event)">
  * </app-reusable-table>
  * ```
- * 
+ *
  * ============================================================================
  * IMPORTANT NOTES
  * ============================================================================
- * 
+ *
  * - All search, filter, and pagination logic is handled internally by table
  * - Parent component only needs to handle API calls (for server-side)
  * - No need to implement onSearchChange, onFilterRemove, etc. in parent
@@ -392,11 +392,11 @@ import { UtilsService } from '../../../services/utils.service';
  * - Filters are updated internally when user interacts
  * - For server-side: searchQuery event emits HttpParams with all query params
  * - For client-side: everything works automatically
- * - searchQuery event contains: page, pageSize, search, and all filter params
+ * - searchQuery event contains: pageNumber, pageSize, search, and all filter params
  * - When filters change, searchQuery automatically emits (for server-side)
  * - When page changes, searchQuery automatically emits (for server-side)
  * - When page size changes, searchQuery automatically emits (for server-side)
- * 
+ *
  * ============================================================================
  */
 
@@ -407,7 +407,8 @@ export type CellType =
   | 'icon'
   | 'link'
   | 'badge-with-subtext'
-  | 'text-with-color';
+  | 'text-with-color'
+  | 'health-status';
 
 export interface TableColumn {
   key: string; // Unique identifier for the column
@@ -441,6 +442,11 @@ export interface TableColumn {
   // For tooltip
   tooltip?: string | ((row: any) => string); // Tooltip text (static or function that returns tooltip based on row data)
   tooltipPosition?: 'above' | 'below' | 'left' | 'right' | 'before' | 'after'; // Tooltip position (default: 'above')
+
+  // For 'health-status' cells
+  healthStatusField?: string; // Field name for health status (e.g., 'currentHealthStatus')
+  healthIconField?: string; // Field name for icon name (e.g., 'currentHealthIcon')
+  healthPercentageField?: string; // Field name for health percentage (e.g., 'currentHealthPercentage')
 
   // For custom CSS classes
   cellClass?: string; // CSS class name to apply to the cell content
@@ -483,7 +489,9 @@ export interface TableConfig {
   styleUrl: './reusable-table.component.scss',
   standalone: false,
 })
-export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges {
+export class ReusableTableComponent
+  implements OnInit, AfterViewInit, OnChanges
+{
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
@@ -498,6 +506,7 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
   sortedData: any[] = [];
   filteredData: any[] = [];
   private originalData: any[] = [];
+  private lastQueryKey: string | null = null;
 
   // Filter modal state
   isFilterModalOpen = false;
@@ -506,6 +515,11 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
   currentPage: number = 1;
   pageSize: number = 10;
   paginatedData: any[] = [];
+
+  // Static variable to preserve currentPage across component recreation
+  private static lastCurrentPage: number = 1;
+  private static lastPageSize: number = 10;
+  private static isFirstLoad: boolean = true; // Track if this is the very first load
 
   // Store last search params for refresh functionality
   private lastSearchParams: HttpParams = new HttpParams();
@@ -522,7 +536,7 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     return this.originalData.length;
   }
 
-  constructor(private utilsService: UtilsService) { }
+  constructor(private utilsService: UtilsService) {}
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -532,15 +546,44 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     if (this.config?.filters && this.filters.length === 0) {
       this.filters = this.config.filters;
     }
-    // Initialize pagination
+
+    // CRITICAL: Check if component is being recreated with existing data AFTER a pagination action
+    // If data exists AND it's NOT the first load, it means component was recreated after API response
+    // In this case, restore currentPage from static variable and DON'T emit query
+    const hasExistingData = this.config?.data && this.config.data.length > 0;
+    const isRecreationAfterPagination =
+      hasExistingData && !ReusableTableComponent.isFirstLoad;
+
+    if (isRecreationAfterPagination) {
+      // Component recreated with data (after pagination action)
+      // Restore currentPage from static variable to preserve pagination state
+      this.currentPage = ReusableTableComponent.lastCurrentPage;
+      this.pageSize = ReusableTableComponent.lastPageSize;
+      // Only update displayed data, don't emit query
+      this.sortedData = [...this.config.data];
+      // DON'T emit query - the user action already emitted it
+      return; // Exit early - don't reset pagination or emit query
+    }
+
+    // Mark first load as complete
+    ReusableTableComponent.isFirstLoad = false;
+
+    // True initial load (no data exists OR data exists but no preserved page)
+    // Initialize pagination with defaults
     this.currentPage = this.config?.defaultPage || 1;
     this.pageSize = this.config?.defaultPageSize || 10;
+
+    // Store in static variable for future recreations
+    ReusableTableComponent.lastCurrentPage = this.currentPage;
+    ReusableTableComponent.lastPageSize = this.pageSize;
 
     // Initialize data
     this.originalData = [...(this.config?.data || [])];
     this.sortedData = [...this.originalData];
 
-    // For server-side search, emit initial query with page and pageSize
+    // For server-side search, emit initial query on first load
+    // This will happen even if mock data exists (like in dashboard)
+    // The API will replace the mock data with real data
     if (this.config?.serverSideSearch) {
       // Initialize lastSearchParams with default values
       this.lastSearchParams = new HttpParams()
@@ -563,6 +606,36 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    /* =========================
+     SERVER-SIDE MODE
+     ========================= */
+    if (this.config?.serverSideSearch) {
+      // ✅ Only update displayed data when server responds
+      if (
+        changes['config'] &&
+        this.config?.data &&
+        Array.isArray(this.config.data)
+      ) {
+        // CRITICAL: Preserve currentPage when data updates
+        // Don't reset pagination - it's already set by user action
+        const preservedPage = this.currentPage;
+        this.sortedData = [...this.config.data];
+        // Ensure currentPage is preserved
+        this.currentPage = preservedPage;
+        // ❌ NO originalData
+        // ❌ NO filteredData
+        // ❌ NO pagination reset
+        // ❌ NO currentPage reset
+      }
+
+      // ❌ Ignore searchValue changes (server-side = button click only)
+      return; // 🔥 VERY IMPORTANT
+    }
+
+    /* =========================
+     CLIENT-SIDE MODE
+     ========================= */
+
     // Update data when config changes
     if (
       changes['config'] &&
@@ -571,62 +644,44 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     ) {
       this.originalData = [...this.config.data];
       this.sortedData = [...this.originalData];
-      // Reapply search only if client-side
-      if (!this.config?.serverSideSearch) {
-        this.applySearch();
-        // Reapply current sort if any
-        const activeSort = Object.keys(this.sortState).find(
-          (key) => this.sortState[key] !== null,
-        );
-        if (activeSort) {
-          this.applySort(activeSort, this.sortState[activeSort]!);
-        } else {
-          if (!this.config?.serverSideSearch) {
-            this.applyPagination();
-          }
-        }
+
+      this.applySearch();
+
+      // Reapply current sort if any
+      const activeSort = Object.keys(this.sortState).find(
+        (key) => this.sortState[key] !== null,
+      );
+
+      if (activeSort) {
+        this.applySort(activeSort, this.sortState[activeSort]!);
+      } else {
+        this.applyPagination();
       }
     } else if (
       changes['config'] &&
       (!this.config?.data || !Array.isArray(this.config.data))
     ) {
-      // If data is not an array, set empty arrays
+      // If data is not an array
       this.originalData = [];
       this.sortedData = [];
       this.filteredData = [];
     }
 
-    // Update when search value changes
+    // Update when search value changes (client-side only)
     if (changes['searchValue']) {
-      // For server-side search, don't trigger search automatically - only on button click
-      // For client-side search, apply search immediately
-      if (!this.config?.serverSideSearch) {
-        this.applySearch();
-        // Reapply current sort if any
-        const activeSort = Object.keys(this.sortState).find(
-          (key) => this.sortState[key] !== null,
-        );
-        if (activeSort) {
-          this.applySort(activeSort, this.sortState[activeSort]!);
-        } else {
-          this.currentPage = 1; // Reset to first page on search
-          if (!this.config?.serverSideSearch) {
-            this.applyPagination();
-          }
-        }
-      }
-    }
+      this.applySearch();
 
-    // When filters change from parent (initial load only)
-    // Internal filter changes are handled in onFilterRemove/onFilterApply methods
-    // This is only for when parent updates filters externally
-    if (
-      changes['filters'] &&
-      this.config?.serverSideSearch &&
-      !changes['filters'].firstChange
-    ) {
-      // Parent updated filters externally - emit query
-      this.emitSearchQuery();
+      const activeSort = Object.keys(this.sortState).find(
+        (key) => this.sortState[key] !== null,
+      );
+
+      this.currentPage = 1; // ✅ Reset page on search (client-side only)
+
+      if (activeSort) {
+        this.applySort(activeSort, this.sortState[activeSort]!);
+      } else {
+        this.applyPagination();
+      }
     }
   }
 
@@ -666,20 +721,23 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
   }
 
   private emitSearchQuery() {
-    // Build HttpParams with page, pageSize, search, and filters
     const searchValue = this.searchValue?.trim() || '';
 
     let httpParams = new HttpParams()
-      .set('page', this.currentPage.toString())
+      .set('pageNumber', this.currentPage.toString())
       .set('pageSize', this.pageSize.toString());
 
     if (searchValue) {
       httpParams = httpParams.set('search', searchValue);
     }
 
-    // Add filter parameters
     this.filters.forEach((filter) => {
-      if (filter.paramKey && filter.value && filter.value !== '' && filter.value !== 'All') {
+      if (
+        filter.paramKey &&
+        filter.value &&
+        filter.value !== '' &&
+        filter.value !== 'All'
+      ) {
         httpParams = httpParams.set(filter.paramKey, filter.value);
       }
     });
@@ -687,6 +745,13 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     // Store the last search params for refresh functionality
     this.lastSearchParams = httpParams;
 
+    // 🔒 GUARD: prevent duplicate emits
+    const queryKey = httpParams.toString();
+    if (this.lastQueryKey === queryKey) {
+      return; // ❌ BLOCK duplicate call
+    }
+
+    this.lastQueryKey = queryKey;
     this.searchQuery.emit(httpParams);
   }
 
@@ -760,7 +825,9 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
 
     // Update sorted data with filtered data
     this.sortedData = [...this.filteredData];
-    this.currentPage = 1; // Reset to first page on search
+    if (!this.config?.serverSideSearch) {
+      this.currentPage = 1;
+    } // Reset to first page on search
     if (!this.config?.serverSideSearch) {
       this.applyPagination();
     }
@@ -786,7 +853,9 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     } else {
       // For client-side, reapply search
       this.applySearch();
-      this.currentPage = 1; // Reset to first page
+      if (!this.config?.serverSideSearch) {
+        this.currentPage = 1;
+      } // Reset to first page
       this.applyPagination();
     }
   }
@@ -835,7 +904,9 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     } else {
       // For client-side, reapply search
       this.applySearch();
-      this.currentPage = 1; // Reset to first page
+      if (!this.config?.serverSideSearch) {
+        this.currentPage = 1;
+      }
       this.applyPagination();
     }
   }
@@ -861,7 +932,9 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     } else {
       // For client-side, reapply search
       this.applySearch();
-      this.currentPage = 1; // Reset to first page
+      if (!this.config?.serverSideSearch) {
+        this.currentPage = 1;
+      }
       this.applyPagination();
     }
   }
@@ -1051,6 +1124,47 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     return `text-${textColor}`;
   }
 
+  getHealthIconPath(iconField?: string): string {
+    if (!iconField) return '/Images/Table/unknown.svg';
+
+    // Map icon field values to SVG paths
+    const iconMap: { [key: string]: string } = {
+      check_circle: '/Images/Table/check.svg',
+      error: '/Images/Table/cancel.svg',
+      warning: '/Images/Table/warning-triangle.svg',
+      help_outline: '/Images/Table/unknown.svg',
+      critical: '/Images/Table/cancel.svg',
+      healthy: '/Images/Table/check.svg',
+      unknown: '/Images/Table/unknown.svg',
+      average: '/Images/Table/warning-triangle.svg',
+      poor: '/Images/Table/cancel.svg',
+      issues: '/Images/Table/warning-triangle.svg',
+    };
+
+    return iconMap[iconField.toLowerCase()] || '/Images/Table/unknown.svg';
+  }
+
+  getHealthIconClass(iconField?: string): string {
+    if (!iconField) return 'health-icon-unknown';
+
+    const icon = iconField.toLowerCase();
+
+    if (icon === 'check_circle' || icon === 'healthy') {
+      return 'health-icon-healthy';
+    } else if (
+      icon === 'error' ||
+      icon === 'critical' ||
+      icon === 'poor' ||
+      icon === 'cancel'
+    ) {
+      return 'health-icon-critical';
+    } else if (icon === 'warning' || icon === 'average' || icon === 'issues') {
+      return 'health-icon-warning';
+    } else {
+      return 'health-icon-unknown';
+    }
+  }
+
   // Pagination methods
   applyPagination() {
     if (this.config?.serverSideSearch) {
@@ -1079,7 +1193,13 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
   onPageSizeChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     this.pageSize = parseInt(selectElement.value, 10);
-    this.currentPage = 1; // Reset to first page
+
+    // Reset pageNumber to 1 when pageSize changes (for both server-side and client-side)
+    this.currentPage = 1;
+
+    // Store in static variable to preserve across component recreation
+    ReusableTableComponent.lastCurrentPage = this.currentPage;
+    ReusableTableComponent.lastPageSize = this.pageSize;
 
     if (this.config?.serverSideSearch) {
       this.emitSearchQuery();
@@ -1092,6 +1212,10 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
     if (this.currentPage > 1) {
       this.currentPage--;
 
+      // Store in static variable to preserve across component recreation
+      ReusableTableComponent.lastCurrentPage = this.currentPage;
+      ReusableTableComponent.lastPageSize = this.pageSize;
+
       if (this.config?.serverSideSearch) {
         this.emitSearchQuery();
       } else {
@@ -1102,9 +1226,16 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
 
   onNextPage() {
     if (this.currentPage < this.totalPages) {
+      // Increment page BEFORE emitting query
       this.currentPage++;
 
+      // Store in static variable to preserve across component recreation
+      ReusableTableComponent.lastCurrentPage = this.currentPage;
+      ReusableTableComponent.lastPageSize = this.pageSize;
+
       if (this.config?.serverSideSearch) {
+        // Emit query with updated pageNumber
+        // When component recreates, ngOnInit will restore currentPage from static variable
         this.emitSearchQuery();
       } else {
         this.applyPagination();
@@ -1114,7 +1245,15 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
 
   onFirstPage() {
     if (this.currentPage > 1) {
-      this.currentPage = 1;
+      if (!this.config?.serverSideSearch) {
+        this.currentPage = 1;
+      } else {
+        this.currentPage = 1;
+      }
+
+      // Store in static variable to preserve across component recreation
+      ReusableTableComponent.lastCurrentPage = this.currentPage;
+      ReusableTableComponent.lastPageSize = this.pageSize;
 
       if (this.config?.serverSideSearch) {
         this.emitSearchQuery();
@@ -1127,6 +1266,10 @@ export class ReusableTableComponent implements OnInit, AfterViewInit, OnChanges 
   onLastPage() {
     if (this.currentPage < this.totalPages) {
       this.currentPage = this.totalPages;
+
+      // Store in static variable to preserve across component recreation
+      ReusableTableComponent.lastCurrentPage = this.currentPage;
+      ReusableTableComponent.lastPageSize = this.pageSize;
 
       if (this.config?.serverSideSearch) {
         this.emitSearchQuery();

@@ -14,6 +14,25 @@
       Add Digital Assets
     </button>
   </div>
+
+  <!-- Summary Cards Section -->
+  <div class="summary-cards-section">
+    @for(card of summaryCards(); track card.id) {
+      <div class="summary-card">
+        <div class="card-header">
+          <h2 class="card-value">{{ card.value }}</h2>
+          @if(card.badge) {
+            <span class="card-badge" [ngClass]="{'badge-red': card.badgeColor === 'red'}">
+              {{ card.badge }}
+            </span>
+          }
+        </div>
+        <h5 class="card-title">{{ card.title }}</h5>
+        <p class="card-subtitle">{{ card.subTitle }}</p>
+        <a href="#" class="card-link">{{ card.linkText }}</a>
+      </div>
+    }
+  </div>
   
   <div #tableContainer>
     <app-reusable-table
@@ -21,12 +40,5 @@
       [filters]="tableFilters()"
       (searchQuery)="loadAssets($event)"
     ></app-reusable-table>
-  </div>
-
-  <div class="active-incidents-section">
-    <h2 class="incidents-title">Active Incidents</h2>
-    <div class="incidents-empty-state">
-      <p>No active incidents at this time.</p>
-    </div>
   </div>
 </div>

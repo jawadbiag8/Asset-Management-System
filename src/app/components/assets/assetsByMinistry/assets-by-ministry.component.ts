@@ -1,4 +1,12 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  signal,
+  computed,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
 import { ApiResponse, ApiService } from '../../../services/api.service';
@@ -168,8 +176,8 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
 
   constructor(
     private apiService: ApiService,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     // Initial data will be loaded by table component on init via searchQuery event
@@ -205,18 +213,25 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         this.loading.set(false);
         if (response.isSuccessful && response.data) {
           // Handle paginated response - check if data is in items array or directly
-          const data = response.data.items || response.data.data || response.data;
-          const total = response.data.totalCount || response.data.total || data?.length || 0;
+          const data =
+            response.data.items || response.data.data || response.data;
+          const total =
+            response.data.totalCount ||
+            response.data.total ||
+            data?.length ||
+            0;
 
           // Transform API data to match our interface
-          const transformedData = this.transformApiData(Array.isArray(data) ? data : []);
+          const transformedData = this.transformApiData(
+            Array.isArray(data) ? data : [],
+          );
           this.ministryData.set(transformedData);
           this.totalItems.set(total);
 
           // Update table config with new data - update only data property to avoid triggering unnecessary changes
-          this.tableConfigWithData.update(config => ({
+          this.tableConfigWithData.update((config) => ({
             ...config,
-            data: transformedData
+            data: transformedData,
           }));
 
           // Reattach handlers after data is loaded
@@ -224,11 +239,13 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
             this.attachViewDetailsHandlers();
           }, 200);
         } else {
-          this.errorMessage.set(response.message || 'Failed to load ministries');
+          this.errorMessage.set(
+            response.message || 'Failed to load ministries',
+          );
           this.ministryData.set([]);
-          this.tableConfigWithData.update(config => ({
+          this.tableConfigWithData.update((config) => ({
             ...config,
-            data: []
+            data: [],
           }));
         }
       },
@@ -238,9 +255,9 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         this.errorMessage.set('Error loading ministries. Please try again.');
         console.error('Error loading ministries:', error);
         this.ministryData.set([]);
-        this.tableConfigWithData.update(config => ({
+        this.tableConfigWithData.update((config) => ({
           ...config,
-          data: []
+          data: [],
         }));
       },
     });
@@ -254,9 +271,13 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       departmentCount: item.departmentCount || item.numberOfDepartments || 0,
       assetCount: item.assetCount || item.numberOfAssets || 0,
       contactName: item.contactName || item.contact?.name || 'Name Here',
-      contactPhone: item.contactPhone || item.contact?.phone || `Ph: ${item.contact?.phoneNumber || 'N/A'}`,
+      contactPhone:
+        item.contactPhone ||
+        item.contact?.phone ||
+        `Ph: ${item.contact?.phoneNumber || 'N/A'}`,
       openIncidents: item.openIncidents || item.numberOfOpenIncidents || 0,
-      highSeverityIncidents: item.highSeverityIncidents || item.numberOfHighSeverityIncidents || 0,
+      highSeverityIncidents:
+        item.highSeverityIncidents || item.numberOfHighSeverityIncidents || 0,
       highSeverityText: `High severity: ${item.highSeverityIncidents || item.numberOfHighSeverityIncidents || 0}`,
     }));
   }
@@ -267,7 +288,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
 
   onFilterRemove(filterId: string): void {
     this.tableFilters.update((filters) =>
-      filters.filter((f) => f.id !== filterId)
+      filters.filter((f) => f.id !== filterId),
     );
   }
 
@@ -276,7 +297,9 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
     console.log('Filter clicked:', filter);
   }
 
-  onFilterApply(filterChanges: { filterId: string; selectedValues: string[] }[]): void {
+  onFilterApply(
+    filterChanges: { filterId: string; selectedValues: string[] }[],
+  ): void {
     // Handle filter apply
     console.log('Filters applied:', filterChanges);
   }
@@ -292,7 +315,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
     if (!this.tableContainer) return;
 
     const iconContainers = this.tableContainer.nativeElement.querySelectorAll(
-      '.assets-table td[mat-cell]:first-child .analyze-icon-container'
+      '.assets-table td[mat-cell]:first-child .analyze-icon-container',
     );
 
     iconContainers.forEach((container: HTMLElement, index: number) => {
