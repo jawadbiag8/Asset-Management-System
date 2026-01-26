@@ -2,12 +2,14 @@ import {
   Component,
   Input,
   OnInit,
+  AfterViewInit,
   OnChanges,
   SimpleChanges,
   Output,
   EventEmitter,
 } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
+import { UtilsService } from '../../../services/utils.service';
 
 /**
  * ============================================================================
@@ -478,7 +480,9 @@ export interface TableConfig {
   styleUrl: './reusable-table.component.scss',
   standalone: false,
 })
-export class ReusableTableComponent implements OnInit, OnChanges {
+export class ReusableTableComponent
+  implements OnInit, AfterViewInit, OnChanges
+{
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
@@ -502,11 +506,14 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   currentPage: number = 1;
   pageSize: number = 10;
   paginatedData: any[] = [];
-  
+
   // Static variable to preserve currentPage across component recreation
   private static lastCurrentPage: number = 1;
   private static lastPageSize: number = 10;
   private static isFirstLoad: boolean = true; // Track if this is the very first load
+
+  // Store last search params for refresh functionality
+  private lastSearchParams: HttpParams = new HttpParams();
 
   // Get effective totalItems (from input or computed from data)
   get effectiveTotalItems(): number {
@@ -520,6 +527,8 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     return this.originalData.length;
   }
 
+  constructor(private utilsService: UtilsService) {}
+
   ngOnInit() {
     if (this.config && this.config.columns) {
       this.displayedColumns = this.config.columns.map((col) => col.key);
@@ -528,13 +537,14 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     if (this.config?.filters && this.filters.length === 0) {
       this.filters = this.config.filters;
     }
-    
+
     // CRITICAL: Check if component is being recreated with existing data AFTER a pagination action
     // If data exists AND it's NOT the first load, it means component was recreated after API response
     // In this case, restore currentPage from static variable and DON'T emit query
     const hasExistingData = this.config?.data && this.config.data.length > 0;
-    const isRecreationAfterPagination = hasExistingData && !ReusableTableComponent.isFirstLoad;
-    
+    const isRecreationAfterPagination =
+      hasExistingData && !ReusableTableComponent.isFirstLoad;
+
     if (isRecreationAfterPagination) {
       // Component recreated with data (after pagination action)
       // Restore currentPage from static variable to preserve pagination state
@@ -545,7 +555,7 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       // DON'T emit query - the user action already emitted it
       return; // Exit early - don't reset pagination or emit query
     }
-    
+
     // Mark first load as complete
     ReusableTableComponent.isFirstLoad = false;
 
@@ -553,7 +563,7 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     // Initialize pagination with defaults
     this.currentPage = this.config?.defaultPage || 1;
     this.pageSize = this.config?.defaultPageSize || 10;
-    
+
     // Store in static variable for future recreations
     ReusableTableComponent.lastCurrentPage = this.currentPage;
     ReusableTableComponent.lastPageSize = this.pageSize;
@@ -566,6 +576,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     // This will happen even if mock data exists (like in dashboard)
     // The API will replace the mock data with real data
     if (this.config?.serverSideSearch) {
+      // Initialize lastSearchParams with default values
+      this.lastSearchParams = new HttpParams()
+        .set('page', this.currentPage.toString())
+        .set('pageSize', this.pageSize.toString());
       this.emitSearchQuery();
     } else {
       // For client-side search, apply search immediately
@@ -574,6 +588,12 @@ export class ReusableTableComponent implements OnInit, OnChanges {
         this.applyPagination();
       }
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Register this table component with utils service after view is initialized
+    // This ensures the component is fully ready before registration
+    this.utilsService.registerTableComponent(this);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -703,10 +723,18 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     }
 
     this.filters.forEach((filter) => {
-      if (filter.paramKey && filter.value && filter.value !== 'All') {
+      if (
+        filter.paramKey &&
+        filter.value &&
+        filter.value !== '' &&
+        filter.value !== 'All'
+      ) {
         httpParams = httpParams.set(filter.paramKey, filter.value);
       }
     });
+
+    // Store the last search params for refresh functionality
+    this.lastSearchParams = httpParams;
 
     // 🔒 GUARD: prevent duplicate emits
     const queryKey = httpParams.toString();
@@ -716,6 +744,19 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
     this.lastQueryKey = queryKey;
     this.searchQuery.emit(httpParams);
+  }
+
+  onRefresh(): void {
+    console.log('onRefresh', this.lastSearchParams);
+    // Reload data with the last search parameters
+    if (this.config?.serverSideSearch) {
+      this.searchQuery.emit(this.lastSearchParams);
+    } else {
+      // For client-side, reapply search and pagination
+      this.applySearch();
+      this.currentPage = 1;
+      this.applyPagination();
+    }
   }
 
   private applySearch() {
@@ -784,12 +825,12 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   }
 
   onFilterRemove(filterId: string) {
-    // Reset filter to "All" instead of removing it
+    // Reset filter to "All" (empty string) instead of removing it
     this.filters = this.filters.map((filter) => {
       if (filter.id === filterId) {
         return {
           ...filter,
-          value: 'All',
+          value: '',
           label: `${filter.label.split(':')[0]}: All`,
           removable: false,
         };
@@ -822,8 +863,8 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     this.filters = this.filters.map((filter) => {
       const change = filterChanges.find((c) => c.filterId === filter.id);
       if (change) {
-        const selectedValue = change.selectedValues[0] || 'All';
-        const isAll = selectedValue === 'All';
+        const selectedValue = change.selectedValues[0] || '';
+        const isAll = selectedValue === '' || selectedValue === 'All';
 
         // Build label based on selected value
         let labelText = filter.label.split(':')[0];
@@ -866,10 +907,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   }
 
   onFilterReset() {
-    // Reset all filters to "All"
+    // Reset all filters to "All" (empty string)
     this.filters = this.filters.map((filter) => ({
       ...filter,
-      value: 'All',
+      value: '',
       label: `${filter.label.split(':')[0]}: All`,
       removable: false,
     }));
@@ -1102,14 +1143,14 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   onPageSizeChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     this.pageSize = parseInt(selectElement.value, 10);
-    
+
     // Reset pageNumber to 1 when pageSize changes (for both server-side and client-side)
     this.currentPage = 1;
-    
+
     // Store in static variable to preserve across component recreation
     ReusableTableComponent.lastCurrentPage = this.currentPage;
     ReusableTableComponent.lastPageSize = this.pageSize;
-    
+
     if (this.config?.serverSideSearch) {
       this.emitSearchQuery();
     } else {
@@ -1120,7 +1161,7 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   onPreviousPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
-      
+
       // Store in static variable to preserve across component recreation
       ReusableTableComponent.lastCurrentPage = this.currentPage;
       ReusableTableComponent.lastPageSize = this.pageSize;
@@ -1137,11 +1178,11 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     if (this.currentPage < this.totalPages) {
       // Increment page BEFORE emitting query
       this.currentPage++;
-      
+
       // Store in static variable to preserve across component recreation
       ReusableTableComponent.lastCurrentPage = this.currentPage;
       ReusableTableComponent.lastPageSize = this.pageSize;
-      
+
       if (this.config?.serverSideSearch) {
         // Emit query with updated pageNumber
         // When component recreates, ngOnInit will restore currentPage from static variable
@@ -1159,11 +1200,11 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       } else {
         this.currentPage = 1;
       }
-      
+
       // Store in static variable to preserve across component recreation
       ReusableTableComponent.lastCurrentPage = this.currentPage;
       ReusableTableComponent.lastPageSize = this.pageSize;
-      
+
       if (this.config?.serverSideSearch) {
         this.emitSearchQuery();
       } else {
@@ -1175,7 +1216,7 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   onLastPage() {
     if (this.currentPage < this.totalPages) {
       this.currentPage = this.totalPages;
-      
+
       // Store in static variable to preserve across component recreation
       ReusableTableComponent.lastCurrentPage = this.currentPage;
       ReusableTableComponent.lastPageSize = this.pageSize;
