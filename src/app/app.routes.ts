@@ -7,6 +7,7 @@ import { MinistryDetailComponent } from './components/ministry-detail/ministry-d
 import { ManageDigitalAssetsComponent } from './components/manage-digital-assets/manage-digital-assets.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
+import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -29,7 +30,8 @@ export const routes: Routes = [
   {
     path: 'add-digital-assets',
     component: ManageDigitalAssetsComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    canDeactivate: [CanDeactivateGuard]
   },
   {
     path: 'incidents',

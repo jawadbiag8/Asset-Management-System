@@ -127,8 +127,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     if (this.config?.filters && this.filters.length === 0) {
       this.filters = this.config.filters;
     }
-    // Initialize data
-    this.originalData = [...(this.config?.data || [])];
+    // Initialize data - ensure it's an array
+    const data = this.config?.data;
+    this.originalData = Array.isArray(data) ? [...data] : [];
     this.sortedData = [...this.originalData];
     
     // For server-side search, emit initial query with page and pageSize
@@ -143,7 +144,7 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     // Update data when config changes
-    if (changes['config'] && this.config?.data) {
+    if (changes['config'] && this.config?.data && Array.isArray(this.config.data)) {
       this.originalData = [...this.config.data];
       this.sortedData = [...this.originalData];
       // Reapply search only if client-side
@@ -155,6 +156,11 @@ export class ReusableTableComponent implements OnInit, OnChanges {
           this.applySort(activeSort, this.sortState[activeSort]!);
         }
       }
+    } else if (changes['config'] && (!this.config?.data || !Array.isArray(this.config.data))) {
+      // If data is not an array, set empty arrays
+      this.originalData = [];
+      this.sortedData = [];
+      this.filteredData = [];
     }
     
     // Update when search value changes

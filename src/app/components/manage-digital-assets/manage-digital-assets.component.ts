@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ApiResponse, ApiService } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
+import { CanComponentDeactivate } from '../../guards/can-deactivate.guard';
 
 export interface DigitalAssetRequest {
   ministryId: number;
@@ -26,7 +27,7 @@ export interface DigitalAssetRequest {
   styleUrl: './manage-digital-assets.component.scss',
   standalone: false,
 })
-export class ManageDigitalAssetsComponent implements OnInit {
+export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactivate {
 
   pageInfo = signal<{
     pageState: 'add' | 'edit' | null;
@@ -173,6 +174,8 @@ export class ManageDigitalAssetsComponent implements OnInit {
       next: (res: ApiResponse) => {
         if (res.isSuccessful) {
           this.utils.showToast(res.message, 'Asset added successfully', 'success');
+          // Mark form as pristine to allow navigation without confirmation
+          this.digitalAssetForm.markAsPristine();
           this.route.navigate(['/dashboard']);
         } else {
           this.utils.showToast(res.message, 'Error adding asset', 'error');
@@ -187,6 +190,17 @@ export class ManageDigitalAssetsComponent implements OnInit {
   // Helper method to get form control
   getControl(controlName: string): FormControl {
     return this.digitalAssetForm.get(controlName) as FormControl;
+  }
+
+  // CanDeactivate implementation
+  canDeactivate(): boolean {
+    // Check if form has been modified (dirty) or touched
+    if (this.digitalAssetForm.dirty || this.digitalAssetForm.touched) {
+      // Form has unsaved changes
+      return false;
+    }
+    // Form is clean, allow navigation
+    return true;
   }
 
 }
