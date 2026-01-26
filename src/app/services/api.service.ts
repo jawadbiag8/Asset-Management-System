@@ -33,6 +33,11 @@ export class ApiService {
     return this.http.get<ApiResponse>(`${this.baseUrl}/Ministry/GetAll`);
   }
 
+  getMinistries(searchQuery?: HttpParams): Observable<ApiResponse<any>> {
+    let url = `${this.baseUrl}/Ministry`;
+    return this.http.get<ApiResponse<any>>(url, { params: searchQuery });
+  }
+
   getDepartmentsByMinistry(ministryId: number): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/Department/ministry/${ministryId}`,
