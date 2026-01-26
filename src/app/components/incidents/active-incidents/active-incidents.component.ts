@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ApiResponse, ApiService } from '../../../services/api.service';
+import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
+import { HttpParams } from '@angular/common/module.d-CnjH8Dlt';
+import { UtilsService } from '../../../services/utils.service';
 
 export interface ActiveIncident {
   id: string;
@@ -19,39 +22,30 @@ export interface ActiveIncident {
   standalone: false,
 })
 export class ActiveIncidentsComponent implements OnInit {
-  incidents: ActiveIncident[] = [];
-  loading = false;
-  errorMessage = '';
+  incidents = signal<ActiveIncident[]>([]);
+  breadcrumbs: BreadcrumbItem[] = [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Incidents' }
+  ];
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private utils: UtilsService) { }
 
-  ngOnInit(): void {
-    this.loadActiveIncidents();
-  }
+  ngOnInit(): void { }
 
-  loadActiveIncidents(): void {
-    this.loading = true;
-    this.errorMessage = '';
-
-    // Simulate API call delay
-    setTimeout(() => {
-      this.apiService.getAssets().subscribe({
-        next: (response: ApiResponse<ActiveIncident[]>) => {
-          this.loading = false;
-          if (Array.isArray(response) && response.length > 0) {
-            this.incidents = response;
-          } else {
-            // Load empty state if no incidents
-            this.incidents = [];
-          }
-        },
-        error: (error: any) => {
-          this.loading = false;
-          console.error('Error loading active incidents:', error);
-          // Load empty state on error
-          this.incidents = [];
+  loadIncidents(searchQuery: HttpParams): void {
+    this.apiService.getIncidents(searchQuery).subscribe({
+      next: (response: ApiResponse<ActiveIncident[]>) => {
+        if (response.isSuccessful) {
+          this.incidents.set(response.data || []);
+        } else {
+          this.utils.showToast(response.message, 'Error loading incidents', 'error');
+          this.incidents.set([]);
         }
-      });
-    }, 500);
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error loading incidents', 'error');
+        this.incidents.set([]);
+      }
+    });
   }
 }

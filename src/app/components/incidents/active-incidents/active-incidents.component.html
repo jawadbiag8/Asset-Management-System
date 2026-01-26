@@ -1,33 +1,12 @@
-<div class="active-incidents">
-  <div class="section-header">
-    <h2 class="section-title">Active Incidents</h2>
+<div class="container-fluid p-4">
+  <app-reusable-breadcrum [breadcrumbs]="breadcrumbs"></app-reusable-breadcrum>
+
+  <div class="mt-5">
+    <app-reusable-table [config]="tableConfigWithData()" [filters]="tableFilters()" [searchValue]="searchValue()"
+      (searchChange)="loadIncidents($event)" (searchQuery)="loadIncidents($event)"
+      (filterRemove)="onFilterRemove($event)" (filterClick)="onFilterClick($event)"
+      (filterApply)="onFilterApply($event)">
+    </app-reusable-table>
   </div>
 
-  <div class="loading" *ngIf="loading">
-    Loading active incidents...
-  </div>
-
-  <div class="error" *ngIf="errorMessage && !loading">
-    {{ errorMessage }}
-  </div>
-
-  <div class="no-incidents" *ngIf="!loading && !errorMessage && incidents.length === 0">
-    <p>No active incidents at this time.</p>
-  </div>
-
-  <div class="incidents-list" *ngIf="!loading && !errorMessage && incidents.length > 0">
-    <div class="incident-item" *ngFor="let incident of incidents">
-      <div class="incident-header">
-        <h3 class="incident-name">{{ incident.name }}</h3>
-        <span class="severity-badge" [class]="'severity-' + incident.severityLevel.toLowerCase()">
-          {{ incident.severityLevel }}
-        </span>
-      </div>
-      <p class="incident-description" *ngIf="incident.description">{{ incident.description }}</p>
-      <div class="incident-meta">
-        <span class="asset-name" *ngIf="incident.assetName">Asset: {{ incident.assetName }}</span>
-        <span class="incident-status">{{ incident.status }}</span>
-      </div>
-    </div>
-  </div>
 </div>

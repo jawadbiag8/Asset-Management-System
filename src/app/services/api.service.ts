@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { DigitalAssetRequest } from '../components/manage-digital-assets/manage-digital-assets.component';
+import { ActiveIncident } from '../components/incidents/active-incidents/active-incidents.component';
 
 export interface ApiResponse<T = any> {
   isSuccessful: boolean;
@@ -65,6 +66,13 @@ export class ApiService {
   updateAsset(assetId: number | null, asset: DigitalAssetRequest): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset/${assetId}`;
     return this.http.put<ApiResponse<any>>(url, asset);
+  }
+
+  // Incidents
+
+  getIncidents(searchQuery: HttpParams): Observable<ApiResponse<ActiveIncident[]>> {
+    let url = `${this.baseUrl}/Incident`;
+    return this.http.get<ApiResponse<ActiveIncident[]>>(url, { params: searchQuery });
   }
 
 }
