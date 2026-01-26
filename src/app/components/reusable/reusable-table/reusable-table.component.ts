@@ -447,6 +447,9 @@ export interface TableColumn {
   healthStatusField?: string; // Field name for health status (e.g., 'currentHealthStatus')
   healthIconField?: string; // Field name for icon name (e.g., 'currentHealthIcon')
   healthPercentageField?: string; // Field name for health percentage (e.g., 'currentHealthPercentage')
+
+  // For custom CSS classes
+  cellClass?: string; // CSS class name to apply to the cell content
 }
 
 export interface FilterOption {
@@ -1123,32 +1126,37 @@ export class ReusableTableComponent
 
   getHealthIconPath(iconField?: string): string {
     if (!iconField) return '/Images/Table/unknown.svg';
-    
+
     // Map icon field values to SVG paths
     const iconMap: { [key: string]: string } = {
-      'check_circle': '/Images/Table/check.svg',
-      'error': '/Images/Table/cancel.svg',
-      'warning': '/Images/Table/warning-triangle.svg',
-      'help_outline': '/Images/Table/unknown.svg',
-      'critical': '/Images/Table/cancel.svg',
-      'healthy': '/Images/Table/check.svg',
-      'unknown': '/Images/Table/unknown.svg',
-      'average': '/Images/Table/warning-triangle.svg',
-      'poor': '/Images/Table/cancel.svg',
-      'issues': '/Images/Table/warning-triangle.svg',
+      check_circle: '/Images/Table/check.svg',
+      error: '/Images/Table/cancel.svg',
+      warning: '/Images/Table/warning-triangle.svg',
+      help_outline: '/Images/Table/unknown.svg',
+      critical: '/Images/Table/cancel.svg',
+      healthy: '/Images/Table/check.svg',
+      unknown: '/Images/Table/unknown.svg',
+      average: '/Images/Table/warning-triangle.svg',
+      poor: '/Images/Table/cancel.svg',
+      issues: '/Images/Table/warning-triangle.svg',
     };
-    
+
     return iconMap[iconField.toLowerCase()] || '/Images/Table/unknown.svg';
   }
 
   getHealthIconClass(iconField?: string): string {
     if (!iconField) return 'health-icon-unknown';
-    
+
     const icon = iconField.toLowerCase();
-    
+
     if (icon === 'check_circle' || icon === 'healthy') {
       return 'health-icon-healthy';
-    } else if (icon === 'error' || icon === 'critical' || icon === 'poor' || icon === 'cancel') {
+    } else if (
+      icon === 'error' ||
+      icon === 'critical' ||
+      icon === 'poor' ||
+      icon === 'cancel'
+    ) {
       return 'health-icon-critical';
     } else if (icon === 'warning' || icon === 'average' || icon === 'issues') {
       return 'health-icon-warning';
