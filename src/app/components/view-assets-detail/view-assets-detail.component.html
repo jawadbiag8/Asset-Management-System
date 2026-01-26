@@ -1,0 +1,180 @@
+<div class="container-fluid p-4">
+  <!-- Breadcrumb Navigation -->
+  <app-reusable-breadcrum
+    [breadcrumbs]="[
+      { label: 'Dashboard', path: '/dashboard' },
+      { label: 'Assets', path: '/ministry-detail' },
+      { label: 'Ministry of Health', path: '/ministry-detail' },
+      { label: 'Health Dashboard' },
+    ]"
+  ></app-reusable-breadcrum>
+
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="page-title">Health Dashboard</h1>
+      <div class="header-details">
+        <div class="detail-item">
+          <span class="detail-label">Type:</span>
+          <span class="detail-value">{{ assetDetails.type }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">URL:</span>
+          <a [href]="assetDetails.url" target="_blank" class="detail-link">{{ assetDetails.url }}</a>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Ministry:</span>
+          <span class="detail-value">{{ assetDetails.ministry }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Department:</span>
+          <span class="detail-value">{{ assetDetails.department }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Last Assessed:</span>
+          <span class="detail-value">{{ assetDetails.lastAssessed }}</span>
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-analyze" (click)="onAnalyze()">
+          Analyze
+        </button>
+        <button class="btn btn-download" (click)="onDownloadReport()">
+          Download Summary Report
+        </button>
+      </div>
+    </div>
+    <div class="overall-compliance-wrapper">
+      <div class="overall-compliance-card">
+        <div class="compliance-percentage">{{ overallCompliance }}%</div>
+        <div class="compliance-label">Overall Compliance</div>
+      </div>
+      <div class="risk-badge low-risk">LOW RISK</div>
+    </div>
+  </div>
+
+  <!-- Summary KPI Cards -->
+  <div class="kpi-cards-section">
+    <div class="kpi-card">
+      <div class="kpi-value">{{ summaryKpis.overallCompliance }}%</div>
+      <div class="kpi-label">Overall Compliance</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">{{ summaryKpis.activeBreaches }}</div>
+      <div class="kpi-label">Active Breaches</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">{{ summaryKpis.criticalBreaches }}</div>
+      <div class="kpi-label">Critical Breaches</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">{{ summaryKpis.slaViolations }}</div>
+      <div class="kpi-label">SLA Violations (30d)</div>
+    </div>
+  </div>
+
+  <!-- Standards Compliance Overview -->
+  <div class="standards-section">
+    <h2 class="section-title">Standards Compliance Overview</h2>
+    <div class="standards-cards">
+      <div class="standard-card" *ngFor="let standard of standardsCompliance">
+        <div class="standard-name">{{ standard.name }}</div>
+        <div class="standard-status">
+          <span class="status-badge" [ngClass]="getStatusBadgeClass(standard.status)">
+            {{ standard.status }}
+          </span>
+          <span class="breach-count">{{ standard.breaches }} breach{{ standard.breaches !== 1 ? 'es' : '' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compliance Status Table -->
+  <div class="compliance-table-section">
+    <h2 class="section-title">KPI Compliance - Breaches & Warnings</h2>
+    <app-reusable-table 
+      [config]="complianceTableConfig"
+      [totalItems]="totalTableItems"
+      (searchQuery)="onTableSearch($event)">
+    </app-reusable-table>
+  </div>
+
+  <!-- Active Breaches Section -->
+  <div class="active-breaches-section">
+    <h2 class="section-title">Active Breaches</h2>
+    <div class="empty-state" *ngIf="activeBreaches.length === 0">
+      <p class="empty-state-text">No active breaches at this time.</p>
+    </div>
+    <div *ngIf="activeBreaches.length > 0">
+      <!-- Add table or list for breaches if needed -->
+    </div>
+  </div>
+
+  <!-- Ownership & Accountability Section -->
+  <div class="ownership-section">
+    <h2 class="section-title">Ownership & Accountability</h2>
+    <div class="ownership-cards">
+      <div class="ownership-card">
+        <div class="ownership-label">BUSINESS OWNER</div>
+        <div class="ownership-value">{{ ownership.businessOwner.name }}</div>
+        <div class="ownership-value-secondary">{{ ownership.businessOwner.email || 'N/A' }}</div>
+      </div>
+      <div class="ownership-card">
+        <div class="ownership-label">TECHNICAL OWNER</div>
+        <div class="ownership-value" [ngClass]="{'not-assigned': !ownership.technicalOwner.name}">
+          {{ ownership.technicalOwner.name || 'Not Assigned' }}
+        </div>
+      </div>
+      <div class="ownership-card">
+        <div class="ownership-label">ESCALATION LEVEL</div>
+        <div class="ownership-value">{{ ownership.escalationLevel }}</div>
+      </div>
+      <div class="ownership-card">
+        <div class="ownership-label">HOSTING AUTHORITY</div>
+        <div class="ownership-value">{{ ownership.hostingAuthority }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analyst Actions & Notes Section -->
+  <div class="analyst-section">
+    <h2 class="section-title">Analyst Actions & Notes</h2>
+    <div class="analyst-buttons">
+      <button class="btn btn-add-note" (click)="onAddNote()">
+        Add Note
+      </button>
+      <button class="btn btn-flag" (click)="onFlagForReview()">
+        Flag for Review
+      </button>
+      <button class="btn btn-escalate" (click)="onTriggerEscalation()">
+        Trigger Escalation
+      </button>
+    </div>
+    
+    <div class="incidents-subsection">
+      <div class="subsection-header">
+        <h3 class="subsection-title">Analyst Reported Incidents</h3>
+        <button class="btn btn-refresh" (click)="onRefreshIncidents()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+      <div class="empty-state" *ngIf="reportedIncidents.length === 0">
+        <p class="empty-state-text">No incidents reported from compliance checks yet.</p>
+      </div>
+      <div *ngIf="reportedIncidents.length > 0">
+        <!-- Add table for incidents if needed -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Log Section -->
+  <div class="activity-log-section">
+    <h2 class="section-title">Activity Log</h2>
+    <div class="activity-card">
+      <div class="activity-item" *ngFor="let activity of activityLog">
+        <div class="activity-text">{{ activity.description }}</div>
+        <div class="activity-meta">{{ activity.date }} by {{ activity.by }}</div>
+      </div>
+    </div>
+  </div>
+</div>

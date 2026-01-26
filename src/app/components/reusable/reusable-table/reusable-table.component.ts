@@ -48,8 +48,8 @@ export interface TableColumn {
   
   // For 'badge' and 'badge-with-subtext' cells
   badgeField?: string; // Field name for badge text
-  badgeColor?: string; // Background color (CSS variable or hex)
-  badgeTextColor?: string; // Text color (CSS variable or hex)
+  badgeColor?: string | ((row: any) => string); // Background color (CSS variable or hex) or function that returns color
+  badgeTextColor?: string | ((row: any) => string); // Text color (CSS variable or hex) or function that returns color
   subtextField?: string; // Field name for subtext (badge-with-subtext only)
   
   // For 'icon' cells
@@ -62,6 +62,10 @@ export interface TableColumn {
   
   // For 'text-with-color' cells
   textColor?: string; // Color class name (e.g., 'success', 'success-light')
+  
+  // For tooltip
+  tooltip?: string | ((row: any) => string); // Tooltip text (static or function that returns tooltip based on row data)
+  tooltipPosition?: 'above' | 'below' | 'left' | 'right' | 'before' | 'after'; // Tooltip position (default: 'above')
 }
 
 export interface FilterOption {
@@ -91,6 +95,8 @@ export interface TableConfig {
   defaultPageSize?: number; // Default page size (default: 10)
   // Filter configuration
   filters?: FilterPill[]; // Array of filter pills to display
+  // Empty state configuration
+  emptyStateMessage?: string; // Message to display when table has no data (default: 'No data available')
 }
 
 @Component({
@@ -103,6 +109,7 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   @Input() config!: TableConfig;
   @Input() searchValue: string = ''; // Search value controlled from parent
   @Input() filters: FilterPill[] = []; // Filters controlled from parent
+  @Input() totalItems?: number; // Total items count for server-side pagination
   
   @Output() searchChange = new EventEmitter<string>(); // Emit search value changes (for client-side)
   @Output() searchQuery = new EventEmitter<HttpParams>(); // Emit search query parameter as HttpParams (for server-side)
@@ -119,6 +126,23 @@ export class ReusableTableComponent implements OnInit, OnChanges {
   // Filter modal state
   isFilterModalOpen = false;
 
+  // Pagination state
+  currentPage: number = 1;
+  pageSize: number = 10;
+  paginatedData: any[] = [];
+  
+  // Get effective totalItems (from input or computed from data)
+  get effectiveTotalItems(): number {
+    if (this.config?.serverSideSearch && this.totalItems !== undefined) {
+      return this.totalItems;
+    }
+    // For client-side, compute from data
+    if (this.searchValue && this.searchValue.trim()) {
+      return this.filteredData.length;
+    }
+    return this.originalData.length;
+  }
+
   ngOnInit() {
     if (this.config && this.config.columns) {
       this.displayedColumns = this.config.columns.map(col => col.key);
@@ -127,6 +151,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     if (this.config?.filters && this.filters.length === 0) {
       this.filters = this.config.filters;
     }
+    // Initialize pagination
+    this.currentPage = this.config?.defaultPage || 1;
+    this.pageSize = this.config?.defaultPageSize || 10;
+    
     // Initialize data
     this.originalData = [...(this.config?.data || [])];
     this.sortedData = [...this.originalData];
@@ -137,6 +165,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     } else {
       // For client-side search, apply search immediately
       this.applySearch();
+      if (!this.config?.serverSideSearch) {
+        this.applyPagination();
+      }
     }
   }
 
@@ -153,6 +184,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
         const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
         if (activeSort) {
           this.applySort(activeSort, this.sortState[activeSort]!);
+        } else {
+          if (!this.config?.serverSideSearch) {
+            this.applyPagination();
+          }
         }
       }
     }
@@ -163,12 +198,17 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       // For client-side search, apply search immediately
       if (!this.config?.serverSideSearch) {
         this.applySearch();
-        // Reapply current sort if any
-        const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
-        if (activeSort) {
-          this.applySort(activeSort, this.sortState[activeSort]!);
+      // Reapply current sort if any
+      const activeSort = Object.keys(this.sortState).find(key => this.sortState[key] !== null);
+      if (activeSort) {
+        this.applySort(activeSort, this.sortState[activeSort]!);
+      } else {
+        this.currentPage = 1; // Reset to first page on search
+        if (!this.config?.serverSideSearch) {
+          this.applyPagination();
         }
       }
+    }
     }
     
     // When filters change and server-side search is enabled, emit query with updated filters
@@ -214,13 +254,11 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
   private emitSearchQuery() {
     // Build HttpParams with page, pageSize, search, and filters
-    const page = this.config?.defaultPage || 1;
-    const pageSize = this.config?.defaultPageSize || 10;
     const searchValue = this.searchValue?.trim() || '';
     
     let httpParams = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
+      .set('page', this.currentPage.toString())
+      .set('pageSize', this.pageSize.toString());
     
     if (searchValue) {
       httpParams = httpParams.set('search', searchValue);
@@ -274,6 +312,10 @@ export class ReusableTableComponent implements OnInit, OnChanges {
 
     // Update sorted data with filtered data
     this.sortedData = [...this.filteredData];
+    this.currentPage = 1; // Reset to first page on search
+    if (!this.config?.serverSideSearch) {
+      this.applyPagination();
+    }
   }
 
   onFilterRemove(filterId: string) {
@@ -341,6 +383,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       this.sortedData = this.searchValue && this.searchValue.trim() 
         ? [...this.filteredData] 
         : [...this.originalData];
+      if (!this.config?.serverSideSearch) {
+        this.applyPagination();
+      }
     }
   }
 
@@ -402,6 +447,9 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       }
       return 0;
     });
+    if (!this.config?.serverSideSearch) {
+      this.applyPagination();
+    }
   }
 
   getSortIcon(columnKey: string): string {
@@ -430,6 +478,36 @@ export class ReusableTableComponent implements OnInit, OnChanges {
     return path.split('.').reduce((current, prop) => current?.[prop], obj);
   }
 
+  getBadgeColor(row: any, column: TableColumn): string {
+    if (!column.badgeColor) return '';
+    if (typeof column.badgeColor === 'function') {
+      return column.badgeColor(row);
+    }
+    return column.badgeColor;
+  }
+
+  getBadgeTextColor(row: any, column: TableColumn): string {
+    if (!column.badgeTextColor) return '';
+    if (typeof column.badgeTextColor === 'function') {
+      return column.badgeTextColor(row);
+    }
+    return column.badgeTextColor;
+  }
+
+  getTooltipText(row: any, column: TableColumn): string {
+    if (!column.tooltip) {
+      return '';
+    }
+    if (typeof column.tooltip === 'function') {
+      return column.tooltip(row);
+    }
+    return column.tooltip;
+  }
+
+  hasTooltip(column: TableColumn): boolean {
+    return !!column.tooltip;
+  }
+
   getBadgeClass(badgeColor?: string): string {
     if (!badgeColor) return 'badge-success';
     return `badge-${badgeColor}`;
@@ -447,5 +525,90 @@ export class ReusableTableComponent implements OnInit, OnChanges {
       return 'text-success-light';
     }
     return `text-${textColor}`;
+  }
+
+  // Pagination methods
+  applyPagination() {
+    if (this.config?.serverSideSearch) {
+      // For server-side pagination, don't slice data here
+      // Data will come from server already paginated
+      return;
+    }
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedData = this.sortedData.slice(startIndex, endIndex);
+    // Update sortedData to show paginated data in table
+    this.sortedData = this.paginatedData;
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.effectiveTotalItems / this.pageSize) || 1;
+  }
+
+  getDisplayedRange(): string {
+    const total = this.effectiveTotalItems;
+    const start = total === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+    const end = Math.min(this.currentPage * this.pageSize, total);
+    return `${start}-${end}`;
+  }
+
+  onPageSizeChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    this.pageSize = parseInt(selectElement.value, 10);
+    this.currentPage = 1; // Reset to first page
+    
+    if (this.config?.serverSideSearch) {
+      this.emitSearchQuery();
+    } else {
+      this.applyPagination();
+    }
+  }
+
+  onPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      
+      if (this.config?.serverSideSearch) {
+        this.emitSearchQuery();
+      } else {
+        this.applyPagination();
+      }
+    }
+  }
+
+  onNextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      
+      if (this.config?.serverSideSearch) {
+        this.emitSearchQuery();
+      } else {
+        this.applyPagination();
+      }
+    }
+  }
+
+  onFirstPage() {
+    if (this.currentPage > 1) {
+      this.currentPage = 1;
+      
+      if (this.config?.serverSideSearch) {
+        this.emitSearchQuery();
+      } else {
+        this.applyPagination();
+      }
+    }
+  }
+
+  onLastPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage = this.totalPages;
+      
+      if (this.config?.serverSideSearch) {
+        this.emitSearchQuery();
+      } else {
+        this.applyPagination();
+      }
+    }
   }
 }
