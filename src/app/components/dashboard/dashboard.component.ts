@@ -4,27 +4,32 @@ import {
   TableColumn,
   FilterPill,
 } from '../reusable/reusable-table/reusable-table.component';
-import { ApiService } from '../../services/api.service';
+import { ApiResponse, ApiService } from '../../services/api.service';
 import { HttpParams } from '@angular/common/http';
+import { DashboardKpiItem } from '../dashboardkpi/dashboardkpi.component';
+import { UtilsService } from '../../services/utils.service';
+import { forkJoin } from 'rxjs';
 
 export interface DigitalAsset {
   id: number;
-  ministry: string;
+  ministryDepartment: string;
   department: string;
-  websiteName: string;
-  websiteUrl: string;
-  currentHealthStatus: string;
-  currentHealthPercentage: string;
-  lastOutageStatus: string;
-  lastOutageUpdated: string;
-  performanceSlaStatus: string;
-  performanceSlaPercentage: string;
+  websiteApplication: string;
+  assetUrl: string;
+  currentStatus: string;
+  lastChecked: string | null;
+  lastOutage: string;
+  lastOutageDate: string | null;
+  healthStatus: string;
+  healthIndex: number;
+  performanceStatus: string;
+  performanceIndex: number;
   complianceStatus: string;
-  compliancePercentage: string;
-  contentFreshnessStatus: string;
-  contentFreshnessUpdated: string;
+  complianceIndex: number;
+  riskExposureIndex: string;
   citizenImpactLevel: string;
-  satisfaction: string;
+  openIncidents: number;
+  highSeverityIncidents: number;
 }
 
 @Component({
@@ -34,60 +39,9 @@ export interface DigitalAsset {
   standalone: false,
 })
 export class DashboardComponent implements OnInit {
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService, private utils: UtilsService) { }
 
-  tableFilters = signal<FilterPill[]>([
-    {
-      id: 'ministry',
-      label: 'Ministry: Health',
-      value: 'Health',
-      removable: true,
-      paramKey: 'ministry',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'Finance', value: 'Finance' },
-        { label: 'Transport', value: 'Transport' },
-        { label: 'Health', value: 'Health' },
-        { label: 'Education', value: 'Education' },
-        { label: 'Housing', value: 'Housing' },
-      ],
-    },
-    {
-      id: 'status',
-      label: 'Status: All',
-      value: 'All',
-      paramKey: 'status',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'Offline', value: 'Offline' },
-        { label: 'Online', value: 'Online' },
-      ],
-    },
-    {
-      id: 'riskRating',
-      label: 'Risk Rating: All',
-      value: 'All',
-      paramKey: 'riskRating',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'Amber', value: 'Amber' },
-        { label: 'Green', value: 'Green' },
-        { label: 'Red', value: 'Red' },
-      ],
-    },
-    {
-      id: 'incidents',
-      label: 'Incidents: All',
-      value: 'All',
-      paramKey: 'incidents',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'P3', value: 'P3' },
-        { label: 'P2', value: 'P2' },
-        { label: 'None', value: 'None' },
-      ],
-    },
-  ]);
+  tableFilters = signal<FilterPill[]>([]);
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
@@ -99,270 +53,513 @@ export class DashboardComponent implements OnInit {
         key: 'analyze',
         header: 'ANALYZE',
         cellType: 'icon',
-        iconName: 'bar_chart',
-        iconColor: 'var(--color-blue-dark)',
-        iconBgColor: 'var(--color-blue-light)',
+        iconUrl: '/assets/analyze.svg',
         sortable: true,
+        width: '200px',
       },
       {
         key: 'ministryDepartment',
         header: 'MINISTRY / DEPARTMENT',
         cellType: 'two-line',
-        primaryField: 'ministry',
+        primaryField: 'ministryDepartment',
         secondaryField: 'department',
         sortable: true,
+        width: '400px',
       },
       {
         key: 'websiteApplication',
         header: 'WEBSITE / APPLICATION',
-        cellType: 'link',
-        primaryField: 'websiteName',
-        linkField: 'websiteUrl',
+        cellType: 'two-line',
+        primaryField: 'websiteApplication',
+        secondaryField: 'assetUrl',
+        linkField: 'assetUrl',
         sortable: true,
+        width: '200px',
       },
       {
-        key: 'currentHealth',
-        header: 'CURRENT HEALTH',
-        cellType: 'two-line',
-        primaryField: 'currentHealthStatus',
-        secondaryField: 'currentHealthPercentage',
+        key: 'currentStatus',
+        header: 'CURRENT STATUS',
+        cellType: 'badge-with-subtext',
+        badgeField: 'currentStatus',
+        subtextField: 'lastCheckedFormatted',
+        badgeColor: (row: any) => {
+          const status = row.currentStatus?.toLowerCase();
+          if (status === 'up' || status === 'online') return 'var(--color-green-light)';
+          if (status === 'down' || status === 'offline') return 'var(--color-red-light)';
+          return 'var(--color-bg-quaternary)';
+        },
+        badgeTextColor: (row: any) => {
+          const status = row.currentStatus?.toLowerCase();
+          if (status === 'up' || status === 'online') return 'var(--color-green-dark)';
+          if (status === 'down' || status === 'offline') return 'var(--color-red-dark)';
+          return 'var(--color-text-tertiary)';
+        },
         sortable: true,
+        width: '200px',
       },
       {
         key: 'lastOutage',
         header: 'LAST OUTAGE',
-        cellType: 'two-line',
-        primaryField: 'lastOutageStatus',
-        secondaryField: 'lastOutageUpdated',
+        cellType: 'text',
+        primaryField: 'lastOutage',
         sortable: true,
+        width: '200px',
       },
       {
-        key: 'performanceSla',
-        header: 'PERFORMANCE SLA',
-        cellType: 'badge-with-subtext',
-        badgeField: 'performanceSlaStatus',
-        subtextField: 'performanceSlaPercentage',
-        badgeColor: 'var(--color-green-light)',
-        badgeTextColor: 'var(--color-green-dark)',
+        key: 'currentHealth',
+        header: 'CURRENT HEALTH',
+        cellType: 'health-status',
+        healthStatusField: 'healthStatus',
+        healthIconField: 'healthIcon',
+        healthPercentageField: 'healthPercentage',
         sortable: true,
+        width: '200px',
+      },
+      {
+        key: 'performanceStatus',
+        header: 'PERFORMANCE STATUS',
+        cellType: 'two-line',
+        primaryField: 'performanceStatus',
+        secondaryField: 'performancePercentage',
+        sortable: true,
+        width: '200px',
       },
       {
         key: 'complianceStatus',
         header: 'COMPLIANCE STATUS',
-        cellType: 'text-with-color',
+        cellType: 'two-line',
         primaryField: 'complianceStatus',
         secondaryField: 'compliancePercentage',
-        textColor: 'success',
         sortable: true,
+        width: '200px',
       },
       {
-        key: 'contentFreshness',
-        header: 'CONTENT FRESHNESS',
-        cellType: 'two-line',
-        primaryField: 'contentFreshnessStatus',
-        secondaryField: 'contentFreshnessUpdated',
+        key: 'riskExposureIndex',
+        header: 'RISK EXPOSURE INDEX',
+        cellType: 'badge',
+        badgeField: 'riskExposureIndex',
+        badgeColor: (row: any) => {
+          const risk = row.riskExposureIndex?.toUpperCase();
+          if (risk === 'LOW RISK') return 'var(--color-green-light)';
+          if (risk === 'MEDIUM RISK') return 'var(--color-yellow-light)';
+          if (risk === 'HIGH RISK') return 'var(--color-red-light)';
+          return 'var(--color-bg-quaternary)';
+        },
+        badgeTextColor: (row: any) => {
+          const risk = row.riskExposureIndex?.toUpperCase();
+          if (risk === 'LOW RISK') return 'var(--color-green-dark)';
+          if (risk === 'MEDIUM RISK') return 'var(--color-yellow)';
+          if (risk === 'HIGH RISK') return 'var(--color-red-dark)';
+          return 'var(--color-text-tertiary)';
+        },
         sortable: true,
+        width: '200px',
       },
       {
         key: 'citizenImpactLevel',
         header: 'CITIZEN IMPACT LEVEL',
-        cellType: 'badge-with-subtext',
+        cellType: 'badge',
         badgeField: 'citizenImpactLevel',
-        subtextField: 'satisfaction',
+        badgeColor: (row: any) => {
+          const impact = row.citizenImpactLevel?.toUpperCase();
+          if (impact?.includes('LOW')) return 'var(--color-green-light)';
+          if (impact?.includes('MEDIUM')) return 'var(--color-yellow-light)';
+          if (impact?.includes('HIGH')) return 'var(--color-red-light)';
+          return 'var(--color-bg-quaternary)';
+        },
+        badgeTextColor: (row: any) => {
+          const impact = row.citizenImpactLevel?.toUpperCase();
+          if (impact?.includes('LOW')) return 'var(--color-green-dark)';
+          if (impact?.includes('MEDIUM')) return 'var(--color-yellow)';
+          if (impact?.includes('HIGH')) return 'var(--color-red-dark)';
+          return 'var(--color-text-tertiary)';
+        },
+        sortable: true,
+        width: '200px',
+      },
+      {
+        key: 'openIncidents',
+        header: 'OPEN INCIDENTS',
+        cellType: 'badge-with-subtext',
+        badgeField: 'openIncidents',
+        subtextField: 'highSeverityText',
         badgeColor: 'var(--color-green-light)',
         badgeTextColor: 'var(--color-green-dark)',
         sortable: true,
+        width: '200px',
       },
     ],
     data: [],
   });
 
-  digitalAssets = signal<DigitalAsset[]>([
-    {
-      id: 1,
-      ministry: 'Ministry of Planning, Development & Special Initiatives',
-      department: 'National Engineering Services Pakistan (Pvt.) Limited',
-      websiteName: 'Ministry Website',
-      websiteUrl: 'https://nespak.com.pk',
-      currentHealthStatus: 'Unknown',
-      currentHealthPercentage: '0.00%',
-      lastOutageStatus: 'Never',
-      lastOutageUpdated: 'Last Updated',
-      performanceSlaStatus: 'MET',
-      performanceSlaPercentage: '0%',
-      complianceStatus: 'Compliant',
-      compliancePercentage: '100%',
-      contentFreshnessStatus: 'Never',
-      contentFreshnessUpdated: 'Last Updated',
-      citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A',
-    },
-    {
-      id: 2,
-      ministry: 'Ministry of Planning, Development & Special Initiatives',
-      department: 'National Engineering Services Pakistan (Pvt.) Limited',
-      websiteName: 'Ministry Website',
-      websiteUrl: 'https://nespak.com.pk',
-      currentHealthStatus: 'Unknown',
-      currentHealthPercentage: '0.00%',
-      lastOutageStatus: 'Never',
-      lastOutageUpdated: 'Last Updated',
-      performanceSlaStatus: 'MET',
-      performanceSlaPercentage: '0%',
-      complianceStatus: 'Compliant',
-      compliancePercentage: '100%',
-      contentFreshnessStatus: 'Never',
-      contentFreshnessUpdated: 'Last Updated',
-      citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A',
-    },
-    {
-      id: 3,
-      ministry: 'Ministry of Planning, Development & Special Initiatives',
-      department: 'National Engineering Services Pakistan (Pvt.) Limited',
-      websiteName: 'Ministry Website',
-      websiteUrl: 'https://nespak.com.pk',
-      currentHealthStatus: 'Unknown',
-      currentHealthPercentage: '0.00%',
-      lastOutageStatus: 'Never',
-      lastOutageUpdated: 'Last Updated',
-      performanceSlaStatus: 'MET',
-      performanceSlaPercentage: '0%',
-      complianceStatus: 'Compliant',
-      compliancePercentage: '100%',
-      contentFreshnessStatus: 'Never',
-      contentFreshnessUpdated: 'Last Updated',
-      citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A',
-    },
-    {
-      id: 4,
-      ministry: 'Ministry of Planning, Development & Special Initiatives',
-      department: 'National Engineering Services Pakistan (Pvt.) Limited',
-      websiteName: 'Ministry Website',
-      websiteUrl: 'https://nespak.com.pk',
-      currentHealthStatus: 'Unknown',
-      currentHealthPercentage: '0.00%',
-      lastOutageStatus: 'Never',
-      lastOutageUpdated: 'Last Updated',
-      performanceSlaStatus: 'MET',
-      performanceSlaPercentage: '0%',
-      complianceStatus: 'Compliant',
-      compliancePercentage: '100%',
-      contentFreshnessStatus: 'Never',
-      contentFreshnessUpdated: 'Last Updated',
-      citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A',
-    },
-    {
-      id: 5,
-      ministry: 'Ministry of Planning, Development & Special Initiatives',
-      department: 'National Engineering Services Pakistan (Pvt.) Limited',
-      websiteName: 'Ministry Website',
-      websiteUrl: 'https://nespak.com.pk',
-      currentHealthStatus: 'Unknown',
-      currentHealthPercentage: '0.00%',
-      lastOutageStatus: 'Never',
-      lastOutageUpdated: 'Last Updated',
-      performanceSlaStatus: 'MET',
-      performanceSlaPercentage: '0%',
-      complianceStatus: 'Compliant',
-      compliancePercentage: '100%',
-      contentFreshnessStatus: 'Never',
-      contentFreshnessUpdated: 'Last Updated',
-      citizenImpactLevel: 'LOW',
-      satisfaction: 'Satisfaction: N/A',
-    },
-  ]);
+  digitalAssets = signal<DigitalAsset[]>([]);
+
+  totalItems = signal<number>(0);
 
   // Computed signal to keep table config in sync with data
-  tableConfigWithData = computed<TableConfig>(() => ({
-    ...this.tableConfig(),
-    data: this.digitalAssets(),
-  }));
+  tableConfigWithData = computed<TableConfig>(() => {
+    const processedData = this.digitalAssets().map((asset) => {
+      // Map healthStatus to icon
+      const getHealthIcon = (status: string): string => {
+        const statusLower = status.toLowerCase();
+        if (statusLower === 'healthy' || statusLower === 'up') return 'check_circle';
+        if (statusLower === 'critical' || statusLower === 'down' || statusLower === 'poor') return 'error';
+        if (statusLower === 'average' || statusLower === 'warning') return 'warning';
+        return 'help_outline';
+      };
 
-  dashboardKpis = signal<{ isVisible: boolean; data: any[] }>({
+      // Format percentage values
+      const formatPercentage = (value: number): string => {
+        return `${value}%`;
+      };
+
+      // Format lastChecked
+      const formatLastChecked = (checked: string | null): string => {
+        if (!checked) return 'Never checked';
+        // If it's already formatted, return as is, otherwise format it
+        return checked;
+      };
+
+      // Format health percentage
+      const formatHealthPercentage = (status: string, index: number): string => {
+        return `Health Index: ${formatPercentage(index)}`;
+      };
+
+      // Format performance percentage
+      const formatPerformancePercentage = (index: number): string => {
+        return `Performance Index: ${formatPercentage(index)}`;
+      };
+
+      // Format compliance percentage
+      const formatCompliancePercentage = (index: number): string => {
+        return `Compliance Index: ${formatPercentage(index)}`;
+      };
+
+      // Format high severity text
+      const formatHighSeverityText = (highSeverity: number): string => {
+        if (highSeverity === 0) return 'No high severity incidents';
+        return `High severity: ${highSeverity}`;
+      };
+
+      return {
+        ...asset,
+        healthIcon: getHealthIcon(asset.healthStatus),
+        healthPercentage: formatHealthPercentage(asset.healthStatus, asset.healthIndex),
+        performancePercentage: formatPerformancePercentage(asset.performanceIndex),
+        compliancePercentage: formatCompliancePercentage(asset.complianceIndex),
+        lastCheckedFormatted: formatLastChecked(asset.lastChecked),
+        highSeverityText: formatHighSeverityText(asset.highSeverityIncidents),
+      };
+    });
+
+    return {
+      ...this.tableConfig(),
+      data: processedData,
+    };
+  });
+
+  dashboardKpis = signal<{ isVisible: boolean; data: DashboardKpiItem[] }>({
     isVisible: true,
     data: [
       {
         id: 1,
-        title: 'Total  Digital Assets Monitored',
+        title: 'Total Digital Assets Monitored',
         subTitle: 'Active monitoring across all departments',
-        value: '247',
-        subValue: '+12',
-        subValueColor: 'success',
-        subValueText: '+12 Assets from last month',
+        value: '334',
+        subValue: '',
+        subValueColor: '',
+        subValueText: 'View All',
+        subValueLink: '/assets/by-ministry',
       },
       {
         id: 2,
-        title: 'Total  Digital Assets Monitored',
-        subTitle: 'Active monitoring across all departments',
-        value: '247',
-        subValue: '+12',
+        title: 'Assets online',
+        subTitle: 'Assets currently operational and reachable',
+        value: '214',
+        subValue: '83%',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month',
+        subValueText: 'View online assets',
+        subValueLink: '/assets/by-ministry?status=Online',
       },
       {
         id: 3,
-        title: 'Total  Digital Assets Monitored',
-        subTitle: 'Active monitoring across all departments',
-        value: '247',
-        subValue: '+12',
+        title: 'Health Index',
+        subTitle: 'Overall stability and availability score',
+        value: '83%',
+        subValue: 'HEALTHY',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month',
+        subValueText: 'View critical assets',
+        subValueLink: '/assets/by-ministry?health=critical',
       },
       {
         id: 4,
-        title: 'Total  Digital Assets Monitored',
-        subTitle: 'Active monitoring across all departments',
-        value: '247',
-        subValue: '+12',
-        subValueColor: 'success',
-        subValueText: '+12 Assets from last month',
+        title: 'Performance Index',
+        subTitle: 'Overall speed and efficiency score',
+        value: '23.53%',
+        subValue: 'AVERAGE',
+        subValueColor: 'danger',
+        subValueText: 'View critical assets',
+        subValueLink: '/assets/by-ministry?performance=critical',
       },
       {
         id: 5,
-        title: 'Total  Digital Assets Monitored',
-        subTitle: 'Active monitoring across all departments',
-        value: '247',
-        subValue: '+12',
-        subValueColor: 'success',
-        subValueText: '+12 Assets from last month',
+        title: 'Compliance Index',
+        subTitle: 'Overall adherence to compliance standards',
+        value: '23.53%',
+        subValue: 'LOW',
+        subValueColor: 'danger',
+        subValueText: 'View critical assets',
+        subValueLink: '/assets/by-ministry?compliance=critical',
       },
       {
         id: 6,
-        title: 'Total  Digital Assets Monitored',
-        subTitle: 'Active monitoring across all departments',
-        value: '247',
-        subValue: '+12',
-        subValueColor: 'not-success',
-        subValueText: '+12 Assets from last month',
+        title: 'High Risk Assets',
+        subTitle: 'Assets with risk index > 80%',
+        value: '43',
+        subValue: 'MEDIUM',
+        subValueColor: 'danger',
+        subValueText: 'View critical assets',
+        subValueLink: '/assets/by-ministry?riskRating=Red',
       },
       {
         id: 7,
-        title: 'Total  Digital Assets Monitored',
-        subTitle: 'Active monitoring across all departments',
-        value: '247',
-        subValue: '+12',
+        title: 'Open incidents',
+        subTitle: 'Active unresolved incidents',
+        value: '43',
+        subValue: '',
+        subValueColor: '',
+        subValueText: 'View open incidents',
+        subValueLink: '/active-incidents',
+      },
+      {
+        id: 8,
+        title: 'Critical severity open incidents',
+        subTitle: 'Active critical severity unresolved incidents',
+        value: '15',
+        subValue: '17%',
         subValueColor: 'success',
-        subValueText: '+12 Assets from last month',
+        subValueText: 'View open critical severity incidents',
+        subValueLink: '/active-incidents?severity=critical',
       },
     ],
   });
 
   ngOnInit() {
-    // Initial data will be loaded by table component on init
+    this.initializeFilters();
+  }
+
+  initializeFilters(): void {
+    // Initialize filters with "All" as default
+    this.tableFilters.set([
+      {
+        id: 'ministry',
+        label: 'Ministry: All',
+        value: '',
+        removable: true,
+        paramKey: 'ministry',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'status',
+        label: 'Status: All',
+        value: '',
+        removable: true,
+        paramKey: 'status',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'health',
+        label: 'Health: All',
+        value: '',
+        removable: true,
+        paramKey: 'health',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'performance',
+        label: 'Performance: All',
+        value: '',
+        removable: true,
+        paramKey: 'performance',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'compliance',
+        label: 'Compliance: All',
+        value: '',
+        removable: true,
+        paramKey: 'compliance',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'riskIndex',
+        label: 'Risk Index: All',
+        value: '',
+        removable: true,
+        paramKey: 'riskIndex',
+        options: [{ label: 'All', value: '' }]
+      },
+      {
+        id: 'citizenImpact',
+        label: 'Citizen Impact: All',
+        value: '',
+        removable: true,
+        paramKey: 'citizenImpact',
+        options: [{ label: 'All', value: '' }]
+      }
+    ]);
+
+    // Load filter options from APIs
+    this.loadFilterOptions();
+  }
+
+  loadFilterOptions(): void {
+    forkJoin({
+      ministries: this.apiService.getAllMinistries(),
+      statuses: this.apiService.getLovByType('Status'),
+      citizenImpactLevels: this.apiService.getLovByType('citizenImpactLevel')
+    }).subscribe({
+      next: (responses) => {
+        // Update Ministry filter
+        if (responses.ministries.isSuccessful) {
+          const ministryOptions = [{ label: 'All', value: '' }];
+          const ministries = Array.isArray(responses.ministries.data) ? responses.ministries.data : [];
+          ministries.forEach((ministry: any) => {
+            ministryOptions.push({
+              label: ministry.ministryName || ministry.name,
+              value: ministry.id?.toString() || ministry.ministryName || ministry.name
+            });
+          });
+          this.updateFilterOptions('ministry', ministryOptions);
+        }
+
+        // Update Status filter
+        if (responses.statuses.isSuccessful) {
+          const statusOptions = [{ label: 'All', value: '' }];
+          const statuses = Array.isArray(responses.statuses.data) ? responses.statuses.data : [];
+          statuses.forEach((status: any) => {
+            statusOptions.push({
+              label: status.name,
+              value: status.name || status.id?.toString()
+            });
+          });
+          this.updateFilterOptions('status', statusOptions);
+        }
+
+        // Update Citizen Impact filter
+        if (responses.citizenImpactLevels.isSuccessful) {
+          const citizenImpactOptions = [{ label: 'All', value: '' }];
+          const citizenImpacts = Array.isArray(responses.citizenImpactLevels.data) ? responses.citizenImpactLevels.data : [];
+          citizenImpacts.forEach((impact: any) => {
+            citizenImpactOptions.push({
+              label: impact.name,
+              value: impact.name || impact.id?.toString()
+            });
+          });
+          this.updateFilterOptions('citizenImpact', citizenImpactOptions);
+        }
+
+        // Set static options for Health, Performance, Compliance, and Risk Index
+        // These can be updated later if backend provides LOV endpoints for them
+        this.updateFilterOptions('health', [
+          { label: 'All', value: '' },
+          { label: 'Healthy', value: 'Healthy' },
+          { label: 'Critical', value: 'Critical' },
+          { label: 'Unknown', value: 'Unknown' }
+        ]);
+
+        this.updateFilterOptions('performance', [
+          { label: 'All', value: '' },
+          { label: 'Performing Well', value: 'Performing Well' },
+          { label: 'Average', value: 'Average' },
+          { label: 'Poor', value: 'Poor' }
+        ]);
+
+        this.updateFilterOptions('compliance', [
+          { label: 'All', value: '' },
+          { label: 'High Compliance', value: 'High Compliance' },
+          { label: 'Medium Compliance', value: 'Medium Compliance' },
+          { label: 'Low Compliance', value: 'Low Compliance' }
+        ]);
+
+        this.updateFilterOptions('riskIndex', [
+          { label: 'All', value: '' },
+          { label: 'LOW RISK', value: 'LOW RISK' },
+          { label: 'MEDIUM RISK', value: 'MEDIUM RISK' },
+          { label: 'HIGH RISK', value: 'HIGH RISK' },
+          { label: 'UNKNOWN', value: 'UNKNOWN' }
+        ]);
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error loading filter options', 'error');
+        // Set default static options for all filters on error
+        this.updateFilterOptions('ministry', [{ label: 'All', value: '' }]);
+        this.updateFilterOptions('status', [{ label: 'All', value: '' }]);
+        this.updateFilterOptions('health', [
+          { label: 'All', value: '' },
+          { label: 'Healthy', value: 'Healthy' },
+          { label: 'Critical', value: 'Critical' },
+          { label: 'Unknown', value: 'Unknown' }
+        ]);
+        this.updateFilterOptions('performance', [
+          { label: 'All', value: '' },
+          { label: 'Performing Well', value: 'Performing Well' },
+          { label: 'Average', value: 'Average' },
+          { label: 'Poor', value: 'Poor' }
+        ]);
+        this.updateFilterOptions('compliance', [
+          { label: 'All', value: '' },
+          { label: 'High Compliance', value: 'High Compliance' },
+          { label: 'Medium Compliance', value: 'Medium Compliance' },
+          { label: 'Low Compliance', value: 'Low Compliance' }
+        ]);
+        this.updateFilterOptions('riskIndex', [
+          { label: 'All', value: '' },
+          { label: 'LOW RISK', value: 'LOW RISK' },
+          { label: 'MEDIUM RISK', value: 'MEDIUM RISK' },
+          { label: 'HIGH RISK', value: 'HIGH RISK' },
+          { label: 'UNKNOWN', value: 'UNKNOWN' }
+        ]);
+        this.updateFilterOptions('citizenImpact', [{ label: 'All', value: '' }]);
+      }
+    });
+  }
+
+  updateFilterOptions(filterId: string, options: { label: string, value: string }[]): void {
+    this.tableFilters.update(filters => {
+      return filters.map(filter => {
+        if (filter.id === filterId) {
+          const selectedValue = filter.value;
+          const newLabel = selectedValue && selectedValue !== '' && selectedValue !== 'All'
+            ? `${filter.label.split(':')[0]}: ${options.find(opt => opt.value === selectedValue)?.label || selectedValue}`
+            : `${filter.label.split(':')[0]}: All`;
+          return {
+            ...filter,
+            options,
+            label: newLabel
+          };
+        }
+        return filter;
+      });
+    });
   }
 
   loadAssets(searchParams: HttpParams) {
     this.apiService.getAssets(searchParams).subscribe({
-      next: (response) => {
-        if (response.isSuccessful && response.data) {
-          this.digitalAssets.set(response.data);
+      next: (response: ApiResponse) => {
+        if (response.isSuccessful) {
+          this.digitalAssets.set(response.data.data);
+          this.totalItems.set(response.data.totalCount);
+        } else {
+          this.utils.showToast(response.message, 'Error loading assets', 'error');
+          this.digitalAssets.set([]);
+          this.totalItems.set(0);
         }
       },
       error: (error) => {
-        console.error('Error loading assets:', error);
+        this.utils.showToast(error, 'Error loading assets', 'error');
+        this.digitalAssets.set([]);
+        this.totalItems.set(0);
       },
     });
   }

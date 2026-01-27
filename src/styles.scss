@@ -62,6 +62,9 @@
   --color-orange-light: #FEF3C7;
   --color-yellow: #B45346;
   --color-yellow-light: #FEF3C7;
+
+  /* Font Families */
+  --font-rubik: 'Rubik', sans-serif;
 }
 
 /* Apply Inter globally */
@@ -174,4 +177,8 @@ body {
   .mat-mdc-dialog-surface {
     overflow: hidden;
   }
+}
+
+.pointer {
+  cursor: pointer;
 }

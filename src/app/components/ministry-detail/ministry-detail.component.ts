@@ -153,7 +153,7 @@ export class MinistryDetailComponent implements AfterViewInit {
 
   @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
