@@ -32,6 +32,7 @@ export interface ActiveIncident {
   createdAgo?: string;
   kpiDescription?: string;
   assetName?: string;
+  assetUrl: string;
   ministryName?: string;
 }
 
@@ -45,7 +46,7 @@ export interface ActiveIncident {
 export class ActiveIncidentsComponent implements OnInit {
 
   incidents = signal<ActiveIncident[]>([]);
-
+  totalItems = signal<number>(0);
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Incidents' }
@@ -59,7 +60,6 @@ export class ActiveIncidentsComponent implements OnInit {
     minWidth: '1400px',
     searchPlaceholder: 'Search incidents',
     serverSideSearch: true,
-    defaultPageSize: 10,
     columns: [
       {
         key: 'viewDetails',
@@ -78,7 +78,7 @@ export class ActiveIncidentsComponent implements OnInit {
         primaryField: 'incidentTitle',
         cellClass: 'fw-bold',
         sortable: false,
-        width: '200px',
+        width: '300px',
       },
       {
         key: 'severity',
@@ -118,12 +118,14 @@ export class ActiveIncidentsComponent implements OnInit {
         primaryField: 'kpiDescription',
         sortable: false,
         width: '250px',
+        cellClass: 'fw-bold',
       },
       {
         key: 'asset',
         header: 'ASSET',
-        cellType: 'two-line',
+        cellType: 'link',
         primaryField: 'assetName',
+        linkField: 'assetRouterLink',
         secondaryField: 'ministryName',
         sortable: false,
         width: '200px',
@@ -148,9 +150,6 @@ export class ActiveIncidentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeFilters();
-    // Load initial incidents data
-    const params = new HttpParams().set('page', '1').set('pageSize', '10');
-    this.loadIncidents(params);
   }
 
   initializeFilters(): void {
@@ -346,12 +345,16 @@ export class ActiveIncidentsComponent implements OnInit {
             // Use fields directly from backend response
             assetName: incident.assetName || `Asset ${incident.assetId}`,
             ministryName: incident.ministryName || 'N/A',
-            kpiDescription: incident.kpiDescription || incident.description || 'N/A'
+            kpiDescription: incident.kpiDescription || incident.description || 'N/A',
+            // Use full URL from backend if available, otherwise use router link
+            assetRouterLink: incident.assetUrl
           }));
           this.incidents.set(processedIncidents);
+          this.totalItems.set(response.data.totalCount);
         } else {
           this.utils.showToast(response.message, 'Error loading incidents', 'error');
           this.incidents.set([]);
+          this.totalItems.set(0);
         }
       },
       error: (error: any) => {
@@ -409,9 +412,9 @@ export class ActiveIncidentsComponent implements OnInit {
   getStatusBadgeColor(status: string): string {
     const statusUpper = status?.toUpperCase();
     if (statusUpper === 'OPEN') {
-      return '#F3F4F6'; // Grey background
+      return 'var(--color-light-lightgrey2)'; // Grey background
     } else if (statusUpper === 'INVESTIGATING') {
-      return '#FEE2E2'; // Light red/pink background
+      return 'var(--color-red-light)'; // Light red/pink background
     } else if (statusUpper === 'FIXING') {
       return 'var(--color-yellow-light)'; // Yellow background
     } else if (statusUpper === 'MONITORING') {
@@ -427,9 +430,9 @@ export class ActiveIncidentsComponent implements OnInit {
   getStatusBadgeTextColor(status: string): string {
     const statusUpper = status?.toUpperCase();
     if (statusUpper === 'OPEN') {
-      return '#1F2937'; // Dark grey text
+      return 'var(--color-text-white)';
     } else if (statusUpper === 'INVESTIGATING') {
-      return '#DC2626'; // Red text
+      return 'var(--color-red)'; // Red text
     } else if (statusUpper === 'FIXING') {
       return 'var(--color-yellow)'; // Yellow text
     } else if (statusUpper === 'MONITORING') {
@@ -485,5 +488,9 @@ export class ActiveIncidentsComponent implements OnInit {
         this.onRefresh();
       }
     });
+  }
+
+  onViewDetailsClick(event: { row: any; columnKey: string }): void {
+    console.log('View Details clicked - Row data:', event);
   }
 }
