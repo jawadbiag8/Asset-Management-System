@@ -969,18 +969,40 @@ export class ReusableTableComponent
 
     this.sortState[columnKey] = newSort;
 
-    // Apply sorting
+    // Apply sorting locally first for immediate feedback
     if (newSort) {
       this.applySort(columnKey, newSort);
     } else {
-      // Reset to filtered data order (or original if no search)
-      this.sortedData =
-        this.searchValue && this.searchValue.trim()
-          ? [...this.filteredData]
-          : [...this.originalData];
-      if (!this.config?.serverSideSearch) {
+      // Reset to original order
+      if (this.config?.serverSideSearch) {
+        // For server-side, use current sortedData or config.data
+        this.sortedData = this.config?.data && Array.isArray(this.config.data) 
+          ? [...this.config.data] 
+          : this.sortedData.length > 0 
+            ? [...this.sortedData] 
+            : [];
+      } else {
+        // For client-side, use filtered or original data
+        if (this.searchValue && this.searchValue.trim()) {
+          this.sortedData =
+            this.filteredData && this.filteredData.length > 0
+              ? [...this.filteredData]
+              : this.originalData && this.originalData.length > 0
+                ? [...this.originalData]
+                : [];
+        } else {
+          this.sortedData =
+            this.originalData && this.originalData.length > 0
+              ? [...this.originalData]
+              : [];
+        }
         this.applyPagination();
       }
+    }
+
+    // For server-side search, also emit query with sort params
+    if (this.config?.serverSideSearch) {
+      this.emitSearchQuery();
     }
   }
 
@@ -1007,11 +1029,33 @@ export class ReusableTableComponent
       sortField = column.key;
     }
 
-    // Use filtered data if search is active, otherwise use original data
-    const dataToSort =
-      this.searchValue && this.searchValue.trim()
-        ? [...this.filteredData]
-        : [...this.originalData];
+    // For server-side, use current sortedData (from config.data)
+    // For client-side, use filtered or original data
+    let dataToSort: any[] = [];
+    
+    if (this.config?.serverSideSearch) {
+      // Use current sortedData which comes from config.data
+      dataToSort = this.sortedData && this.sortedData.length > 0 
+        ? [...this.sortedData] 
+        : (this.config?.data && Array.isArray(this.config.data) ? [...this.config.data] : []);
+    } else {
+      // Client-side: use filtered data if search is active, otherwise use original data
+      dataToSort =
+        this.searchValue && this.searchValue.trim()
+          ? this.filteredData && this.filteredData.length > 0
+            ? [...this.filteredData]
+            : this.originalData && this.originalData.length > 0
+              ? [...this.originalData]
+              : []
+          : this.originalData && this.originalData.length > 0
+            ? [...this.originalData]
+            : [];
+    }
+
+    // If no data to sort, return early
+    if (dataToSort.length === 0) {
+      return;
+    }
 
     // Sort the data
     this.sortedData = dataToSort.sort((a, b) => {
@@ -1050,9 +1094,9 @@ export class ReusableTableComponent
       }
       return 0;
     });
-    if (!this.config?.serverSideSearch) {
-      this.applyPagination();
-    }
+    
+    // Apply pagination for client-side only
+    this.applyPagination();
   }
 
   getSortIcon(columnKey: string): string {
