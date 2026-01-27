@@ -1,29 +1,169 @@
-.dashboard-title {
-    font-weight: 600;
-    font-style: semibold;
+.kpi-card-wrapper {
+    height: 100%;
 }
 
-.dashboard-subtitle {
-    font-weight: 400;
-    font-style: regular;
-}
-
-
-.card {
+.kpi-card {
+    background: #FFFFFF;
     border: 1px solid #E5E7EB;
     border-radius: 8px;
+    padding: 24px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     cursor: pointer;
+    transition: all 0.2s ease;
 
     &:hover {
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-color: #D1D5DB;
     }
 }
 
-.badge-weight {
+.kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.kpi-value {
+    font-family: var(--font-rubik);
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    color: #111827;
+    margin: 0;
+    flex: 1;
+}
+
+.kpi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 4px;
     font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+// Percentage badges (with arrow icons)
+.kpi-badge-percentage {
+    &.kpi-badge-success {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+
+    &.kpi-badge-danger {
+        background-color: #FEE2E2;
+        color: #DC2626;
+    }
+}
+
+// Text badges (HEALTHY, AVERAGE, LOW, MEDIUM)
+.kpi-badge-text {
+    font-weight: 500;
+
+    &.kpi-badge-healthy {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+
+    &.kpi-badge-average {
+        background-color: #FEF3C7;
+        color: #B45309;
+    }
+
+    &.kpi-badge-low {
+        background-color: #FEE2E2;
+        color: #DC2626;
+    }
+
+    &.kpi-badge-medium {
+        background-color: #FEF3C7;
+        color: #B45309;
+    }
+
+    &.kpi-badge-success {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+
+    &.kpi-badge-danger {
+        background-color: #FEE2E2;
+        color: #DC2626;
+    }
 }
 
 .badge-icon {
-    width: 11;
-    height: 11;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.kpi-title {
+    font-weight: 600;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.kpi-subtitle {
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    color: #6B7280;
+    margin: 0 0 16px 0;
+    flex: 1;
+}
+
+.kpi-divider {
+    height: 1px;
+    background-color: #E5E7EB;
+    margin: 16px 0;
+    width: 100%;
+}
+
+.kpi-footer {
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.kpi-link {
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0px;
+    color: var(--color-blue-link);
+    text-decoration: none;
+
+
+    &:hover {
+        color: var(--color-blue-link);
+        text-decoration: underline;
+    }
+}
+
+.kpi-link-text {
+    font-weight: 400;
+    font-style: normal;
+    font-size: 12px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    color: #6B7280;
+}
+
+.kpi-chevron {
+    color: var(--color-blue-link);
 }

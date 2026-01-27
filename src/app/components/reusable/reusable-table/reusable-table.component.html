@@ -1,6 +1,5 @@
 <div>
     <!-- Filter Bar -->
-    @if(filters.length > 0 || config.searchPlaceholder) {
     <div class="mb-3">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             @if(filters.length > 0) {
@@ -38,18 +37,7 @@
             </div>
         </div>
     </div>
-    } @else {
-    <!-- Refresh Button Only (when no filters or search) -->
-    <div class="mb-3">
-        <div class="d-flex justify-content-end">
-            <button class="btn btn-secondary btn-sm d-flex align-items-center gap-2" (click)="onRefresh()" type="button"
-                title="Refresh">
-                <mat-icon>refresh</mat-icon>
-                <span class="d-none d-md-inline">Refresh</span>
-            </button>
-        </div>
-    </div>
-    }
+
 
     <!-- Table -->
     <div class="table-container">
@@ -78,44 +66,46 @@
                     [matTooltipPosition]="column.tooltipPosition || 'above'" [matTooltipDisabled]="!hasTooltip(column)">
                     @switch(column.cellType) {
                     @case('icon') {
-                    <div class="analyze-icon-container"
-                        [style.background-color]="column.iconBgColor || 'var(--color-blue-light)'"
+                    <div class="analyze-icon-container" [style.background-color]="column.iconBgColor"
                         (click)="onIconClick(row, column.key)">
                         @if(column.iconUrl) {
                         <img [src]="column.iconUrl" alt="icon" class="custom-icon" />
                         } @else {
-                        <mat-icon class="analyze-icon" [style.color]="column.iconColor || 'var(--color-blue-dark)'">
-                            {{ column.iconName || 'bar_chart' }}
+                        <mat-icon class="analyze-icon" [style.color]="column.iconColor">
+                            {{ column.iconName}}
                         </mat-icon>
                         }
                     </div>
                     }
                     @case('two-line') {
                     <div class="two-line-cell">
+                        <div class="line-primary" [ngClass]="column.cellClass">{{ getCellValue(row, column.primaryField
+                            || '') }}</div>
                         @if(column.linkField) {
-                        <a [href]="getCellValue(row, column.linkField || '')" target="_blank" class="line-primary line-link" [ngClass]="column.cellClass">
-                            {{ getCellValue(row, column.primaryField || '') }}
+                        <a [href]="getCellValue(row, column.linkField || '')" target="_blank"
+                            class="line-primary line-link" [ngClass]="column.cellClass">
+                            {{ getCellValue(row, column.secondaryField || '') }}
                         </a>
                         } @else {
-                        <div class="line-primary" [ngClass]="column.cellClass">{{ getCellValue(row, column.primaryField || '') }}</div>
-                        }
                         <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
+                        }
                     </div>
                     }
                     @case('link') {
                     <div class="two-line-cell">
                         @if(getCellValue(row, column.linkField || '')) {
-                            <a [href]="getCellValue(row, column.linkField || '')" target="_blank" rel="noopener noreferrer" class="link-text">
-                                {{ getCellValue(row, column.primaryField || '') }}
-                            </a>
-                            @if(column.secondaryField) {
-                                <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
-                            }
+                        <a [href]="getCellValue(row, column.linkField || '')" target="_blank" rel="noopener noreferrer"
+                            class="link-text">
+                            {{ getCellValue(row, column.primaryField || '') }}
+                        </a>
+                        @if(column.secondaryField) {
+                        <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
+                        }
                         } @else {
-                            <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
-                            @if(column.secondaryField) {
-                                <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
-                            }
+                        <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
+                        @if(column.secondaryField) {
+                        <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
+                        }
                         }
                     </div>
                     }
@@ -149,13 +139,13 @@
                     @case('health-status') {
                     <div class="health-status-cell">
                         <div class="health-icon-wrapper">
-                            <div class="health-tooltip" [attr.data-status]="getCellValue(row, column.healthStatusField || '')">
+                            <div class="health-tooltip"
+                                [attr.data-status]="getCellValue(row, column.healthStatusField || '')">
                                 {{ getCellValue(row, column.healthStatusField || '') }}
                             </div>
-                            <img [src]="getHealthIconPath(getCellValue(row, column.healthIconField || ''))" 
-                                 [alt]="getCellValue(row, column.healthStatusField || '')"
-                                 class="health-icon" 
-                                 [ngClass]="getHealthIconClass(getCellValue(row, column.healthIconField || ''))" />
+                            <img [src]="getHealthIconPath(getCellValue(row, column.healthIconField || ''))"
+                                [alt]="getCellValue(row, column.healthStatusField || '')" class="health-icon"
+                                [ngClass]="getHealthIconClass(getCellValue(row, column.healthIconField || ''))" />
                         </div>
                         <div class="health-percentage">{{ getCellValue(row, column.healthPercentageField || '') }}</div>
                     </div>
