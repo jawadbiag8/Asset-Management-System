@@ -9,6 +9,7 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { UtilsService } from '../../../services/utils.service';
 
 /**
@@ -493,13 +494,13 @@ export interface TableConfig {
   standalone: false,
 })
 export class ReusableTableComponent
-  implements OnInit, AfterViewInit, OnChanges
-{
+  implements OnInit, AfterViewInit, OnChanges {
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
 
   @Output() searchQuery = new EventEmitter<HttpParams>(); // Emit search query parameter as HttpParams (for server-side)
+  @Output() actionClick = new EventEmitter<{ row: any; columnKey: string }>(); // Emit row data when icon/action is clicked
 
   // Internal search value - no longer needs to be passed from parent
   searchValue: string = '';
@@ -539,7 +540,10 @@ export class ReusableTableComponent
     return this.originalData.length;
   }
 
-  constructor(private utilsService: UtilsService) {}
+  constructor(
+    private utilsService: UtilsService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -759,7 +763,6 @@ export class ReusableTableComponent
   }
 
   onRefresh(): void {
-    console.log('onRefresh', this.lastSearchParams);
     // Reload data with the last search parameters
     if (this.config?.serverSideSearch) {
       this.searchQuery.emit(this.lastSearchParams);
@@ -1072,6 +1075,23 @@ export class ReusableTableComponent
 
   getCellValue(row: any, field: string): any {
     return field ? this.getNestedValue(row, field) : '';
+  }
+
+  isRouterLink(link: any): boolean {
+    return !!(link && typeof link === 'string' && link.startsWith('/'));
+  }
+
+  navigateToLink(link: string, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
+    if (this.isRouterLink(link)) {
+      this.router.navigateByUrl(link);
+    }
+  }
+
+  onIconClick(row: any, columnKey: string): void {
+    this.actionClick.emit({ row, columnKey });
   }
 
   private getNestedValue(obj: any, path: string): any {

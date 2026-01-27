@@ -346,7 +346,8 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
               totalAssets: response.data.totalAssets || 0,
               totalIncidents: response.data.totalIncidents || 0,
               openIncidents: response.data.openIncidents || 0,
-              highSeverityOpenIncidents: response.data.highSeverityOpenIncidents || 0,
+              highSeverityOpenIncidents:
+                response.data.highSeverityOpenIncidents || 0,
             };
 
             // Update summary cards with API data
@@ -428,19 +429,28 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
       websiteName: item.websiteName || item.name || 'Department Website',
       websiteUrl: item.websiteUrl || item.url || '',
       currentStatus: item.currentStatus || item.status || 'Unknown',
-      currentStatusChecked: item.currentStatusChecked || item.statusChecked || '',
+      currentStatusChecked:
+        item.currentStatusChecked || item.statusChecked || '',
       lastOutage: item.lastOutage || item.lastOutageTime || '',
-      currentHealthStatus: item.currentHealthStatus || item.healthStatus || 'Unknown',
-      currentHealthIcon: this.getHealthIcon(item.currentHealthStatus || item.healthStatus),
-      currentHealthPercentage: item.currentHealthPercentage || item.healthIndex || '',
+      currentHealthStatus:
+        item.currentHealthStatus || item.healthStatus || 'Unknown',
+      currentHealthIcon: this.getHealthIcon(
+        item.currentHealthStatus || item.healthStatus,
+      ),
+      currentHealthPercentage:
+        item.currentHealthPercentage || item.healthIndex || '',
       performanceStatus: item.performanceStatus || item.performance || '',
-      performancePercentage: item.performancePercentage || item.performanceIndex || '',
+      performancePercentage:
+        item.performancePercentage || item.performanceIndex || '',
       complianceStatus: item.complianceStatus || item.compliance || '',
-      compliancePercentage: item.compliancePercentage || item.complianceIndex || '',
+      compliancePercentage:
+        item.compliancePercentage || item.complianceIndex || '',
       riskExposureIndex: item.riskExposureIndex || item.riskIndex || 'UNKNOWN',
-      citizenImpactLevel: item.citizenImpactLevel || item.citizenImpact || 'LOW',
+      citizenImpactLevel:
+        item.citizenImpactLevel || item.citizenImpact || 'LOW',
       openIncidents: item.openIncidents || item.totalIncidents || 0,
-      highSeverityIncidents: item.highSeverityIncidents || item.highSeverityOpenIncidents || 0,
+      highSeverityIncidents:
+        item.highSeverityIncidents || item.highSeverityOpenIncidents || 0,
     }));
   }
 

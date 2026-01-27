@@ -139,6 +139,7 @@
 
 .assets-table {
     width: 100%;
+    table-layout: fixed;
     background: var(--color-bg-primary);
 
     th {
@@ -214,11 +215,30 @@
         line-height: 1.4;
     }
 
+    .link-text {
+        color: var(--color-blue-link);
+        font-weight: 600;
+        font-style: normal;
+        font-size: 12px;
+        line-height: 100%;
+        letter-spacing: 2%;
+        text-decoration: underline;
+        text-decoration-style: solid;
+        text-decoration-thickness: 0%;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+
+        &:hover {
+            color: var(--color-blue);
+        }
+    }
+
     .line-secondary {
         font-weight: 400;
         font-size: 12px;
+        line-height: 18px;
+        letter-spacing: 0%;
         color: var(--color-text-tertiary);
-        line-height: 1.4;
     }
 
     .line-link {
@@ -235,6 +255,14 @@
     }
 }
 
+.line-secondary {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    letter-spacing: 0%;
+    color: var(--color-text-tertiary);
+}
+
 // Badge Cell
 .badge-cell {
     display: flex;
@@ -248,8 +276,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     border-radius: 4px;
     transition: background-color 0.2s, opacity 0.2s;
 
@@ -287,6 +315,7 @@
     font-weight: 500;
     display: inline-block;
     white-space: nowrap;
+    min-width: 125px;
 }
 
 // Text Colors
@@ -481,7 +510,7 @@
             &:disabled {
                 opacity: 0.5;
                 cursor: not-allowed;
-                
+
                 mat-icon {
                     color: var(--color-text-tertiary);
                 }
@@ -497,11 +526,11 @@
             font-weight: 500;
             min-width: 40px;
             text-align: center;
-            
+
             .current-page {
                 color: var(--color-green-teal);
             }
-            
+
             .total-pages {
                 color: var(--color-text-primary);
             }

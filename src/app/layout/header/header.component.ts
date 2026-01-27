@@ -1,5 +1,6 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, HostListener, ElementRef, ViewChild, signal } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
 
@@ -12,6 +13,12 @@ import { UtilsService } from '../../services/utils.service';
 export class HeaderComponent {
   menuOpen = false;
   profileDropdownOpen = false;
+  currentRoute: string = '';
+
+  user = signal<{ userName: string, role: string }>({
+    userName: '',
+    role: ''
+  })
 
   @ViewChild('profileDropdown', { static: false }) profileDropdown!: ElementRef;
 
@@ -19,7 +26,40 @@ export class HeaderComponent {
     private apiService: ApiService,
     private router: Router,
     private utilsService: UtilsService
-  ) {}
+  ) {
+    // Track current route
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.currentRoute = event.url;
+      });
+
+    const userData = this.utilsService.getStorage<{ username?: string; role?: string }>('user');
+    this.user.set({
+      userName: userData?.username || '',
+      role: userData?.role || 'Admin'
+    })
+    // Set initial route
+    this.currentRoute = this.router.url;
+  }
+
+  isAssetsActive(): boolean {
+    return (
+      this.currentRoute.includes('/assets') ||
+      this.currentRoute.includes('/add-digital-assets') ||
+      this.currentRoute.includes('/edit-digital-assets') ||
+      this.currentRoute.includes('/ministry-detail') ||
+      this.currentRoute.includes('/view-assets-detail')
+    );
+  }
+
+  isDashboardActive(): boolean {
+    return this.currentRoute === '/dashboard' || this.currentRoute === '/';
+  }
+
+  isIncidentsActive(): boolean {
+    return this.currentRoute.includes('/incidents');
+  }
 
   toggleProfileDropdown() {
     this.profileDropdownOpen = !this.profileDropdownOpen;

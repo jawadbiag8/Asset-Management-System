@@ -7,6 +7,7 @@
   --color-primary-hover: #005252;
 
   --color-light-green: #66B3B340;
+  --color-light-lightgrey2: #9E9E9E;
 
   /* Background Colors */
   --color-bg-primary: #FFFFFF;
@@ -42,6 +43,7 @@
   --color-blue-light: #E0F2FE;
   --color-blue-light-hover: #BAE6FD;
   --color-blue-dark: #0284C7;
+  --color-blue-link: #2563EB;
 
   /* Filter Pill Colors */
   --color-filter-selected-bg: #0D9488;
@@ -62,6 +64,9 @@
   --color-orange-dark: #FF7F50;
   --color-yellow: #B45346;
   --color-yellow-light: #FEF3C7;
+
+  /* Font Families */
+  --font-rubik: 'Rubik', sans-serif;
 }
 
 /* Apply Inter globally */
@@ -162,7 +167,7 @@ body {
   .mat-mdc-dialog-container {
     padding: 0 !important;
     max-height: 90vh;
-    
+
     @media (max-width: 767px) {
       max-height: 95vh;
       margin: 10px;
@@ -170,8 +175,12 @@ body {
       max-width: calc(100% - 20px) !important;
     }
   }
-  
+
   .mat-mdc-dialog-surface {
     overflow: hidden;
   }
+}
+
+.pointer {
+  cursor: pointer;
 }
