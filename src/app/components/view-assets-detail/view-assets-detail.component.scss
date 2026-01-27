@@ -3,142 +3,121 @@
   min-height: 100vh;
 }
 
-// Header Section
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
+// Health Dashboard Card
+.health-dashboard-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
   margin-top: 24px;
   margin-bottom: 32px;
-  padding: 24px;
-  background-color: var(--color-bg-primary);
-  border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
 
-  .header-content {
-    flex: 1;
-  }
-
-  .page-title {
-    font-size: 28px;
+  .dashboard-title {
+    font-size: 20px;
     font-weight: 700;
-    color: var(--color-text-primary);
-    margin-bottom: 16px;
+    color: #1f2937;
+    margin-bottom: 24px;
+    margin-top: 0;
+    line-height: 1.2;
   }
 
-  .header-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    margin-bottom: 0;
+  .dashboard-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px 16px;
+    margin-bottom: 24px;
 
-    .detail-item {
+    .detail-row {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
+      flex-direction: column;
+      gap: 6px;
 
       .detail-label {
-        color: var(--color-text-secondary);
+        font-size: 12px;
         font-weight: 500;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.4;
       }
 
       .detail-value {
-        color: var(--color-text-primary);
+        font-size: 14px;
+        font-weight: 400;
+        color: #1f2937;
+        line-height: 1.5;
       }
 
-      .detail-link {
-        color: var(--color-blue);
+      .detail-value-link {
+        font-size: 14px;
+        font-weight: 400;
+        color: #007BFF;
         text-decoration: underline;
         cursor: pointer;
+        line-height: 1.5;
 
         &:hover {
-          color: var(--color-blue-hover);
+          color: #0056b3;
+        }
+      }
+
+      .detail-value-risk {
+        font-size: 14px;
+        font-weight: 600;
+        color: #DC2626;
+        line-height: 1.5;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        width: fit-content;
+        line-height: 1.4;
+
+        &.badge-citizen-impact {
+          background-color: #D2F7E2;
+          color: #0F9F5A;
+        }
+
+        &.badge-status {
+          background-color: #FEE2E2;
+          color: #DC2626;
+        }
+
+        &.badge-health {
+          background-color: #FDFCE0;
+          color: #F59E0B;
         }
       }
     }
   }
 
-  .action-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    margin-top: 75px;
+  .dashboard-actions {
+    margin-top: 24px;
 
-    .btn {
+    .btn-analyze {
       padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
+      background-color: #008080;
+      color: #ffffff;
       border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background-color 0.2s;
+      line-height: 1.5;
 
-      &.btn-analyze {
-        background-color: var(--color-green-teal);
-        color: var(--color-text-white);
-
-        &:hover {
-          background-color: #006666;
-        }
+      &:hover {
+        background-color: #006666;
       }
 
-      &.btn-download {
-        background-color: var(--color-bg-primary);
-        color: var(--color-green-teal);
-        border: 1px solid var(--color-border);
-
-        &:hover {
-          background-color: var(--color-bg-hover);
-        }
+      &:active {
+        transform: scale(0.98);
       }
-    }
-  }
-
-  .overall-compliance-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 200px;
-  }
-
-  .overall-compliance-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    width: 100%;
-    background-color: var(--color-bg-primary);
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-    .compliance-percentage {
-      font-size: 48px;
-      font-weight: 700;
-      color: var(--color-text-primary);
-      margin-bottom: 8px;
-    }
-
-    .compliance-label {
-      font-size: 14px;
-      color: var(--color-text-secondary);
-    }
-  }
-
-  .risk-badge {
-    margin-top: 12px;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-
-    &.low-risk {
-      background-color: var(--color-green-light);
-      color: var(--color-green-dark);
     }
   }
 }
@@ -146,40 +125,57 @@
 // Summary KPI Cards
 .kpi-cards-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 32px;
 
   .kpi-card {
-    background-color: var(--color-bg-primary);
+    background-color: #ffffff;
     border-radius: 8px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--color-border);
+    border: 1px solid #e5e7eb;
 
     .kpi-value {
       font-size: 32px;
       font-weight: 700;
-      color: var(--color-text-primary);
+      color: #1f2937;
       margin-bottom: 8px;
+      line-height: 1.2;
     }
 
     .kpi-label {
       font-size: 14px;
-      color: var(--color-text-secondary);
+      font-weight: 400;
+      color: #6b7280;
+      line-height: 1.4;
     }
   }
 }
 
+// Shared Section Separator
+.section-separator {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
 // Standards Compliance Overview
 .standards-section {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
   margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
 
   .section-title {
     font-size: 20px;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: #1f2937;
     margin-bottom: 16px;
+    margin-top: 0;
   }
 
   .standards-cards {
@@ -188,274 +184,121 @@
     gap: 16px;
 
     .standard-card {
-      background-color: var(--color-bg-primary);
+      background-color: #ffffff;
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--color-border);
+      border: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
 
       .standard-name {
         font-size: 14px;
-        font-weight: 500;
-        color: var(--color-text-primary);
-        margin-bottom: 12px;
+        font-weight: 600;
+        color: #1f2937;
+        line-height: 1.4;
+        margin: 0;
       }
 
-      .standard-status {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        width: fit-content;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
 
-        .status-badge {
-          padding: 4px 12px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: 500;
-          white-space: nowrap;
-
-          &.status-badge-compliant {
-            background-color: var(--color-green-light);
-            color: var(--color-green-dark);
-          }
-
-          &.status-badge-partial {
-            background-color: #FEF3C7;
-            color: #92400E;
-          }
+        &.status-badge-high {
+          background-color: var(--color-red-light, #FEE2E2);
+          color: var(--color-red, #EF4444);
         }
 
-        .breach-count {
-          font-size: 12px;
-          color: var(--color-text-tertiary);
+        &.status-badge-medium {
+          background-color: var(--color-orange-light, #FEF3C7);
+          color: var(--color-orange-dark, #FF7F50);
+        }
+
+        &.status-badge-low {
+          background-color: var(--color-green-light, #D1FAE5);
+          color: var(--color-green, #10B981);
         }
       }
     }
   }
 }
 
-// Compliance Table Section
-.compliance-table-section {
+// Incidents Section
+.incidents-section {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
   margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
 
   .section-title {
     font-size: 20px;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: #1f2937;
     margin-bottom: 16px;
-  }
-}
-
-// Active Breaches Section
-.active-breaches-section {
-  margin-bottom: 32px;
-
-  .section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin-bottom: 16px;
+    margin-top: 0;
   }
 
-  .empty-state {
-    background-color: var(--color-bg-primary);
-    border-radius: 8px;
-    padding: 40px;
-    text-align: center;
-    border: 1px solid var(--color-border);
-
-    .empty-state-text {
-      color: var(--color-text-tertiary);
-      font-size: 14px;
-      margin: 0;
-    }
+  // Ensure table is responsive inside
+  ::ng-deep app-reusable-table {
+    overflow-x: auto;
   }
 }
 
 // Ownership & Accountability Section
 .ownership-section {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
   margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
 
   .section-title {
     font-size: 20px;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: #1f2937;
     margin-bottom: 16px;
+    margin-top: 0;
   }
 
   .ownership-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(6, 1fr);
     gap: 16px;
 
     .ownership-card {
-      background-color: var(--color-bg-quaternary);
+      background-color: #f3f4f6;
       border-radius: 8px;
       padding: 20px;
 
       .ownership-label {
         font-size: 11px;
         font-weight: 600;
-        color: var(--color-text-tertiary);
+        color: #6b7280;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 12px;
+        line-height: 1.4;
       }
 
       .ownership-value {
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--color-text-primary);
-        margin-bottom: 4px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #1f2937;
+        line-height: 1.5;
 
         &.not-assigned {
-          color: var(--color-red);
+          color: #DC2626;
         }
-      }
-
-      .ownership-value-secondary {
-        font-size: 14px;
-        color: var(--color-text-tertiary);
-      }
-    }
-  }
-}
-
-// Analyst Actions & Notes Section
-.analyst-section {
-  margin-bottom: 32px;
-
-  .section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin-bottom: 16px;
-  }
-
-  .analyst-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &.btn-add-note {
-        background-color: #14B8A6;
-        color: var(--color-text-white);
-
-        &:hover {
-          background-color: #0D9488;
-        }
-      }
-
-      &.btn-flag,
-      &.btn-escalate {
-        background-color: var(--color-bg-quaternary);
-        color: var(--color-text-primary);
-
-        &:hover {
-          background-color: var(--color-filter-dropdown-bg-hover);
-        }
-      }
-    }
-  }
-
-  .incidents-subsection {
-    .subsection-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-
-      .subsection-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--color-text-primary);
-        margin: 0;
-      }
-
-      .btn-refresh {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        padding: 0;
-        background-color: var(--color-bg-quaternary);
-        color: var(--color-text-primary);
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        mat-icon {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-        }
-
-        &:hover {
-          background-color: var(--color-filter-dropdown-bg-hover);
-        }
-      }
-    }
-
-    .empty-state {
-      background-color: var(--color-bg-primary);
-      border-radius: 8px;
-      padding: 40px;
-      text-align: center;
-      border: 1px solid var(--color-border);
-
-      .empty-state-text {
-        color: var(--color-text-tertiary);
-        font-size: 14px;
-        margin: 0;
-      }
-    }
-  }
-}
-
-// Activity Log Section
-.activity-log-section {
-  margin-bottom: 32px;
-
-  .section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin-bottom: 16px;
-  }
-
-  .activity-card {
-    background-color: var(--color-bg-quaternary);
-    border-radius: 8px;
-    padding: 20px;
-
-    .activity-item {
-      margin-bottom: 16px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      .activity-text {
-        font-size: 14px;
-        color: var(--color-text-primary);
-        margin-bottom: 4px;
-      }
-
-      .activity-meta {
-        font-size: 12px;
-        color: var(--color-text-tertiary);
       }
     }
   }
@@ -463,16 +306,30 @@
 
 // Responsive Design
 @media (max-width: 1200px) {
-  .header-section {
-    gap: 16px;
+  .standards-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
-    .overall-compliance-wrapper {
-      min-width: 180px;
+  .ownership-section {
+    .ownership-cards {
+      grid-template-columns: repeat(3, 1fr);
     }
+  }
+}
+
+@media (max-width: 992px) {
+  .kpi-cards-section {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .standards-cards {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ownership-section {
+    .ownership-cards {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 }
 
@@ -481,55 +338,37 @@
     padding: 16px !important;
   }
 
-  .header-section {
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 16px;
-    margin-bottom: 24px;
+  .health-dashboard-card {
     padding: 20px;
+    margin-top: 16px;
 
-    .header-content {
-      width: 100%;
+    .dashboard-title {
+      font-size: 18px;
+      margin-bottom: 20px;
     }
 
-    .page-title {
-      font-size: 24px;
-      margin-bottom: 12px;
-    }
-
-    .header-details {
+    .dashboard-details {
+      grid-template-columns: 1fr;
       gap: 16px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
 
-      .detail-item {
-        font-size: 13px;
-        flex-wrap: wrap;
+      .detail-row {
+        .detail-label {
+          font-size: 11px;
+        }
+
+        .detail-value,
+        .detail-value-link,
+        .detail-value-risk {
+          font-size: 13px;
+        }
       }
     }
 
-    .action-buttons {
-      margin-top: 20px;
-      width: 100%;
-
-      .btn {
-        flex: 1;
-        min-width: 120px;
-        padding: 12px 16px;
-        font-size: 13px;
-      }
-    }
-
-    .overall-compliance-wrapper {
-      width: 100%;
-      min-width: auto;
-    }
-
-    .overall-compliance-card {
-      width: 100%;
-      padding: 20px;
-
-      .compliance-percentage {
-        font-size: 40px;
+    .dashboard-actions {
+      .btn-analyze {
+        width: 100%;
+        padding: 12px 20px;
       }
     }
   }
@@ -554,6 +393,7 @@
 
   .standards-section {
     margin-bottom: 24px;
+    padding: 20px;
 
     .section-title {
       font-size: 18px;
@@ -570,29 +410,18 @@
     }
   }
 
-  .compliance-table-section {
+  .incidents-section {
+    padding: 20px;
     margin-bottom: 24px;
 
     .section-title {
       font-size: 18px;
       margin-bottom: 12px;
-    }
-  }
-
-  .active-breaches-section {
-    margin-bottom: 24px;
-
-    .section-title {
-      font-size: 18px;
-      margin-bottom: 12px;
-    }
-
-    .empty-state {
-      padding: 30px 20px;
     }
   }
 
   .ownership-section {
+    padding: 20px;
     margin-bottom: 24px;
 
     .section-title {
@@ -601,52 +430,12 @@
     }
 
     .ownership-cards {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
 
       .ownership-card {
         padding: 16px;
       }
-    }
-  }
-
-  .analyst-section {
-    margin-bottom: 24px;
-
-    .section-title {
-      font-size: 18px;
-      margin-bottom: 12px;
-    }
-
-    .analyst-buttons {
-      gap: 8px;
-      margin-bottom: 20px;
-
-      .btn {
-        flex: 1;
-        min-width: 100px;
-        padding: 10px 14px;
-        font-size: 13px;
-      }
-    }
-
-    .incidents-subsection {
-      .subsection-title {
-        font-size: 15px;
-      }
-    }
-  }
-
-  .activity-log-section {
-    margin-bottom: 24px;
-
-    .section-title {
-      font-size: 18px;
-      margin-bottom: 12px;
-    }
-
-    .activity-card {
-      padding: 16px;
     }
   }
 }
@@ -656,52 +445,44 @@
     padding: 12px !important;
   }
 
-  .header-section {
+  .health-dashboard-card {
     padding: 16px;
     margin-top: 12px;
-    margin-bottom: 20px;
 
-    .page-title {
-      font-size: 22px;
+    .dashboard-title {
+      font-size: 18px;
+      margin-bottom: 16px;
     }
 
-    .header-details {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
+    .dashboard-details {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
 
-      .detail-item {
+      .detail-row {
+        .detail-label {
+          font-size: 10px;
+        }
+
+        .detail-value,
+        .detail-value-link,
+        .detail-value-risk {
+          font-size: 12px;
+        }
+
+        .badge {
+          font-size: 11px;
+          padding: 3px 6px;
+        }
+      }
+    }
+
+    .dashboard-actions {
+      .btn-analyze {
         width: 100%;
-        font-size: 12px;
-      }
-    }
-
-    .action-buttons {
-      flex-direction: column;
-      width: 100%;
-      margin-top: 16px;
-
-      .btn {
-        width: 100%;
-        margin: 0;
-      }
-    }
-
-    .overall-compliance-card {
-      padding: 16px;
-
-      .compliance-percentage {
-        font-size: 36px;
-      }
-
-      .compliance-label {
+        padding: 10px 16px;
         font-size: 13px;
       }
-    }
-
-    .risk-badge {
-      margin-top: 10px;
-      font-size: 11px;
     }
   }
 
@@ -723,8 +504,12 @@
   }
 
   .standards-section {
+    padding: 16px;
+    margin-bottom: 20px;
+
     .section-title {
       font-size: 16px;
+      margin-bottom: 12px;
     }
 
     .standards-cards {
@@ -737,19 +522,31 @@
         .standard-name {
           font-size: 13px;
         }
-
-        .standard-status {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 8px;
-        }
       }
     }
   }
 
+  .incidents-section {
+    padding: 16px;
+    margin-bottom: 20px;
+
+    .section-title {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+  }
+
   .ownership-section {
+    padding: 16px;
+    margin-bottom: 20px;
+
+    .section-title {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
     .ownership-cards {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
 
       .ownership-card {
@@ -760,29 +557,9 @@
         }
 
         .ownership-value {
-          font-size: 14px;
+          font-size: 13px;
         }
       }
-    }
-  }
-
-  .analyst-section {
-    .analyst-buttons {
-      flex-direction: column;
-
-      .btn {
-        width: 100%;
-      }
-    }
-  }
-
-  .compliance-table-section,
-  .active-breaches-section,
-  .ownership-section,
-  .analyst-section,
-  .activity-log-section {
-    .section-title {
-      font-size: 16px;
     }
   }
 }

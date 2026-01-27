@@ -19,7 +19,7 @@ export interface ApiResponse<T = any> {
 export class ApiService {
   private baseUrl: string = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<ApiResponse<string>> {
     return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, {
@@ -47,14 +47,18 @@ export class ApiService {
     );
   }
 
-  getLovByType(lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status'): Observable<ApiResponse> {
+  getLovByType(
+    lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status',
+  ): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/CommonLookup/type/${lovType}`,
     );
   }
 
   getAllKpis(): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/KpisLov/dropdown`);
+    return this.http.get<ApiResponse<any[]>>(
+      `${this.baseUrl}/KpisLov/dropdown`,
+    );
   }
 
   getAllUsers(): Observable<ApiResponse<any[]>> {
@@ -69,33 +73,53 @@ export class ApiService {
   }
 
   getAllAssets(): Observable<ApiResponse<DigitalAsset[]>> {
-    return this.http.get<ApiResponse<DigitalAsset[]>>(`${this.baseUrl}/Asset/dropdown`);
+    return this.http.get<ApiResponse<DigitalAsset[]>>(
+      `${this.baseUrl}/Asset/dropdown`,
+    );
   }
 
   addAsset(asset: DigitalAssetRequest): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Asset`, asset);
   }
 
-
   getAssetById(assetId: number): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset/${assetId}`;
     return this.http.get<ApiResponse<any>>(url);
   }
 
-  updateAsset(assetId: number | null, asset: DigitalAssetRequest): Observable<ApiResponse<any>> {
+  updateAsset(
+    assetId: number | null,
+    asset: DigitalAssetRequest,
+  ): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset/${assetId}`;
     return this.http.put<ApiResponse<any>>(url, asset);
   }
 
   // Incidents
 
-  getIncidents(searchQuery: HttpParams): Observable<ApiResponse<ActiveIncident[]>> {
+  getIncidents(
+    searchQuery: HttpParams,
+  ): Observable<ApiResponse<ActiveIncident[]>> {
     let url = `${this.baseUrl}/Incident`;
-    return this.http.get<ApiResponse<ActiveIncident[]>>(url, { params: searchQuery });
+    return this.http.get<ApiResponse<ActiveIncident[]>>(url, {
+      params: searchQuery,
+    });
   }
 
   addIncident(incident: IncidentRequest): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Incident`, incident);
+    return this.http.post<ApiResponse<any>>(
+      `${this.baseUrl}/Incident`,
+      incident,
+    );
+  }
+  getMinistryDetailById(
+    searchQuery: HttpParams,
+    ministryId: any,
+  ): Observable<ApiResponse<ActiveIncident[]>> {
+    let url = `${this.baseUrl}/Asset/ministry/${ministryId}/summary`;
+    return this.http.get<ApiResponse<ActiveIncident[]>>(url, {
+      params: searchQuery,
+    });
   }
 
   getIncidentById(incidentId: number): Observable<ApiResponse<any>> {
