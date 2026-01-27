@@ -121,4 +121,10 @@ export class ApiService {
       params: searchQuery,
     });
   }
+
+  getIncidentById(incidentId: number): Observable<ApiResponse<any>> {
+    let url = `${this.baseUrl}/Incident/${incidentId}`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
 }
