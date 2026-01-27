@@ -163,7 +163,7 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
     private router: Router,
     private route: ActivatedRoute,
     private apiService: ApiService,
-  ) {}
+  ) { }
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
