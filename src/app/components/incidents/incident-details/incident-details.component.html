@@ -1,0 +1,160 @@
+<div class="container-fluid p-4">
+  <!-- Breadcrumb Navigation -->
+  <app-reusable-breadcrum
+    [breadcrumbs]="[
+      { label: 'Dashboard', path: '/dashboard' },
+      { label: 'Incidents', path: '/incidents' },
+      { label: incident()?.ministryName || 'Incident Details' }
+    ]"
+  ></app-reusable-breadcrum>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p>Loading incident details...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="error-state">
+      <p>{{ errorMessage() }}</p>
+      <button class="btn btn-back" (click)="onBack()">Back to Incidents</button>
+    </div>
+  } @else if (incident()) {
+    <div class="incident-details-layout">
+      <!-- Left Panel: Incident Details -->
+      <div class="left-panel">
+        <!-- Title with Severity Badge -->
+        <div class="incident-header">
+          <h1 class="incident-title">{{ incident()?.incidentTitle }}</h1>
+          <span 
+            class="severity-badge"
+            [style.background-color]="getSeverityBadgeColor(incident()?.severity || '')"
+            [style.color]="getSeverityBadgeTextColor(incident()?.severity || '')"
+            [style.border-color]="getSeverityBadgeTextColor(incident()?.severity || '')">
+            {{ incident()?.severityCode || 'N/A' }} - {{ getSeverityLabel(incident()?.severity || '') }}
+          </span>
+        </div>
+
+        <!-- Key-Value Information Grid -->
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">STATUS</div>
+            <div class="info-value">
+              <span 
+                class="status-badge"
+                [style.background-color]="getStatusBadgeColor(incident()?.status || '')"
+                [style.color]="getStatusBadgeTextColor(incident()?.status || '')">
+                {{ incident()?.status || 'N/A' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">CREATED ON</div>
+            <div class="info-value">{{ formatDateShort(incident()?.createdAt) }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">ASSIGNED TO</div>
+            <div class="info-value">{{ incident()?.updatedBy || 'username here' }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">KPI</div>
+            <div class="info-value">{{ incident()?.kpiDescription || 'N/A' }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">ASSET</div>
+            <div class="info-value">
+              <a [href]="incident()?.assetUrl" target="_blank" class="asset-link">
+                {{ incident()?.assetName || 'Assets website Link' }}
+              </a>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">CREATED BY</div>
+            <div class="info-value">{{ incident()?.createdBy || 'username here' }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">MINISTRY</div>
+            <div class="info-value">{{ incident()?.ministryName || 'Ministry Name Here' }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">DEPARTMENT</div>
+            <div class="info-value">{{ getDepartmentName() || 'Department name Here' }}</div>
+          </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="description-section">
+          <div class="description-label">DESCRIPTION</div>
+          <div class="description-text">
+            {{ incident()?.description || 'No description available' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Timeline and Comments -->
+      <div class="right-panel">
+        <!-- Timeline Section -->
+        <div class="timeline-section">
+          <h2 class="section-title">Timeline</h2>
+          <div class="timeline-container">
+            @for (event of timelineEvents(); track event.id) {
+              <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <span class="timeline-time">{{ event.time }}</span>
+                    <span class="timeline-user">{{ event.user }}</span>
+                  </div>
+                  <div class="timeline-description">{{ event.description }}</div>
+                  <span 
+                    class="timeline-status-badge"
+                    [style.background-color]="getStatusBadgeColor(event.status)"
+                    [style.color]="getStatusBadgeTextColor(event.status)">
+                    {{ event.status }}
+                  </span>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-timeline">No timeline events available</div>
+            }
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+          <h2 class="section-title">Comments</h2>
+          <div class="comments-form">
+            <mat-form-field appearance="outline" class="comment-textarea-field">
+              <mat-label>Write your Comments</mat-label>
+              <textarea 
+                matInput
+                [(ngModel)]="commentText"
+                rows="6"
+                placeholder="Write your Comments">
+              </textarea>
+            </mat-form-field>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="status-select-field">
+                <mat-label>Status</mat-label>
+                <mat-select [(ngModel)]="selectedStatus">
+                  <mat-option value="">Change Status</mat-option>
+                  <mat-option value="OPEN">Open</mat-option>
+                  <mat-option value="INVESTIGATING">Investigating</mat-option>
+                  <mat-option value="FIXING">Fixing</mat-option>
+                  <mat-option value="MONITORING">Monitoring</mat-option>
+                  <mat-option value="RESOLVED">Resolved</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-raised-button color="primary" class="submit-btn" (click)="onSubmitComment()">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
