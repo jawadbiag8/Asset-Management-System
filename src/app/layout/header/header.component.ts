@@ -1,4 +1,4 @@
-import { Component, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
@@ -15,6 +15,11 @@ export class HeaderComponent {
   profileDropdownOpen = false;
   currentRoute: string = '';
 
+  user = signal<{ userName: string, role: string }>({
+    userName: '',
+    role: ''
+  })
+
   @ViewChild('profileDropdown', { static: false }) profileDropdown!: ElementRef;
 
   constructor(
@@ -28,7 +33,12 @@ export class HeaderComponent {
       .subscribe((event: any) => {
         this.currentRoute = event.url;
       });
-    
+
+    const userData = this.utilsService.getStorage<{ username?: string; role?: string }>('user');
+    this.user.set({
+      userName: userData?.username || '',
+      role: userData?.role || 'Admin'
+    })
     // Set initial route
     this.currentRoute = this.router.url;
   }

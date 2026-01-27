@@ -1,21 +1,31 @@
-<div>
-    <div class="card p-3 h-100 dashboard-card">
-        <div class="d-flex justify-content-between align-items-start mb-3">
-            <h1 class="digitalAssetsTitle">{{ item.value }}</h1>
-            <span [ngClass]="item.subValueColor === 'success' ? 'badge badge-success' : 'badge badge-danger'" class="d-flex align-items-center gap-2 badge-weight">
+<div class="kpi-card-wrapper">
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <h1 class="kpi-value">{{ item.value }}</h1>
+            @if(item.subValue) {
+            <span [ngClass]="getBadgeClass()" class="kpi-badge">
                 {{ item.subValue }}
-                <mat-icon class="badge-icon"> {{ item.subValueColor === 'success' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+                @if(isPercentageBadge()) {
+                <mat-icon class="badge-icon">{{ item.subValueColor === 'success' ? 'keyboard_arrow_up' :
+                    'keyboard_arrow_down' }}</mat-icon>
+                }
             </span>
+            }
         </div>
 
-        <h5 class="dashboard-title mb-2">{{ item.title }}</h5>
-        <p class="dashboard-subtitle text-muted mt-3">{{ item.subTitle }}</p>
-        
-        <hr>
+        <h5 class="kpi-title">{{ item.title }}</h5>
+        <p class="kpi-subtitle">{{ item.subTitle }}</p>
 
-        <div class="d-flex justify-content-between align-items-center dashboard-footer">
-            <p class="dashboard-subtitle text-muted">{{ item.subValueText }}</p>
-            <mat-icon class="dashboard-chevron">keyboard_arrow_right</mat-icon>
+        <div class="kpi-divider"></div>
+
+        <div class="kpi-footer ">
+            <!-- @if(item.subValueLink) { -->
+            <a [routerLink]="item.subValueLink" class="kpi-link">{{
+                item.subValueText }}</a>
+            <!-- } @else { -->
+            <!-- <span class="kpi-link-text">{{ item.subValueText }}</span> -->
+            <!-- } -->
+            <mat-icon class="kpi-chevron">keyboard_arrow_right</mat-icon>
         </div>
     </div>
 </div>
