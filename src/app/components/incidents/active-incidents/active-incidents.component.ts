@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, Input, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiResponse, ApiService } from '../../../services/api.service';
 import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
