@@ -19,17 +19,18 @@
   <div class="summary-cards-section">
     @for(card of summaryCards(); track card.id) {
       <div class="summary-card">
-        <div class="card-header">
+        <div class="card-content">
           <h2 class="card-value">{{ card.value }}</h2>
-          @if(card.badge) {
-            <span class="card-badge" [ngClass]="{'badge-red': card.badgeColor === 'red'}">
-              {{ card.badge }}
-            </span>
-          }
+          <h5 class="card-title">{{ card.title }}</h5>
+          <p class="card-subtitle">{{ card.subTitle }}</p>
+          <div class="card-separator"></div>
+          <a href="#" class="card-link">{{ card.linkText }}</a>
         </div>
-        <h5 class="card-title">{{ card.title }}</h5>
-        <p class="card-subtitle">{{ card.subTitle }}</p>
-        <a href="#" class="card-link">{{ card.linkText }}</a>
+        @if(card.badge) {
+          <span class="card-badge" [ngClass]="{'badge-red': card.badgeColor === 'red'}">
+            {{ card.badge }}
+          </span>
+        }
       </div>
     }
   </div>
@@ -38,6 +39,7 @@
     <app-reusable-table
       [config]="tableConfigWithData()"
       [filters]="tableFilters()"
+      [totalItems]="totalItems()"
       (searchQuery)="loadAssets($event)"
     ></app-reusable-table>
   </div>

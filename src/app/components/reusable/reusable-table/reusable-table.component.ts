@@ -451,6 +451,9 @@ export interface TableColumn {
 
   // For custom CSS classes
   cellClass?: string; // CSS class name to apply to the cell content
+
+  // For click handlers (e.g., for icon cells)
+  onClick?: (row: any) => void; // Click handler function that receives the row data
 }
 
 export interface FilterOption {

@@ -15,71 +15,83 @@
     margin-bottom: 32px;
 
     .summary-card {
-        background-color: var(--color-bg-primary);
-        border: 1px solid var(--color-border);
+        background-color: #ffffff;
         border-radius: 8px;
         padding: 24px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
         transition: box-shadow 0.2s;
 
         &:hover {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .card-header {
+        .card-content {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
+            flex-direction: column;
         }
 
         .card-value {
             font-size: 36px;
             font-weight: 700;
-            color: var(--color-text-primary);
-            margin: 0;
+            color: #1f2937;
+            margin: 0 0 12px 0;
             line-height: 1;
-        }
-
-        .card-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            background-color: var(--color-gray-light);
-            color: var(--color-gray-dark);
-
-            &.badge-red {
-                background-color: var(--color-red-light);
-                color: var(--color-red);
-            }
         }
 
         .card-title {
             font-size: 16px;
             font-weight: 600;
-            color: var(--color-text-primary);
+            color: #1f2937;
             margin: 0 0 8px 0;
         }
 
         .card-subtitle {
             font-size: 14px;
-            color: var(--color-text-secondary);
+            color: #6b7280;
             margin: 0 0 16px 0;
+            line-height: 1.5;
+        }
+
+        .card-separator {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 0 0 16px 0;
+            width: 100%;
         }
 
         .card-link {
             font-size: 14px;
-            color: var(--color-blue);
+            color: #007BFF;
             text-decoration: none;
             font-weight: 500;
             display: inline-block;
             transition: color 0.2s;
 
             &:hover {
-                color: var(--color-blue-hover);
+                color: #0056b3;
                 text-decoration: underline;
+            }
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+
+            &:not(.badge-red) {
+                background-color: #FEF3C7;
+                color: #F59E0B;
+            }
+
+            &.badge-red {
+                background-color: #FEE2E2;
+                color: #EF4444;
             }
         }
     }
@@ -132,6 +144,7 @@
 
 // Table Styles
 ::ng-deep .assets-table {
+
     // Style for CURRENT STATUS column (4th column)
     td[mat-cell]:nth-child(4) {
         .badge-cell {
@@ -150,6 +163,7 @@
             .line-primary {
                 font-weight: 500;
             }
+
             .line-secondary {
                 font-size: 12px;
                 color: var(--color-text-secondary);
@@ -163,6 +177,7 @@
             .line-primary {
                 font-weight: 500;
             }
+
             .line-secondary {
                 font-size: 12px;
                 color: var(--color-text-secondary);
@@ -176,6 +191,7 @@
             .line-primary {
                 font-weight: 500;
             }
+
             .line-secondary {
                 font-size: 12px;
                 color: var(--color-text-secondary);
@@ -215,6 +231,7 @@
                 font-size: 14px;
                 font-weight: 600;
             }
+
             .subtext {
                 font-size: 12px;
                 color: var(--color-text-secondary);
