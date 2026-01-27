@@ -79,7 +79,8 @@
                     @switch(column.cellType) {
                     @case('icon') {
                     <div class="analyze-icon-container"
-                        [style.background-color]="column.iconBgColor || 'var(--color-blue-light)'">
+                        [style.background-color]="column.iconBgColor || 'var(--color-blue-light)'"
+                        (click)="onIconClick(row, column.key)">
                         @if(column.iconUrl) {
                         <img [src]="column.iconUrl" alt="icon" class="custom-icon" />
                         } @else {
@@ -91,16 +92,31 @@
                     }
                     @case('two-line') {
                     <div class="two-line-cell">
+                        @if(column.linkField) {
+                        <a [href]="getCellValue(row, column.linkField || '')" target="_blank" class="line-primary line-link" [ngClass]="column.cellClass">
+                            {{ getCellValue(row, column.primaryField || '') }}
+                        </a>
+                        } @else {
                         <div class="line-primary" [ngClass]="column.cellClass">{{ getCellValue(row, column.primaryField || '') }}</div>
+                        }
                         <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
                     </div>
                     }
                     @case('link') {
                     <div class="two-line-cell">
-                        <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
-                        <a [href]="getCellValue(row, column.linkField || '')" target="_blank" class="line-link">
-                            {{ getCellValue(row, column.linkField || '') }}
-                        </a>
+                        @if(getCellValue(row, column.linkField || '')) {
+                            <a [href]="getCellValue(row, column.linkField || '')" target="_blank" rel="noopener noreferrer" class="link-text">
+                                {{ getCellValue(row, column.primaryField || '') }}
+                            </a>
+                            @if(column.secondaryField) {
+                                <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
+                            }
+                        } @else {
+                            <div class="line-primary">{{ getCellValue(row, column.primaryField || '') }}</div>
+                            @if(column.secondaryField) {
+                                <div class="line-secondary">{{ getCellValue(row, column.secondaryField || '') }}</div>
+                            }
+                        }
                     </div>
                     }
                     @case('badge') {

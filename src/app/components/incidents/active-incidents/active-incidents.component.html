@@ -13,7 +13,8 @@
 
   <div class="mt-5">
     <app-reusable-table [config]="tableConfigWithData()" [filters]="tableFilters()"
-      (searchQuery)="loadIncidents($event)">
+      (searchQuery)="loadIncidents($event)" [totalItems]="totalItems()"
+      (actionClick)="onViewDetailsClick($event)">
     </app-reusable-table>
   </div>
 
