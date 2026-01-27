@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, Input, signal, computed } from '@angular/core';
 import { ApiResponse, ApiService } from '../../../services/api.service';
 import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { HttpParams } from '@angular/common/http';
@@ -43,8 +43,12 @@ export interface ActiveIncident {
 })
 
 export class ActiveIncidentsComponent implements OnInit {
+  @Input() showHeader: boolean = true;
+  @Input() showBreadcrumb: boolean = true;
+  @Input() showAddButton: boolean = true;
 
   incidents = signal<ActiveIncident[]>([]);
+  totalItems = signal<number>(0);
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Dashboard', path: '/dashboard' },
@@ -333,7 +337,8 @@ export class ActiveIncidentsComponent implements OnInit {
     this.apiService.getIncidents(searchQuery).subscribe({
       next: (response: ApiResponse) => {
         if (response.isSuccessful) {
-          const data: ActiveIncident[] = response.data.data;;
+          const data: ActiveIncident[] = response.data.data;
+          const totalCount = response.data.totalCount || 0;
           // Process and format the incidents data
           const processedIncidents = data.map((incident: any) => ({
             ...incident,
@@ -349,14 +354,17 @@ export class ActiveIncidentsComponent implements OnInit {
             kpiDescription: incident.kpiDescription || incident.description || 'N/A'
           }));
           this.incidents.set(processedIncidents);
+          this.totalItems.set(totalCount);
         } else {
           this.utils.showToast(response.message, 'Error loading incidents', 'error');
           this.incidents.set([]);
+          this.totalItems.set(0);
         }
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error loading incidents', 'error');
         this.incidents.set([]);
+        this.totalItems.set(0);
       }
     });
   }

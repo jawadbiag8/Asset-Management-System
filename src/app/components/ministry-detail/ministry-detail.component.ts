@@ -3,16 +3,18 @@ import {
   signal,
   computed,
   AfterViewInit,
+  OnInit,
   ViewChild,
   ElementRef,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
 import {
   TableConfig,
   TableColumn,
   FilterPill,
 } from '../reusable/reusable-table/reusable-table.component';
+import { ApiService, ApiResponse } from '../../services/api.service';
 
 export interface AssetDetail {
   id: number;
@@ -42,7 +44,7 @@ export interface AssetDetail {
   templateUrl: './ministry-detail.component.html',
   styleUrl: './ministry-detail.component.scss',
 })
-export class MinistryDetailComponent implements AfterViewInit {
+export class MinistryDetailComponent implements OnInit, AfterViewInit {
   tableFilters = signal<FilterPill[]>([
     {
       id: 'status',
@@ -153,7 +155,15 @@ export class MinistryDetailComponent implements AfterViewInit {
 
   @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
 
-  constructor(private router: Router) {}
+  ministryId: number | null = null;
+  isLoading = signal<boolean>(false);
+  totalItems = signal<number>(0);
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private apiService: ApiService,
+  ) {}
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
@@ -169,6 +179,11 @@ export class MinistryDetailComponent implements AfterViewInit {
         iconColor: 'var(--color-blue-dark)',
         iconBgColor: 'var(--color-blue-light)',
         sortable: true,
+        onClick: (row: AssetDetail) => {
+          this.router.navigate(['/view-assets-detail'], {
+            queryParams: { id: row.id },
+          });
+        },
       },
       {
         key: 'ministryDepartment',
@@ -260,71 +275,7 @@ export class MinistryDetailComponent implements AfterViewInit {
     data: [],
   });
 
-  assetDetails = signal<AssetDetail[]>([
-    {
-      id: 1,
-      ministry: 'Ministry of Health',
-      department: 'Health Service Department',
-      websiteName: 'Department Website',
-      websiteUrl: 'nespak.com.pk',
-      currentStatus: 'Up',
-      currentStatusChecked: 'Checked 2 hours ago',
-      lastOutage: '5 hours ago',
-      currentHealthStatus: 'Healthy',
-      currentHealthIcon: 'check_circle',
-      currentHealthPercentage: 'Health Index: 85%',
-      performanceStatus: 'Performing Well',
-      performancePercentage: 'Performance Index: 92%',
-      complianceStatus: 'High Compliance',
-      compliancePercentage: 'Compliance Index: 88%',
-      riskExposureIndex: 'LOW RISK',
-      citizenImpactLevel: 'LOW',
-      openIncidents: 5,
-      highSeverityIncidents: 2,
-    },
-    {
-      id: 2,
-      ministry: 'Ministry of Health',
-      department: 'Health Service Department',
-      websiteName: 'Department Website',
-      websiteUrl: 'health.gov.pk',
-      currentStatus: 'Down',
-      currentStatusChecked: 'Checked 2 minutes ago',
-      lastOutage: '2 minutes ago',
-      currentHealthStatus: 'Critical',
-      currentHealthIcon: 'error',
-      currentHealthPercentage: 'Health Index: 45%',
-      performanceStatus: 'Poor',
-      performancePercentage: 'Performance Index: 38%',
-      complianceStatus: 'Low Compliance',
-      compliancePercentage: 'Compliance Index: 42%',
-      riskExposureIndex: 'HIGH RISK',
-      citizenImpactLevel: 'HIGH',
-      openIncidents: 3,
-      highSeverityIncidents: 1,
-    },
-    {
-      id: 3,
-      ministry: 'Ministry of Health',
-      department: 'Health Service Department',
-      websiteName: 'Department Website',
-      websiteUrl: 'example.com',
-      currentStatus: 'Up',
-      currentStatusChecked: 'Checked 1 day ago',
-      lastOutage: '1 day ago',
-      currentHealthStatus: 'Average',
-      currentHealthIcon: 'warning',
-      currentHealthPercentage: 'Health Index: 72%',
-      performanceStatus: 'Average',
-      performancePercentage: 'Performance Index: 65%',
-      complianceStatus: 'Medium Compliance',
-      compliancePercentage: 'Compliance Index: 70%',
-      riskExposureIndex: 'MEDIUM RISK',
-      citizenImpactLevel: 'MEDIUM',
-      openIncidents: 0,
-      highSeverityIncidents: 0,
-    },
-  ]);
+  assetDetails = signal<AssetDetail[]>([]);
 
   // Computed signal to keep table config in sync with data
   tableConfigWithData = computed<TableConfig>(() => {
@@ -338,10 +289,212 @@ export class MinistryDetailComponent implements AfterViewInit {
     };
   });
 
+  ngOnInit() {
+    // Get ministryId from query params
+    this.route.queryParams.subscribe((params) => {
+      const id = params['ministryId'];
+      if (id) {
+        this.ministryId = +id;
+        // Trigger initial load when ministryId is available
+        // The table component will emit searchQuery on init, which will call loadAssets
+      }
+    });
+  }
+
   loadAssets(searchParams: HttpParams) {
-    // Handle server-side search if needed
-    // API call will be made here when needed
-    console.log('Search params:', searchParams);
+    if (!this.ministryId) {
+      console.error('Ministry ID is required');
+      return;
+    }
+
+    this.isLoading.set(true);
+
+    // Convert pageNumber to page for API
+    const pageNumber = searchParams.get('pageNumber') || '1';
+    const pageSize = searchParams.get('pageSize') || '10';
+    const search = searchParams.get('search') || '';
+
+    // Build new HttpParams with correct parameter names
+    let apiParams = new HttpParams()
+      .set('page', pageNumber)
+      .set('pageSize', pageSize);
+
+    if (search) {
+      apiParams = apiParams.set('search', search);
+    }
+
+    // Add filter parameters
+    this.tableFilters().forEach((filter) => {
+      if (
+        filter.paramKey &&
+        filter.value &&
+        filter.value !== '' &&
+        filter.value !== 'All'
+      ) {
+        apiParams = apiParams.set(filter.paramKey, filter.value);
+      }
+    });
+
+    this.apiService
+      .getMinistryDetailById(apiParams, this.ministryId)
+      .subscribe({
+        next: (response: ApiResponse<any>) => {
+          this.isLoading.set(false);
+          if (response.isSuccessful && response.data) {
+            // Extract summary data from API response
+            const summaryData = {
+              totalAssets: response.data.totalAssets || 0,
+              totalIncidents: response.data.totalIncidents || 0,
+              openIncidents: response.data.openIncidents || 0,
+              highSeverityOpenIncidents: response.data.highSeverityOpenIncidents || 0,
+            };
+
+            // Update summary cards with API data
+            this.updateSummaryCards(summaryData);
+
+            // Map API response to AssetDetail format
+            const assets: AssetDetail[] = this.mapApiResponseToAssetDetails(
+              response.data,
+            );
+            this.assetDetails.set(assets);
+
+            // Set total items for pagination
+            if (response.data.totalCount !== undefined) {
+              this.totalItems.set(response.data.totalCount);
+            } else if (Array.isArray(response.data.data)) {
+              this.totalItems.set(response.data.data.length);
+            } else if (Array.isArray(response.data)) {
+              this.totalItems.set(response.data.length);
+            }
+
+            // Update table config with new data
+            this.tableConfig.update((config) => ({
+              ...config,
+              data: assets.map((asset) => ({
+                ...asset,
+                highSeverityText: `High severity: ${asset.highSeverityIncidents}`,
+              })),
+            }));
+
+            // Apply badge colors after data is loaded
+            setTimeout(() => {
+              this.applyBadgeColors();
+            }, 0);
+          } else {
+            console.error('API Error:', response.message);
+            this.assetDetails.set([]);
+            this.totalItems.set(0);
+            // Reset summary cards on error
+            this.updateSummaryCards({
+              totalAssets: 0,
+              totalIncidents: 0,
+              openIncidents: 0,
+              highSeverityOpenIncidents: 0,
+            });
+          }
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          console.error('Error loading assets:', error);
+          this.assetDetails.set([]);
+          this.totalItems.set(0);
+          // Reset summary cards on error
+          this.updateSummaryCards({
+            totalAssets: 0,
+            totalIncidents: 0,
+            openIncidents: 0,
+            highSeverityOpenIncidents: 0,
+          });
+        },
+      });
+  }
+
+  private mapApiResponseToAssetDetails(data: any): AssetDetail[] {
+    // Handle different response structures
+    let assetsArray: any[] = [];
+
+    if (Array.isArray(data)) {
+      assetsArray = data;
+    } else if (data?.data && Array.isArray(data.data)) {
+      assetsArray = data.data;
+    } else if (data?.items && Array.isArray(data.items)) {
+      assetsArray = data.items;
+    }
+
+    return assetsArray.map((item: any) => ({
+      id: item.id || item.assetId || 0,
+      ministry: item.ministry || item.ministryName || '',
+      department: item.department || item.departmentName || '',
+      websiteName: item.websiteName || item.name || 'Department Website',
+      websiteUrl: item.websiteUrl || item.url || '',
+      currentStatus: item.currentStatus || item.status || 'Unknown',
+      currentStatusChecked: item.currentStatusChecked || item.statusChecked || '',
+      lastOutage: item.lastOutage || item.lastOutageTime || '',
+      currentHealthStatus: item.currentHealthStatus || item.healthStatus || 'Unknown',
+      currentHealthIcon: this.getHealthIcon(item.currentHealthStatus || item.healthStatus),
+      currentHealthPercentage: item.currentHealthPercentage || item.healthIndex || '',
+      performanceStatus: item.performanceStatus || item.performance || '',
+      performancePercentage: item.performancePercentage || item.performanceIndex || '',
+      complianceStatus: item.complianceStatus || item.compliance || '',
+      compliancePercentage: item.compliancePercentage || item.complianceIndex || '',
+      riskExposureIndex: item.riskExposureIndex || item.riskIndex || 'UNKNOWN',
+      citizenImpactLevel: item.citizenImpactLevel || item.citizenImpact || 'LOW',
+      openIncidents: item.openIncidents || item.totalIncidents || 0,
+      highSeverityIncidents: item.highSeverityIncidents || item.highSeverityOpenIncidents || 0,
+    }));
+  }
+
+  private updateSummaryCards(summaryData: {
+    totalAssets: number;
+    totalIncidents: number;
+    openIncidents: number;
+    highSeverityOpenIncidents: number;
+  }) {
+    this.summaryCards.set([
+      {
+        id: 1,
+        value: summaryData.totalAssets.toString(),
+        title: 'Total Assets',
+        subTitle: 'Active monitoring across all departments',
+        linkText: 'View All >',
+      },
+      {
+        id: 2,
+        value: summaryData.totalIncidents.toString(),
+        title: 'Total incidents',
+        subTitle: 'Incidents across all departments',
+        linkText: 'View all incidents >',
+      },
+      {
+        id: 3,
+        value: summaryData.openIncidents.toString(),
+        badge: `${summaryData.openIncidents}/${summaryData.totalIncidents}`,
+        title: 'Open incidents',
+        subTitle: 'Active unresolved incidents',
+        linkText: 'View open incidents >',
+      },
+      {
+        id: 4,
+        value: summaryData.highSeverityOpenIncidents.toString(),
+        badge: `${summaryData.highSeverityOpenIncidents}/${summaryData.openIncidents}`,
+        badgeColor: 'red',
+        title: 'High severity open incidents',
+        subTitle: 'Active high severity unresolved incidents',
+        linkText: 'View critical assets >',
+      },
+    ]);
+  }
+
+  private getHealthIcon(healthStatus: string): string {
+    const status = (healthStatus || '').toLowerCase();
+    if (status.includes('healthy') || status.includes('good')) {
+      return 'check_circle';
+    } else if (status.includes('critical') || status.includes('down')) {
+      return 'error';
+    } else if (status.includes('average') || status.includes('warning')) {
+      return 'warning';
+    }
+    return 'help';
   }
 
   onAddAsset() {
