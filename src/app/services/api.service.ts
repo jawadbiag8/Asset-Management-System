@@ -98,4 +98,9 @@ export class ApiService {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Incident`, incident);
   }
 
+  getIncidentById(incidentId: number): Observable<ApiResponse<any>> {
+    let url = `${this.baseUrl}/Incident/${incidentId}`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
 }

@@ -29,6 +29,7 @@ import { HeaderComponent } from './layout/header/header.component';
 import { AssetsByMinistryComponent } from './components/assets/assetsByMinistry/assets-by-ministry.component';
 import { ActiveIncidentsComponent } from './components/incidents/active-incidents/active-incidents.component';
 import { ManageIncidentsComponent } from './components/incidents/manage-incidents/manage-incidents.component';
+import { IncidentDetailsComponent } from './components/incidents/incident-details/incident-details.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
 import { ApiInterceptor } from './interceptors/api.interceptor';
@@ -50,6 +51,7 @@ import { LoaderComponent } from './components/loader/loader.component';
     AssetsByMinistryComponent,
     ActiveIncidentsComponent,
     ManageIncidentsComponent,
+    IncidentDetailsComponent,
     MinistryDetailComponent,
     ViewAssetsDetailComponent,
     ConfirmationDialogComponent,

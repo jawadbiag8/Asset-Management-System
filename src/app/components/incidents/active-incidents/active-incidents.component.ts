@@ -1,4 +1,5 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
+import { Router } from '@angular/router';
 import { ApiResponse, ApiService } from '../../../services/api.service';
 import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { HttpParams } from '@angular/common/http';
@@ -26,6 +27,7 @@ export interface ActiveIncident {
   deletedBy?: string | null;
   // Additional fields from backend response
   severity?: string;
+  severityCode?: string;
   severityDescription?: string;
   status?: string;
   statusSince?: string;
@@ -145,7 +147,8 @@ export class ActiveIncidentsComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private utils: UtilsService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -491,6 +494,8 @@ export class ActiveIncidentsComponent implements OnInit {
   }
 
   onViewDetailsClick(event: { row: any; columnKey: string }): void {
-    console.log('View Details clicked - Row data:', event);
+    if (event.row && event.row.id) {
+      this.router.navigate(['/incidents', event.row.id]);
+    }
   }
 }
