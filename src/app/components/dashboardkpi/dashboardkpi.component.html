@@ -14,17 +14,13 @@
         </div>
 
         <h5 class="kpi-title">{{ item.title }}</h5>
-        <p class="kpi-subtitle">{{ item.subTitle }}</p>
+        <p class="kpi-subtitle mt-2">{{ item.subTitle }}</p>
 
         <div class="kpi-divider"></div>
 
         <div class="kpi-footer ">
-            <!-- @if(item.subValueLink) { -->
             <a [routerLink]="item.subValueLink" class="kpi-link">{{
                 item.subValueText }}</a>
-            <!-- } @else { -->
-            <!-- <span class="kpi-link-text">{{ item.subValueText }}</span> -->
-            <!-- } -->
             <mat-icon class="kpi-chevron">keyboard_arrow_right</mat-icon>
         </div>
     </div>
