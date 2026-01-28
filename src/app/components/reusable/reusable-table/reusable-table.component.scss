@@ -4,7 +4,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    border-radius: 16px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 400;
     cursor: pointer;
@@ -35,7 +35,7 @@
 
 .filter-pill-dropdown {
     background-color: var(--color-filter-dropdown-bg);
-    color: var(--color-text-secondary);
+    color: var(--color-green-teal);
 
     .filter-dropdown-icon {
         color: var(--color-text-tertiary);
@@ -121,22 +121,61 @@
     }
 }
 
-// Table Container
-.table-container {
+// Table Wrapper (scrollable body with sticky header/footer)
+.table-wrapper {
     background: var(--color-bg-primary);
     border-radius: 8px;
     border: 1px solid var(--color-border);
-    overflow-x: auto;
-    overflow-y: visible;
+    width: 100%;
+    max-height: 800px;
+    overflow: auto;
     -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
     position: relative;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    // Custom scrollbar (vertical & horizontal)
+    scrollbar-width: thin; // Firefox
+    scrollbar-color: var(--color-scroll-thumb, var(--color-border))
+                     var(--color-scroll-track, var(--color-bg-secondary));
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--color-scroll-track, var(--color-bg-secondary));
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-scroll-thumb, var(--color-border));
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--color-scroll-thumb-hover, var(--color-text-tertiary));
+    }
+}
+
+// Inner table container (handles horizontal scroll)
+.table-container {
+    overflow-x: auto;
 }
 
 .assets-table {
     width: 100%;
     table-layout: fixed;
     background: var(--color-bg-primary);
+
+    // Sticky header inside scrollable wrapper
+    .mat-mdc-header-row {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: var(--color-bg-tertiary);
+    }
 
     th {
         background-color: var(--color-bg-tertiary);
@@ -159,7 +198,7 @@
         font-size: 14px;
         color: var(--color-text-primary);
         vertical-align: middle;
-        overflow: hidden; // Prevent content from spilling into other cells
+        overflow: visible; // Allow tooltips to overflow
         background-color: var(--color-bg-primary);
         position: relative; // Ensure proper containment
     }
@@ -293,7 +332,7 @@
     gap: 4px;
     align-items: flex-start;
     width: 100%;
-    overflow: hidden; // Prevent badge from spilling
+    overflow: visible; // Allow badge to wrap properly
 }
 
 // Analyze Icon - Center aligned in cell
@@ -339,6 +378,15 @@
     }
 }
 
+// Badge Wrapper
+.badge-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-width: 0; // Allow flex item to shrink
+}
+
 // Badge Styles
 .badge {
     padding: 4px 12px;
@@ -346,10 +394,46 @@
     font-size: 12px;
     font-weight: 500;
     display: inline-block;
-    white-space: nowrap;
-    width: fit-content; // Only take width of content
+    white-space: normal; // Allow text to wrap
+    word-wrap: break-word; // Break long words
+    word-break: break-word; // Break words if needed
     max-width: 100%; // Don't exceed cell width
     box-sizing: border-box; // Include padding in width calculation
+    overflow-wrap: break-word; // Additional word breaking support
+    line-height: 1.4; // Better line spacing for wrapped text
+    text-align: center; // Center text within badge
+}
+
+// Actions Cell Styles
+.actions-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    .action-link {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 14px;
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+    }
+}
+
+// Sticky pagination footer inside scrollable wrapper
+.pagination-container {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background-color: var(--color-bg-primary);
 }
 
 // Text Colors
@@ -382,6 +466,7 @@
     position: relative;
     padding: 8px 0;
     min-height: 80px;
+    overflow: visible; // Allow tooltip to overflow cell
 
     .health-icon-wrapper {
         position: relative;
@@ -405,8 +490,9 @@
         bottom: calc(100% + 8px);
         left: 50%;
         transform: translateX(-50%);
-        z-index: 1000;
+        z-index: 10000; // Higher z-index to appear above headers
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        min-width: max-content; // Ensure tooltip doesn't get cut off
 
         &::after {
             content: '';

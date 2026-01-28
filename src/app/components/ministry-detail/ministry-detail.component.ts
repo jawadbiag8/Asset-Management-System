@@ -1,9 +1,4 @@
-import {
-  Component,
-  signal,
-  computed,
-  OnInit,
-} from '@angular/core';
+import { Component, signal, computed, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
 import {
@@ -153,12 +148,13 @@ export class MinistryDetailComponent implements OnInit {
   ministryId: number | null = null;
   totalItems = signal<number>(0);
   isLoading = signal<boolean>(false);
+  ministryName = signal<string>('Ministry of Health');
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private apiService: ApiService,
-  ) { }
+  ) {}
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
@@ -268,9 +264,15 @@ export class MinistryDetailComponent implements OnInit {
           const status = (row.complianceStatus || '').toLowerCase();
           if (status.includes('high compliance') || status.includes('high')) {
             return 'success';
-          } else if (status.includes('medium compliance') || status.includes('medium')) {
+          } else if (
+            status.includes('medium compliance') ||
+            status.includes('medium')
+          ) {
             return 'warning';
-          } else if (status.includes('low compliance') || status.includes('low')) {
+          } else if (
+            status.includes('low compliance') ||
+            status.includes('low')
+          ) {
             return 'danger';
           } else if (status.includes('unknown') || status === 'n/a') {
             return 'default';
@@ -423,17 +425,11 @@ export class MinistryDetailComponent implements OnInit {
 
     // Normalise parameter names to match backend (supports both old and new keys)
     const pageNumber =
-      searchParams.get('PageNumber') ||
-      searchParams.get('pageNumber') ||
-      '1';
+      searchParams.get('PageNumber') || searchParams.get('pageNumber') || '1';
     const pageSize =
-      searchParams.get('PageSize') ||
-      searchParams.get('pageSize') ||
-      '10';
+      searchParams.get('PageSize') || searchParams.get('pageSize') || '10';
     const searchTerm =
-      searchParams.get('SearchTerm') ||
-      searchParams.get('search') ||
-      '';
+      searchParams.get('SearchTerm') || searchParams.get('search') || '';
 
     // Build new HttpParams with correct parameter names
     let apiParams = new HttpParams()
@@ -471,6 +467,13 @@ export class MinistryDetailComponent implements OnInit {
       next: (response: ApiResponse<any>) => {
         this.isLoading.set(false);
         if (response.isSuccessful && response.data) {
+          // Set ministry name from API response (breadcrumb & title)
+          const name =
+            response.data.ministryDepartment ??
+            response.data.data?.[0]?.ministryDepartment ??
+            'Ministry of Health';
+          this.ministryName.set(name);
+
           // Map API response to AssetDetail format
           const assets: AssetDetail[] = this.mapApiResponseToAssetDetails(
             response.data,
@@ -491,9 +494,10 @@ export class MinistryDetailComponent implements OnInit {
             ...config,
             data: assets.map((asset) => ({
               ...asset,
-              highSeverityText: typeof asset.highSeverityIncidents === 'number' 
-                ? `High severity: ${asset.highSeverityIncidents}` 
-                : 'High severity: N/A',
+              highSeverityText:
+                typeof asset.highSeverityIncidents === 'number'
+                  ? `High severity: ${asset.highSeverityIncidents}`
+                  : 'High severity: N/A',
             })),
           }));
         } else {
@@ -526,7 +530,10 @@ export class MinistryDetailComponent implements OnInit {
     return assetsArray.map((item: any) => {
       // Ministry/Department: Use department if available, otherwise use ministryDepartment
       const ministryDepartment = item.ministryDepartment || 'N/A';
-      const department = item.department && item.department.trim() !== '' ? item.department : 'N/A';
+      const department =
+        item.department && item.department.trim() !== ''
+          ? item.department
+          : 'N/A';
 
       // Website/Application: Hardcode "Department Website" as primary, full assetUrl as link below
       const websiteApplication = 'Department Website'; // Hardcoded
@@ -544,14 +551,17 @@ export class MinistryDetailComponent implements OnInit {
           const diffMs = now.getTime() - checkedDate.getTime();
           const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
           const diffMinutes = Math.floor(diffMs / (1000 * 60));
-          
+
           if (diffHours > 24) {
             const diffDays = Math.floor(diffHours / 24);
-            currentStatusChecked = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+            currentStatusChecked =
+              diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
           } else if (diffHours > 0) {
-            currentStatusChecked = diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+            currentStatusChecked =
+              diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
           } else if (diffMinutes > 0) {
-            currentStatusChecked = diffMinutes === 1 ? '1 minute ago' : `${diffMinutes} minutes ago`;
+            currentStatusChecked =
+              diffMinutes === 1 ? '1 minute ago' : `${diffMinutes} minutes ago`;
           } else {
             currentStatusChecked = 'Just now';
           }
@@ -568,41 +578,53 @@ export class MinistryDetailComponent implements OnInit {
 
       // Current Health: healthStatus with icon, healthIndex as percentage with "Health Index: " prefix
       const healthStatus = item.healthStatus || 'Unknown';
-      const healthIndex = item.healthIndex !== undefined && item.healthIndex !== null 
-        ? item.healthIndex 
-        : null;
-      const healthPercentage = healthIndex !== null ? `Health Index: ${healthIndex}%` : 'Health Index: N/A';
+      const healthIndex =
+        item.healthIndex !== undefined && item.healthIndex !== null
+          ? item.healthIndex
+          : null;
+      const healthPercentage =
+        healthIndex !== null
+          ? `Health Index: ${healthIndex}%`
+          : 'Health Index: N/A';
 
       // Performance Status: performanceStatus as primary, performanceIndex as secondary with "Performance Index: " prefix
       const performanceStatus = item.performanceStatus || 'N/A';
-      const performanceIndex = item.performanceIndex !== undefined && item.performanceIndex !== null 
-        ? item.performanceIndex 
-        : null;
-      const performancePercentage = performanceIndex !== null ? `Performance Index: ${performanceIndex}%` : 'Performance Index: N/A';
+      const performanceIndex =
+        item.performanceIndex !== undefined && item.performanceIndex !== null
+          ? item.performanceIndex
+          : null;
+      const performancePercentage =
+        performanceIndex !== null
+          ? `Performance Index: ${performanceIndex}%`
+          : 'Performance Index: N/A';
 
       // Compliance Status: complianceStatus as primary, complianceIndex as secondary with "Compliance Index: " prefix
       const complianceStatus = item.complianceStatus || 'N/A';
-      const complianceIndex = item.complianceIndex !== undefined && item.complianceIndex !== null 
-        ? item.complianceIndex 
-        : null;
-      const compliancePercentage = complianceIndex !== null ? `Compliance Index: ${complianceIndex}%` : 'Compliance Index: N/A';
+      const complianceIndex =
+        item.complianceIndex !== undefined && item.complianceIndex !== null
+          ? item.complianceIndex
+          : null;
+      const compliancePercentage =
+        complianceIndex !== null
+          ? `Compliance Index: ${complianceIndex}%`
+          : 'Compliance Index: N/A';
 
       // Risk Exposure Index
       const riskExposureIndex = item.riskExposureIndex || 'N/A';
 
-      // Extract citizen impact level (format: "LOW - Supporting Services" -> "LOW")
-      const citizenImpactFull = item.citizenImpactLevel || '';
-      const citizenImpactLevel = citizenImpactFull 
-        ? citizenImpactFull.split(' - ')[0].trim() 
-        : 'N/A';
+      // Use full citizen impact level from API (e.g. "LOW - Supporting Services")
+      const citizenImpactLevel = item.citizenImpactLevel || 'N/A';
 
       // Open Incidents: openIncidents as primary, highSeverityIncidents as secondary
-      const openIncidents = item.openIncidents !== undefined && item.openIncidents !== null 
-        ? item.openIncidents 
-        : 'N/A';
-      const highSeverityIncidents = item.highSeverityIncidents !== undefined && item.highSeverityIncidents !== null 
-        ? item.highSeverityIncidents 
-        : 'N/A';
+      const openIncidents =
+        item.openIncidents !== undefined && item.openIncidents !== null
+          ? item.openIncidents
+          : 'N/A';
+      const highSeverityIncidents =
+        item.highSeverityIncidents !== undefined &&
+        item.highSeverityIncidents !== null
+          ? item.highSeverityIncidents
+          : 'N/A';
 
       return {
         id: item.id || item.assetId || 0,
@@ -684,5 +706,4 @@ export class MinistryDetailComponent implements OnInit {
     // Navigate to add digital assets page
     this.router.navigate(['/add-digital-assets']);
   }
-
 }
