@@ -33,7 +33,7 @@ export class ManageIncidentsComponent implements OnInit {
     private api: ApiService,
     private utils: UtilsService,
     public dialogRef: MatDialogRef<ManageIncidentsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: { assetId: string, kpiId: string }
   ) { }
 
   ngOnInit(): void {
@@ -52,10 +52,24 @@ export class ManageIncidentsComponent implements OnInit {
           label: asset.name,
           value: asset.id.toString()
         })) || [];
+
+        if (this.data.assetId) {
+          this.incidentForm.patchValue({
+            assetId: this.data.assetId,
+          });
+        }
+
         this.kpiOptions = responses.kpis.data?.map((kpi: any) => ({
           label: kpi.name,
           value: kpi.id.toString()
         })) || [];
+
+        if (this.data.kpiId) {
+          this.incidentForm.patchValue({
+            kpiId: this.data.kpiId,
+          });
+        }
+
         this.securityLevels = responses.securityLevels.data?.map((securityLevel: any) => ({
           label: securityLevel.name,
           value: securityLevel.id.toString()
@@ -76,8 +90,8 @@ export class ManageIncidentsComponent implements OnInit {
   createForm(): void {
     this.incidentForm = this.fb.group({
       incidentTitle: ['', Validators.required],
-      assetId: ['', Validators.required],
-      kpiId: ['', Validators.required],
+      assetId: [this.data.assetId || '', Validators.required],
+      kpiId: [this.data.kpiId || '', Validators.required],
       securityLevel: ['', Validators.required],
       description: [''],
       status: [''],

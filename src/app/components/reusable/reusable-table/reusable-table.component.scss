@@ -352,6 +352,30 @@
     box-sizing: border-box; // Include padding in width calculation
 }
 
+// Actions Cell Styles
+.actions-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    .action-link {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 14px;
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+    }
+}
+
 // Text Colors
 .text-success {
     color: var(--color-green) !important;

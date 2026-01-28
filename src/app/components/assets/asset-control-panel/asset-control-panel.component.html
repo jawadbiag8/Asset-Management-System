@@ -85,6 +85,15 @@
       </div>
     </div>
   </div>
+
+
+  @for(kpiCategory of assetControlPanelData()!.kpiCategories; track kpiCategory.categoryName) {
+
+  <h2 class="mt-4 mb-4 fw-bold">{{ kpiCategory.categoryName }}</h2>
+  <app-reusable-table [config]="getTableConfigForCategory(kpiCategory.categoryName)" [filters]="[]"
+    [totalItems]="getTotalItemsForCategory(kpiCategory.categoryName)" (actionClick)="onViewDetailsClick($event)">
+  </app-reusable-table>
+  }
   }
 
 </div>
