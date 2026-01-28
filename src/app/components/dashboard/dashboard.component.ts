@@ -9,6 +9,7 @@ import { HttpParams } from '@angular/common/http';
 import { DashboardKpiItem } from '../dashboardkpi/dashboardkpi.component';
 import { UtilsService } from '../../services/utils.service';
 import { forkJoin } from 'rxjs';
+import { Router } from '@angular/router';
 
 export interface DigitalAsset {
   id: number;
@@ -39,7 +40,7 @@ export interface DigitalAsset {
   standalone: false,
 })
 export class DashboardComponent implements OnInit {
-  constructor(private apiService: ApiService, private utils: UtilsService) { }
+  constructor(private apiService: ApiService, private utils: UtilsService, private route: Router) { }
 
   tableFilters = signal<FilterPill[]>([]);
 
@@ -573,4 +574,11 @@ export class DashboardComponent implements OnInit {
       isVisible: !kpis.isVisible,
     }));
   }
+
+  onActionClick(event: { row: any, columnKey: string }) {
+    if (event.columnKey === 'analyze') {
+      this.route.navigate(['/asset-control-panel'], { queryParams: { assetId: event.row.id } });
+    }
+  }
+
 }

@@ -70,8 +70,8 @@
           @switch (column.cellType) {
           @case ("icon") {
           <div class="analyze-icon-container" [style.background-color]="column.iconBgColor"
-            [class.clickable]="column.onClick" (click)="column.onClick ? column.onClick(row) : onIconClick(row, column.key)"
-            [style.cursor]="column.onClick ? 'pointer' : 'default'">
+            [class.clickable]="column.onClick" [class.pointer]="column.onClick"
+            (click)="column.onClick ? column.onClick(row) : onIconClick(row, column.key)">
             @if (column.iconUrl) {
             <img [src]="column.iconUrl" alt="icon" class="custom-icon" />
             } @else {

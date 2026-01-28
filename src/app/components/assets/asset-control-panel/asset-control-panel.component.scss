@@ -1,0 +1,17 @@
+// Badge styles - using same approach as reusable-table
+.badge {
+  text-align: center;
+  min-width: 50px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -145,12 +145,12 @@
     font-weight: 400;
     font-size: 12px;
     letter-spacing: 0px;
-    color: var(--color-blue-link);
+    color: var(--color-link);
     text-decoration: none;
 
 
     &:hover {
-        color: var(--color-blue-link);
+        color: var(--color-link);
         text-decoration: underline;
     }
 }
@@ -165,5 +165,5 @@
 }
 
 .kpi-chevron {
-    color: var(--color-blue-link);
+    color: var(--color-link);
 }
