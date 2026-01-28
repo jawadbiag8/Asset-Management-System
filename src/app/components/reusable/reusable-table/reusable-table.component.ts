@@ -438,7 +438,7 @@ export interface TableColumn {
   linkField?: string; // Field name for full URL
 
   // For 'text-with-color' cells
-  textColor?: string; // Color class name (e.g., 'success', 'success-light')
+  textColor?: string | ((row: any) => string); // Color class name (e.g., 'success', 'warning', 'danger') or function that returns color class
 
   // For tooltip
   tooltip?: string | ((row: any) => string); // Tooltip text (static or function that returns tooltip based on row data)
@@ -1086,13 +1086,38 @@ export class ReusableTableComponent
       }
 
       // Compare values
+      let comparison = 0;
       if (aCompare < bCompare) {
-        return direction === 'asc' ? -1 : 1;
+        comparison = direction === 'asc' ? -1 : 1;
+      } else if (aCompare > bCompare) {
+        comparison = direction === 'asc' ? 1 : -1;
+      } else {
+        // If primary values are equal and it's a two-line cell, sort by secondary field
+        if (
+          (column.cellType === 'two-line' || column.cellType === 'text-with-color') &&
+          column.secondaryField
+        ) {
+          const aSecondary = this.getNestedValue(a, column.secondaryField);
+          const bSecondary = this.getNestedValue(b, column.secondaryField);
+          
+          if (aSecondary != null && bSecondary != null) {
+            const aSecCompare = typeof aSecondary === 'string' 
+              ? aSecondary.toLowerCase() 
+              : aSecondary;
+            const bSecCompare = typeof bSecondary === 'string' 
+              ? bSecondary.toLowerCase() 
+              : bSecondary;
+            
+            if (aSecCompare < bSecCompare) {
+              comparison = direction === 'asc' ? -1 : 1;
+            } else if (aSecCompare > bSecCompare) {
+              comparison = direction === 'asc' ? 1 : -1;
+            }
+          }
+        }
       }
-      if (aCompare > bCompare) {
-        return direction === 'asc' ? 1 : -1;
-      }
-      return 0;
+      
+      return comparison;
     });
     
     // Apply pagination for client-side only
@@ -1177,18 +1202,18 @@ export class ReusableTableComponent
     return `badge-${badgeColor}`;
   }
 
-  getTextColorClass(textColor?: string): string {
+  getTextColorClass(row: any, column: TableColumn): string {
+    if (!column.textColor) return '';
+    const textColor = typeof column.textColor === 'function' 
+      ? column.textColor(row) 
+      : column.textColor;
     if (!textColor) return '';
     return `text-${textColor}`;
   }
 
-  getSecondaryTextColorClass(textColor?: string): string {
-    if (!textColor) return '';
-    // For secondary text, append '-light' if it's a success color
-    if (textColor === 'success') {
-      return 'text-success-light';
-    }
-    return `text-${textColor}`;
+  getSecondaryTextColorClass(row: any, column: TableColumn): string {
+    // Always return empty string to use default color for secondary text
+    return '';
   }
 
   getHealthIconPath(iconField?: string): string {

@@ -112,19 +112,21 @@ export class ApiService {
       incident,
     );
   }
-  getMinistryDetailById(
+  getMinistryDetailById(ministryId: any): Observable<ApiResponse<any>> {
+    let url = `${this.baseUrl}/Asset/ministry/${ministryId}/summary`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+  getAssestByMinistry(
     searchQuery: HttpParams,
     ministryId: any,
-  ): Observable<ApiResponse<ActiveIncident[]>> {
-    let url = `${this.baseUrl}/Asset/ministry/${ministryId}/summary`;
-    return this.http.get<ApiResponse<ActiveIncident[]>>(url, {
+  ): Observable<ApiResponse<any>> {
+    let url = `${this.baseUrl}/Asset/ministry/${ministryId}`;
+    return this.http.get<ApiResponse<any>>(url, {
       params: searchQuery,
     });
   }
-
   getIncidentById(incidentId: number): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Incident/${incidentId}`;
     return this.http.get<ApiResponse<any>>(url);
   }
-
 }
