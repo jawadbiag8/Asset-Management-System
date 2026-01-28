@@ -730,12 +730,14 @@ export class ReusableTableComponent
   private emitSearchQuery() {
     const searchValue = this.searchValue?.trim() || '';
 
+    // Use PascalCase parameter names to match backend API (OpenAPI spec)
     let httpParams = new HttpParams()
-      .set('pageNumber', this.currentPage.toString())
-      .set('pageSize', this.pageSize.toString());
+      .set('PageNumber', this.currentPage.toString())
+      .set('PageSize', this.pageSize.toString());
 
     if (searchValue) {
-      httpParams = httpParams.set('search', searchValue);
+      // Text search parameter expected by backend
+      httpParams = httpParams.set('SearchTerm', searchValue);
     }
 
     this.filters.forEach((filter) => {

@@ -105,7 +105,8 @@ export class MinistryDetailComponent implements OnInit {
       id: 'citizenImpact',
       label: 'Citizen Impact: All',
       value: 'All',
-      paramKey: 'citizenImpact',
+      // Backend expects CitizenImpactLevelId
+      paramKey: 'CitizenImpactLevelId',
       options: [
         { label: 'All', value: 'All' },
         { label: 'LOW', value: 'LOW' },
@@ -420,21 +421,40 @@ export class MinistryDetailComponent implements OnInit {
 
     this.isLoading.set(true);
 
-    // Convert pageNumber to page for API
-    const pageNumber = searchParams.get('pageNumber') || '1';
-    const pageSize = searchParams.get('pageSize') || '10';
-    const search = searchParams.get('search') || '';
+    // Normalise parameter names to match backend (supports both old and new keys)
+    const pageNumber =
+      searchParams.get('PageNumber') ||
+      searchParams.get('pageNumber') ||
+      '1';
+    const pageSize =
+      searchParams.get('PageSize') ||
+      searchParams.get('pageSize') ||
+      '10';
+    const searchTerm =
+      searchParams.get('SearchTerm') ||
+      searchParams.get('search') ||
+      '';
 
     // Build new HttpParams with correct parameter names
     let apiParams = new HttpParams()
-      .set('page', pageNumber)
-      .set('pageSize', pageSize);
+      .set('PageNumber', pageNumber)
+      .set('PageSize', pageSize);
 
-    if (search) {
-      apiParams = apiParams.set('search', search);
+    if (searchTerm) {
+      apiParams = apiParams.set('SearchTerm', searchTerm);
     }
 
-    // Add filter parameters
+    // Preserve any existing sort parameters
+    const sortBy = searchParams.get('SortBy');
+    const sortDescending = searchParams.get('SortDescending');
+    if (sortBy) {
+      apiParams = apiParams.set('SortBy', sortBy);
+    }
+    if (sortDescending) {
+      apiParams = apiParams.set('SortDescending', sortDescending);
+    }
+
+    // Add filter parameters (paramKey should already match backend where applicable)
     this.tableFilters().forEach((filter) => {
       if (
         filter.paramKey &&
