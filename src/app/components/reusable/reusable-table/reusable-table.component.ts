@@ -502,7 +502,8 @@ export interface TableConfig {
   standalone: false,
 })
 export class ReusableTableComponent
-  implements OnInit, AfterViewInit, OnChanges {
+  implements OnInit, AfterViewInit, OnChanges
+{
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
@@ -550,8 +551,8 @@ export class ReusableTableComponent
 
   constructor(
     private utilsService: UtilsService,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -738,12 +739,14 @@ export class ReusableTableComponent
   private emitSearchQuery() {
     const searchValue = this.searchValue?.trim() || '';
 
+    // Use PascalCase parameter names to match backend API (OpenAPI spec)
     let httpParams = new HttpParams()
-      .set('pageNumber', this.currentPage.toString())
-      .set('pageSize', this.pageSize.toString());
+      .set('PageNumber', this.currentPage.toString())
+      .set('PageSize', this.pageSize.toString());
 
     if (searchValue) {
-      httpParams = httpParams.set('search', searchValue);
+      // Text search parameter expected by backend
+      httpParams = httpParams.set('SearchTerm', searchValue);
     }
 
     this.filters.forEach((filter) => {
@@ -984,11 +987,12 @@ export class ReusableTableComponent
       // Reset to original order
       if (this.config?.serverSideSearch) {
         // For server-side, use current sortedData or config.data
-        this.sortedData = this.config?.data && Array.isArray(this.config.data) 
-          ? [...this.config.data] 
-          : this.sortedData.length > 0 
-            ? [...this.sortedData] 
-            : [];
+        this.sortedData =
+          this.config?.data && Array.isArray(this.config.data)
+            ? [...this.config.data]
+            : this.sortedData.length > 0
+              ? [...this.sortedData]
+              : [];
       } else {
         // For client-side, use filtered or original data
         if (this.searchValue && this.searchValue.trim()) {
@@ -1040,12 +1044,15 @@ export class ReusableTableComponent
     // For server-side, use current sortedData (from config.data)
     // For client-side, use filtered or original data
     let dataToSort: any[] = [];
-    
+
     if (this.config?.serverSideSearch) {
       // Use current sortedData which comes from config.data
-      dataToSort = this.sortedData && this.sortedData.length > 0 
-        ? [...this.sortedData] 
-        : (this.config?.data && Array.isArray(this.config.data) ? [...this.config.data] : []);
+      dataToSort =
+        this.sortedData && this.sortedData.length > 0
+          ? [...this.sortedData]
+          : this.config?.data && Array.isArray(this.config.data)
+            ? [...this.config.data]
+            : [];
     } else {
       // Client-side: use filtered data if search is active, otherwise use original data
       dataToSort =
@@ -1102,20 +1109,23 @@ export class ReusableTableComponent
       } else {
         // If primary values are equal and it's a two-line cell, sort by secondary field
         if (
-          (column.cellType === 'two-line' || column.cellType === 'text-with-color') &&
+          (column.cellType === 'two-line' ||
+            column.cellType === 'text-with-color') &&
           column.secondaryField
         ) {
           const aSecondary = this.getNestedValue(a, column.secondaryField);
           const bSecondary = this.getNestedValue(b, column.secondaryField);
-          
+
           if (aSecondary != null && bSecondary != null) {
-            const aSecCompare = typeof aSecondary === 'string' 
-              ? aSecondary.toLowerCase() 
-              : aSecondary;
-            const bSecCompare = typeof bSecondary === 'string' 
-              ? bSecondary.toLowerCase() 
-              : bSecondary;
-            
+            const aSecCompare =
+              typeof aSecondary === 'string'
+                ? aSecondary.toLowerCase()
+                : aSecondary;
+            const bSecCompare =
+              typeof bSecondary === 'string'
+                ? bSecondary.toLowerCase()
+                : bSecondary;
+
             if (aSecCompare < bSecCompare) {
               comparison = direction === 'asc' ? -1 : 1;
             } else if (aSecCompare > bSecCompare) {
@@ -1124,10 +1134,10 @@ export class ReusableTableComponent
           }
         }
       }
-      
+
       return comparison;
     });
-    
+
     // Apply pagination for client-side only
     this.applyPagination();
   }
@@ -1216,9 +1226,10 @@ export class ReusableTableComponent
 
   getTextColorClass(row: any, column: TableColumn): string {
     if (!column.textColor) return '';
-    const textColor = typeof column.textColor === 'function' 
-      ? column.textColor(row) 
-      : column.textColor;
+    const textColor =
+      typeof column.textColor === 'function'
+        ? column.textColor(row)
+        : column.textColor;
     if (!textColor) return '';
     return `text-${textColor}`;
   }

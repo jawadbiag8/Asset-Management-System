@@ -124,10 +124,12 @@
           </div>
           }
           @case ("badge") {
-          <span class="badge" [ngClass]="getBadgeClass(getBadgeColor(row, column))"
-            [style.background-color]="getBadgeColor(row, column)" [style.color]="getBadgeTextColor(row, column)">
-            {{ getCellValue(row, column.badgeField || "") }}
-          </span>
+          <div class="badge-wrapper">
+            <span class="badge" [ngClass]="getBadgeClass(getBadgeColor(row, column))"
+              [style.background-color]="getBadgeColor(row, column)" [style.color]="getBadgeTextColor(row, column)">
+              {{ getCellValue(row, column.badgeField || "") }}
+            </span>
+          </div>
           }
           @case ("badge-with-subtext") {
           <div class="badge-cell">

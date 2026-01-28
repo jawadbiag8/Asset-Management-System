@@ -137,21 +137,20 @@ export class DashboardComponent implements OnInit {
       {
         key: 'riskExposureIndex',
         header: 'RISK EXPOSURE INDEX',
-        cellType: 'badge',
-        badgeField: 'riskExposureIndex',
-        badgeColor: (row: any) => {
-          const risk = row.riskExposureIndex?.toUpperCase();
-          if (risk === 'LOW RISK') return 'var(--color-green-light)';
-          if (risk === 'MEDIUM RISK') return 'var(--color-yellow-light)';
-          if (risk === 'HIGH RISK') return 'var(--color-red-light)';
-          return 'var(--color-bg-quaternary)';
-        },
-        badgeTextColor: (row: any) => {
-          const risk = row.riskExposureIndex?.toUpperCase();
-          if (risk === 'LOW RISK') return 'var(--color-green-dark)';
-          if (risk === 'MEDIUM RISK') return 'var(--color-yellow)';
-          if (risk === 'HIGH RISK') return 'var(--color-red-dark)';
-          return 'var(--color-text-tertiary)';
+        cellType: 'text-with-color',
+        primaryField: 'riskExposureIndex',
+        textColor: (row: any) => {
+          const risk = (row.riskExposureIndex || '').toUpperCase();
+          if (risk === 'LOW RISK' || risk.includes('LOW')) {
+            return 'success';
+          } else if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) {
+            return 'warning';
+          } else if (risk === 'HIGH RISK' || risk.includes('HIGH')) {
+            return 'danger';
+          } else if (risk === 'UNKNOWN' || risk === 'N/A') {
+            return 'default';
+          }
+          return 'default';
         },
         sortable: true,
         width: '200px',
@@ -181,11 +180,9 @@ export class DashboardComponent implements OnInit {
       {
         key: 'openIncidents',
         header: 'OPEN INCIDENTS',
-        cellType: 'badge-with-subtext',
-        badgeField: 'openIncidents',
-        subtextField: 'highSeverityText',
-        badgeColor: 'var(--color-green-light)',
-        badgeTextColor: 'var(--color-green-dark)',
+        cellType: 'two-line',
+        primaryField: 'openIncidents',
+        secondaryField: 'highSeverityText',
         sortable: true,
         width: '200px',
       },
@@ -357,7 +354,8 @@ export class DashboardComponent implements OnInit {
         label: 'Ministry: All',
         value: '',
         removable: true,
-        paramKey: 'ministry',
+        // Backend expects MinistryId as query parameter
+        paramKey: 'MinistryId',
         options: [{ label: 'All', value: '' }]
       },
       {
@@ -405,7 +403,8 @@ export class DashboardComponent implements OnInit {
         label: 'Citizen Impact: All',
         value: '',
         removable: true,
-        paramKey: 'citizenImpact',
+        // Backend expects CitizenImpactLevelId as query parameter
+        paramKey: 'CitizenImpactLevelId',
         options: [{ label: 'All', value: '' }]
       }
     ]);
