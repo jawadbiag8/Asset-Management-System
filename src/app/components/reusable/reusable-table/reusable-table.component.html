@@ -55,7 +55,7 @@
         <th mat-header-cell *matHeaderCellDef [style.width]="column.width">
           @if (column.sortable !== false) {
           <div class="sortable-header" (click)="onSort(column.key)">
-            {{ column.header }}
+            <span class="header-text">{{ column.header }}</span>
             <mat-icon class="sort-icon" [ngClass]="getSortIconClass(column.key)">
               {{ getSortIcon(column.key) }}
             </mat-icon>
@@ -141,10 +141,10 @@
           }
           @case ("text-with-color") {
           <div class="two-line-cell">
-            <div class="line-primary" [ngClass]="getTextColorClass(column.textColor)">
+            <div class="line-primary" [ngClass]="getTextColorClass(row, column)">
               {{ getCellValue(row, column.primaryField || "") }}
             </div>
-            <div class="line-secondary" [ngClass]="getSecondaryTextColorClass(column.textColor)">
+            <div class="line-secondary" [ngClass]="getSecondaryTextColorClass(row, column)">
               {{ getCellValue(row, column.secondaryField || "") }}
             </div>
           </div>
