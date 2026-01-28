@@ -344,14 +344,15 @@ export class AssetControlPanelComponent implements OnInit {
   getSlaBadgeColor(slaStatus: string | undefined | null): string {
     if (!slaStatus) return 'var(--color-bg-quaternary)';
 
-    const upperStatus = slaStatus.toUpperCase();
-    if (upperStatus.includes('COMPLIANT')) {
-      return 'var(--color-green-light)';
-    }
-    if (upperStatus.includes('NON-COMPLIANT')) {
+    const upperStatus = slaStatus.toUpperCase().trim();
+    // Check NON-COMPLIANT first (so it doesn't match COMPLIANT)
+    if (upperStatus.includes('NON-COMPLIANT') || upperStatus.includes('NON-COMPLIANT')) {
       return 'var(--color-red-light)';
     }
-    if (upperStatus.includes('UNKNOWN')) {
+    if (upperStatus.includes('COMPLIANT') || upperStatus.includes('COMPLIANT')) {
+      return 'var(--color-green-light)';
+    }
+    if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) {
       return 'var(--color-bg-quaternary)';
     }
     return 'var(--color-bg-quaternary)';
@@ -360,14 +361,15 @@ export class AssetControlPanelComponent implements OnInit {
   getSlaBadgeTextColor(slaStatus: string | undefined | null): string {
     if (!slaStatus) return 'var(--color-text-tertiary)';
 
-    const upperStatus = slaStatus.toUpperCase();
-    if (upperStatus.includes('COMPLIANT')) {
-      return 'var(--color-green-dark)';
-    }
-    if (upperStatus.includes('NON-COMPLIANT')) {
+    const upperStatus = slaStatus.toUpperCase().trim();
+    // Check NON-COMPLIANT first (so it doesn't match COMPLIANT)
+    if (upperStatus.includes('NON-COMPLIANT') || upperStatus.includes('NON-COMPLIANT')) {
       return 'var(--color-red)';
     }
-    if (upperStatus.includes('UNKNOWN')) {
+    if (upperStatus.includes('COMPLIANT') || upperStatus.includes('COMPLIANT')) {
+      return 'var(--color-green-dark)';
+    }
+    if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) {
       return 'var(--color-text-tertiary)';
     }
     return 'var(--color-text-tertiary)';
