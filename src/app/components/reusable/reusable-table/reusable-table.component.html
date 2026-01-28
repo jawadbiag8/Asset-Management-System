@@ -40,8 +40,8 @@
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="table-container">
+  <!-- Table + Scrollable Area -->
+  <div class="table-wrapper">
     @if (sortedData.length === 0) {
     <div class="empty-state">
       <p class="empty-state-text">
@@ -49,7 +49,8 @@
       </p>
     </div>
     } @else {
-    <table mat-table [dataSource]="sortedData" class="assets-table" [style.min-width]="config.minWidth || '1400px'">
+    <div class="table-container">
+      <table mat-table [dataSource]="sortedData" class="assets-table" [style.min-width]="config.minWidth || '1400px'">
       @for (column of config.columns; track column.key) {
       <ng-container [matColumnDef]="column.key">
         <th mat-header-cell *matHeaderCellDef [style.width]="column.width">
@@ -201,45 +202,46 @@
       </ng-container>
       }
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+
+    <!-- Pagination (sticky inside wrapper) -->
+    @if (sortedData.length > 0) {
+    <div class="pagination-container">
+      <div class="pagination-info">
+        <span class="row-count-text">{{ getDisplayedRange() }} of {{ effectiveTotalItems }}</span>
+      </div>
+
+      <div class="pagination-right-section">
+        <div class="pagination-rows-per-page">
+          <span class="rows-per-page-label">Rows per page:</span>
+          <select class="rows-per-page-select" [value]="pageSize" (change)="onPageSizeChange($event)">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+
+        <div class="pagination-navigation">
+          <button class="pagination-button" [disabled]="currentPage === 1" (click)="onPreviousPage()" type="button">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span class="page-indicator">
+            <span class="current-page">{{ currentPage }}</span>/<span class="total-pages">{{ totalPages }}</span>
+          </span>
+          <button class="pagination-button" [disabled]="currentPage === totalPages" (click)="onNextPage()" type="button">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    }
     }
   </div>
-
-  <!-- Pagination -->
-  @if (sortedData.length > 0) {
-  <div class="pagination-container">
-    <div class="pagination-info">
-      <span class="row-count-text">{{ getDisplayedRange() }} of {{ effectiveTotalItems }}</span>
-    </div>
-
-    <div class="pagination-right-section">
-      <div class="pagination-rows-per-page">
-        <span class="rows-per-page-label">Rows per page:</span>
-        <select class="rows-per-page-select" [value]="pageSize" (change)="onPageSizeChange($event)">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </div>
-
-      <div class="pagination-navigation">
-        <button class="pagination-button" [disabled]="currentPage === 1" (click)="onPreviousPage()" type="button">
-          <mat-icon>chevron_left</mat-icon>
-        </button>
-        <span class="page-indicator">
-          <span class="current-page">{{ currentPage }}</span>/<span class="total-pages">{{ totalPages }}</span>
-        </span>
-        <button class="pagination-button" [disabled]="currentPage === totalPages" (click)="onNextPage()" type="button">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      </div>
-    </div>
-  </div>
-  }
 
   <!-- Filter Modal -->
   <app-filter-modal [filters]="filters" [isOpen]="isFilterModalOpen" (close)="onFilterModalClose()"

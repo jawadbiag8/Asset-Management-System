@@ -121,22 +121,61 @@
     }
 }
 
-// Table Container
-.table-container {
+// Table Wrapper (scrollable body with sticky header/footer)
+.table-wrapper {
     background: var(--color-bg-primary);
     border-radius: 8px;
     border: 1px solid var(--color-border);
-    overflow-x: auto;
-    overflow-y: visible;
+    width: 100%;
+    max-height: 800px;
+    overflow: auto;
     -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
     position: relative;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    // Custom scrollbar (vertical & horizontal)
+    scrollbar-width: thin; // Firefox
+    scrollbar-color: var(--color-scroll-thumb, var(--color-border))
+                     var(--color-scroll-track, var(--color-bg-secondary));
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--color-scroll-track, var(--color-bg-secondary));
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-scroll-thumb, var(--color-border));
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--color-scroll-thumb-hover, var(--color-text-tertiary));
+    }
+}
+
+// Inner table container (handles horizontal scroll)
+.table-container {
+    overflow-x: auto;
 }
 
 .assets-table {
     width: 100%;
     table-layout: fixed;
     background: var(--color-bg-primary);
+
+    // Sticky header inside scrollable wrapper
+    .mat-mdc-header-row {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: var(--color-bg-tertiary);
+    }
 
     th {
         background-color: var(--color-bg-tertiary);
@@ -374,6 +413,14 @@
             text-decoration: underline;
         }
     }
+}
+
+// Sticky pagination footer inside scrollable wrapper
+.pagination-container {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background-color: var(--color-bg-primary);
 }
 
 // Text Colors
