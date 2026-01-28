@@ -10,7 +10,9 @@ import {
 } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { UtilsService } from '../../../services/utils.service';
+import { FilterModalComponent } from '../filter-modal/filter-modal.component';
 
 /**
  * ============================================================================
@@ -513,8 +515,6 @@ export class ReusableTableComponent
   private originalData: any[] = [];
   private lastQueryKey: string | null = null;
 
-  // Filter modal state
-  isFilterModalOpen = false;
 
   // Pagination state
   currentPage: number = 1;
@@ -544,6 +544,7 @@ export class ReusableTableComponent
   constructor(
     private utilsService: UtilsService,
     private router: Router,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -870,8 +871,20 @@ export class ReusableTableComponent
   }
 
   onFilterClick(filter: FilterPill) {
-    // Open modal with all filters
-    this.isFilterModalOpen = true;
+    const dialogRef = this.dialog.open(FilterModalComponent, {
+      width: '90%',
+      maxWidth: '600px',
+      data: { filters: this.filters },
+      panelClass: 'filter-options-dialog',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.filterChanges) {
+        this.onFilterApply(result.filterChanges);
+      } else if (result?.reset) {
+        this.onFilterReset();
+      }
+    });
   }
 
   onFilterApply(
@@ -905,8 +918,6 @@ export class ReusableTableComponent
       return filter;
     });
 
-    this.isFilterModalOpen = false;
-
     // For server-side search, emit query with updated filters
     if (this.config?.serverSideSearch) {
       this.emitSearchQuery();
@@ -920,10 +931,6 @@ export class ReusableTableComponent
     }
   }
 
-  onFilterModalClose() {
-    this.isFilterModalOpen = false;
-  }
-
   onFilterReset() {
     // Reset all filters to "All" (empty string)
     this.filters = this.filters.map((filter) => ({
@@ -932,8 +939,6 @@ export class ReusableTableComponent
       label: `${filter.label.split(':')[0]}: All`,
       removable: false,
     }));
-
-    this.isFilterModalOpen = false;
 
     // For server-side search, emit query with updated filters
     if (this.config?.serverSideSearch) {

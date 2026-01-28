@@ -1,8 +1,18 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ReplaySubject, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FilterPill, FilterOption } from '../reusable-table/reusable-table.component';
+
+export interface FilterModalData {
+  filters: FilterPill[];
+}
+
+export interface FilterModalResult {
+  filterChanges?: { filterId: string; selectedValues: string[] }[];
+  reset?: boolean;
+}
 
 @Component({
   selector: 'app-filter-modal',
@@ -10,12 +20,8 @@ import { FilterPill, FilterOption } from '../reusable-table/reusable-table.compo
   styleUrl: './filter-modal.component.scss',
   standalone: false,
 })
-export class FilterModalComponent implements OnChanges, OnDestroy {
-  @Input() filters: FilterPill[] = [];
-  @Input() isOpen: boolean = false;
-  @Output() close = new EventEmitter<void>();
-  @Output() apply = new EventEmitter<{ filterId: string; selectedValues: string[] }[]>();
-  @Output() reset = new EventEmitter<void>();
+export class FilterModalComponent implements OnInit, OnDestroy {
+  filters: FilterPill[] = [];
 
   selectedValues: Map<string, string> = new Map();
   filterControls: Map<string, FormControl> = new Map();
@@ -24,11 +30,22 @@ export class FilterModalComponent implements OnChanges, OnDestroy {
   filterSubscriptions: Map<string, Subject<void>> = new Map();
   protected _onDestroy = new Subject<void>();
 
-  ngOnChanges(changes: SimpleChanges) {
-    if ((changes['filters'] || changes['isOpen']) && this.filters && this.isOpen) {
-      // Initialize with current values for all filters
-      this.selectedValues.clear();
-      this.filters.forEach(filter => {
+  constructor(
+    public dialogRef: MatDialogRef<FilterModalComponent, FilterModalResult>,
+    @Inject(MAT_DIALOG_DATA) public data: FilterModalData,
+  ) {
+    this.filters = data?.filters ?? [];
+  }
+
+  ngOnInit() {
+    this.initializeFilters();
+  }
+
+  private initializeFilters() {
+    if (!this.filters?.length) return;
+    // Initialize with current values for all filters
+    this.selectedValues.clear();
+    this.filters.forEach(filter => {
         // Use filter.value if it exists, otherwise use empty string (which corresponds to "All")
         const defaultValue = filter.value || '';
         this.selectedValues.set(filter.id, defaultValue);
@@ -64,7 +81,6 @@ export class FilterModalComponent implements OnChanges, OnDestroy {
         // Setup filtering for this filter
         this.setupFiltering(filter.id);
       });
-    }
   }
 
   ngOnDestroy() {
@@ -163,10 +179,8 @@ export class FilterModalComponent implements OnChanges, OnDestroy {
   }
 
   onApply() {
-    // Emit all filter changes
     const filterChanges: { filterId: string; selectedValues: string[] }[] = [];
     this.filters.forEach(filter => {
-      // Get value from select control (source of truth)
       const selectControl = this.selectControls.get(filter.id);
       const selectedValue = selectControl?.value || '';
       this.selectedValues.set(filter.id, selectedValue);
@@ -175,33 +189,23 @@ export class FilterModalComponent implements OnChanges, OnDestroy {
         selectedValues: [selectedValue],
       });
     });
-    this.apply.emit(filterChanges);
-    this.close.emit();
+    this.dialogRef.close({ filterChanges });
   }
 
   onReset() {
-    // Reset all filters to empty string (which corresponds to "All")
     this.filters.forEach(filter => {
       this.selectedValues.set(filter.id, '');
       this.selectControls.get(filter.id)?.setValue('');
       this.filterControls.get(filter.id)?.setValue('');
-      // Reset filtered options to show all
       const filteredOptions = this.filteredOptions.get(filter.id);
       if (filteredOptions && filter.options) {
         filteredOptions.next(filter.options.slice());
       }
     });
-    this.reset.emit();
-    this.close.emit();
+    this.dialogRef.close({ reset: true });
   }
 
   onClose() {
-    this.close.emit();
-  }
-
-  onBackdropClick(event: MouseEvent) {
-    if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
-      this.onClose();
-    }
+    this.dialogRef.close();
   }
 }

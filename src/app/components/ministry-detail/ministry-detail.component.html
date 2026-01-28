@@ -2,13 +2,13 @@
   <app-reusable-breadcrum
     [breadcrumbs]="[
       { label: 'Dashboard', path: '/dashboard' },
-      { label: 'Assets', path: '/ministry-detail' },
-      { label: 'Ministry of Health' },
+      { label: 'Ministry', path: '/assets/by-ministry' },
+      { label: ministryName() },
     ]"
   ></app-reusable-breadcrum>
-  
+
   <div class="page-header">
-    <h1 class="digitalAssetsTitle">Ministry of Health - Digital Assets</h1>
+    <h1 class="digitalAssetsTitle">{{ ministryName() }}</h1>
     <button class="btn-add-asset" (click)="onAddAsset()">
       <mat-icon>add</mat-icon>
       Add Digital Assets
@@ -17,7 +17,7 @@
 
   <!-- Summary Cards Section -->
   <div class="summary-cards-section">
-    @for(card of summaryCards(); track card.id) {
+    @for (card of summaryCards(); track card.id) {
       <div class="summary-card">
         <div class="card-content">
           <h2 class="card-value">{{ card.value }}</h2>
@@ -26,15 +26,18 @@
           <div class="card-separator"></div>
           <a href="#" class="card-link">{{ card.linkText }}</a>
         </div>
-        @if(card.badge) {
-          <span class="card-badge" [ngClass]="{'badge-red': card.badgeColor === 'red'}">
+        @if (card.badge) {
+          <span
+            class="card-badge"
+            [ngClass]="{ 'badge-red': card.badgeColor === 'red' }"
+          >
             {{ card.badge }}
           </span>
         }
       </div>
     }
   </div>
-  
+
   <app-reusable-table
     [config]="tableConfigWithData()"
     [filters]="tableFilters()"

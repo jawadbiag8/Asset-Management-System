@@ -148,6 +148,7 @@ export class MinistryDetailComponent implements OnInit {
   ministryId: number | null = null;
   totalItems = signal<number>(0);
   isLoading = signal<boolean>(false);
+  ministryName = signal<string>('Ministry of Health');
 
   constructor(
     private router: Router,
@@ -466,6 +467,13 @@ export class MinistryDetailComponent implements OnInit {
       next: (response: ApiResponse<any>) => {
         this.isLoading.set(false);
         if (response.isSuccessful && response.data) {
+          // Set ministry name from API response (breadcrumb & title)
+          const name =
+            response.data.ministryDepartment ??
+            response.data.data?.[0]?.ministryDepartment ??
+            'Ministry of Health';
+          this.ministryName.set(name);
+
           // Map API response to AssetDetail format
           const assets: AssetDetail[] = this.mapApiResponseToAssetDetails(
             response.data,
@@ -604,11 +612,8 @@ export class MinistryDetailComponent implements OnInit {
       // Risk Exposure Index
       const riskExposureIndex = item.riskExposureIndex || 'N/A';
 
-      // Extract citizen impact level (format: "LOW - Supporting Services" -> "LOW")
-      const citizenImpactFull = item.citizenImpactLevel || '';
-      const citizenImpactLevel = citizenImpactFull
-        ? citizenImpactFull.split(' - ')[0].trim()
-        : 'N/A';
+      // Use full citizen impact level from API (e.g. "LOW - Supporting Services")
+      const citizenImpactLevel = item.citizenImpactLevel || 'N/A';
 
       // Open Incidents: openIncidents as primary, highSeverityIncidents as secondary
       const openIncidents =
