@@ -409,7 +409,8 @@ export type CellType =
   | 'link'
   | 'badge-with-subtext'
   | 'text-with-color'
-  | 'health-status';
+  | 'health-status'
+  | 'actions';
 
 export interface TableColumn {
   key: string; // Unique identifier for the column
@@ -454,6 +455,13 @@ export interface TableColumn {
 
   // For click handlers (e.g., for icon cells)
   onClick?: (row: any) => void; // Click handler function that receives the row data
+
+  // For 'actions' cells
+  actionLinks?: Array<{
+    label: string;
+    color?: string; // CSS color or class
+    onClick?: (row: any) => void;
+  }>;
 }
 
 export interface FilterOption {
@@ -1171,6 +1179,10 @@ export class ReusableTableComponent
 
   onIconClick(row: any, columnKey: string): void {
     this.actionClick.emit({ row, columnKey });
+  }
+
+  onActionLinkClick(row: any, actionLabel: string): void {
+    this.actionClick.emit({ row, columnKey: actionLabel });
   }
 
   private getNestedValue(obj: any, path: string): any {
