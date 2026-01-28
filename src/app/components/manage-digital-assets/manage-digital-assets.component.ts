@@ -215,8 +215,16 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
       return;
     }
 
+    const payload = {
+      ...this.digitalAssetForm.value,
+    }
+
+    if (!payload.departmentId) {
+      delete payload.departmentId;
+    }
+
     if (this.pageInfo().pageState === 'edit') {
-      this.api.updateAsset(this.pageInfo().assetId, this.digitalAssetForm.value).subscribe({
+      this.api.updateAsset(this.pageInfo().assetId, payload).subscribe({
         next: (res: ApiResponse) => {
           if (res.isSuccessful) {
             this.utils.showToast(res.message, 'Asset updated successfully', 'success');
@@ -234,7 +242,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
       return
     }
 
-    this.api.addAsset(this.digitalAssetForm.value).subscribe({
+    this.api.addAsset(payload).subscribe({
       next: (res: ApiResponse) => {
         if (res.isSuccessful) {
           this.utils.showToast(res.message, 'Asset added successfully', 'success');
