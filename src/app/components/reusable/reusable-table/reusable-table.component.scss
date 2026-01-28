@@ -4,7 +4,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    border-radius: 16px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 400;
     cursor: pointer;
@@ -35,7 +35,7 @@
 
 .filter-pill-dropdown {
     background-color: var(--color-filter-dropdown-bg);
-    color: var(--color-text-secondary);
+    color: var(--color-green-teal);
 
     .filter-dropdown-icon {
         color: var(--color-text-tertiary);
