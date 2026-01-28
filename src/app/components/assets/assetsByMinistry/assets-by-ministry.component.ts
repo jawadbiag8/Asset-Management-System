@@ -189,13 +189,37 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    // Normalise pagination/search parameter names to match backend spec
+    const pageNumber =
+      searchParams.get('PageNumber') ||
+      searchParams.get('pageNumber') ||
+      '1';
+    const pageSize =
+      searchParams.get('PageSize') ||
+      searchParams.get('pageSize') ||
+      '10';
+    const searchTerm =
+      searchParams.get('SearchTerm') ||
+      searchParams.get('search') ||
+      '';
+
+    let apiParams = new HttpParams()
+      .set('PageNumber', pageNumber)
+      .set('PageSize', pageSize);
+
+    if (searchTerm) {
+      apiParams = apiParams.set('SearchTerm', searchTerm);
+    }
+
     // Add default SortBy if not present
     if (!searchParams.has('SortBy')) {
-      searchParams = searchParams.set('SortBy', 'ministryName');
+      apiParams = apiParams.set('SortBy', 'ministryName');
+    } else {
+      apiParams = apiParams.set('SortBy', searchParams.get('SortBy') as string);
     }
 
     // Convert params to string for comparison
-    const paramsString = searchParams.toString();
+    const paramsString = apiParams.toString();
 
     // Prevent duplicate calls with same parameters
     if (this.lastSearchParams === paramsString) {
@@ -207,7 +231,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.apiService.getMinistries(searchParams).subscribe({
+    this.apiService.getMinistries(apiParams).subscribe({
       next: (response: ApiResponse<any>) => {
         this.isLoadingData = false;
         this.loading.set(false);

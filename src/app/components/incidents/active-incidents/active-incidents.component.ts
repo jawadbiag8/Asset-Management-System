@@ -165,7 +165,8 @@ export class ActiveIncidentsComponent implements OnInit {
         label: 'Ministry: All',
         value: '',
         removable: true,
-        paramKey: 'ministry',
+        // /api/Incident expects MinistryId
+        paramKey: 'MinistryId',
         options: [{ label: 'All', value: '' }],
       },
       {
@@ -173,7 +174,8 @@ export class ActiveIncidentsComponent implements OnInit {
         label: 'Status: All',
         value: '',
         removable: true,
-        paramKey: 'status',
+        // /api/Incident expects Status
+        paramKey: 'Status',
         options: [{ label: 'All', value: '' }],
       },
       {
@@ -181,7 +183,8 @@ export class ActiveIncidentsComponent implements OnInit {
         label: 'Severity: All',
         value: '',
         removable: true,
-        paramKey: 'severity',
+        // /api/Incident expects SeverityId
+        paramKey: 'SeverityId',
         options: [{ label: 'All', value: '' }],
       },
       {
@@ -189,7 +192,8 @@ export class ActiveIncidentsComponent implements OnInit {
         label: 'Created by: All',
         value: '',
         removable: true,
-        paramKey: 'createdBy',
+        // /api/Incident expects CreatedBy
+        paramKey: 'CreatedBy',
         options: [{ label: 'All', value: '' }],
       },
       {
@@ -197,7 +201,8 @@ export class ActiveIncidentsComponent implements OnInit {
         label: 'Assigned to: All',
         value: '',
         removable: true,
-        paramKey: 'assignedTo',
+        // /api/Incident expects AssignedTo
+        paramKey: 'AssignedTo',
         options: [{ label: 'All', value: '' }],
       },
       {
@@ -205,7 +210,8 @@ export class ActiveIncidentsComponent implements OnInit {
         label: 'KPI: All',
         value: '',
         removable: true,
-        paramKey: 'kpi',
+        // /api/Incident expects KpiId
+        paramKey: 'KpiId',
         options: [{ label: 'All', value: '' }],
       },
       {
@@ -213,7 +219,8 @@ export class ActiveIncidentsComponent implements OnInit {
         label: 'Assets: All',
         value: '',
         removable: true,
-        paramKey: 'asset',
+        // /api/Incident expects AssetId
+        paramKey: 'AssetId',
         options: [{ label: 'All', value: '' }],
       },
     ]);

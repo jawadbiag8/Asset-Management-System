@@ -354,7 +354,8 @@ export class DashboardComponent implements OnInit {
         label: 'Ministry: All',
         value: '',
         removable: true,
-        paramKey: 'ministry',
+        // Backend expects MinistryId as query parameter
+        paramKey: 'MinistryId',
         options: [{ label: 'All', value: '' }]
       },
       {
@@ -402,7 +403,8 @@ export class DashboardComponent implements OnInit {
         label: 'Citizen Impact: All',
         value: '',
         removable: true,
-        paramKey: 'citizenImpact',
+        // Backend expects CitizenImpactLevelId as query parameter
+        paramKey: 'CitizenImpactLevelId',
         options: [{ label: 'All', value: '' }]
       }
     ]);

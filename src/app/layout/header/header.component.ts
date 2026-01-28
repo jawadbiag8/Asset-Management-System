@@ -13,7 +13,7 @@ import { UtilsService } from '../../services/utils.service';
 export class HeaderComponent {
   menuOpen = false;
   profileDropdownOpen = false;
-  currentRoute: string = '';
+  currentRoute = signal<string>('');
 
   user = signal<{ userName: string, role: string }>({
     userName: '',
@@ -31,7 +31,7 @@ export class HeaderComponent {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        this.currentRoute = event.url;
+        this.currentRoute.set(event.url);
       });
 
     const userData = this.utilsService.getStorage<{ username?: string; role?: string }>('user');
@@ -40,25 +40,32 @@ export class HeaderComponent {
       role: userData?.role || 'Admin'
     })
     // Set initial route
-    this.currentRoute = this.router.url;
+    this.currentRoute.set(this.router.url);
   }
 
   isAssetsActive(): boolean {
+    const route = this.currentRoute();
     return (
-      this.currentRoute.includes('/assets') ||
-      this.currentRoute.includes('/add-digital-assets') ||
-      this.currentRoute.includes('/edit-digital-assets') ||
-      this.currentRoute.includes('/ministry-detail') ||
-      this.currentRoute.includes('/view-assets-detail')
+      route.includes('/assets/by-ministry') ||
+      route.includes('/ministry-detail')
     );
   }
 
   isDashboardActive(): boolean {
-    return this.currentRoute === '/dashboard' || this.currentRoute === '/';
+    const route = this.currentRoute();
+    // Active on dashboard, root, add/edit digital assets pages and asset detail view
+    const isDashboardRoute = route === '/dashboard' || route === '/';
+    const isAddEditAssetsRoute = route.includes('/add-digital-assets') || route.includes('/edit-digital-assets');
+    const isViewAssetDetailRoute = route.includes('/view-assets-detail');
+    const isMinistryRoute = route.includes('/assets/by-ministry') ||
+      route.includes('/ministry-detail');
+    const isIncidentsRoute = route.includes('/incidents');
+    
+    return (isDashboardRoute || isAddEditAssetsRoute || isViewAssetDetailRoute) && !isMinistryRoute && !isIncidentsRoute;
   }
 
   isIncidentsActive(): boolean {
-    return this.currentRoute.includes('/incidents');
+    return this.currentRoute().includes('/incidents');
   }
 
   toggleProfileDropdown() {
