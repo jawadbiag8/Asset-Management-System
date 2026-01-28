@@ -61,6 +61,111 @@ export class ViewAssetsDetailComponent {
     return '';
   }
 
+  getBadgeColor(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk'): string {
+    if (!value) return 'var(--color-bg-quaternary)';
+
+    const upperValue = value.toUpperCase();
+
+    // Check for unknown status
+    if (upperValue.includes('UNKNOWN') || upperValue.includes('N/A')) {
+      return 'var(--color-bg-quaternary)';
+    }
+
+    if (type === 'citizenImpact') {
+      if (upperValue.includes('LOW')) return 'var(--color-green-light)';
+      if (upperValue.includes('MEDIUM')) return 'var(--color-yellow-light)';
+      if (upperValue.includes('HIGH')) return 'var(--color-red-light)';
+      return 'var(--color-bg-quaternary)';
+    }
+
+    if (type === 'health') {
+      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT')) return 'var(--color-green-light)';
+      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR')) return 'var(--color-yellow-light)';
+      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL')) return 'var(--color-red-light)';
+      return 'var(--color-bg-quaternary)';
+    }
+
+    if (type === 'risk') {
+      if (upperValue.includes('LOW')) return 'var(--color-green-light)';
+      if (upperValue.includes('MEDIUM')) return 'var(--color-yellow-light)';
+      if (upperValue.includes('HIGH')) return 'var(--color-red-light)';
+      return 'var(--color-bg-quaternary)';
+    }
+
+    return 'var(--color-bg-quaternary)';
+  }
+
+  getBadgeTextColor(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk'): string {
+    if (!value) return 'var(--color-text-tertiary)';
+
+    const upperValue = value.toUpperCase();
+
+    // Check for unknown status
+    if (upperValue.includes('UNKNOWN') || upperValue.includes('N/A')) {
+      return 'var(--color-text-tertiary)';
+    }
+
+    if (type === 'citizenImpact') {
+      if (upperValue.includes('LOW')) return 'var(--color-green-dark)';
+      if (upperValue.includes('MEDIUM')) return 'var(--color-yellow)';
+      if (upperValue.includes('HIGH')) return 'var(--color-red)';
+      return 'var(--color-text-tertiary)';
+    }
+
+    if (type === 'health') {
+      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT')) return 'var(--color-green-dark)';
+      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR')) return 'var(--color-yellow)';
+      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL')) return 'var(--color-red)';
+      return 'var(--color-text-tertiary)';
+    }
+
+    if (type === 'risk') {
+      if (upperValue.includes('LOW')) return 'var(--color-green-dark)';
+      if (upperValue.includes('MEDIUM')) return 'var(--color-yellow)';
+      if (upperValue.includes('HIGH')) return 'var(--color-red)';
+      return 'var(--color-text-tertiary)';
+    }
+
+    return 'var(--color-text-tertiary)';
+  }
+
+  getBadgeClass(badgeColor?: string): string {
+    if (!badgeColor) return 'badge-success';
+
+    // Extract color name from CSS variable to determine badge class
+    if (badgeColor.includes('green')) return 'badge-success';
+    if (badgeColor.includes('red')) return 'badge-danger';
+    if (badgeColor.includes('yellow')) return 'badge-warning';
+
+    return 'badge-success';
+  }
+
+  getStatusBoxClass(status: string | undefined | null): string {
+    if (!status) return 'bg-light border border-secondary';
+
+    const upperStatus = status.toUpperCase();
+    if (upperStatus.includes('DOWN') || upperStatus.includes('OFFLINE')) {
+      return 'bg-danger-subtle border border-danger';
+    }
+    if (upperStatus.includes('UP') || upperStatus.includes('ONLINE')) {
+      return 'bg-success-subtle border border-success';
+    }
+    return 'bg-light border border-secondary';
+  }
+
+  getStatusTextClass(status: string | undefined | null): string {
+    if (!status) return 'text-secondary';
+
+    const upperStatus = status.toUpperCase();
+    if (upperStatus.includes('DOWN') || upperStatus.includes('OFFLINE')) {
+      return 'text-danger';
+    }
+    if (upperStatus.includes('UP') || upperStatus.includes('ONLINE')) {
+      return 'text-success';
+    }
+    return 'text-secondary';
+  }
+
   // Action Methods
   onAnalyze() {
     console.log('Analyze clicked');
