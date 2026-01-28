@@ -735,7 +735,7 @@ export class ReusableTableComponent
       .set('pageSize', this.pageSize.toString());
 
     if (searchValue) {
-      httpParams = httpParams.set('search', searchValue);
+      httpParams = httpParams.set('searchTerm', searchValue);
     }
 
     this.filters.forEach((filter) => {

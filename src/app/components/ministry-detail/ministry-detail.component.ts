@@ -423,7 +423,7 @@ export class MinistryDetailComponent implements OnInit {
     // Convert pageNumber to page for API
     const pageNumber = searchParams.get('pageNumber') || '1';
     const pageSize = searchParams.get('pageSize') || '10';
-    const search = searchParams.get('search') || '';
+    const search = searchParams.get('searchTerm') || '';
 
     // Build new HttpParams with correct parameter names
     let apiParams = new HttpParams()
