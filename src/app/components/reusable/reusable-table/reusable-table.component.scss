@@ -237,7 +237,7 @@
     }
 
     .link-text {
-        color: var(--color-green-teal);
+        color: var(--color-link);
         font-weight: 600;
         font-style: normal;
         font-size: 12px;
@@ -605,6 +605,7 @@
 
 // Responsive Styles
 @media (max-width: 768px) {
+
     // Filter Bar - Stack vertically on mobile
     .filter-pill {
         font-size: 12px;

@@ -7,6 +7,7 @@ import { DigitalAssetRequest } from '../components/manage-digital-assets/manage-
 import { ActiveIncident } from '../components/incidents/active-incidents/active-incidents.component';
 import { IncidentRequest } from '../components/incidents/manage-incidents/manage-incidents.component';
 import { DigitalAsset } from '../components/dashboard/dashboard.component';
+import { AssetControlPanelData } from '../components/assets/asset-control-panel/asset-control-panel.component';
 
 export interface ApiResponse<T = any> {
   isSuccessful: boolean;
@@ -19,7 +20,7 @@ export interface ApiResponse<T = any> {
 export class ApiService {
   private baseUrl: string = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(username: string, password: string): Observable<ApiResponse<string>> {
     return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, {
@@ -93,6 +94,11 @@ export class ApiService {
   ): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset/${assetId}`;
     return this.http.put<ApiResponse<any>>(url, asset);
+  }
+
+  getAssetControlPanelData(assetId: number): Observable<ApiResponse<AssetControlPanelData>> {
+    let url = `${this.baseUrl}/Asset/${assetId}/controlpanel`;
+    return this.http.get<ApiResponse<AssetControlPanelData>>(url);
   }
 
   // Incidents

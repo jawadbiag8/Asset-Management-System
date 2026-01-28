@@ -36,6 +36,7 @@ import { ApiInterceptor } from './interceptors/api.interceptor';
 import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
 import { ConfirmationDialogComponent } from './components/reusable/confirmation-dialog/confirmation-dialog.component';
 import { LoaderComponent } from './components/loader/loader.component';
+import { AssetControlPanelComponent } from './components/assets/asset-control-panel/asset-control-panel.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { LoaderComponent } from './components/loader/loader.component';
     ViewAssetsDetailComponent,
     ConfirmationDialogComponent,
     LoaderComponent,
+    AssetControlPanelComponent,
   ],
   imports: [
     BrowserModule,

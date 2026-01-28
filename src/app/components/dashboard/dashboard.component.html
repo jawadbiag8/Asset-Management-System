@@ -27,7 +27,7 @@
     <!-- Table with Filters and Search -->
     <div class="mt-5">
         <app-reusable-table [config]="tableConfigWithData()" [filters]="tableFilters()"
-            (searchQuery)="loadAssets($event)" [totalItems]="totalItems()">
+            (searchQuery)="loadAssets($event)" [totalItems]="totalItems()" (actionClick)="onActionClick($event)">
         </app-reusable-table>
     </div>
 

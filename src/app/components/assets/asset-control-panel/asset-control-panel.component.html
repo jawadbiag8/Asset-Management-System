@@ -1,0 +1,90 @@
+<div class="container-fluid p-4">
+  <app-reusable-breadcrum [breadcrumbs]="breadcrumbs"></app-reusable-breadcrum>
+
+
+  @if(assetControlPanelData()) {
+  <div class="card shadow-sm mt-4">
+    <!-- Page Title -->
+    <div class="card-body">
+      <h1 class="mb-4 fw-bold">{{ assetControlPanelData()!.header.assetName || 'Unknown' }}</h1>
+
+      <!-- Asset Details and Status Section -->
+      <div class="row g-4">
+        <!-- Left: Asset Details -->
+        <div class="col-12 col-md-5">
+          <div class="d-flex flex-column flex-md-row justify-content-md-around gap-3">
+            <div>
+              <label class="text-uppercase text-muted small fw-medium mb-1 d-block">URL</label>
+              <a [href]="'https://' + assetControlPanelData()!.header.assetUrl" target="_blank" class="link">
+                {{ assetControlPanelData()!.header.assetUrl }}
+              </a>
+            </div>
+            <div>
+              <label class="text-uppercase text-muted small fw-medium mb-1 d-block">MINISTRY</label>
+              <span class="d-block fw-semibold">{{ assetControlPanelData()!.header.ministry }}</span>
+            </div>
+            <div>
+              <label class="text-uppercase text-muted small fw-medium mb-1 d-block">DEPARTMENT</label>
+              <span class="d-block fw-semibold">{{ assetControlPanelData()!.header.department || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle: Status Badges Group -->
+        <div class="col-12 col-md-5">
+          <div class="border rounded p-4">
+            <div class="row g-3">
+              <div class="col-12 col-sm-4 border-end border-sm-end-0  pb-3 pb-sm-0 pe-sm-3">
+                <label class="text-uppercase center text-muted small fw-medium mb-2">CITIZEN IMPACT
+                  LEVEL</label>
+                <span class="badge center"
+                  [ngClass]="getBadgeClass(getBadgeColor(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact'))"
+                  [style.background-color]="getBadgeColor(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact')"
+                  [style.color]="getBadgeTextColor(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact')">
+                  {{ assetControlPanelData()!.header.citizenImpactLevel || 'UNKNOWN' }}
+                </span>
+              </div>
+              <div class="col-12 col-sm-4 border-end border-sm-end-0  pb-3 pb-sm-0 pe-sm-3">
+                <label class="text-uppercase center text-muted small fw-medium mb-2">CURRENT HEALTH</label>
+                <span class="badge center"
+                  [ngClass]="getBadgeClass(getBadgeColor(assetControlPanelData()!.header.currentHealth, 'health'))"
+                  [style.background-color]="getBadgeColor(assetControlPanelData()!.header.currentHealth, 'health')"
+                  [style.color]="getBadgeTextColor(assetControlPanelData()!.header.currentHealth, 'health')">
+                  {{ assetControlPanelData()!.header.currentHealth || 'UNKNOWN' }}
+                </span>
+              </div>
+              <div class="col-12 col-sm-4">
+                <label class="text-uppercase center text-muted small fw-medium mb-2">RISK EXPOSURE INDEX</label>
+                <span class="badge center"
+                  [ngClass]="getBadgeClass(getBadgeColor(assetControlPanelData()!.header.riskExposureIndex, 'risk'))"
+                  [style.background-color]="getBadgeColor(assetControlPanelData()!.header.riskExposureIndex, 'risk')"
+                  [style.color]="getBadgeTextColor(assetControlPanelData()!.header.riskExposureIndex, 'risk')">
+                  {{ assetControlPanelData()!.header.riskExposureIndex || 'UNKNOWN' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Current Status Box -->
+        <div class="col-12 col-md-2">
+          <div class="d-flex flex-column gap-3 ms-auto" style="max-width: 220px;">
+            <div class="rounded p-3" [ngClass]="getStatusBoxClass(assetControlPanelData()!.header.currentStatus)">
+              <label class="text-uppercase text-muted small fw-medium mb-2 center">CURRENT STATUS</label>
+              <span class="fw-semibold center"
+                [ngClass]="getStatusTextClass(assetControlPanelData()!.header.currentStatus)">
+                {{ assetControlPanelData()!.header.currentStatus || 'Unknown' }}
+              </span>
+            </div>
+            <div class="d-flex justify-content-between gap-2">
+              <label class="text-uppercase text-muted small fw-medium mb-1 ">LAST OUTAGE</label>
+              <span class="">{{ assetControlPanelData()!.header.lastOutage || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+</div>
