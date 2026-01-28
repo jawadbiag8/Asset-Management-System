@@ -1,8 +1,11 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, ApiResponse } from '../../../services/api.service';
 import { UtilsService } from '../../../services/utils.service';
+import { TableConfig, TableColumn } from '../../reusable/reusable-table/reusable-table.component';
+import { ManageIncidentsComponent } from '../../incidents/manage-incidents/manage-incidents.component';
+import { MatDialog } from '@angular/material/dialog';
 
 export interface PreviousPageMetadata {
   assetId: number;
@@ -61,6 +64,130 @@ export class AssetControlPanelComponent implements OnInit {
 
   assetControlPanelData = signal<AssetControlPanelData | null>(null);
 
+  tableConfig = signal<TableConfig>({
+    minWidth: '1400px',
+    searchPlaceholder: '',
+    serverSideSearch: false,
+    defaultPage: 1,
+    defaultPageSize: 10,
+    emptyStateMessage: 'No KPI data available',
+    columns: [
+      {
+        key: 'kpiName',
+        header: 'KPI NAME',
+        cellType: 'text',
+        primaryField: 'kpiName',
+        sortable: false,
+        width: '200px',
+      },
+      {
+        key: 'target',
+        header: 'TARGET',
+        cellType: 'text',
+        primaryField: 'target',
+        sortable: false,
+        width: '150px',
+      },
+      {
+        key: 'currentValue',
+        header: 'CURRENT VALUE',
+        cellType: 'text',
+        primaryField: 'currentValue',
+        sortable: false,
+        width: '150px',
+      },
+      {
+        key: 'slaStatus',
+        header: 'SLA STATUS',
+        cellType: 'badge',
+        badgeField: 'slaStatus',
+        badgeColor: (row: any) => this.getSlaBadgeColor(row.slaStatus),
+        badgeTextColor: (row: any) => this.getSlaBadgeTextColor(row.slaStatus),
+        sortable: false,
+        width: '150px',
+      },
+      {
+        key: 'lastChecked',
+        header: 'LAST CHECKED',
+        cellType: 'text',
+        primaryField: 'lastChecked',
+        sortable: false,
+        width: '150px',
+      },
+      {
+        key: 'dataSource',
+        header: 'DATA SOURCE',
+        cellType: 'text',
+        primaryField: 'dataSource',
+        sortable: false,
+        width: '150px',
+      },
+      {
+        key: 'actions',
+        header: 'ACTIONS',
+        cellType: 'actions',
+        sortable: false,
+        width: '200px',
+        actionLinks: [
+          {
+            label: 'Check',
+            color: 'var(--color-primary)',
+            onClick: (row: any) => this.onCheckClick(row),
+          },
+          {
+            label: 'Add Incident',
+            color: 'var(--color-red)',
+            onClick: (row: any) => this.onAddIncidentClick(row),
+          },
+        ],
+      },
+    ],
+    data: [],
+  });
+
+  getTableConfigForCategory(categoryName: string): TableConfig {
+    const data = this.assetControlPanelData();
+    if (!data) {
+      return {
+        ...this.tableConfig(),
+        data: [],
+      };
+    }
+
+    // Find the category
+    const category = data.kpiCategories.find(
+      (cat) => cat.categoryName === categoryName
+    );
+
+    if (!category) {
+      return {
+        ...this.tableConfig(),
+        data: [],
+      };
+    }
+
+    // Process KPIs
+    const processedData = category.kpis.map((kpi) => ({
+      ...kpi,
+    }));
+
+    return {
+      ...this.tableConfig(),
+      data: processedData,
+    };
+  }
+
+  getTotalItemsForCategory(categoryName: string): number {
+    const data = this.assetControlPanelData();
+    if (!data) return 0;
+
+    const category = data.kpiCategories.find(
+      (cat) => cat.categoryName === categoryName
+    );
+
+    return category ? category.kpis.length : 0;
+  }
+
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Ministries', path: '/assets/by-ministry' },
@@ -73,7 +200,8 @@ export class AssetControlPanelComponent implements OnInit {
     private route: Router,
     private activatedRoute: ActivatedRoute,
     private api: ApiService,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -97,7 +225,6 @@ export class AssetControlPanelComponent implements OnInit {
       next: (response: ApiResponse<AssetControlPanelData>) => {
         if (response.isSuccessful) {
           this.assetControlPanelData.set(response.data as AssetControlPanelData);
-          console.log(this.assetControlPanelData())
         } else {
           this.utils.showToast(response.message || 'Failed to load asset data', 'Error', 'error');
         }
@@ -212,6 +339,70 @@ export class AssetControlPanelComponent implements OnInit {
       return 'text-success';
     }
     return 'text-secondary';
+  }
+
+  getSlaBadgeColor(slaStatus: string | undefined | null): string {
+    if (!slaStatus) return 'var(--color-bg-quaternary)';
+
+    const upperStatus = slaStatus.toUpperCase().trim();
+    // Check NON-COMPLIANT first (so it doesn't match COMPLIANT)
+    if (upperStatus.includes('NON-COMPLIANT') || upperStatus.includes('NON-COMPLIANT')) {
+      return 'var(--color-red-light)';
+    }
+    if (upperStatus.includes('COMPLIANT') || upperStatus.includes('COMPLIANT')) {
+      return 'var(--color-green-light)';
+    }
+    if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) {
+      return 'var(--color-bg-quaternary)';
+    }
+    return 'var(--color-bg-quaternary)';
+  }
+
+  getSlaBadgeTextColor(slaStatus: string | undefined | null): string {
+    if (!slaStatus) return 'var(--color-text-tertiary)';
+
+    const upperStatus = slaStatus.toUpperCase().trim();
+    // Check NON-COMPLIANT first (so it doesn't match COMPLIANT)
+    if (upperStatus.includes('NON-COMPLIANT') || upperStatus.includes('NON-COMPLIANT')) {
+      return 'var(--color-red)';
+    }
+    if (upperStatus.includes('COMPLIANT') || upperStatus.includes('COMPLIANT')) {
+      return 'var(--color-green-dark)';
+    }
+    if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) {
+      return 'var(--color-text-tertiary)';
+    }
+    return 'var(--color-text-tertiary)';
+  }
+
+  onViewDetailsClick(event: { row: any; columnKey: string }): void {
+    console.log('Action clicked:', event);
+    // Handle action clicks here
+  }
+
+  onCheckClick(row: any): void {
+    console.log('Check clicked for KPI:', row);
+    // Implement check functionality
+  }
+
+  onAddIncidentClick(row: any): void {
+    console.log('Add Incident clicked for KPI:', row);
+
+    const dialogRef = this.dialog.open(ManageIncidentsComponent, {
+      width: '90%',
+      maxWidth: '700px',
+      data: {
+        assetId: this.previousPageMetadata().assetId.toString(),
+        kpiId: row.kpiId.toString(),
+      },
+      panelClass: 'responsive-modal',
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.loadAssetData();
+      }
+    });
   }
 
 }
