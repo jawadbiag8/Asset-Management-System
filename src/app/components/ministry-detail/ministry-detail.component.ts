@@ -2,10 +2,7 @@ import {
   Component,
   signal,
   computed,
-  AfterViewInit,
   OnInit,
-  ViewChild,
-  ElementRef,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
@@ -18,7 +15,6 @@ import { ApiService, ApiResponse } from '../../services/api.service';
 
 export interface AssetDetail {
   id: number;
-  ministry: string;
   department: string;
   websiteName: string;
   websiteUrl: string;
@@ -34,8 +30,8 @@ export interface AssetDetail {
   compliancePercentage: string;
   riskExposureIndex: string;
   citizenImpactLevel: string;
-  openIncidents: number;
-  highSeverityIncidents: number;
+  openIncidents: number | string;
+  highSeverityIncidents: number | string;
 }
 
 @Component({
@@ -44,7 +40,7 @@ export interface AssetDetail {
   templateUrl: './ministry-detail.component.html',
   styleUrl: './ministry-detail.component.scss',
 })
-export class MinistryDetailComponent implements OnInit, AfterViewInit {
+export class MinistryDetailComponent implements OnInit {
   tableFilters = signal<FilterPill[]>([
     {
       id: 'status',
@@ -122,30 +118,30 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
   summaryCards = signal([
     {
       id: 1,
-      value: '7',
+      value: '0',
       title: 'Total Assets',
       subTitle: 'Active monitoring across all departments',
       linkText: 'View All >',
     },
     {
       id: 2,
-      value: '14',
+      value: '0',
       title: 'Total incidents',
       subTitle: 'Incidents across all departments',
       linkText: 'View all incidents >',
     },
     {
       id: 3,
-      value: '8',
-      badge: '8/14',
+      value: '0',
+      badge: '0/0',
       title: 'Open incidents',
       subTitle: 'Active unresolved incidents',
       linkText: 'View open incidents >',
     },
     {
       id: 4,
-      value: '2',
-      badge: '2/8',
+      value: '0',
+      badge: '0/0',
       badgeColor: 'red',
       title: 'High severity open incidents',
       subTitle: 'Active high severity unresolved incidents',
@@ -153,11 +149,9 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
     },
   ]);
 
-  @ViewChild('tableContainer', { static: false }) tableContainer!: ElementRef;
-
   ministryId: number | null = null;
-  isLoading = signal<boolean>(false);
   totalItems = signal<number>(0);
+  isLoading = signal<boolean>(false);
 
   constructor(
     private router: Router,
@@ -172,13 +166,12 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
     defaultPageSize: 10,
     columns: [
       {
-        key: 'analyze',
-        header: 'ANALYZE',
+        key: 'details',
+        header: 'DETAILS',
         cellType: 'icon',
-        iconName: 'bar_chart',
-        iconColor: 'var(--color-blue-dark)',
-        iconBgColor: 'var(--color-blue-light)',
-        sortable: true,
+        iconUrl: '/assets/info-icon.svg',
+        iconBgColor: 'transparent',
+        sortable: false,
         onClick: (row: AssetDetail) => {
           this.router.navigate(['/view-assets-detail'], {
             queryParams: { id: row.id },
@@ -186,18 +179,18 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
         },
       },
       {
-        key: 'ministryDepartment',
+        key: 'department',
         header: 'MINISTRY / DEPARTMENT',
-        cellType: 'two-line',
-        primaryField: 'ministry',
-        secondaryField: 'department',
+        cellType: 'text',
+        primaryField: 'department',
         sortable: true,
       },
       {
         key: 'websiteApplication',
         header: 'WEBSITE / APPLICATION',
-        cellType: 'link',
+        cellType: 'two-line',
         primaryField: 'websiteName',
+        secondaryField: 'websiteUrl',
         linkField: 'websiteUrl',
         sortable: true,
       },
@@ -207,8 +200,24 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
         cellType: 'badge-with-subtext',
         badgeField: 'currentStatus',
         subtextField: 'currentStatusChecked',
-        badgeColor: 'var(--color-green-light)',
-        badgeTextColor: 'var(--color-green-dark)',
+        badgeColor: (row: any) => {
+          const status = (row.currentStatus || '').toUpperCase();
+          if (status === 'UP') {
+            return 'var(--color-green-light)';
+          } else if (status === 'DOWN') {
+            return 'var(--color-red-light)';
+          }
+          return 'var(--color-bg-quaternary)';
+        },
+        badgeTextColor: (row: any) => {
+          const status = (row.currentStatus || '').toUpperCase();
+          if (status === 'UP') {
+            return 'var(--color-green)';
+          } else if (status === 'DOWN') {
+            return 'var(--color-red)';
+          }
+          return 'var(--color-text-tertiary)';
+        },
         sortable: true,
       },
       {
@@ -230,26 +239,63 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
       {
         key: 'performanceStatus',
         header: 'PERFORMANCE STATUS',
-        cellType: 'two-line',
+        cellType: 'text-with-color',
         primaryField: 'performanceStatus',
         secondaryField: 'performancePercentage',
+        textColor: (row: any) => {
+          const status = (row.performanceStatus || '').toLowerCase();
+          if (status.includes('performing well') || status.includes('well')) {
+            return 'success';
+          } else if (status.includes('average')) {
+            return 'warning';
+          } else if (status.includes('poor')) {
+            return 'danger';
+          } else if (status.includes('unknown') || status === 'n/a') {
+            return 'default';
+          }
+          return 'default';
+        },
         sortable: true,
       },
       {
         key: 'complianceStatus',
         header: 'COMPLIANCE STATUS',
-        cellType: 'two-line',
+        cellType: 'text-with-color',
         primaryField: 'complianceStatus',
         secondaryField: 'compliancePercentage',
+        textColor: (row: any) => {
+          const status = (row.complianceStatus || '').toLowerCase();
+          if (status.includes('high compliance') || status.includes('high')) {
+            return 'success';
+          } else if (status.includes('medium compliance') || status.includes('medium')) {
+            return 'warning';
+          } else if (status.includes('low compliance') || status.includes('low')) {
+            return 'danger';
+          } else if (status.includes('unknown') || status === 'n/a') {
+            return 'default';
+          }
+          return 'default';
+        },
         sortable: true,
       },
       {
         key: 'riskExposureIndex',
         header: 'RISK EXPOSURE INDEX',
-        cellType: 'badge',
-        badgeField: 'riskExposureIndex',
-        badgeColor: 'var(--color-green-light)',
-        badgeTextColor: 'var(--color-green-dark)',
+        cellType: 'text-with-color',
+        primaryField: 'riskExposureIndex',
+        textColor: (row: any) => {
+          const risk = (row.riskExposureIndex || '').toUpperCase();
+          if (risk === 'LOW RISK' || risk.includes('LOW')) {
+            return 'success';
+          } else if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) {
+            return 'warning';
+          } else if (risk === 'HIGH RISK' || risk.includes('HIGH')) {
+            return 'danger';
+          } else if (risk === 'UNKNOWN' || risk === 'N/A') {
+            return 'default';
+          }
+          return 'default';
+        },
         sortable: true,
       },
       {
@@ -257,18 +303,36 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
         header: 'CITIZEN IMPACT LEVEL',
         cellType: 'badge',
         badgeField: 'citizenImpactLevel',
-        badgeColor: 'var(--color-green-light)',
-        badgeTextColor: 'var(--color-green-dark)',
+        badgeColor: (row: any) => {
+          const impact = (row.citizenImpactLevel || '').toUpperCase();
+          if (impact === 'LOW' || impact.includes('LOW')) {
+            return 'var(--color-green-light)';
+          } else if (impact === 'MEDIUM' || impact.includes('MEDIUM')) {
+            return 'var(--color-orange-light)';
+          } else if (impact === 'HIGH' || impact.includes('HIGH')) {
+            return 'var(--color-red-light)';
+          }
+          return 'var(--color-bg-quaternary)';
+        },
+        badgeTextColor: (row: any) => {
+          const impact = (row.citizenImpactLevel || '').toUpperCase();
+          if (impact === 'LOW' || impact.includes('LOW')) {
+            return 'var(--color-green)';
+          } else if (impact === 'MEDIUM' || impact.includes('MEDIUM')) {
+            return 'var(--color-orange-dark)';
+          } else if (impact === 'HIGH' || impact.includes('HIGH')) {
+            return 'var(--color-red)';
+          }
+          return 'var(--color-text-tertiary)';
+        },
         sortable: true,
       },
       {
         key: 'openIncidents',
         header: 'OPEN INCIDENTS',
-        cellType: 'badge-with-subtext',
-        badgeField: 'openIncidents',
-        subtextField: 'highSeverityText',
-        badgeColor: 'var(--color-green-light)',
-        badgeTextColor: 'var(--color-green-dark)',
+        cellType: 'two-line',
+        primaryField: 'openIncidents',
+        secondaryField: 'highSeverityText',
         sortable: true,
       },
     ],
@@ -295,9 +359,56 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
       const id = params['ministryId'];
       if (id) {
         this.ministryId = +id;
+        // Load summary cards data
+        this.loadSummaryCards();
         // Trigger initial load when ministryId is available
         // The table component will emit searchQuery on init, which will call loadAssets
       }
+    });
+  }
+
+  // Load summary cards data only
+  loadSummaryCards() {
+    if (!this.ministryId) {
+      console.error('Ministry ID is required');
+      return;
+    }
+
+    this.apiService.getMinistryDetailById(this.ministryId).subscribe({
+      next: (response: ApiResponse<any>) => {
+        if (response.isSuccessful && response.data) {
+          // Extract summary data from API response
+          const summaryData = {
+            totalAssets: response.data.totalAssets || 0,
+            totalIncidents: response.data.totalIncidents || 0,
+            openIncidents: response.data.openIncidents || 0,
+            highSeverityOpenIncidents:
+              response.data.highSeverityOpenIncidents || 0,
+          };
+
+          // Update summary cards with API data
+          this.updateSummaryCards(summaryData);
+        } else {
+          console.error('API Error:', response.message);
+          // Reset summary cards on error
+          this.updateSummaryCards({
+            totalAssets: 0,
+            totalIncidents: 0,
+            openIncidents: 0,
+            highSeverityOpenIncidents: 0,
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error loading summary cards:', error);
+        // Reset summary cards on error
+        this.updateSummaryCards({
+          totalAssets: 0,
+          totalIncidents: 0,
+          openIncidents: 0,
+          highSeverityOpenIncidents: 0,
+        });
+      },
     });
   }
 
@@ -335,79 +446,49 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.apiService
-      .getMinistryDetailById(apiParams, this.ministryId)
-      .subscribe({
-        next: (response: ApiResponse<any>) => {
-          this.isLoading.set(false);
-          if (response.isSuccessful && response.data) {
-            // Extract summary data from API response
-            const summaryData = {
-              totalAssets: response.data.totalAssets || 0,
-              totalIncidents: response.data.totalIncidents || 0,
-              openIncidents: response.data.openIncidents || 0,
-              highSeverityOpenIncidents:
-                response.data.highSeverityOpenIncidents || 0,
-            };
+    // Use getAssestByMinistry API for table data
+    this.apiService.getAssestByMinistry(apiParams, this.ministryId).subscribe({
+      next: (response: ApiResponse<any>) => {
+        this.isLoading.set(false);
+        if (response.isSuccessful && response.data) {
+          // Map API response to AssetDetail format
+          const assets: AssetDetail[] = this.mapApiResponseToAssetDetails(
+            response.data,
+          );
+          this.assetDetails.set(assets);
 
-            // Update summary cards with API data
-            this.updateSummaryCards(summaryData);
-
-            // Map API response to AssetDetail format
-            const assets: AssetDetail[] = this.mapApiResponseToAssetDetails(
-              response.data,
-            );
-            this.assetDetails.set(assets);
-
-            // Set total items for pagination
-            if (response.data.totalCount !== undefined) {
-              this.totalItems.set(response.data.totalCount);
-            } else if (Array.isArray(response.data.data)) {
-              this.totalItems.set(response.data.data.length);
-            } else if (Array.isArray(response.data)) {
-              this.totalItems.set(response.data.length);
-            }
-
-            // Update table config with new data
-            this.tableConfig.update((config) => ({
-              ...config,
-              data: assets.map((asset) => ({
-                ...asset,
-                highSeverityText: `High severity: ${asset.highSeverityIncidents}`,
-              })),
-            }));
-
-            // Apply badge colors after data is loaded
-            setTimeout(() => {
-              this.applyBadgeColors();
-            }, 0);
-          } else {
-            console.error('API Error:', response.message);
-            this.assetDetails.set([]);
-            this.totalItems.set(0);
-            // Reset summary cards on error
-            this.updateSummaryCards({
-              totalAssets: 0,
-              totalIncidents: 0,
-              openIncidents: 0,
-              highSeverityOpenIncidents: 0,
-            });
+          // Set total items for pagination
+          if (response.data?.totalCount !== undefined) {
+            this.totalItems.set(response.data.totalCount);
+          } else if (response.data?.data && Array.isArray(response.data.data)) {
+            this.totalItems.set(response.data.data.length);
+          } else if (Array.isArray(response.data)) {
+            this.totalItems.set(response.data.length);
           }
-        },
-        error: (error) => {
-          this.isLoading.set(false);
-          console.error('Error loading assets:', error);
+
+          // Update table config with new data
+          this.tableConfig.update((config) => ({
+            ...config,
+            data: assets.map((asset) => ({
+              ...asset,
+              highSeverityText: typeof asset.highSeverityIncidents === 'number' 
+                ? `High severity: ${asset.highSeverityIncidents}` 
+                : 'High severity: N/A',
+            })),
+          }));
+        } else {
+          console.error('API Error:', response.message);
           this.assetDetails.set([]);
           this.totalItems.set(0);
-          // Reset summary cards on error
-          this.updateSummaryCards({
-            totalAssets: 0,
-            totalIncidents: 0,
-            openIncidents: 0,
-            highSeverityOpenIncidents: 0,
-          });
-        },
-      });
+        }
+      },
+      error: (error) => {
+        this.isLoading.set(false);
+        console.error('Error loading assets:', error);
+        this.assetDetails.set([]);
+        this.totalItems.set(0);
+      },
+    });
   }
 
   private mapApiResponseToAssetDetails(data: any): AssetDetail[] {
@@ -422,36 +503,108 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
       assetsArray = data.items;
     }
 
-    return assetsArray.map((item: any) => ({
-      id: item.id || item.assetId || 0,
-      ministry: item.ministry || item.ministryName || '',
-      department: item.department || item.departmentName || '',
-      websiteName: item.websiteName || item.name || 'Department Website',
-      websiteUrl: item.websiteUrl || item.url || '',
-      currentStatus: item.currentStatus || item.status || 'Unknown',
-      currentStatusChecked:
-        item.currentStatusChecked || item.statusChecked || '',
-      lastOutage: item.lastOutage || item.lastOutageTime || '',
-      currentHealthStatus:
-        item.currentHealthStatus || item.healthStatus || 'Unknown',
-      currentHealthIcon: this.getHealthIcon(
-        item.currentHealthStatus || item.healthStatus,
-      ),
-      currentHealthPercentage:
-        item.currentHealthPercentage || item.healthIndex || '',
-      performanceStatus: item.performanceStatus || item.performance || '',
-      performancePercentage:
-        item.performancePercentage || item.performanceIndex || '',
-      complianceStatus: item.complianceStatus || item.compliance || '',
-      compliancePercentage:
-        item.compliancePercentage || item.complianceIndex || '',
-      riskExposureIndex: item.riskExposureIndex || item.riskIndex || 'UNKNOWN',
-      citizenImpactLevel:
-        item.citizenImpactLevel || item.citizenImpact || 'LOW',
-      openIncidents: item.openIncidents || item.totalIncidents || 0,
-      highSeverityIncidents:
-        item.highSeverityIncidents || item.highSeverityOpenIncidents || 0,
-    }));
+    return assetsArray.map((item: any) => {
+      // Ministry/Department: Use department if available, otherwise use ministryDepartment
+      const ministryDepartment = item.ministryDepartment || 'N/A';
+      const department = item.department && item.department.trim() !== '' ? item.department : 'N/A';
+
+      // Website/Application: Hardcode "Department Website" as primary, full assetUrl as link below
+      const websiteApplication = 'Department Website'; // Hardcoded
+      const assetUrl = item.assetUrl || '';
+      // Use full assetUrl for the link href and display
+      const websiteUrl = assetUrl || 'N/A';
+
+      // Current Status: currentStatus as badge, lastChecked as subtext with "Checked: " prefix
+      const currentStatus = item.currentStatus || 'N/A';
+      let currentStatusChecked = 'N/A';
+      if (item.lastChecked) {
+        try {
+          const checkedDate = new Date(item.lastChecked);
+          const now = new Date();
+          const diffMs = now.getTime() - checkedDate.getTime();
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffMinutes = Math.floor(diffMs / (1000 * 60));
+          
+          if (diffHours > 24) {
+            const diffDays = Math.floor(diffHours / 24);
+            currentStatusChecked = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+          } else if (diffHours > 0) {
+            currentStatusChecked = diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+          } else if (diffMinutes > 0) {
+            currentStatusChecked = diffMinutes === 1 ? '1 minute ago' : `${diffMinutes} minutes ago`;
+          } else {
+            currentStatusChecked = 'Just now';
+          }
+          currentStatusChecked = `Checked: ${currentStatusChecked}`;
+        } catch {
+          currentStatusChecked = 'Checked: N/A';
+        }
+      } else {
+        currentStatusChecked = 'Checked: N/A';
+      }
+
+      // Last Outage
+      const lastOutage = item.lastOutage || 'N/A';
+
+      // Current Health: healthStatus with icon, healthIndex as percentage with "Health Index: " prefix
+      const healthStatus = item.healthStatus || 'Unknown';
+      const healthIndex = item.healthIndex !== undefined && item.healthIndex !== null 
+        ? item.healthIndex 
+        : null;
+      const healthPercentage = healthIndex !== null ? `Health Index: ${healthIndex}%` : 'Health Index: N/A';
+
+      // Performance Status: performanceStatus as primary, performanceIndex as secondary with "Performance Index: " prefix
+      const performanceStatus = item.performanceStatus || 'N/A';
+      const performanceIndex = item.performanceIndex !== undefined && item.performanceIndex !== null 
+        ? item.performanceIndex 
+        : null;
+      const performancePercentage = performanceIndex !== null ? `Performance Index: ${performanceIndex}%` : 'Performance Index: N/A';
+
+      // Compliance Status: complianceStatus as primary, complianceIndex as secondary with "Compliance Index: " prefix
+      const complianceStatus = item.complianceStatus || 'N/A';
+      const complianceIndex = item.complianceIndex !== undefined && item.complianceIndex !== null 
+        ? item.complianceIndex 
+        : null;
+      const compliancePercentage = complianceIndex !== null ? `Compliance Index: ${complianceIndex}%` : 'Compliance Index: N/A';
+
+      // Risk Exposure Index
+      const riskExposureIndex = item.riskExposureIndex || 'N/A';
+
+      // Extract citizen impact level (format: "LOW - Supporting Services" -> "LOW")
+      const citizenImpactFull = item.citizenImpactLevel || '';
+      const citizenImpactLevel = citizenImpactFull 
+        ? citizenImpactFull.split(' - ')[0].trim() 
+        : 'N/A';
+
+      // Open Incidents: openIncidents as primary, highSeverityIncidents as secondary
+      const openIncidents = item.openIncidents !== undefined && item.openIncidents !== null 
+        ? item.openIncidents 
+        : 'N/A';
+      const highSeverityIncidents = item.highSeverityIncidents !== undefined && item.highSeverityIncidents !== null 
+        ? item.highSeverityIncidents 
+        : 'N/A';
+
+      return {
+        id: item.id || item.assetId || 0,
+        department: department,
+        websiteName: websiteApplication,
+        websiteUrl: websiteUrl, // Full URL for link href and display
+        currentStatus: currentStatus,
+        currentStatusChecked: currentStatusChecked,
+        lastOutage: lastOutage,
+        currentHealthStatus: healthStatus,
+        currentHealthIcon: this.getHealthIcon(healthStatus),
+        currentHealthPercentage: healthPercentage,
+        performanceStatus: performanceStatus,
+        performancePercentage: performancePercentage,
+        complianceStatus: complianceStatus,
+        compliancePercentage: compliancePercentage,
+        riskExposureIndex: riskExposureIndex,
+        citizenImpactLevel: citizenImpactLevel,
+        openIncidents: openIncidents,
+        highSeverityIncidents: highSeverityIncidents,
+      };
+    });
   }
 
   private updateSummaryCards(summaryData: {
@@ -512,68 +665,4 @@ export class MinistryDetailComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/add-digital-assets']);
   }
 
-  ngAfterViewInit() {
-    // Apply colors to badges based on values
-    setTimeout(() => {
-      this.applyBadgeColors();
-    }, 0);
-  }
-
-  private applyBadgeColors() {
-    if (!this.tableContainer) return;
-
-    // Apply colors to CURRENT STATUS badges
-    const statusBadges = this.tableContainer.nativeElement.querySelectorAll(
-      '.assets-table td[mat-cell]:nth-child(4) .badge',
-    );
-    statusBadges.forEach((badge: HTMLElement) => {
-      const text = badge.textContent?.trim();
-      if (text === 'Up') {
-        badge.style.backgroundColor = 'var(--color-green-light)';
-        badge.style.color = 'var(--color-green-dark)';
-      } else if (text === 'Down') {
-        badge.style.backgroundColor = 'var(--color-red-light)';
-        badge.style.color = 'var(--color-red)';
-      }
-    });
-
-    // Apply colors to RISK EXPOSURE INDEX badges
-    const riskBadges = this.tableContainer.nativeElement.querySelectorAll(
-      '.assets-table td[mat-cell]:nth-child(9) .badge',
-    );
-    riskBadges.forEach((badge: HTMLElement) => {
-      const text = badge.textContent?.trim();
-      if (text === 'LOW RISK') {
-        badge.style.backgroundColor = 'var(--color-green-light)';
-        badge.style.color = 'var(--color-green-dark)';
-      } else if (text === 'MEDIUM RISK') {
-        badge.style.backgroundColor = 'var(--color-yellow-light)';
-        badge.style.color = 'var(--color-yellow-dark)';
-      } else if (text === 'HIGH RISK') {
-        badge.style.backgroundColor = 'var(--color-red-light)';
-        badge.style.color = 'var(--color-red)';
-      } else if (text === 'UNKNOWN') {
-        badge.style.backgroundColor = 'var(--color-gray-light)';
-        badge.style.color = 'var(--color-gray-dark)';
-      }
-    });
-
-    // Apply colors to CITIZEN IMPACT LEVEL badges
-    const impactBadges = this.tableContainer.nativeElement.querySelectorAll(
-      '.assets-table td[mat-cell]:nth-child(10) .badge',
-    );
-    impactBadges.forEach((badge: HTMLElement) => {
-      const text = badge.textContent?.trim();
-      if (text === 'LOW') {
-        badge.style.backgroundColor = 'var(--color-green-light)';
-        badge.style.color = 'var(--color-green-dark)';
-      } else if (text === 'MEDIUM') {
-        badge.style.backgroundColor = 'var(--color-yellow-light)';
-        badge.style.color = 'var(--color-yellow-dark)';
-      } else if (text === 'HIGH') {
-        badge.style.backgroundColor = 'var(--color-red-light)';
-        badge.style.color = 'var(--color-red)';
-      }
-    });
-  }
 }

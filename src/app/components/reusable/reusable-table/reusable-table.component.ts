@@ -438,7 +438,7 @@ export interface TableColumn {
   linkField?: string; // Field name for full URL
 
   // For 'text-with-color' cells
-  textColor?: string; // Color class name (e.g., 'success', 'success-light')
+  textColor?: string | ((row: any) => string); // Color class name (e.g., 'success', 'warning', 'danger') or function that returns color class
 
   // For tooltip
   tooltip?: string | ((row: any) => string); // Tooltip text (static or function that returns tooltip based on row data)
@@ -969,18 +969,40 @@ export class ReusableTableComponent
 
     this.sortState[columnKey] = newSort;
 
-    // Apply sorting
+    // Apply sorting locally first for immediate feedback
     if (newSort) {
       this.applySort(columnKey, newSort);
     } else {
-      // Reset to filtered data order (or original if no search)
-      this.sortedData =
-        this.searchValue && this.searchValue.trim()
-          ? [...this.filteredData]
-          : [...this.originalData];
-      if (!this.config?.serverSideSearch) {
+      // Reset to original order
+      if (this.config?.serverSideSearch) {
+        // For server-side, use current sortedData or config.data
+        this.sortedData = this.config?.data && Array.isArray(this.config.data) 
+          ? [...this.config.data] 
+          : this.sortedData.length > 0 
+            ? [...this.sortedData] 
+            : [];
+      } else {
+        // For client-side, use filtered or original data
+        if (this.searchValue && this.searchValue.trim()) {
+          this.sortedData =
+            this.filteredData && this.filteredData.length > 0
+              ? [...this.filteredData]
+              : this.originalData && this.originalData.length > 0
+                ? [...this.originalData]
+                : [];
+        } else {
+          this.sortedData =
+            this.originalData && this.originalData.length > 0
+              ? [...this.originalData]
+              : [];
+        }
         this.applyPagination();
       }
+    }
+
+    // For server-side search, also emit query with sort params
+    if (this.config?.serverSideSearch) {
+      this.emitSearchQuery();
     }
   }
 
@@ -1007,11 +1029,33 @@ export class ReusableTableComponent
       sortField = column.key;
     }
 
-    // Use filtered data if search is active, otherwise use original data
-    const dataToSort =
-      this.searchValue && this.searchValue.trim()
-        ? [...this.filteredData]
-        : [...this.originalData];
+    // For server-side, use current sortedData (from config.data)
+    // For client-side, use filtered or original data
+    let dataToSort: any[] = [];
+    
+    if (this.config?.serverSideSearch) {
+      // Use current sortedData which comes from config.data
+      dataToSort = this.sortedData && this.sortedData.length > 0 
+        ? [...this.sortedData] 
+        : (this.config?.data && Array.isArray(this.config.data) ? [...this.config.data] : []);
+    } else {
+      // Client-side: use filtered data if search is active, otherwise use original data
+      dataToSort =
+        this.searchValue && this.searchValue.trim()
+          ? this.filteredData && this.filteredData.length > 0
+            ? [...this.filteredData]
+            : this.originalData && this.originalData.length > 0
+              ? [...this.originalData]
+              : []
+          : this.originalData && this.originalData.length > 0
+            ? [...this.originalData]
+            : [];
+    }
+
+    // If no data to sort, return early
+    if (dataToSort.length === 0) {
+      return;
+    }
 
     // Sort the data
     this.sortedData = dataToSort.sort((a, b) => {
@@ -1042,17 +1086,42 @@ export class ReusableTableComponent
       }
 
       // Compare values
+      let comparison = 0;
       if (aCompare < bCompare) {
-        return direction === 'asc' ? -1 : 1;
+        comparison = direction === 'asc' ? -1 : 1;
+      } else if (aCompare > bCompare) {
+        comparison = direction === 'asc' ? 1 : -1;
+      } else {
+        // If primary values are equal and it's a two-line cell, sort by secondary field
+        if (
+          (column.cellType === 'two-line' || column.cellType === 'text-with-color') &&
+          column.secondaryField
+        ) {
+          const aSecondary = this.getNestedValue(a, column.secondaryField);
+          const bSecondary = this.getNestedValue(b, column.secondaryField);
+          
+          if (aSecondary != null && bSecondary != null) {
+            const aSecCompare = typeof aSecondary === 'string' 
+              ? aSecondary.toLowerCase() 
+              : aSecondary;
+            const bSecCompare = typeof bSecondary === 'string' 
+              ? bSecondary.toLowerCase() 
+              : bSecondary;
+            
+            if (aSecCompare < bSecCompare) {
+              comparison = direction === 'asc' ? -1 : 1;
+            } else if (aSecCompare > bSecCompare) {
+              comparison = direction === 'asc' ? 1 : -1;
+            }
+          }
+        }
       }
-      if (aCompare > bCompare) {
-        return direction === 'asc' ? 1 : -1;
-      }
-      return 0;
+      
+      return comparison;
     });
-    if (!this.config?.serverSideSearch) {
-      this.applyPagination();
-    }
+    
+    // Apply pagination for client-side only
+    this.applyPagination();
   }
 
   getSortIcon(columnKey: string): string {
@@ -1133,18 +1202,18 @@ export class ReusableTableComponent
     return `badge-${badgeColor}`;
   }
 
-  getTextColorClass(textColor?: string): string {
+  getTextColorClass(row: any, column: TableColumn): string {
+    if (!column.textColor) return '';
+    const textColor = typeof column.textColor === 'function' 
+      ? column.textColor(row) 
+      : column.textColor;
     if (!textColor) return '';
     return `text-${textColor}`;
   }
 
-  getSecondaryTextColorClass(textColor?: string): string {
-    if (!textColor) return '';
-    // For secondary text, append '-light' if it's a success color
-    if (textColor === 'success') {
-      return 'text-success-light';
-    }
-    return `text-${textColor}`;
+  getSecondaryTextColorClass(row: any, column: TableColumn): string {
+    // Always return empty string to use default color for secondary text
+    return '';
   }
 
   getHealthIconPath(iconField?: string): string {

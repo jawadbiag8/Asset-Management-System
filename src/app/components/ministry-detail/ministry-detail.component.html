@@ -35,12 +35,10 @@
     }
   </div>
   
-  <div #tableContainer>
-    <app-reusable-table
-      [config]="tableConfigWithData()"
-      [filters]="tableFilters()"
-      [totalItems]="totalItems()"
-      (searchQuery)="loadAssets($event)"
-    ></app-reusable-table>
-  </div>
+  <app-reusable-table
+    [config]="tableConfigWithData()"
+    [filters]="tableFilters()"
+    [totalItems]="totalItems()"
+    (searchQuery)="loadAssets($event)"
+  ></app-reusable-table>
 </div>
