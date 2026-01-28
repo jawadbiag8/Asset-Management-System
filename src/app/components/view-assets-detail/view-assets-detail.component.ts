@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-view-assets-detail',
@@ -7,6 +8,15 @@ import { Component } from '@angular/core';
   styleUrl: './view-assets-detail.component.scss',
 })
 export class ViewAssetsDetailComponent {
+
+  assetId = signal<number>(0);
+
+  constructor(private route: Router, private activatedRoute: ActivatedRoute) { }
+
+  ngOnInit() {
+    this.assetId.set(Number(this.activatedRoute.snapshot.queryParams['id']));
+  }
+
   // Asset Details
   assetDetails = {
     type: 'Website',
@@ -168,7 +178,10 @@ export class ViewAssetsDetailComponent {
 
   // Action Methods
   onAnalyze() {
-    console.log('Analyze clicked');
-    // Implement analyze functionality
+    this.route.navigate(['/asset-control-panel'], {
+      queryParams: {
+        assetId: this.assetId().toString(),
+      },
+    });
   }
 }
