@@ -200,6 +200,37 @@ export class ApiService {
     return this.http.get<ApiResponse<any>>(url);
   }
 
+  /**
+   * Fetch full incident details for the incident details page.
+   * GET /api/Incident/{id}/details
+   */
+  getIncidentDetailsById(incidentId: number): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/Incident/${incidentId}/details`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
+  /**
+   * Fetch incident comments (timeline) for the incident details page.
+   * GET /api/Incident/{id}/comments — requires Authorization.
+   */
+  getIncidentCommentsById(incidentId: number): Observable<ApiResponse<any[]>> {
+    const url = `${this.baseUrl}/Incident/${incidentId}/comments`;
+    return this.http.get<ApiResponse<any[]>>(url);
+  }
+
+  /**
+   * Add a comment to an incident.
+   * POST /api/Incident/{id}/comments — requires Authorization.
+   * Body: { incidentId, comment, status }.
+   */
+  addIncidentComment(
+    incidentId: number,
+    payload: { incidentId: number; comment: string; status: string }
+  ): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/Incident/${incidentId}/comments`;
+    return this.http.post<ApiResponse<any>>(url, payload);
+  }
+
   // Admin Dashboard
 
   /**
