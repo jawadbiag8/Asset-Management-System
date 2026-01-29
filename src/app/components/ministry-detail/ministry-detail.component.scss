@@ -62,14 +62,14 @@
 
         .card-link {
             font-size: 14px;
-            color: #007BFF;
+            color: var(--color-green-teal);
             text-decoration: none;
             font-weight: 500;
             display: inline-block;
             transition: color 0.2s;
 
             &:hover {
-                color: #0056b3;
+                color: #006666;
                 text-decoration: underline;
             }
         }

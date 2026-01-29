@@ -23,13 +23,15 @@
   }
 
   <div [class.mt-5]="showHeader">
-    <app-reusable-table
-      [config]="tableConfigWithData()"
-      [filters]="tableFilters()"
-      (searchQuery)="loadIncidents($event)"
-      [totalItems]="totalItems()"
-      (actionClick)="onViewDetailsClick($event)"
-    >
-    </app-reusable-table>
+    @if (!hasRouteQueryParams || filtersReady()) {
+      <app-reusable-table
+        [config]="tableConfigWithData()"
+        [filters]="displayFilters()"
+        (searchQuery)="loadIncidents($event)"
+        [totalItems]="totalItems()"
+        (actionClick)="onViewDetailsClick($event)"
+      >
+      </app-reusable-table>
+    }
   </div>
 </div>

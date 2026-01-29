@@ -1,5 +1,13 @@
-import { Component, OnInit, Input, Output, EventEmitter, signal, computed } from '@angular/core';
-import { Router, Params } from '@angular/router';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  signal,
+  computed,
+} from '@angular/core';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { ApiResponse, ApiService } from '../../../services/api.service';
 import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { HttpParams } from '@angular/common/http';
@@ -55,6 +63,19 @@ export class ActiveIncidentsComponent implements OnInit {
   incidents = signal<ActiveIncident[]>([]);
   totalItems = signal<number>(0);
   private incidentsByAssetLoading = false;
+  /** When true, table can render (filters applied from route if any). Avoids double API call when opening with ?MinistryId=... */
+  filtersReady = signal(false);
+  hasRouteQueryParams = false;
+  /** When true, came from ministry detail (MinistryId in URL) – hide ministry filter pill but still send MinistryId to API */
+  hasMinistryIdFromRoute = false;
+  /** Filters to show in table – hide ministry & asset only when in view-assets-detail (assetId). From ministry detail we show ministry filter so user sees selected ministry. */
+  displayFilters = computed(() => {
+    const f = this.tableFilters();
+    if (this.assetId) {
+      return f.filter((x) => x.id !== 'ministry' && x.id !== 'asset');
+    }
+    return f;
+  });
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Dashboard', path: '/dashboard' },
@@ -154,28 +175,46 @@ export class ActiveIncidentsComponent implements OnInit {
     private apiService: ApiService,
     private utils: UtilsService,
     private dialog: MatDialog,
-    private router: Router
-  ) { }
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
-    // Always init filters so they show in both full incidents page and view-assets-detail (assetId)
+    const qp = this.activatedRoute.snapshot.queryParams;
+    this.hasRouteQueryParams =
+      !this.assetId && qp != null && Object.keys(qp).length > 0;
+    this.hasMinistryIdFromRoute =
+      !this.assetId && !!(qp?.['MinistryId'] ?? qp?.['ministryId']);
     this.initializeFilters();
   }
 
   private applyQueryParamsToFilters(params: Params): void {
+    const getParam = (key: string) =>
+      params[key] ??
+      (key === 'MinistryId' ? params['ministryId'] : undefined) ??
+      (key === 'SeverityId' ? params['severityId'] : undefined);
     this.tableFilters.update((filters) =>
       filters.map((f) => {
         const key = f.paramKey;
         if (!key) return f;
-        const value = params[key];
-        if (value == null || value === '') return f;
-        const opt = f.options?.find((o) => o.value === value);
+        const paramValue = getParam(key);
+        if (paramValue == null || paramValue === '') return f;
+        // Match by value (e.g. ID) first, then by label (e.g. "Open") so URL can use name and API gets ID
+        let opt = f.options?.find((o) => o.value === paramValue);
+        if (!opt) {
+          opt = f.options?.find(
+            (o) => o.label?.toLowerCase() === String(paramValue).toLowerCase(),
+          );
+        }
+        if (!opt) return f;
+        const value = opt.value;
+        const label = opt.label;
         return {
           ...f,
           value,
-          label: opt ? `${f.id === 'ministry' ? 'Ministry' : f.id === 'status' ? 'Status' : f.id === 'severity' ? 'Severity' : f.id === 'createdBy' ? 'Created by' : f.id === 'assignedTo' ? 'Assigned to' : f.id === 'kpi' ? 'KPI' : 'Assets'}: ${opt.label}` : f.label,
+          label: `${f.id === 'ministry' ? 'Ministry' : f.id === 'status' ? 'Status' : f.id === 'severity' ? 'Severity' : f.id === 'createdBy' ? 'Created by' : f.id === 'assignedTo' ? 'Assigned to' : f.id === 'kpi' ? 'KPI' : 'Assets'}: ${label}`,
         };
-      })
+      }),
     );
   }
 
@@ -351,9 +390,31 @@ export class ActiveIncidentsComponent implements OnInit {
           this.updateFilterOptions('createdBy', userOptions);
           this.updateFilterOptions('assignedTo', userOptions);
         }
-        if (this.assetId && this.initialQueryParams && Object.keys(this.initialQueryParams).length > 0) {
-          this.applyQueryParamsToFilters(this.initialQueryParams);
+        // When on view-assets-detail (assetId), do not apply id/ministryId from URL to incident filters – only incident filters (Status, SeverityId, etc.)
+        if (
+          this.assetId &&
+          this.initialQueryParams &&
+          Object.keys(this.initialQueryParams).length > 0
+        ) {
+          const paramsForFilters = { ...this.initialQueryParams };
+          delete paramsForFilters['id'];
+          delete paramsForFilters['ministryId'];
+          delete paramsForFilters['MinistryId'];
+          if (Object.keys(paramsForFilters).length > 0) {
+            this.applyQueryParamsToFilters(paramsForFilters);
+          }
         }
+        // When opened from ministry detail (/incidents?MinistryId=...), apply route query params to filters
+        if (
+          !this.assetId &&
+          this.activatedRoute.snapshot.queryParams &&
+          Object.keys(this.activatedRoute.snapshot.queryParams).length > 0
+        ) {
+          this.applyQueryParamsToFilters(
+            this.activatedRoute.snapshot.queryParams,
+          );
+        }
+        this.filtersReady.set(true);
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error loading filter options', 'error');
@@ -370,6 +431,7 @@ export class ActiveIncidentsComponent implements OnInit {
         ].forEach((filterId) => {
           this.updateFilterOptions(filterId, defaultOptions);
         });
+        this.filtersReady.set(true);
       },
     });
   }
@@ -390,7 +452,22 @@ export class ActiveIncidentsComponent implements OnInit {
 
   loadIncidents(searchQuery: HttpParams): void {
     if (this.assetId) {
-      this.loadIncidentsByAssetId(searchQuery);
+      // By default do not send MinistryId when loading by assetId (API is asset-based)
+      const paramsWithoutMinistry = new HttpParams();
+      let filteredParams = paramsWithoutMinistry;
+      searchQuery.keys().forEach((key) => {
+        if (
+          key === 'MinistryId' ||
+          key === 'ministryId' ||
+          key === 'AssetId' ||
+          key === 'assetId'
+        )
+          return;
+        (searchQuery.getAll(key) ?? []).forEach((value) => {
+          if (value != null) filteredParams = filteredParams.append(key, value);
+        });
+      });
+      this.loadIncidentsByAssetId(filteredParams);
       // Emit full filter state (including empty) so URL can remove params when filter is "All"
       const params: Params = {};
       this.tableFilters().forEach((f) => {
@@ -402,7 +479,23 @@ export class ActiveIncidentsComponent implements OnInit {
       this.queryParamsChange.emit(params);
       return;
     }
-    this.apiService.getIncidents(searchQuery).subscribe({
+    // When came from ministry detail, table doesn't show ministry filter – merge MinistryId from route into API params
+    let apiParams = searchQuery;
+    if (this.hasMinistryIdFromRoute) {
+      const mid =
+        this.activatedRoute.snapshot.queryParams['MinistryId'] ??
+        this.activatedRoute.snapshot.queryParams['ministryId'];
+      if (mid) {
+        let merged = new HttpParams().set('MinistryId', mid);
+        searchQuery.keys().forEach((k) => {
+          (searchQuery.getAll(k) ?? []).forEach((v) => {
+            if (v != null) merged = merged.append(k, v);
+          });
+        });
+        apiParams = merged;
+      }
+    }
+    this.apiService.getIncidents(apiParams).subscribe({
       next: (response: ApiResponse) => {
         if (response.isSuccessful) {
           const data: ActiveIncident[] = response.data.data;
@@ -459,7 +552,9 @@ export class ActiveIncidentsComponent implements OnInit {
         if (response.isSuccessful && response.data != null) {
           const raw = response.data;
           const data: any[] = Array.isArray(raw) ? raw : (raw?.data ?? []);
-          const totalCount = Array.isArray(raw) ? data.length : (raw?.totalCount ?? data.length);
+          const totalCount = Array.isArray(raw)
+            ? data.length
+            : (raw?.totalCount ?? data.length);
           const processedIncidents = data.map((incident: any) => ({
             ...incident,
             status: incident.status || 'Open',
@@ -487,7 +582,11 @@ export class ActiveIncidentsComponent implements OnInit {
       },
       error: (error: any) => {
         this.incidentsByAssetLoading = false;
-        this.utils.showToast(error, 'Error loading incidents for asset', 'error');
+        this.utils.showToast(
+          error,
+          'Error loading incidents for asset',
+          'error',
+        );
         this.incidents.set([]);
         this.totalItems.set(0);
       },

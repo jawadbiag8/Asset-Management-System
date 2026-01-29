@@ -97,6 +97,7 @@ export class MinistryDetailComponent implements OnInit {
       title: 'Total Assets',
       subTitle: 'Active monitoring across all departments',
       linkText: 'View All >',
+      linkPath: '/dashboard',
     },
     {
       id: 2,
@@ -104,6 +105,8 @@ export class MinistryDetailComponent implements OnInit {
       title: 'Total incidents',
       subTitle: 'Incidents across all departments',
       linkText: 'View all incidents >',
+      linkPath: '/incidents',
+      linkQueryParams: { MinistryId: '' },
     },
     {
       id: 3,
@@ -112,6 +115,8 @@ export class MinistryDetailComponent implements OnInit {
       title: 'Open incidents',
       subTitle: 'Active unresolved incidents',
       linkText: 'View open incidents >',
+      linkPath: '/incidents',
+      linkQueryParams: { MinistryId: '', Status: 'Open' },
     },
     {
       id: 4,
@@ -121,6 +126,8 @@ export class MinistryDetailComponent implements OnInit {
       title: 'High severity open incidents',
       subTitle: 'Active high severity unresolved incidents',
       linkText: 'View open high severity incidents >',
+      linkPath: '/incidents',
+      linkQueryParams: { MinistryId: '', SeverityId: 'P2' },
     },
   ]);
 
@@ -814,6 +821,7 @@ export class MinistryDetailComponent implements OnInit {
         title: 'Total Assets',
         subTitle: 'Active monitoring across all departments',
         linkText: 'View All >',
+        linkPath: '/dashboard',
       },
       {
         id: 2,
@@ -821,6 +829,8 @@ export class MinistryDetailComponent implements OnInit {
         title: 'Total incidents',
         subTitle: 'Incidents across all departments',
         linkText: 'View all incidents >',
+        linkPath: '/incidents',
+        linkQueryParams: { MinistryId: this.ministryId?.toString() ?? '' },
       },
       {
         id: 3,
@@ -829,6 +839,11 @@ export class MinistryDetailComponent implements OnInit {
         title: 'Open incidents',
         subTitle: 'Active unresolved incidents',
         linkText: 'View open incidents >',
+        linkPath: '/incidents',
+        linkQueryParams: {
+          MinistryId: this.ministryId?.toString() ?? '',
+          Status: 'Open',
+        },
       },
       {
         id: 4,
@@ -838,6 +853,11 @@ export class MinistryDetailComponent implements OnInit {
         title: 'High severity open incidents',
         subTitle: 'Active high severity unresolved incidents',
         linkText: 'View open high severity incidents >',
+        linkPath: '/incidents',
+        linkQueryParams: {
+          MinistryId: this.ministryId?.toString() ?? '',
+          SeverityId: 'P2',
+        },
       },
     ]);
   }
