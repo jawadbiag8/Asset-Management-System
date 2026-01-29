@@ -131,12 +131,12 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
 
       // Additional Information
       description: [''],
-      primaryContactName: ['', Validators.required],
-      primaryContactEmail: ['', [Validators.required, Validators.email]],
-      primaryContactPhone: ['', Validators.required],
-      technicalContactName: ['', Validators.required],
-      technicalContactEmail: ['', [Validators.required, Validators.email]],
-      technicalContactPhone: ['', Validators.required],
+      primaryContactName: [''],
+      primaryContactEmail: ['', [Validators.email]],
+      primaryContactPhone: [''],
+      technicalContactName: [''],
+      technicalContactEmail: ['', [Validators.email]],
+      technicalContactPhone: [''],
 
     });
   }
