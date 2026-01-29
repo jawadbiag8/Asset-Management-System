@@ -4,7 +4,7 @@
     [breadcrumbs]="[
       { label: 'Dashboard', path: '/dashboard' },
       { label: 'Incidents', path: '/incidents' },
-      { label: incident()?.ministryName || 'Incident Details' }
+      { label: incident()?.incidentTitle || 'Incident Details' }
     ]"
   ></app-reusable-breadcrum>
 
@@ -24,12 +24,12 @@
         <!-- Title with Severity Badge -->
         <div class="incident-header">
           <h1 class="incident-title">{{ incident()?.incidentTitle }}</h1>
-          <span 
+          <span
             class="severity-badge"
             [style.background-color]="getSeverityBadgeColor(incident()?.severity || '')"
             [style.color]="getSeverityBadgeTextColor(incident()?.severity || '')"
-            [style.border-color]="getSeverityBadgeTextColor(incident()?.severity || '')">
-            {{ incident()?.severityCode || 'N/A' }} - {{ getSeverityLabel(incident()?.severity || '') }}
+            [style.border-color]="getSeverityBorderColor(incident()?.severity || '')">
+            {{ incident()?.severity || '' }}
           </span>
         </div>
 
@@ -38,7 +38,7 @@
           <div class="info-item">
             <div class="info-label">STATUS</div>
             <div class="info-value">
-              <span 
+              <span
                 class="status-badge"
                 [style.background-color]="getStatusBadgeColor(incident()?.status || '')"
                 [style.color]="getStatusBadgeTextColor(incident()?.status || '')">
@@ -54,36 +54,40 @@
 
           <div class="info-item">
             <div class="info-label">ASSIGNED TO</div>
-            <div class="info-value">{{ incident()?.updatedBy || 'username here' }}</div>
+            <div class="info-value">{{ incident()?.updatedBy ?? '—' }}</div>
           </div>
 
           <div class="info-item">
             <div class="info-label">KPI</div>
-            <div class="info-value">{{ incident()?.kpiDescription || 'N/A' }}</div>
+            <div class="info-value">{{ incident()?.kpiDescription ?? 'N/A' }}</div>
           </div>
 
           <div class="info-item">
             <div class="info-label">ASSET</div>
             <div class="info-value">
-              <a [href]="incident()?.assetUrl" target="_blank" class="asset-link">
-                {{ incident()?.assetName || 'Assets website Link' }}
-              </a>
+              @if (incident()?.assetUrl) {
+                <a [href]="incident()!.assetUrl" target="_blank" rel="noopener noreferrer" class="asset-link">
+                  {{ incident()?.assetName ?? '—' }}
+                </a>
+              } @else {
+                <span>{{ incident()?.assetName ?? '—' }}</span>
+              }
             </div>
           </div>
 
           <div class="info-item">
             <div class="info-label">CREATED BY</div>
-            <div class="info-value">{{ incident()?.createdBy || 'username here' }}</div>
+            <div class="info-value">{{ incident()?.createdBy ?? '—' }}</div>
           </div>
 
           <div class="info-item">
             <div class="info-label">MINISTRY</div>
-            <div class="info-value">{{ incident()?.ministryName || 'Ministry Name Here' }}</div>
+            <div class="info-value">{{ incident()?.ministryName ?? '—' }}</div>
           </div>
 
           <div class="info-item">
             <div class="info-label">DEPARTMENT</div>
-            <div class="info-value">{{ getDepartmentName() || 'Department name Here' }}</div>
+            <div class="info-value">{{ getDepartmentName() || '—' }}</div>
           </div>
         </div>
 
@@ -111,7 +115,7 @@
                     <span class="timeline-user">{{ event.user }}</span>
                   </div>
                   <div class="timeline-description">{{ event.description }}</div>
-                  <span 
+                  <span
                     class="timeline-status-badge"
                     [style.background-color]="getStatusBadgeColor(event.status)"
                     [style.color]="getStatusBadgeTextColor(event.status)">
@@ -131,13 +135,15 @@
           <div class="comments-form">
             <mat-form-field appearance="outline" class="comment-textarea-field">
               <mat-label>Write your Comments</mat-label>
-              <textarea 
+              <textarea
                 matInput
                 [(ngModel)]="commentText"
                 rows="6"
+                maxlength="500"
                 placeholder="Write your Comments">
               </textarea>
             </mat-form-field>
+            <span class="comment-char-count">{{ commentText.length }} / 500</span>
             <div class="form-row">
               <mat-form-field appearance="outline" class="status-select-field">
                 <mat-label>Status</mat-label>
@@ -150,7 +156,14 @@
                   <mat-option value="RESOLVED">Resolved</mat-option>
                 </mat-select>
               </mat-form-field>
-              <button mat-raised-button color="primary" class="submit-btn" (click)="onSubmitComment()">Submit</button>
+              <button
+                mat-raised-button
+                color="primary"
+                class="submit-btn"
+                [disabled]="submittingComment()"
+                (click)="onSubmitComment()">
+                {{ submittingComment() ? 'Submitting...' : 'Submit' }}
+              </button>
             </div>
           </div>
         </div>

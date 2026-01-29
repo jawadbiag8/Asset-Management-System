@@ -144,7 +144,7 @@ export class ActiveIncidentsComponent implements OnInit {
         key: 'kpi',
         header: 'KPI',
         cellType: 'text',
-        primaryField: 'kpiDescription',
+        primaryField: 'kpi',
         sortable: false,
         width: '250px',
         cellClass: 'fw-bold',

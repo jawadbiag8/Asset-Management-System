@@ -70,6 +70,23 @@
 
   --color-black: #011B1B;
 
+  /* Severity badge (incident details) — light bg + darker text */
+  --severity-critical-bg: #FFDCDC;
+  --severity-critical-text: #CC0000;
+  --severity-critical-border: #FFB3B3;
+  --severity-high-bg: #FFFFCC;
+  --severity-high-text: #FF8000;
+  --severity-high-border: #FFCC66;
+  --severity-medium-bg: #FFE0BD;
+  --severity-medium-text: #A85800;
+  --severity-medium-border: #E8C9A0;
+  --severity-low-bg: #CCFFCC;
+  --severity-low-text: #009900;
+  --severity-low-border: #99CC99;
+  --severity-na-bg: #A9A9A9;
+  --severity-na-text: #FFFFFF;
+  --severity-na-border: #8C8C8C;
+
   /* Font Families */
   --font-rubik: 'Rubik', sans-serif;
 }

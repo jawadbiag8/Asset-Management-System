@@ -47,7 +47,7 @@ export class ManageIncidentsComponent implements OnInit {
     forkJoin({
       assets: this.api.getAllAssets(),
       kpis: this.api.getAllKpis(),
-      securityLevels: this.api.getLovByType('citizenImpactLevel')
+      securityLevels: this.api.getLovByType('SeverityLevel')
     }).subscribe({
       next: (responses: { assets: ApiResponse<any[]>, kpis: ApiResponse<any[]>, securityLevels: ApiResponse<any[]> }) => {
         this.assetOptions = responses.assets.data?.map((asset: any) => ({
