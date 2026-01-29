@@ -422,10 +422,13 @@ export interface TableColumn {
   sortable?: boolean; // Whether column is sortable (default: true)
   width?: string; // Optional column width
 
+  /** For server-side sort: API SortBy param. If set, sent instead of column key. */
+  sortByKey?: string;
+
   // For 'text' and 'two-line' cells
   primaryField?: string; // Field name for primary text
   secondaryField?: string; // Field name for secondary text (two-line only)
-  
+
   // For 'text' cells with icon (uses iconName/iconUrl from icon cells)
   showIcon?: boolean; // Show icon next to text
 
@@ -533,7 +536,6 @@ export class ReusableTableComponent
   filteredData: any[] = [];
   private originalData: any[] = [];
   private lastQueryKey: string | null = null;
-
 
   // Pagination state
   currentPage: number = 1;
@@ -664,7 +666,7 @@ export class ReusableTableComponent
      CLIENT-SIDE MODE
      ========================= */
 
-    // Update data when config changes
+    // Update data when config changes (no client-side sorting)
     if (
       changes['config'] &&
       this.config?.data &&
@@ -674,17 +676,7 @@ export class ReusableTableComponent
       this.sortedData = [...this.originalData];
 
       this.applySearch();
-
-      // Reapply current sort if any
-      const activeSort = Object.keys(this.sortState).find(
-        (key) => this.sortState[key] !== null,
-      );
-
-      if (activeSort) {
-        this.applySort(activeSort, this.sortState[activeSort]!);
-      } else {
-        this.applyPagination();
-      }
+      this.applyPagination();
     } else if (
       changes['config'] &&
       (!this.config?.data || !Array.isArray(this.config.data))
@@ -698,18 +690,8 @@ export class ReusableTableComponent
     // Update when search value changes (client-side only)
     if (changes['searchValue']) {
       this.applySearch();
-
-      const activeSort = Object.keys(this.sortState).find(
-        (key) => this.sortState[key] !== null,
-      );
-
       this.currentPage = 1; // ✅ Reset page on search (client-side only)
-
-      if (activeSort) {
-        this.applySort(activeSort, this.sortState[activeSort]!);
-      } else {
-        this.applyPagination();
-      }
+      this.applyPagination();
     }
   }
 
@@ -717,34 +699,19 @@ export class ReusableTableComponent
     const value = (event.target as HTMLInputElement).value;
     this.searchValue = value;
 
-    // For client-side search, apply immediately
-    // For server-side search, don't trigger search - only on button click
+    // For client-side search, apply immediately (no client-side sort)
     if (!this.config?.serverSideSearch) {
       this.applySearch();
-      // Reapply current sort if any
-      const activeSort = Object.keys(this.sortState).find(
-        (key) => this.sortState[key] !== null,
-      );
-      if (activeSort) {
-        this.applySort(activeSort, this.sortState[activeSort]!);
-      }
+      this.applyPagination();
     }
   }
 
   onSearchButtonClick() {
     if (this.config?.serverSideSearch) {
-      // For server-side search, emit query with params
       this.emitSearchQuery();
     } else {
-      // Client-side search - apply search
       this.applySearch();
-      // Reapply current sort if any
-      const activeSort = Object.keys(this.sortState).find(
-        (key) => this.sortState[key] !== null,
-      );
-      if (activeSort) {
-        this.applySort(activeSort, this.sortState[activeSort]!);
-      }
+      this.applyPagination();
     }
   }
 
@@ -772,17 +739,38 @@ export class ReusableTableComponent
       }
     });
 
+    // Server-side sorting: only SortBy (column key), no SortDescending
+    const activeSortColumnKey = Object.keys(this.sortState).find(
+      (key) => this.sortState[key] !== null,
+    );
+    if (activeSortColumnKey && this.config?.serverSideSearch) {
+      const sortByKey = this.getSortByParamForColumn(activeSortColumnKey);
+      if (sortByKey) {
+        httpParams = httpParams.set('SortBy', sortByKey);
+      }
+    }
+
     // Store the last search params for refresh functionality
     this.lastSearchParams = httpParams;
 
-    // 🔒 GUARD: prevent duplicate emits
-    const queryKey = httpParams.toString();
+    // 🔒 GUARD: prevent duplicate emits (include sort column+direction so asc/desc both trigger API)
+    const sortGuard = activeSortColumnKey
+      ? `${activeSortColumnKey}:${this.sortState[activeSortColumnKey] ?? ''}`
+      : '';
+    const queryKey = httpParams.toString() + '|' + sortGuard;
     if (this.lastQueryKey === queryKey) {
       return; // ❌ BLOCK duplicate call
     }
 
     this.lastQueryKey = queryKey;
     this.searchQuery.emit(httpParams);
+  }
+
+  /** SortBy API param = column key (jis column pe sort, usi ki key). */
+  private getSortByParamForColumn(columnKey: string): string | null {
+    const column = this.config?.columns.find((col) => col.key === columnKey);
+    if (!column) return null;
+    return column.sortByKey ?? column.key;
   }
 
   onRefresh(): void {
@@ -979,12 +967,11 @@ export class ReusableTableComponent
     const currentSort = this.sortState[columnKey];
     let newSort: 'asc' | 'desc' | null;
 
+    // Only toggle asc ↔ desc so SortBy is sent every click (no clear → null)
     if (currentSort === 'asc') {
       newSort = 'desc';
-    } else if (currentSort === 'desc') {
-      newSort = null;
     } else {
-      newSort = 'asc';
+      newSort = 'asc'; // desc → asc, or null → asc
     }
 
     // Reset other columns
@@ -996,166 +983,10 @@ export class ReusableTableComponent
 
     this.sortState[columnKey] = newSort;
 
-    // Apply sorting locally first for immediate feedback
-    if (newSort) {
-      this.applySort(columnKey, newSort);
-    } else {
-      // Reset to original order
-      if (this.config?.serverSideSearch) {
-        // For server-side, use current sortedData or config.data
-        this.sortedData =
-          this.config?.data && Array.isArray(this.config.data)
-            ? [...this.config.data]
-            : this.sortedData.length > 0
-              ? [...this.sortedData]
-              : [];
-      } else {
-        // For client-side, use filtered or original data
-        if (this.searchValue && this.searchValue.trim()) {
-          this.sortedData =
-            this.filteredData && this.filteredData.length > 0
-              ? [...this.filteredData]
-              : this.originalData && this.originalData.length > 0
-                ? [...this.originalData]
-                : [];
-        } else {
-          this.sortedData =
-            this.originalData && this.originalData.length > 0
-              ? [...this.originalData]
-              : [];
-        }
-        this.applyPagination();
-      }
-    }
-
-    // For server-side search, also emit query with sort params
+    // Sorting is server-side only: sortable column click → API call (no local sort)
     if (this.config?.serverSideSearch) {
       this.emitSearchQuery();
     }
-  }
-
-  private applySort(columnKey: string, direction: 'asc' | 'desc') {
-    const column = this.config.columns.find((col) => col.key === columnKey);
-    if (!column) return;
-
-    // Determine which field to sort by
-    let sortField: string;
-    if (
-      column.cellType === 'text' ||
-      column.cellType === 'two-line' ||
-      column.cellType === 'text-with-color'
-    ) {
-      sortField = column.primaryField || column.key;
-    } else if (
-      column.cellType === 'badge' ||
-      column.cellType === 'badge-with-subtext'
-    ) {
-      sortField = column.badgeField || column.key;
-    } else if (column.cellType === 'link') {
-      sortField = column.linkField || column.primaryField || column.key;
-    } else {
-      sortField = column.key;
-    }
-
-    // For server-side, use current sortedData (from config.data)
-    // For client-side, use filtered or original data
-    let dataToSort: any[] = [];
-
-    if (this.config?.serverSideSearch) {
-      // Use current sortedData which comes from config.data
-      dataToSort =
-        this.sortedData && this.sortedData.length > 0
-          ? [...this.sortedData]
-          : this.config?.data && Array.isArray(this.config.data)
-            ? [...this.config.data]
-            : [];
-    } else {
-      // Client-side: use filtered data if search is active, otherwise use original data
-      dataToSort =
-        this.searchValue && this.searchValue.trim()
-          ? this.filteredData && this.filteredData.length > 0
-            ? [...this.filteredData]
-            : this.originalData && this.originalData.length > 0
-              ? [...this.originalData]
-              : []
-          : this.originalData && this.originalData.length > 0
-            ? [...this.originalData]
-            : [];
-    }
-
-    // If no data to sort, return early
-    if (dataToSort.length === 0) {
-      return;
-    }
-
-    // Sort the data
-    this.sortedData = dataToSort.sort((a, b) => {
-      const aValue = this.getNestedValue(a, sortField);
-      const bValue = this.getNestedValue(b, sortField);
-
-      // Handle null/undefined values
-      if (aValue == null && bValue == null) return 0;
-      if (aValue == null) return direction === 'asc' ? -1 : 1;
-      if (bValue == null) return direction === 'asc' ? 1 : -1;
-
-      // Convert to comparable values
-      let aCompare: any = aValue;
-      let bCompare: any = bValue;
-
-      // Handle numbers (including percentages)
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        const aNum = parseFloat(aValue.replace('%', '').replace(',', ''));
-        const bNum = parseFloat(bValue.replace('%', '').replace(',', ''));
-        if (!isNaN(aNum) && !isNaN(bNum)) {
-          aCompare = aNum;
-          bCompare = bNum;
-        } else {
-          // String comparison
-          aCompare = aValue.toLowerCase();
-          bCompare = bValue.toLowerCase();
-        }
-      }
-
-      // Compare values
-      let comparison = 0;
-      if (aCompare < bCompare) {
-        comparison = direction === 'asc' ? -1 : 1;
-      } else if (aCompare > bCompare) {
-        comparison = direction === 'asc' ? 1 : -1;
-      } else {
-        // If primary values are equal and it's a two-line cell, sort by secondary field
-        if (
-          (column.cellType === 'two-line' ||
-            column.cellType === 'text-with-color') &&
-          column.secondaryField
-        ) {
-          const aSecondary = this.getNestedValue(a, column.secondaryField);
-          const bSecondary = this.getNestedValue(b, column.secondaryField);
-
-          if (aSecondary != null && bSecondary != null) {
-            const aSecCompare =
-              typeof aSecondary === 'string'
-                ? aSecondary.toLowerCase()
-                : aSecondary;
-            const bSecCompare =
-              typeof bSecondary === 'string'
-                ? bSecondary.toLowerCase()
-                : bSecondary;
-
-            if (aSecCompare < bSecCompare) {
-              comparison = direction === 'asc' ? -1 : 1;
-            } else if (aSecCompare > bSecCompare) {
-              comparison = direction === 'asc' ? 1 : -1;
-            }
-          }
-        }
-      }
-
-      return comparison;
-    });
-
-    // Apply pagination for client-side only
-    this.applyPagination();
   }
 
   getSortIcon(columnKey: string): string {
@@ -1197,7 +1028,10 @@ export class ReusableTableComponent
     this.actionClick.emit({ row, columnKey });
   }
 
-  getActionDisabled(row: any, action: { disabled?: boolean | ((row: any) => boolean) }): boolean {
+  getActionDisabled(
+    row: any,
+    action: { disabled?: boolean | ((row: any) => boolean) },
+  ): boolean {
     if (action.disabled === undefined || action.disabled === null) return false;
     if (typeof action.disabled === 'boolean') return action.disabled;
     try {
