@@ -332,22 +332,23 @@
   margin: 0 0 16px 0;
 }
 
-::ng-deep .ministry-link {
-  color: #2563EB;
-  cursor: pointer;
-  text-decoration: underline;
-  transition: opacity 0.2s;
+::ng-deep .text-cell-with-icon.has-icon {
+  .ministry-link {
+    color: var(--color-green-teal);
+    cursor: pointer;
+    text-decoration: underline;
+    transition: opacity 0.2s;
 
-  &:hover {
-    opacity: 0.8;
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   .text-cell-icon {
-    color: #6B7280;
+    color: var(--color-green-teal) !important;
     font-size: 16px;
     width: 16px;
     height: 16px;
-    margin-left: 4px;
   }
 }
 
@@ -479,7 +480,7 @@
   color: #111827;
 }
 
-// Insights section (inside single sidebar box)
+// Insights section (Figma-aligned: white card, circular nav, same-size dots)
 .sidebar-section-last {
   display: flex;
   flex-direction: column;
@@ -498,18 +499,22 @@
 }
 
 .nav-button {
-  background: none;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #F3F4F6;
   border: 1px solid #E5E7EB;
-  border-radius: 4px;
-  padding: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: background-color 0.2s, border-color 0.2s;
 
   &:hover:not(:disabled) {
-    background-color: #F3F4F6;
+    background-color: #E5E7EB;
     border-color: #D1D5DB;
   }
 
@@ -522,8 +527,16 @@
     font-size: 20px;
     width: 20px;
     height: 20px;
-    color: #6B7280;
+    color: #374151;
   }
+}
+
+.insights-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  border: 1px solid #E5E7EB;
 }
 
 .insights-content {
@@ -573,16 +586,14 @@
   border-radius: 50%;
   background-color: #D1D5DB;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 
   &:hover {
     background-color: #9CA3AF;
   }
 
   &.active {
-    background-color: #6B7280;
-    width: 24px;
-    border-radius: 4px;
+    background-color: var(--color-green-teal);
   }
 }
 

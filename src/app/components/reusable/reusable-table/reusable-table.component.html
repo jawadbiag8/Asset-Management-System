@@ -321,8 +321,18 @@
                     </div>
                   }
                   @default {
-                    <div [ngClass]="column.cellClass">
-                      {{ getCellValue(row, column.primaryField || column.key) }}
+                    <div
+                      class="text-cell-with-icon"
+                      [class.has-icon]="column.showIcon && column.iconName"
+                    >
+                      <span [ngClass]="column.cellClass">
+                        {{ getCellValue(row, column.primaryField || column.key) }}
+                        @if (column.showIcon && column.iconName) {
+                          <mat-icon class="text-cell-icon" aria-hidden="true">{{
+                            column.iconName
+                          }}</mat-icon>
+                        }
+                      </span>
                     </div>
                   }
                 }

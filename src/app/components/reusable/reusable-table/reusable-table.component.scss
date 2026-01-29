@@ -525,6 +525,21 @@
   }
 }
 
+// Text cell with optional icon (icon inside span so it appears at end of text, including when text wraps)
+.text-cell-with-icon {
+  display: block;
+
+  .text-cell-icon {
+    display: inline-flex;
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    margin-left: 4px;
+    color: #6B7280;
+  }
+}
+
 // Actions Cell Styles
 .actions-cell {
     display: flex;
