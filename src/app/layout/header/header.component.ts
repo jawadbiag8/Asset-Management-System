@@ -47,21 +47,25 @@ export class HeaderComponent {
     const route = this.currentRoute();
     return (
       route.includes('/assets/by-ministry') ||
-      route.includes('/ministry-detail')
+      route.includes('/ministry-detail') ||
+      route.includes('/view-assets-detail') ||
+      route.includes('/add-digital-assets') ||
+      route.includes('/edit-digital-asset')
     );
   }
 
   isDashboardActive(): boolean {
     const route = this.currentRoute();
-    // Active on dashboard, root, add/edit digital assets pages and asset detail view
+    // Active on dashboard and root only (Ministries is active for view-assets-detail, add/edit digital assets)
     const isDashboardRoute = route === '/dashboard' || route === '/';
-    const isAddEditAssetsRoute = route.includes('/add-digital-assets') || route.includes('/edit-digital-asset');
-    const isViewAssetDetailRoute = route.includes('/view-assets-detail');
     const isMinistryRoute = route.includes('/assets/by-ministry') ||
-      route.includes('/ministry-detail');
+      route.includes('/ministry-detail') ||
+      route.includes('/view-assets-detail') ||
+      route.includes('/add-digital-assets') ||
+      route.includes('/edit-digital-asset');
     const isIncidentsRoute = route.includes('/incidents');
 
-    return (isDashboardRoute || isAddEditAssetsRoute || isViewAssetDetailRoute) && !isMinistryRoute && !isIncidentsRoute;
+    return isDashboardRoute && !isMinistryRoute && !isIncidentsRoute;
   }
 
   isIncidentsActive(): boolean {

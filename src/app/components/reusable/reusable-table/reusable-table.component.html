@@ -5,7 +5,7 @@
       @if (filters.length > 0) {
       <div class="d-flex align-items-center gap-2 flex-wrap">
         <button type="button" class="filter-add-btn" (click)="openFilterDialog()" title="Add filter">
-          <mat-icon>add</mat-icon>
+          <mat-icon>add</mat-icon> Add Filters
         </button>
         @for (filter of filters; track filter.id) {
         @if (
@@ -51,7 +51,8 @@
       <table mat-table [dataSource]="sortedData" class="assets-table" [style.min-width]="config.minWidth || '1400px'">
         @for (column of config.columns; track column.key) {
         <ng-container [matColumnDef]="column.key">
-          <th mat-header-cell *matHeaderCellDef [style.width]="column.width">
+          <th mat-header-cell *matHeaderCellDef [style.width]="column.width" [attr.data-column]="column.key"
+            [attr.data-cell-type]="column.cellType">
             @if (column.sortable !== false) {
             <div class="sortable-header" (click)="onSort(column.key)">
               <span class="header-text">{{ column.header }}</span>

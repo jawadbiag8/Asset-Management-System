@@ -11,7 +11,7 @@
         Dashboard
       </a>
       <a routerLink="/assets/by-ministry" [class.active]="isAssetsActive()" (click)="menuOpen = false">
-        Ministry
+        Ministries
       </a>
       <a routerLink="/incidents" [class.active]="isIncidentsActive()" (click)="menuOpen = false">
         Incidents
@@ -27,13 +27,13 @@
 
   <!-- RIGHT -->
   <div class="right">
-    <button 
-      class="pm-btn" 
+    <button
+      class="pm-btn"
       *ngIf="!isPmDashboardActive()"
       (click)="navigateToPmDashboard()">
       <!-- PROFILE SVG NEXT TO PM DASHBOARD -->
       <img src="Images/Dashboard/windows.svg" alt="pm icon" class="pm-icon" />
-      PM Dashboard
+      Executive Dashboard
     </button>
 
     <!-- PROFILE DROPDOWN -->

@@ -242,3 +242,11 @@ body {
   overflow: hidden;
   border-radius: 8px;
 }
+
+/* Add Assets page – dropdown list line spacing (reusable-input select) */
+.reusable-input-select-panel.mat-mdc-select-panel .mat-mdc-option {
+  min-height: 44px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  line-height: 1.4;
+}

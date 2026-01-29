@@ -18,7 +18,7 @@
         <div class="col-12 col-md-5">
           <div class="left-section">
             <h1 class="fw-bold">Health Dashboard</h1>
-            
+
             <div class="info-row">
               <div class="info-item">
                 <label class="text-uppercase text-muted small fw-medium mb-1 d-block">URL</label>
@@ -35,7 +35,7 @@
                 <span class="d-block fw-semibold">{{ assetDetails.department || 'N/A' }}</span>
               </div>
             </div>
-            
+
             <div class="analyze-button-container">
               <button class="btn btn-analyze" (click)="onAnalyze()">Analyze</button>
             </div>
@@ -110,7 +110,7 @@
   <div class="kpi-cards-section">
     <div class="kpi-card">
       <div class="kpi-value">{{ summaryKpis.citizenHappiness }}%</div>
-      <div class="kpi-label">Citizen Happiness Metric</div>
+      <div class="kpi-label">Digital Experience Score</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-value">{{ summaryKpis.overallCompliance }}%</div>
@@ -144,9 +144,9 @@
   <div class="incidents-section" *ngIf="assetId">
     <h2 class="section-title">Incidents</h2>
     <div class="section-separator"></div>
-    <app-active-incidents 
-      [showHeader]="false" 
-      [showBreadcrumb]="false" 
+    <app-active-incidents
+      [showHeader]="false"
+      [showBreadcrumb]="false"
       [showAddButton]="false"
       [assetId]="assetId"
       [initialQueryParams]="incidentQueryParams"
