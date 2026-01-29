@@ -1,47 +1,40 @@
-@if (isOpen) {
-<div class="modal-backdrop" (click)="onBackdropClick($event)">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2 class="modal-title">Filter Options</h2>
-      <button class="close-button" (click)="onClose()" type="button">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
+<div class="filter-modal">
+  <div class="modal-header">
+    <h2 class="modal-title">Filter Options</h2>
+  </div>
 
-    <div class="modal-content">
-      @for (filter of filters; track filter.id) {
-      @if (filter.options) {
-      <div class="filter-category">
-        <h3 class="category-title">{{ filter.label.split(':')[0] }}</h3>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Select {{ filter.label.split(':')[0] }}</mat-label>
-          <mat-select [formControl]="getSelectControl(filter.id)"
-            (selectionChange)="onSelectChange(filter.id, $event.value)">
-            <mat-option>
-              <ngx-mat-select-search [formControl]="getFilterControl(filter.id)" [placeholderLabel]="'Search...'">
-              </ngx-mat-select-search>
-            </mat-option>
-            @if ((getFilteredOptions(filter.id) | async)?.length === 0) {
-            <mat-option disabled>No data found</mat-option>
-            }
-            @for (option of getFilteredOptions(filter.id) | async; track option.value) {
-            <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-      }
-      }
-    </div>
+  <div class="modal-body">
+    @for (filter of filters; track filter.id) {
+    @if (filter.options) {
+    <!-- <div class="filter-category">
+      <h3 class="category-title">{{ filter.label.split(':')[0] }}</h3> -->
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Select {{ filter.label.split(':')[0] }}</mat-label>
+      <mat-select [formControl]="getSelectControl(filter.id)"
+        (selectionChange)="onSelectChange(filter.id, $event.value)">
+        <mat-option>
+          <ngx-mat-select-search [formControl]="getFilterControl(filter.id)" [placeholderLabel]="'Search...'">
+          </ngx-mat-select-search>
+        </mat-option>
+        @if ((getFilteredOptions(filter.id) | async)?.length === 0) {
+        <mat-option disabled>No data found</mat-option>
+        }
+        @for (option of getFilteredOptions(filter.id) | async; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <!-- </div> -->
+    }
+    }
+  </div>
 
-    <div class="modal-footer">
-      <button class="btn-reset" (click)="onReset()" type="button">
-        Reset
-      </button>
-      <button class="btn-apply" (click)="onApply()" type="button">
-        Apply Filters
-      </button>
-    </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="onReset()">
+      Reset
+    </button>
+    <button type="button" class="btn btn-primary" (click)="onApply()">
+      Apply Filters
+    </button>
   </div>
 </div>
-}

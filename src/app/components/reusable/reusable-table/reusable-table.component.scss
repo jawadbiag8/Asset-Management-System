@@ -522,26 +522,6 @@
         margin: 4px 0;
         display: block;
         object-fit: contain;
-
-        &.health-icon-healthy {
-            filter: brightness(0) saturate(100%) invert(67%) sepia(47%) saturate(2000%) hue-rotate(140deg) brightness(95%) contrast(85%);
-            // Teal color: #14b8a6
-        }
-
-        &.health-icon-critical {
-            filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(1352%) hue-rotate(340deg) brightness(99%) contrast(92%);
-            // Red color: #ef4444
-        }
-
-        &.health-icon-warning {
-            filter: brightness(0) saturate(100%) invert(70%) sepia(90%) saturate(2000%) hue-rotate(350deg) brightness(98%) contrast(95%);
-            // Orange color: #f59e0b
-        }
-
-        &.health-icon-unknown {
-            filter: brightness(0) saturate(100%) invert(44%) sepia(6%) saturate(500%) hue-rotate(200deg) brightness(95%) contrast(90%);
-            // Grey color: #6b7280
-        }
     }
 
     .health-percentage {
