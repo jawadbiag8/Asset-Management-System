@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -32,7 +32,9 @@ import { ManageIncidentsComponent } from './components/incidents/manage-incident
 import { IncidentDetailsComponent } from './components/incidents/incident-details/incident-details.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
+import { firstValueFrom } from 'rxjs';
 import { ApiInterceptor } from './interceptors/api.interceptor';
+import { UtilsService } from './services/utils.service';
 import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
 import { ConfirmationDialogComponent } from './components/reusable/confirmation-dialog/confirmation-dialog.component';
 import { LoaderComponent } from './components/loader/loader.component';
@@ -91,6 +93,17 @@ import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.com
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiInterceptor,
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (utils: UtilsService) => () =>
+        firstValueFrom(utils.getAppConfig()).then((config) => {
+          if (!config || typeof (config as any).apiUrl !== 'string') {
+            throw new Error('Application config could not be loaded. Please ensure assets/config.json is available.');
+          }
+        }),
+      deps: [UtilsService],
       multi: true,
     },
   ],

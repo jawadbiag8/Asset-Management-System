@@ -1,7 +1,17 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { environment } from '../../environments/environment';
 import { ReusableTableComponent } from '../components/reusable/reusable-table/reusable-table.component';
+
+export interface AppConfig {
+  production?: boolean;
+  apiUrl?: string;
+  appName?: string;
+  version?: string;
+  [key: string]: unknown;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +20,13 @@ export class UtilsService {
   private tableComponentRef: ReusableTableComponent | null = null;
   /** When true, error toasts are skipped (used after showing single "Session expired" for 401). */
   private sessionExpiredHandled = false;
+  /** Cached config from assets/config.json */
+  private configCache: AppConfig | null = null;
 
-  constructor(private toastr: ToastrService) { }
+  constructor(
+    private toastr: ToastrService,
+    private http: HttpClient
+  ) { }
 
   setSessionExpiredHandled(value: boolean): void {
     this.sessionExpiredHandled = value;
@@ -21,12 +36,26 @@ export class UtilsService {
     return this.sessionExpiredHandled;
   }
 
-  getEnvironmentVariable(key: string): any {
-    return (environment as any)[key];
+  getEnvironmentVariable(key: keyof AppConfig): any {
+    if (this.configCache == null) return undefined;
+    return (this.configCache as any)[key];
   }
 
-  getEnvironment(): typeof environment {
-    return environment;
+  getEnvironment(): AppConfig {
+    return (this.configCache ?? {}) as AppConfig;
+  }
+
+  getAppConfig(): Observable<AppConfig> {
+    return this.http.get<AppConfig>('assets/config.json').pipe(
+      map((config) => {
+        this.configCache = config ?? {};
+        return this.configCache;
+      }),
+      catchError((err) => {
+        console.warn('Failed to load assets/config.json', err);
+        return of({});
+      })
+    );
   }
 
   /**

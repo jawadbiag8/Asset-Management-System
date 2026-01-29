@@ -12,6 +12,8 @@ interface TimelineEvent {
   status: string;
 }
 
+type IncidentDetails = ActiveIncident & { severityCode?: string; departmentName?: string };
+
 @Component({
   selector: 'app-incident-details',
   templateUrl: './incident-details.component.html',
@@ -20,10 +22,11 @@ interface TimelineEvent {
 })
 export class IncidentDetailsComponent implements OnInit {
   incidentId: string | null = null;
-  incident = signal<(ActiveIncident & { severityCode?: string }) | null>(null);
+  incident = signal<IncidentDetails | null>(null);
   loading = signal<boolean>(false);
   errorMessage = signal<string>('');
   timelineEvents = signal<TimelineEvent[]>([]);
+  submittingComment = signal<boolean>(false);
   commentText: string = '';
   selectedStatus: string = '';
 
@@ -35,7 +38,6 @@ export class IncidentDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Get incident ID from route params
     this.incidentId = this.route.snapshot.paramMap.get('id');
 
     if (this.incidentId) {
@@ -50,13 +52,15 @@ export class IncidentDetailsComponent implements OnInit {
   loadIncidentDetails(incidentId: number): void {
     this.loading.set(true);
     this.errorMessage.set('');
+    this.timelineEvents.set([]);
 
-    this.apiService.getIncidentById(incidentId).subscribe({
+    this.apiService.getIncidentDetailsById(incidentId).subscribe({
       next: (response: ApiResponse<any>) => {
         this.loading.set(false);
         if (response.isSuccessful && response.data) {
-          this.incident.set(this.processIncidentData(response.data));
-          this.loadTimelineEvents(incidentId);
+          const data = response.data;
+          this.incident.set(this.processIncidentData(data));
+          this.loadTimelineFromComments(incidentId, data);
         } else {
           this.errorMessage.set(response.message || 'Failed to load incident details');
           this.utils.showToast(response.message || 'Failed to load incident details', 'Error', 'error');
@@ -65,66 +69,113 @@ export class IncidentDetailsComponent implements OnInit {
       error: (error: any) => {
         this.loading.set(false);
         this.errorMessage.set('Error loading incident details');
-        this.utils.showToast(error, 'Error loading incident details', 'error');
+        this.utils.showToast('Error loading incident details', 'Error', 'error');
         console.error('Error loading incident:', error);
       },
     });
   }
 
-  loadTimelineEvents(incidentId: number): void {
-    // TODO: Replace with actual API call when timeline endpoint is available
-    // For now, generate sample timeline events
-    const events: TimelineEvent[] = [
-      {
-        id: 1,
-        time: '12:00 PM',
-        user: 'username123',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        status: 'INVESTIGATING'
+  /**
+   * Load timeline from GET /api/Incident/{id}/comments.
+   * Maps comment items (id, comment, status, createdBy, createdAt) to TimelineEvent[].
+   * Falls back to details.timeline when comments API fails or returns empty.
+   */
+  private loadTimelineFromComments(incidentId: number, detailsData: any): void {
+    this.apiService.getIncidentCommentsById(incidentId).subscribe({
+      next: (res: ApiResponse<any[]>) => {
+        if (res.isSuccessful && Array.isArray(res.data) && res.data.length > 0) {
+          const events: TimelineEvent[] = res.data.map((c: any, idx: number) => ({
+            id: c.id ?? idx + 1,
+            time: this.formatTimelineTime(c.createdAt),
+            user: c.createdBy ?? '—',
+            description: c.comment ?? '—',
+            status: c.status ?? '—',
+          }));
+          this.timelineEvents.set(events);
+        } else {
+          this.mapTimelineFromDetails(detailsData);
+        }
       },
-      {
-        id: 2,
-        time: '1:30 PM',
-        user: 'username456',
-        description: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-        status: 'MONITORING'
+      error: () => this.mapTimelineFromDetails(detailsData),
+    });
+  }
+
+  /** Refetch comments and update timeline (e.g. after adding a comment). */
+  private refreshTimeline(): void {
+    const id = this.incidentId;
+    if (!id) return;
+    const numId = Number(id);
+    this.apiService.getIncidentCommentsById(numId).subscribe({
+      next: (res: ApiResponse<any[]>) => {
+        if (res.isSuccessful && Array.isArray(res.data) && res.data.length > 0) {
+          const events: TimelineEvent[] = res.data.map((c: any, idx: number) => ({
+            id: c.id ?? idx + 1,
+            time: this.formatTimelineTime(c.createdAt),
+            user: c.createdBy ?? '—',
+            description: c.comment ?? '—',
+            status: c.status ?? '—',
+          }));
+          this.timelineEvents.set(events);
+        }
       },
-      {
-        id: 3,
-        time: '3:00 PM',
-        user: 'username789',
-        description: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
-        status: 'RESOLVED'
-      }
-    ];
+    });
+  }
+
+  /**
+   * Fallback: map timeline from details API (timeline / history / events).
+   */
+  private mapTimelineFromDetails(data: any): void {
+    const raw = data?.timeline ?? data?.history ?? data?.events;
+    if (!Array.isArray(raw) || raw.length === 0) {
+      this.timelineEvents.set([]);
+      return;
+    }
+    const events: TimelineEvent[] = raw.map((e: any, idx: number) => ({
+      id: e.id ?? idx + 1,
+      time: e.time ?? this.formatTimelineTime(e.createdAt ?? e.date ?? e.timestamp),
+      user: e.user ?? e.createdBy ?? e.userName ?? '—',
+      description: e.description ?? e.comment ?? e.text ?? '—',
+      status: e.status ?? '—',
+    }));
     this.timelineEvents.set(events);
   }
 
-  private processIncidentData(data: any): ActiveIncident & { severityCode: string } {
+  private formatTimelineTime(value: string | undefined): string {
+    if (!value) return '—';
+    try {
+      const d = new Date(value);
+      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return String(value);
+    }
+  }
+
+  private processIncidentData(data: any): IncidentDetails {
+    const kpi = data.kpiName ?? data.kpi ?? data.kpiDescription ?? data.description ?? 'N/A';
+    const dept = (data.department ?? data.departmentName ?? '') || undefined;
     return {
       ...data,
-      status: data.status || 'Open',
+      status: data.status ?? 'Open',
       statusSince: data.statusSince ? `Since: ${data.statusSince}` : `Since: ${this.formatTimeAgo(data.createdAt)}`,
       createdAgo: data.createdAgo ? `Created: ${data.createdAgo}` : `Created: ${this.formatTimeAgo(data.createdAt)}`,
       severityCode: this.formatSeverityCode(data.severity),
-      severityDescription: data.severityDescription || data.severity || 'N/A',
-      assetName: data.assetName || `Asset ${data.assetId}`,
-      ministryName: data.ministryName || 'N/A',
-      kpiDescription: data.kpiDescription || data.description || 'N/A',
-      assetUrl: data.assetUrl || '',
-    } as ActiveIncident & { severityCode: string };
+      severityDescription: data.severityDescription ?? data.severity ?? 'N/A',
+      assetName: data.assetName ?? (data.assetId != null ? `Asset ${data.assetId}` : 'N/A'),
+      ministryName: data.ministry ?? data.ministryName ?? 'N/A',
+      kpiDescription: kpi,
+      assetUrl: data.assetUrl ?? '',
+      departmentName: dept,
+      updatedBy: data.assignedTo ?? data.updatedBy,
+    } as IncidentDetails;
   }
 
   formatSeverityCode(severity: string | undefined): string {
     if (!severity) return 'N/A';
-    if (severity.toUpperCase().startsWith('P')) {
-      return severity.toUpperCase();
-    }
-    const severityNum = parseInt(severity);
-    if (!isNaN(severityNum) && severityNum >= 1 && severityNum <= 4) {
-      return `P${severityNum}`;
-    }
-    return severity;
+    const s = severity.includes(' - ') ? severity.split(' - ')[0].trim() : severity;
+    if (s.toUpperCase().startsWith('P')) return s.toUpperCase();
+    const n = parseInt(s);
+    if (!isNaN(n) && n >= 1 && n <= 4) return `P${n}`;
+    return s;
   }
 
   formatTimeAgo(dateString: string): string {
@@ -152,34 +203,37 @@ export class IncidentDetailsComponent implements OnInit {
     }
   }
 
+  /** Severity badge bg — uses CSS variables from styles.scss */
   getSeverityBadgeColor(severity: string): string {
-    if (!severity || severity === 'N/A') return '#F3F4F6'; // Light grey for N/A
+    if (!severity || severity === 'N/A') return 'var(--severity-na-bg)';
     const level = severity.toString().toUpperCase();
-    if (level === 'P1' || level === '1' || level === 'P1 CRITICAL' || level === 'CRITICAL') {
-      return '#EF4444'; // Red background for P1/CRITICAL
-    } else if (level === 'P2' || level === '2' || level === 'P2 HIGH' || level === 'HIGH') {
-      return 'var(--color-orange-light)';
-    } else if (level === 'P3' || level === '3' || level === 'P3 MEDIUM' || level === 'MEDIUM' || level === 'MODERATE') {
-      return 'var(--color-yellow-light)';
-    } else if (level === 'P4' || level === '4' || level === 'P4 LOW' || level === 'LOW' || level === 'INFO') {
-      return 'var(--color-green-light)';
-    }
-    return '#F3F4F6'; // Light grey default
+    if (level.includes('CRITICAL') || level === 'P1' || level === '1') return 'var(--severity-critical-bg)';
+    if (level.includes('HIGH') || level === 'P2' || level === '2') return 'var(--severity-high-bg)';
+    if (level.includes('MEDIUM') || level.includes('MODERATE') || level === 'P3' || level === '3') return 'var(--severity-medium-bg)';
+    if (level.includes('LOW') || level === 'INFO' || level === 'P4' || level === '4') return 'var(--severity-low-bg)';
+    return 'var(--severity-na-bg)';
   }
 
+  /** Severity badge text */
   getSeverityBadgeTextColor(severity: string): string {
-    if (!severity || severity === 'N/A') return '#6B7280'; // Dark grey text for N/A
+    if (!severity || severity === 'N/A') return 'var(--severity-na-text)';
     const level = severity.toString().toUpperCase();
-    if (level === 'P1' || level === '1' || level === 'P1 CRITICAL' || level === 'CRITICAL') {
-      return 'var(--color-red)';
-    } else if (level === 'P2' || level === '2' || level === 'P2 HIGH' || level === 'HIGH') {
-      return 'var(--color-orange)';
-    } else if (level === 'P3' || level === '3' || level === 'P3 MEDIUM' || level === 'MEDIUM' || level === 'MODERATE') {
-      return 'var(--color-yellow)';
-    } else if (level === 'P4' || level === '4' || level === 'P4 LOW' || level === 'LOW' || level === 'INFO') {
-      return 'var(--color-green-dark)';
-    }
-    return '#6B7280'; // Dark grey default
+    if (level.includes('CRITICAL') || level === 'P1' || level === '1') return 'var(--severity-critical-text)';
+    if (level.includes('HIGH') || level === 'P2' || level === '2') return 'var(--severity-high-text)';
+    if (level.includes('MEDIUM') || level.includes('MODERATE') || level === 'P3' || level === '3') return 'var(--severity-medium-text)';
+    if (level.includes('LOW') || level === 'INFO' || level === 'P4' || level === '4') return 'var(--severity-low-text)';
+    return 'var(--severity-na-text)';
+  }
+
+  /** Severity badge border */
+  getSeverityBorderColor(severity: string): string {
+    if (!severity || severity === 'N/A') return 'var(--severity-na-border)';
+    const level = severity.toString().toUpperCase();
+    if (level.includes('CRITICAL') || level === 'P1' || level === '1') return 'var(--severity-critical-border)';
+    if (level.includes('HIGH') || level === 'P2' || level === '2') return 'var(--severity-high-border)';
+    if (level.includes('MEDIUM') || level.includes('MODERATE') || level === 'P3' || level === '3') return 'var(--severity-medium-border)';
+    if (level.includes('LOW') || level === 'INFO' || level === 'P4' || level === '4') return 'var(--severity-low-border)';
+    return 'var(--severity-na-border)';
   }
 
   getStatusBadgeColor(status: string): string {
@@ -241,15 +295,14 @@ export class IncidentDetailsComponent implements OnInit {
   getSeverityLabel(severity: string): string {
     if (!severity) return 'N/A';
     const level = severity.toString().toUpperCase();
-    if (level === 'P1' || level === '1' || level === 'P1 CRITICAL' || level === 'CRITICAL') {
-      return 'CRITICAL';
-    } else if (level === 'P2' || level === '2' || level === 'P2 HIGH' || level === 'HIGH') {
-      return 'HIGH';
-    } else if (level === 'P3' || level === '3' || level === 'P3 MEDIUM' || level === 'MEDIUM' || level === 'MODERATE') {
-      return 'MEDIUM';
-    } else if (level === 'P4' || level === '4' || level === 'P4 LOW' || level === 'LOW' || level === 'INFO') {
-      return 'LOW';
+    if (level.includes(' - ')) {
+      const label = level.split(' - ')[1]?.trim();
+      if (label === 'CRITICAL' || label === 'HIGH' || label === 'MEDIUM' || label === 'LOW') return label;
     }
+    if (level.includes('CRITICAL') || level === 'P1' || level === '1') return 'CRITICAL';
+    if (level.includes('HIGH') || level === 'P2' || level === '2') return 'HIGH';
+    if (level.includes('MEDIUM') || level.includes('MODERATE') || level === 'P3' || level === '3') return 'MEDIUM';
+    if (level.includes('LOW') || level === 'INFO' || level === 'P4' || level === '4') return 'LOW';
     return 'N/A';
   }
 
@@ -268,8 +321,7 @@ export class IncidentDetailsComponent implements OnInit {
   }
 
   getDepartmentName(): string {
-    // TODO: Get department name from API or incident data
-    return '';
+    return this.incident()?.departmentName ?? '';
   }
 
   onSubmitComment(): void {
@@ -277,37 +329,36 @@ export class IncidentDetailsComponent implements OnInit {
       this.utils.showToast('Please enter a comment or select a status', 'Validation Error', 'warning');
       return;
     }
+    const id = this.incidentId;
+    if (!id) return;
+    const numId = Number(id);
+    const comment = this.commentText.trim();
+    const status = this.selectedStatus || this.incident()?.status || 'Open';
 
-    // TODO: Implement API call to submit comment and update status
-    console.log('Submitting comment:', {
-      comment: this.commentText,
-      status: this.selectedStatus,
-      incidentId: this.incidentId
+    this.submittingComment.set(true);
+    const payload = { incidentId: numId, comment: comment || '', status };
+
+    this.apiService.addIncidentComment(numId, payload).subscribe({
+      next: (res: ApiResponse<any>) => {
+        this.submittingComment.set(false);
+        if (res.isSuccessful) {
+          this.refreshTimeline();
+          if (this.selectedStatus && this.incident()) {
+            this.incident.set({ ...this.incident()!, status: this.selectedStatus });
+          }
+          this.commentText = '';
+          this.selectedStatus = '';
+          this.utils.showToast(res.message || 'Comment added successfully', 'Success', 'success');
+        } else {
+          this.utils.showToast(res.message || 'Failed to add comment', 'Error', 'error');
+        }
+      },
+      error: (err: any) => {
+        this.submittingComment.set(false);
+        this.utils.showToast('Failed to add comment', 'Error', 'error');
+        console.error('Add comment error:', err);
+      },
     });
-
-    // Add comment to timeline
-    if (this.commentText.trim()) {
-      const newEvent: TimelineEvent = {
-        id: this.timelineEvents().length + 1,
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        user: 'Current User', // TODO: Get from auth service
-        description: this.commentText,
-        status: this.selectedStatus || this.incident()?.status || 'OPEN'
-      };
-      this.timelineEvents.update(events => [newEvent, ...events]);
-    }
-
-    // Update status if selected
-    if (this.selectedStatus && this.incident()) {
-      const updatedIncident = { ...this.incident()!, status: this.selectedStatus };
-      this.incident.set(updatedIncident);
-    }
-
-    // Reset form
-    this.commentText = '';
-    this.selectedStatus = '';
-
-    this.utils.showToast('Comment submitted successfully', 'Success', 'success');
   }
 
   onEdit(): void {

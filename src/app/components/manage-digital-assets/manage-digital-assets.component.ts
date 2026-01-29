@@ -130,7 +130,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
       citizenImpactLevelId: ['', Validators.required],
 
       // Additional Information
-      description: [''],
+      description: ['', Validators.maxLength(500)],
       primaryContactName: [''],
       primaryContactEmail: ['', [Validators.email]],
       primaryContactPhone: [''],
