@@ -84,6 +84,7 @@ import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.com
       positionClass: 'toast-top-right',
       closeButton: true,
       progressBar: true,
+      preventDuplicates: true
     }),
   ],
   providers: [
@@ -95,4 +96,4 @@ import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.com
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

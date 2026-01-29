@@ -12,6 +12,7 @@ export interface PreviousPageMetadata {
 }
 
 export interface AssetControlPanelHeader {
+  ministryId: number;
   assetUrl: string;
   assetName: string;
   ministry: string;
@@ -63,6 +64,9 @@ export class AssetControlPanelComponent implements OnInit {
   });
 
   assetControlPanelData = signal<AssetControlPanelData | null>(null);
+
+  /** Cache table configs per category so the same reference is passed to reusable-table (fixes action click bindings). */
+  private tableConfigCache = new Map<string, TableConfig>();
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
@@ -132,12 +136,14 @@ export class AssetControlPanelComponent implements OnInit {
           {
             label: 'Check',
             color: 'var(--color-primary)',
-            onClick: (row: any) => this.onCheckClick(row),
+            display: 'text',
+            disabled: (row: any) => row?.manual === 'Manual',
           },
           {
             label: 'Add Incident',
+            display: 'text',
             color: 'var(--color-red)',
-            onClick: (row: any) => this.onAddIncidentClick(row),
+            disabled: (row: any) => false
           },
         ],
       },
@@ -146,35 +152,31 @@ export class AssetControlPanelComponent implements OnInit {
   });
 
   getTableConfigForCategory(categoryName: string): TableConfig {
+    const cached = this.tableConfigCache.get(categoryName);
+    if (cached) return cached;
+
     const data = this.assetControlPanelData();
     if (!data) {
-      return {
-        ...this.tableConfig(),
-        data: [],
-      };
+      const empty = { ...this.tableConfig(), data: [] };
+      return empty;
     }
 
-    // Find the category
     const category = data.kpiCategories.find(
       (cat) => cat.categoryName === categoryName
     );
 
     if (!category) {
-      return {
-        ...this.tableConfig(),
-        data: [],
-      };
+      const empty = { ...this.tableConfig(), data: [] };
+      return empty;
     }
 
-    // Process KPIs
-    const processedData = category.kpis.map((kpi) => ({
-      ...kpi,
-    }));
-
-    return {
+    const processedData = category.kpis.map((kpi) => ({ ...kpi }));
+    const config: TableConfig = {
       ...this.tableConfig(),
       data: processedData,
     };
+    this.tableConfigCache.set(categoryName, config);
+    return config;
   }
 
   getTotalItemsForCategory(categoryName: string): number {
@@ -188,13 +190,13 @@ export class AssetControlPanelComponent implements OnInit {
     return category ? category.kpis.length : 0;
   }
 
-  breadcrumbs: BreadcrumbItem[] = [
+  breadcrumbs = signal<BreadcrumbItem[]>([
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Ministries', path: '/assets/by-ministry' },
     { label: 'Ministry of Health', path: '/ministry-detail' },
     { label: 'Ministry Website', path: '/view-assets-detail' },
     { label: 'Compliance Report' }
-  ];
+  ]);
 
   constructor(
     private route: Router,
@@ -224,6 +226,24 @@ export class AssetControlPanelComponent implements OnInit {
     this.api.getAssetControlPanelData(this.previousPageMetadata().assetId).subscribe({
       next: (response: ApiResponse<AssetControlPanelData>) => {
         if (response.isSuccessful) {
+
+          this.breadcrumbs.set([
+            { label: 'Dashboard', path: '/dashboard' },
+            { label: 'Ministries', path: '/assets/by-ministry' },
+            {
+              label: 'Ministry of Health',
+              path: '/ministry-detail',
+              queryParams: { ministryId: response.data?.header?.ministryId ?? '' },
+            },
+            {
+              label: 'Ministry Website',
+              path: '/view-assets-detail',
+              queryParams: { assetId: this.previousPageMetadata().assetId },
+            },
+            { label: 'Compliance Report' },
+          ]);
+
+          this.tableConfigCache.clear();
           this.assetControlPanelData.set(response.data as AssetControlPanelData);
         } else {
           this.utils.showToast(response.message || 'Failed to load asset data', 'Error', 'error');
@@ -375,19 +395,12 @@ export class AssetControlPanelComponent implements OnInit {
     return 'var(--color-text-tertiary)';
   }
 
-  onViewDetailsClick(event: { row: any; columnKey: string }): void {
-    console.log('Action clicked:', event);
-    // Handle action clicks here
-  }
-
   onCheckClick(row: any): void {
     console.log('Check clicked for KPI:', row);
     // Implement check functionality
   }
 
   onAddIncidentClick(row: any): void {
-    console.log('Add Incident clicked for KPI:', row);
-
     const dialogRef = this.dialog.open(ManageIncidentsComponent, {
       width: '90%',
       maxWidth: '700px',
@@ -403,6 +416,15 @@ export class AssetControlPanelComponent implements OnInit {
         this.loadAssetData();
       }
     });
+  }
+
+  onActionClick(event: { row: any; columnKey: string }): void {
+    const { row, columnKey } = event;
+    if (columnKey === 'Check') {
+      this.onCheckClick(row);
+    } else if (columnKey === 'Add Incident') {
+      this.onAddIncidentClick(row);
+    }
   }
 
 }

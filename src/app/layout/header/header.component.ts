@@ -55,12 +55,12 @@ export class HeaderComponent {
     const route = this.currentRoute();
     // Active on dashboard, root, add/edit digital assets pages and asset detail view
     const isDashboardRoute = route === '/dashboard' || route === '/';
-    const isAddEditAssetsRoute = route.includes('/add-digital-assets') || route.includes('/edit-digital-assets');
+    const isAddEditAssetsRoute = route.includes('/add-digital-assets') || route.includes('/edit-digital-asset');
     const isViewAssetDetailRoute = route.includes('/view-assets-detail');
     const isMinistryRoute = route.includes('/assets/by-ministry') ||
       route.includes('/ministry-detail');
     const isIncidentsRoute = route.includes('/incidents');
-    
+
     return (isDashboardRoute || isAddEditAssetsRoute || isViewAssetDetailRoute) && !isMinistryRoute && !isIncidentsRoute;
   }
 

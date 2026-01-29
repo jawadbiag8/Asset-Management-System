@@ -93,8 +93,7 @@ export class ManageIncidentsComponent implements OnInit {
       assetId: [this.data.assetId || '', Validators.required],
       kpiId: [this.data.kpiId || '', Validators.required],
       severityId: ['', Validators.required],
-      description: [''],
-      status: [''],
+      description: ['']
     });
   }
 

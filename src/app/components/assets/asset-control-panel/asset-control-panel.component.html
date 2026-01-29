@@ -1,5 +1,5 @@
 <div class="container-fluid p-4">
-  <app-reusable-breadcrum [breadcrumbs]="breadcrumbs"></app-reusable-breadcrum>
+  <app-reusable-breadcrum [breadcrumbs]="breadcrumbs()"></app-reusable-breadcrum>
 
 
   @if(assetControlPanelData()) {
@@ -91,7 +91,7 @@
 
   <h2 class="mt-4 mb-4 fw-bold">{{ kpiCategory.categoryName }}</h2>
   <app-reusable-table [config]="getTableConfigForCategory(kpiCategory.categoryName)" [filters]="[]"
-    [totalItems]="getTotalItemsForCategory(kpiCategory.categoryName)" (actionClick)="onViewDetailsClick($event)">
+    [totalItems]="getTotalItemsForCategory(kpiCategory.categoryName)" (actionClick)="onActionClick($event)">
   </app-reusable-table>
   }
   }
