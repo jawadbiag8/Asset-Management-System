@@ -3,8 +3,8 @@
   <app-reusable-breadcrum
     [breadcrumbs]="[
       { label: 'Dashboard', path: '/dashboard' },
-      { label: 'Assets', path: '/ministry-detail' },
-      { label: 'Ministry of Health', path: '/ministry-detail' },
+      { label: 'Ministry', path: '/assets/by-ministry' },
+      { label: assetDetails.ministry || 'Ministry', path: ministryId ? `/ministry-detail?ministryId=${ministryId}` : '/ministry-detail' },
       { label: 'Health Dashboard' },
     ]"
   ></app-reusable-breadcrum>
@@ -140,14 +140,17 @@
     </div>
   </div>
 
-  <!-- Incidents Section -->
-  <div class="incidents-section">
+  <!-- Incidents Section (only for this asset via getIncidentByAssetId) -->
+  <div class="incidents-section" *ngIf="assetId">
     <h2 class="section-title">Incidents</h2>
     <div class="section-separator"></div>
     <app-active-incidents 
       [showHeader]="false" 
       [showBreadcrumb]="false" 
-      [showAddButton]="false">
+      [showAddButton]="false"
+      [assetId]="assetId"
+      [initialQueryParams]="incidentQueryParams"
+      (queryParamsChange)="onIncidentQueryParamsChange($event)">
     </app-active-incidents>
   </div>
 

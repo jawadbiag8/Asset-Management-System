@@ -37,6 +37,7 @@ import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-
 import { ConfirmationDialogComponent } from './components/reusable/confirmation-dialog/confirmation-dialog.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { AssetControlPanelComponent } from './components/assets/asset-control-panel/asset-control-panel.component';
+import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { AssetControlPanelComponent } from './components/assets/asset-control-pa
     ConfirmationDialogComponent,
     LoaderComponent,
     AssetControlPanelComponent,
+    PmDashboardComponent,
   ],
   imports: [
     BrowserModule,

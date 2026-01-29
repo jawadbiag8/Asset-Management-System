@@ -288,9 +288,37 @@
                       }
                     </div>
                   }
+                  @case ("progress-bar") {
+                    <div class="progress-bar-cell">
+                      <div class="progress-bar-container">
+                        <div
+                          class="progress-bar-fill"
+                          [style.width.%]="getProgressValue(row, column)"
+                          [style.background-color]="getProgressColor(row, column)"
+                        ></div>
+                      </div>
+                      @if (column.progressShowLabel !== false) {
+                        <span class="progress-bar-label">
+                          {{ getProgressValue(row, column) }}%
+                        </span>
+                      }
+                    </div>
+                  }
                   @default {
-                    <div [ngClass]="column.cellClass">
-                      {{ getCellValue(row, column.primaryField || column.key) }}
+                    <div 
+                      [ngClass]="column.cellClass"
+                      [class.clickable]="column.onClick"
+                      [class.pointer]="column.onClick"
+                      (click)="column.onClick ? column.onClick(row) : null"
+                      class="text-cell-content">
+                      <span class="text-cell-text">{{ getCellValue(row, column.primaryField || column.key) }}</span>
+                      @if (column.showIcon) {
+                        @if (column.iconUrl) {
+                          <img [src]="column.iconUrl" alt="icon" class="text-cell-icon" />
+                        } @else if (column.iconName) {
+                          <mat-icon class="text-cell-icon">{{ column.iconName }}</mat-icon>
+                        }
+                      }
                     </div>
                   }
                 }

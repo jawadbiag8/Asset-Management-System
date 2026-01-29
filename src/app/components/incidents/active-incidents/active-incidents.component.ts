@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Router, Params } from '@angular/router';
 import { ApiResponse, ApiService } from '../../../services/api.service';
 import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { HttpParams } from '@angular/common/http';
@@ -48,9 +48,13 @@ export class ActiveIncidentsComponent implements OnInit {
   @Input() showHeader: boolean = true;
   @Input() showBreadcrumb: boolean = true;
   @Input() showAddButton: boolean = true;
+  @Input() assetId: number | null = null; // When set, load incidents for this asset only via getIncidentByAssetId
+  @Input() initialQueryParams: Params | null = null; // When in view-assets-detail, pass route queryParams so filters and URL stay in sync
+  @Output() queryParamsChange = new EventEmitter<Params>(); // Emit when incident filters change so parent can update URL
 
   incidents = signal<ActiveIncident[]>([]);
   totalItems = signal<number>(0);
+  private incidentsByAssetLoading = false;
 
   breadcrumbs: BreadcrumbItem[] = [
     { label: 'Dashboard', path: '/dashboard' },
@@ -154,7 +158,25 @@ export class ActiveIncidentsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Always init filters so they show in both full incidents page and view-assets-detail (assetId)
     this.initializeFilters();
+  }
+
+  private applyQueryParamsToFilters(params: Params): void {
+    this.tableFilters.update((filters) =>
+      filters.map((f) => {
+        const key = f.paramKey;
+        if (!key) return f;
+        const value = params[key];
+        if (value == null || value === '') return f;
+        const opt = f.options?.find((o) => o.value === value);
+        return {
+          ...f,
+          value,
+          label: opt ? `${f.id === 'ministry' ? 'Ministry' : f.id === 'status' ? 'Status' : f.id === 'severity' ? 'Severity' : f.id === 'createdBy' ? 'Created by' : f.id === 'assignedTo' ? 'Assigned to' : f.id === 'kpi' ? 'KPI' : 'Assets'}: ${opt.label}` : f.label,
+        };
+      })
+    );
   }
 
   initializeFilters(): void {
@@ -329,6 +351,9 @@ export class ActiveIncidentsComponent implements OnInit {
           this.updateFilterOptions('createdBy', userOptions);
           this.updateFilterOptions('assignedTo', userOptions);
         }
+        if (this.assetId && this.initialQueryParams && Object.keys(this.initialQueryParams).length > 0) {
+          this.applyQueryParamsToFilters(this.initialQueryParams);
+        }
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error loading filter options', 'error');
@@ -364,6 +389,19 @@ export class ActiveIncidentsComponent implements OnInit {
   }
 
   loadIncidents(searchQuery: HttpParams): void {
+    if (this.assetId) {
+      this.loadIncidentsByAssetId(searchQuery);
+      // Emit full filter state (including empty) so URL can remove params when filter is "All"
+      const params: Params = {};
+      this.tableFilters().forEach((f) => {
+        if (f.paramKey) params[f.paramKey] = f.value ?? '';
+      });
+      searchQuery.keys().forEach((k) => {
+        params[k] = searchQuery.get(k) ?? '';
+      });
+      this.queryParamsChange.emit(params);
+      return;
+    }
     this.apiService.getIncidents(searchQuery).subscribe({
       next: (response: ApiResponse) => {
         if (response.isSuccessful) {
@@ -405,6 +443,51 @@ export class ActiveIncidentsComponent implements OnInit {
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error loading incidents', 'error');
+        this.incidents.set([]);
+        this.totalItems.set(0);
+      },
+    });
+  }
+
+  loadIncidentsByAssetId(searchQuery?: HttpParams): void {
+    if (!this.assetId) return;
+    if (this.incidentsByAssetLoading) return; // Prevent duplicate API calls
+    this.incidentsByAssetLoading = true;
+    this.apiService.getIncidentByAssetId(this.assetId, searchQuery).subscribe({
+      next: (response: ApiResponse<any>) => {
+        this.incidentsByAssetLoading = false;
+        if (response.isSuccessful && response.data != null) {
+          const raw = response.data;
+          const data: any[] = Array.isArray(raw) ? raw : (raw?.data ?? []);
+          const totalCount = Array.isArray(raw) ? data.length : (raw?.totalCount ?? data.length);
+          const processedIncidents = data.map((incident: any) => ({
+            ...incident,
+            status: incident.status || 'Open',
+            statusSince: incident.statusSince
+              ? `Since: ${incident.statusSince}`
+              : `Since: ${this.formatTimeAgo(incident.createdAt)}`,
+            createdAgo: incident.createdAgo
+              ? `Created: ${incident.createdAgo}`
+              : `Created: ${this.formatTimeAgo(incident.createdAt)}`,
+            severityCode: this.formatSeverityCode(incident.severity),
+            severityDescription:
+              incident.severityDescription || incident.severity || 'N/A',
+            assetName: incident.assetName || `Asset ${incident.assetId}`,
+            ministryName: incident.ministryName || 'N/A',
+            kpiDescription:
+              incident.kpiDescription || incident.description || 'N/A',
+            assetRouterLink: incident.assetUrl,
+          }));
+          this.incidents.set(processedIncidents);
+          this.totalItems.set(totalCount);
+        } else {
+          this.incidents.set([]);
+          this.totalItems.set(0);
+        }
+      },
+      error: (error: any) => {
+        this.incidentsByAssetLoading = false;
+        this.utils.showToast(error, 'Error loading incidents for asset', 'error');
         this.incidents.set([]);
         this.totalItems.set(0);
       },
