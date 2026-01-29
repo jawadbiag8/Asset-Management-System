@@ -425,7 +425,7 @@ export interface TableColumn {
   // For 'text' and 'two-line' cells
   primaryField?: string; // Field name for primary text
   secondaryField?: string; // Field name for secondary text (two-line only)
-  
+
   // For 'text' cells with icon (uses iconName/iconUrl from icon cells)
   showIcon?: boolean; // Show icon next to text
 
@@ -889,7 +889,7 @@ export class ReusableTableComponent
     }
   }
 
-  onFilterClick(filter: FilterPill) {
+  openFilterDialog() {
     const dialogRef = this.dialog.open(FilterModalComponent, {
       width: '90%',
       maxWidth: '600px',
@@ -904,6 +904,10 @@ export class ReusableTableComponent
         this.onFilterReset();
       }
     });
+  }
+
+  onFilterClick(filter: FilterPill) {
+    this.openFilterDialog();
   }
 
   onFilterApply(
