@@ -11,6 +11,8 @@ export interface IncidentRequest {
   kpiId: string;
   securityLevel: string;
   description: string;
+  type: string;
+  statusId: number;
 }
 
 @Component({
@@ -50,7 +52,7 @@ export class ManageIncidentsComponent implements OnInit {
       next: (responses: { assets: ApiResponse<any[]>, kpis: ApiResponse<any[]>, securityLevels: ApiResponse<any[]> }) => {
         this.assetOptions = responses.assets.data?.map((asset: any) => ({
           label: asset.name,
-          value: asset.id.toString()
+          value: asset.id
         })) || [];
 
         if (this.data.assetId) {
@@ -61,7 +63,7 @@ export class ManageIncidentsComponent implements OnInit {
 
         this.kpiOptions = responses.kpis.data?.map((kpi: any) => ({
           label: kpi.name,
-          value: kpi.id.toString()
+          value: kpi.id
         })) || [];
 
         if (this.data.kpiId) {
@@ -72,7 +74,7 @@ export class ManageIncidentsComponent implements OnInit {
 
         this.securityLevels = responses.securityLevels.data?.map((securityLevel: any) => ({
           label: securityLevel.name,
-          value: securityLevel.id.toString()
+          value: securityLevel.id
         })) || [];
 
 
@@ -93,7 +95,9 @@ export class ManageIncidentsComponent implements OnInit {
       assetId: [this.data.assetId || '', Validators.required],
       kpiId: [this.data.kpiId || '', Validators.required],
       severityId: ['', Validators.required],
-      description: ['']
+      description: ['', Validators.maxLength(500)],
+      type: ['Manual', Validators.required],
+      statusId: [8, Validators.required],
     });
   }
 
