@@ -11,7 +11,7 @@
     <h1 class="digitalAssetsTitle">{{ ministryName() }}</h1>
     <button class="btn-add-asset" (click)="onAddAsset()">
       <mat-icon>add</mat-icon>
-      Add Digital Assets
+      Add Digital Asset
     </button>
   </div>
 
@@ -26,14 +26,14 @@
           <div class="card-separator"></div>
           <a href="#" class="card-link">{{ card.linkText }}</a>
         </div>
-        @if (card.badge) {
+        <!-- @if (card.badge) {
           <span
             class="card-badge"
             [ngClass]="{ 'badge-red': card.badgeColor === 'red' }"
           >
             {{ card.badge }}
           </span>
-        }
+        } -->
       </div>
     }
   </div>

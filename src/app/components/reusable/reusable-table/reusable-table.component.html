@@ -14,6 +14,7 @@
             title="Add filter"
           >
             <mat-icon>add</mat-icon>
+            Add Filters
           </button>
           @for (filter of filters; track filter.id) {
             @if (
@@ -76,6 +77,8 @@
                 mat-header-cell
                 *matHeaderCellDef
                 [style.width]="column.width"
+                [attr.data-column]="column.key"
+                [attr.data-cell-type]="column.cellType"
               >
                 @if (column.sortable !== false) {
                   <div class="sortable-header" (click)="onSort(column.key)">

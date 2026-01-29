@@ -14,7 +14,7 @@
         <div class="kpi-card kpi-card-highlighted">
           <div class="kpi-card-content">
             <h1 class="kpi-value-white">78%</h1>
-            <h5 class="kpi-title-white">Citizen Happiness Score</h5>
+            <h5 class="kpi-title-white">Digital Experience Score</h5>
             <p class="kpi-subtitle-white">30-day satisfaction with key digital public services</p>
             <div class="kpi-footer-white">
               <a href="#" class="kpi-link-white">Assets Meeting Citizen Experience Standards: 70% ></a>
@@ -118,8 +118,8 @@
               <span class="index-value">{{ index.value }}%</span>
             </div>
             <div class="index-progress-container">
-              <div 
-                class="index-progress-bar" 
+              <div
+                class="index-progress-bar"
                 [style.width.%]="index.value"
                 [style.background-color]="getIndexColor(index.value)">
               </div>
@@ -162,9 +162,9 @@
           <p class="insight-description">{{ currentInsight().description }}</p>
         </div>
         <div class="insights-dots">
-          <span 
-            *ngFor="let insight of insights; let i = index" 
-            class="dot" 
+          <span
+            *ngFor="let insight of insights; let i = index"
+            class="dot"
             [class.active]="i === currentInsightIndex()"
             (click)="goToInsight(i)">
           </span>
