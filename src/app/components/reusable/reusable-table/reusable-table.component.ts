@@ -504,7 +504,8 @@ export interface TableConfig {
   standalone: false,
 })
 export class ReusableTableComponent
-  implements OnInit, AfterViewInit, OnChanges {
+  implements OnInit, AfterViewInit, OnChanges
+{
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
@@ -552,7 +553,7 @@ export class ReusableTableComponent
     private utilsService: UtilsService,
     private router: Router,
     private dialog: MatDialog,
-  ) { }
+  ) {}
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -882,7 +883,7 @@ export class ReusableTableComponent
       width: '90%',
       maxWidth: '600px',
       data: { filters: this.filters },
-      panelClass: 'responsive-modal',
+      panelClass: 'filter-options-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result) => {
