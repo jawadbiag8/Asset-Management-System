@@ -1,82 +1,153 @@
-<div class="container-fluid p-4">
+<div class="container-fluid p-4 view-assets-detail-page">
   <!-- Breadcrumb Navigation -->
   <app-reusable-breadcrum
     [breadcrumbs]="[
       { label: 'Dashboard', path: '/dashboard' },
       { label: 'Ministry', path: '/assets/by-ministry' },
-      { label: assetDetails.ministry || 'Ministry', path: ministryId ? `/ministry-detail?ministryId=${ministryId}` : '/ministry-detail' },
-      { label: 'Health Dashboard' },
+      {
+        label: assetDetails.ministry || 'Ministry',
+        path: '/ministry-detail',
+        queryParams: ministryId != null ? { ministryId } : undefined,
+      },
+      { label: assetDetails.assetName || 'Health Dashboard' },
     ]"
   ></app-reusable-breadcrum>
 
   <!-- Health Dashboard Card -->
-  <div class="card shadow-sm mt-4">
+  <div class="card shadow-sm mt-4 header-card">
     <!-- Page Title -->
-    <div class="card-body">
-      <!-- Left: Asset Details -->
-      <div class="row g-4 align-items-center">
-        <div class="col-12 col-md-5">
+    <div class="card-body header-card-body">
+      <!-- Left: Asset Details (stacks below lg to avoid overlap at 768px) -->
+      <div class="row g-4 align-items-center header-row">
+        <div class="col-12 col-lg-5">
           <div class="left-section">
-            <h1 class="fw-bold">Health Dashboard</h1>
+            <h1 class="fw-bold">
+              {{ assetDetails.assetName || "Health Dashboard" }}
+            </h1>
 
             <div class="info-row">
               <div class="info-item">
-                <label class="text-uppercase text-muted small fw-medium mb-1 d-block">URL</label>
-                <a [href]="'https://' + assetDetails.url" target="_blank" class="link">
+                <label
+                  class="text-uppercase text-muted small fw-medium mb-1 d-block"
+                  >URL</label
+                >
+                <a
+                  [href]="'https://' + assetDetails.url"
+                  target="_blank"
+                  class="link"
+                >
                   {{ assetDetails.url }}
                 </a>
               </div>
               <div class="info-item">
-                <label class="text-uppercase text-muted small fw-medium mb-1 d-block">MINISTRY</label>
-                <span class="d-block fw-semibold">{{ assetDetails.ministry }}</span>
+                <label
+                  class="text-uppercase text-muted small fw-medium mb-1 d-block"
+                  >MINISTRY</label
+                >
+                <span class="d-block fw-semibold text-break">{{
+                  assetDetails.ministry
+                }}</span>
               </div>
               <div class="info-item">
-                <label class="text-uppercase text-muted small fw-medium mb-1 d-block">DEPARTMENT</label>
-                <span class="d-block fw-semibold">{{ assetDetails.department || 'N/A' }}</span>
+                <label
+                  class="text-uppercase text-muted small fw-medium mb-1 d-block"
+                  >DEPARTMENT</label
+                >
+                <span class="d-block fw-semibold">{{
+                  assetDetails.department || "N/A"
+                }}</span>
               </div>
             </div>
 
             <div class="analyze-button-container">
-              <button class="btn btn-analyze" (click)="onAnalyze()">Analyze</button>
+              <button class="btn btn-analyze" (click)="onAnalyze()">
+                Analyze
+              </button>
             </div>
           </div>
         </div>
 
         <!-- Middle: Status Badges Group -->
-        <div class="col-12 col-md-5">
-          <div class="border rounded p-4">
-            <div class="row g-3">
-              <div class="col-12 col-sm-4 border-end border-sm-end-0  pb-3 pb-sm-0 pe-sm-3">
+        <div class="col-12 col-lg-5">
+          <div class="border rounded p-4 metrics-box">
+            <div class="row g-3 metrics-row">
+              <div
+                class="col-12 col-sm-4 border-end border-sm-end-0 pb-3 pb-sm-0 pe-sm-3"
+              >
                 <div class="center">
-                  <label class="text-uppercase text-muted small fw-medium mb-2">CITIZEN IMPACT
-                    LEVEL</label>
-                  <span class="badge"
-                    [ngClass]="getBadgeClass(getBadgeColor(assetDetails.citizenImpactLevel, 'citizenImpact'))"
-                    [style.background-color]="getBadgeColor(assetDetails.citizenImpactLevel, 'citizenImpact')"
-                    [style.color]="getBadgeTextColor(assetDetails.citizenImpactLevel, 'citizenImpact')">
-                    {{ assetDetails.citizenImpactLevel || 'UNKNOWN' }}
+                  <label class="text-uppercase text-muted small fw-medium mb-2"
+                    >CITIZEN IMPACT LEVEL</label
+                  >
+                  <span
+                    class="badge"
+                    [ngClass]="
+                      getBadgeClass(
+                        getBadgeColor(
+                          assetDetails.citizenImpactLevel,
+                          'citizenImpact'
+                        )
+                      )
+                    "
+                    [style.background-color]="
+                      getBadgeColor(
+                        assetDetails.citizenImpactLevel,
+                        'citizenImpact'
+                      )
+                    "
+                    [style.color]="
+                      getBadgeTextColor(
+                        assetDetails.citizenImpactLevel,
+                        'citizenImpact'
+                      )
+                    "
+                  >
+                    {{
+                      getCitizenImpactBadgeLabel(
+                        assetDetails.citizenImpactLevel
+                      )
+                    }}
                   </span>
                 </div>
               </div>
-              <div class="col-12 col-sm-4 border-end border-sm-end-0  pb-3 pb-sm-0 pe-sm-3">
+              <div
+                class="col-12 col-sm-4 border-end border-sm-end-0 pb-3 pb-sm-0 pe-sm-3"
+              >
                 <div class="center">
-                  <label class="text-uppercase text-muted small fw-medium mb-2">CURRENT HEALTH</label>
-                  <span class="badge"
-                    [ngClass]="getBadgeClass(getBadgeColor(assetDetails.currentHealth, 'health'))"
-                    [style.background-color]="getBadgeColor(assetDetails.currentHealth, 'health')"
-                    [style.color]="getBadgeTextColor(assetDetails.currentHealth, 'health')">
-                    {{ assetDetails.currentHealth || 'UNKNOWN' }}
+                  <label class="text-uppercase text-muted small fw-medium mb-2"
+                    >CURRENT HEALTH</label
+                  >
+                  <span
+                    class="badge"
+                    [ngClass]="
+                      getBadgeClass(
+                        getBadgeColor(assetDetails.currentHealth, 'health')
+                      )
+                    "
+                    [style.background-color]="
+                      getBadgeColor(assetDetails.currentHealth, 'health')
+                    "
+                    [style.color]="
+                      getBadgeTextColor(assetDetails.currentHealth, 'health')
+                    "
+                  >
+                    {{
+                      getHealthOrImpactBadgeLabel(assetDetails.currentHealth)
+                    }}
                   </span>
                 </div>
               </div>
               <div class="col-12 col-sm-4">
                 <div class="center">
-                  <label class="text-uppercase text-muted small fw-medium mb-2">RISK EXPOSURE INDEX</label>
-                  <span class="badge"
-                    [ngClass]="getBadgeClass(getBadgeColor(assetDetails.riskExposureIndex, 'risk'))"
-                    [style.background-color]="getBadgeColor(assetDetails.riskExposureIndex, 'risk')"
-                    [style.color]="getBadgeTextColor(assetDetails.riskExposureIndex, 'risk')">
-                    {{ assetDetails.riskExposureIndex || 'UNKNOWN' }}
+                  <label class="text-uppercase text-muted small fw-medium mb-2"
+                    >RISK EXPOSURE INDEX</label
+                  >
+                  <span
+                    class="fw-semibold"
+                    [style.color]="
+                      getBadgeTextColor(assetDetails.riskExposureIndex, 'risk')
+                    "
+                  >
+                    {{ assetDetails.riskExposureIndex || "UNKNOWN" }}
                   </span>
                 </div>
               </div>
@@ -85,20 +156,29 @@
         </div>
 
         <!-- Right: Current Status Box -->
-        <div class="col-12 col-md-2">
-          <div class="d-flex flex-column gap-3 ms-auto" style="max-width: 220px;">
-            <div class="rounded p-3" [ngClass]="getStatusBoxClass(assetDetails.currentStatus)">
+        <div class="col-12 col-lg-2">
+          <div class="status-box-wrapper d-flex flex-column gap-3 ms-auto">
+            <div
+              class="rounded p-3"
+              [ngClass]="getStatusBoxClass(assetDetails.currentStatus)"
+            >
               <div class="center">
-                <label class="text-uppercase text-muted small fw-medium mb-2">CURRENT STATUS</label>
-                <span class="fw-semibold"
-                  [ngClass]="getStatusTextClass(assetDetails.currentStatus)">
-                  {{ assetDetails.currentStatus || 'Unknown' }}
+                <label class="text-uppercase text-muted small fw-medium mb-2"
+                  >CURRENT STATUS</label
+                >
+                <span
+                  class="fw-semibold"
+                  [ngClass]="getStatusTextClass(assetDetails.currentStatus)"
+                >
+                  {{ assetDetails.currentStatus || "Unknown" }}
                 </span>
               </div>
             </div>
-            <div class="d-flex justify-content-between gap-2">
-              <label class="text-uppercase text-muted small fw-medium mb-1">LAST OUTAGE</label>
-              <span class="">{{ assetDetails.lastOutage || 'N/A' }}</span>
+            <div class="status-last-outage-row">
+              <label class="text-uppercase text-muted small fw-medium mb-1"
+                >LAST OUTAGE</label
+              >
+              <span>{{ assetDetails.lastOutage || "N/A" }}</span>
             </div>
           </div>
         </div>
@@ -133,7 +213,10 @@
     <div class="standards-cards">
       <div class="standard-card" *ngFor="let standard of standardsCompliance">
         <div class="standard-name">{{ standard.name }}</div>
-        <span class="status-badge" [ngClass]="getStatusBadgeClass(standard.status)">
+        <span
+          class="status-badge"
+          [ngClass]="getStatusBadgeClass(standard.status)"
+        >
           {{ standard.status }}
         </span>
       </div>
@@ -150,7 +233,8 @@
       [showAddButton]="false"
       [assetId]="assetId"
       [initialQueryParams]="incidentQueryParams"
-      (queryParamsChange)="onIncidentQueryParamsChange($event)">
+      (queryParamsChange)="onIncidentQueryParamsChange($event)"
+    >
     </app-active-incidents>
   </div>
 
@@ -173,17 +257,24 @@
       </div>
       <div class="ownership-card">
         <div class="ownership-label">TECHNICAL OWNER NAME</div>
-        <div class="ownership-value" [ngClass]="{'not-assigned': !ownership.technicalOwnerName}">
-          {{ ownership.technicalOwnerName || 'Not Assigned' }}
+        <div
+          class="ownership-value"
+          [ngClass]="{ 'not-assigned': !ownership.technicalOwnerName }"
+        >
+          {{ ownership.technicalOwnerName || "Not Assigned" }}
         </div>
       </div>
       <div class="ownership-card">
         <div class="ownership-label">EMAIL</div>
-        <div class="ownership-value">{{ ownership.technicalOwnerEmail || 'NA' }}</div>
+        <div class="ownership-value">
+          {{ ownership.technicalOwnerEmail || "NA" }}
+        </div>
       </div>
       <div class="ownership-card">
         <div class="ownership-label">CONTACT</div>
-        <div class="ownership-value">{{ ownership.technicalOwnerContact || 'NA' }}</div>
+        <div class="ownership-value">
+          {{ ownership.technicalOwnerContact || "NA" }}
+        </div>
       </div>
     </div>
   </div>

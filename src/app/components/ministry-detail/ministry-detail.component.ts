@@ -1,6 +1,8 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import {
   TableConfig,
   TableColumn,
@@ -25,6 +27,7 @@ export interface AssetDetail {
   compliancePercentage: string;
   riskExposureIndex: string;
   citizenImpactLevel: string;
+  citizenImpactLevelSubtext: string;
   openIncidents: number | string;
   highSeverityIncidents: number | string;
 }
@@ -40,74 +43,50 @@ export class MinistryDetailComponent implements OnInit {
     {
       id: 'status',
       label: 'Status: All',
-      value: 'All',
+      value: '',
+      removable: true,
       paramKey: 'status',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'Up', value: 'Up' },
-        { label: 'Down', value: 'Down' },
-      ],
+      options: [{ label: 'All', value: '' }],
     },
     {
       id: 'health',
       label: 'Health: All',
-      value: 'All',
+      value: '',
+      removable: true,
       paramKey: 'health',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'Healthy', value: 'Healthy' },
-        { label: 'Critical', value: 'Critical' },
-        { label: 'Unknown', value: 'Unknown' },
-      ],
+      options: [{ label: 'All', value: '' }],
     },
     {
       id: 'performance',
       label: 'Performance: All',
-      value: 'All',
+      value: '',
+      removable: true,
       paramKey: 'performance',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'Performing Well', value: 'Performing Well' },
-        { label: 'Average', value: 'Average' },
-        { label: 'Poor', value: 'Poor' },
-      ],
+      options: [{ label: 'All', value: '' }],
     },
     {
       id: 'compliance',
       label: 'Compliance: All',
-      value: 'All',
+      value: '',
+      removable: true,
       paramKey: 'compliance',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'High Compliance', value: 'High Compliance' },
-        { label: 'Medium Compliance', value: 'Medium Compliance' },
-        { label: 'Low Compliance', value: 'Low Compliance' },
-      ],
+      options: [{ label: 'All', value: '' }],
     },
     {
       id: 'riskIndex',
       label: 'Risk Index: All',
-      value: 'All',
+      value: '',
+      removable: true,
       paramKey: 'riskIndex',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'LOW RISK', value: 'LOW RISK' },
-        { label: 'MEDIUM RISK', value: 'MEDIUM RISK' },
-        { label: 'HIGH RISK', value: 'HIGH RISK' },
-      ],
+      options: [{ label: 'All', value: '' }],
     },
     {
       id: 'citizenImpact',
       label: 'Citizen Impact: All',
-      value: 'All',
-      // Backend expects CitizenImpactLevelId
+      value: '',
+      removable: true,
       paramKey: 'CitizenImpactLevelId',
-      options: [
-        { label: 'All', value: 'All' },
-        { label: 'LOW', value: 'LOW' },
-        { label: 'MEDIUM', value: 'MEDIUM' },
-        { label: 'HIGH', value: 'HIGH' },
-      ],
+      options: [{ label: 'All', value: '' }],
     },
   ]);
 
@@ -173,7 +152,7 @@ export class MinistryDetailComponent implements OnInit {
           this.router.navigate(['/view-assets-detail'], {
             queryParams: {
               id: row.id,
-              ministryId: this.ministryId
+              ministryId: this.ministryId,
             },
           });
         },
@@ -307,8 +286,9 @@ export class MinistryDetailComponent implements OnInit {
       {
         key: 'citizenImpactLevel',
         header: 'CITIZEN IMPACT LEVEL',
-        cellType: 'badge',
+        cellType: 'badge-with-subtext',
         badgeField: 'citizenImpactLevel',
+        subtextField: 'citizenImpactLevelSubtext',
         badgeColor: (row: any) => {
           const impact = (row.citizenImpactLevel || '').toUpperCase();
           if (impact === 'LOW' || impact.includes('LOW')) {
@@ -360,6 +340,8 @@ export class MinistryDetailComponent implements OnInit {
   });
 
   ngOnInit() {
+    // Load filter options from APIs (same as dashboard)
+    this.initializeFilters();
     // Get ministryId from query params
     this.route.queryParams.subscribe((params) => {
       const id = params['ministryId'];
@@ -371,6 +353,185 @@ export class MinistryDetailComponent implements OnInit {
         // The table component will emit searchQuery on init, which will call loadAssets
       }
     });
+  }
+
+  initializeFilters(): void {
+    this.tableFilters.set([
+      {
+        id: 'status',
+        label: 'Status: All',
+        value: '',
+        removable: true,
+        paramKey: 'status',
+        options: [{ label: 'All', value: '' }],
+      },
+      {
+        id: 'health',
+        label: 'Health: All',
+        value: '',
+        removable: true,
+        paramKey: 'health',
+        options: [{ label: 'All', value: '' }],
+      },
+      {
+        id: 'performance',
+        label: 'Performance: All',
+        value: '',
+        removable: true,
+        paramKey: 'performance',
+        options: [{ label: 'All', value: '' }],
+      },
+      {
+        id: 'compliance',
+        label: 'Compliance: All',
+        value: '',
+        removable: true,
+        paramKey: 'compliance',
+        options: [{ label: 'All', value: '' }],
+      },
+      {
+        id: 'riskIndex',
+        label: 'Risk Index: All',
+        value: '',
+        removable: true,
+        paramKey: 'riskIndex',
+        options: [{ label: 'All', value: '' }],
+      },
+      {
+        id: 'citizenImpact',
+        label: 'Citizen Impact: All',
+        value: '',
+        removable: true,
+        paramKey: 'CitizenImpactLevelId',
+        options: [{ label: 'All', value: '' }],
+      },
+    ]);
+    this.loadFilterOptions();
+  }
+
+  /** Map LOV API response to filter options (All + items with label/value) */
+  private mapLovToOptions(data: any[]): { label: string; value: string }[] {
+    const options = [{ label: 'All', value: '' }];
+    (Array.isArray(data) ? data : []).forEach((item: any) => {
+      options.push({
+        label: item.name ?? item.label ?? String(item.id ?? ''),
+        value: item.name ?? item.label ?? item.id?.toString() ?? '',
+      });
+    });
+    return options;
+  }
+
+  loadFilterOptions(): void {
+    const toSafeLov = (lovType: 'Status' | 'citizenImpactLevel') =>
+      this.apiService
+        .getLovByType(lovType)
+        .pipe(
+          catchError(() =>
+            of({ isSuccessful: false, data: [] } as ApiResponse),
+          ),
+        );
+
+    forkJoin({
+      statuses: toSafeLov('Status'),
+      citizenImpactLevels: toSafeLov('citizenImpactLevel'),
+    }).subscribe({
+      next: (responses) => {
+        if (responses.statuses.isSuccessful) {
+          this.updateFilterOptions(
+            'status',
+            this.mapLovToOptions(responses.statuses.data ?? []),
+          );
+        } else {
+          this.updateFilterOptions('status', [{ label: 'All', value: '' }]);
+        }
+        if (responses.citizenImpactLevels.isSuccessful) {
+          this.updateFilterOptions(
+            'citizenImpact',
+            this.mapLovToOptions(responses.citizenImpactLevels.data ?? []),
+          );
+        } else {
+          this.updateFilterOptions('citizenImpact', [
+            { label: 'All', value: '' },
+          ]);
+        }
+        // Hardcoded options for Health, Performance, Compliance, Risk Index (same as dashboard)
+        this.updateFilterOptions('health', [
+          { label: 'All', value: '' },
+          { label: 'Healthy', value: 'Healthy' },
+          { label: 'Critical', value: 'Critical' },
+          { label: 'Unknown', value: 'Unknown' },
+        ]);
+        this.updateFilterOptions('performance', [
+          { label: 'All', value: '' },
+          { label: 'Performing Well', value: 'Performing Well' },
+          { label: 'Average', value: 'Average' },
+          { label: 'Poor', value: 'Poor' },
+        ]);
+        this.updateFilterOptions('compliance', [
+          { label: 'All', value: '' },
+          { label: 'High Compliance', value: 'High Compliance' },
+          { label: 'Medium Compliance', value: 'Medium Compliance' },
+          { label: 'Low Compliance', value: 'Low Compliance' },
+        ]);
+        this.updateFilterOptions('riskIndex', [
+          { label: 'All', value: '' },
+          { label: 'LOW RISK', value: 'LOW RISK' },
+          { label: 'MEDIUM RISK', value: 'MEDIUM RISK' },
+          { label: 'HIGH RISK', value: 'HIGH RISK' },
+          { label: 'UNKNOWN', value: 'UNKNOWN' },
+        ]);
+      },
+      error: () => {
+        this.setStaticFilterOptionsFallback();
+      },
+    });
+  }
+
+  private setStaticFilterOptionsFallback(): void {
+    this.updateFilterOptions('status', [{ label: 'All', value: '' }]);
+    this.updateFilterOptions('health', [
+      { label: 'All', value: '' },
+      { label: 'Healthy', value: 'Healthy' },
+      { label: 'Critical', value: 'Critical' },
+      { label: 'Unknown', value: 'Unknown' },
+    ]);
+    this.updateFilterOptions('performance', [
+      { label: 'All', value: '' },
+      { label: 'Performing Well', value: 'Performing Well' },
+      { label: 'Average', value: 'Average' },
+      { label: 'Poor', value: 'Poor' },
+    ]);
+    this.updateFilterOptions('compliance', [
+      { label: 'All', value: '' },
+      { label: 'High Compliance', value: 'High Compliance' },
+      { label: 'Medium Compliance', value: 'Medium Compliance' },
+      { label: 'Low Compliance', value: 'Low Compliance' },
+    ]);
+    this.updateFilterOptions('riskIndex', [
+      { label: 'All', value: '' },
+      { label: 'LOW RISK', value: 'LOW RISK' },
+      { label: 'MEDIUM RISK', value: 'MEDIUM RISK' },
+      { label: 'HIGH RISK', value: 'HIGH RISK' },
+      { label: 'UNKNOWN', value: 'UNKNOWN' },
+    ]);
+    this.updateFilterOptions('citizenImpact', [{ label: 'All', value: '' }]);
+  }
+
+  updateFilterOptions(
+    filterId: string,
+    options: { label: string; value: string }[],
+  ): void {
+    this.tableFilters.update((filters) =>
+      filters.map((filter) => {
+        if (filter.id !== filterId) return filter;
+        const selectedValue = filter.value;
+        const newLabel =
+          selectedValue && selectedValue !== '' && selectedValue !== 'All'
+            ? `${filter.label.split(':')[0]}: ${options.find((opt) => opt.value === selectedValue)?.label || selectedValue}`
+            : `${filter.label.split(':')[0]}: All`;
+        return { ...filter, options, label: newLabel };
+      }),
+    );
   }
 
   // Load summary cards data only
@@ -426,43 +587,14 @@ export class MinistryDetailComponent implements OnInit {
 
     this.isLoading.set(true);
 
-    // Normalise parameter names to match backend (supports both old and new keys)
-    const pageNumber =
-      searchParams.get('PageNumber') || searchParams.get('pageNumber') || '1';
-    const pageSize =
-      searchParams.get('PageSize') || searchParams.get('pageSize') || '10';
-    const searchTerm =
-      searchParams.get('SearchTerm') || searchParams.get('search') || '';
-
-    // Build new HttpParams with correct parameter names
-    let apiParams = new HttpParams()
-      .set('PageNumber', pageNumber)
-      .set('PageSize', pageSize);
-
-    if (searchTerm) {
-      apiParams = apiParams.set('SearchTerm', searchTerm);
-    }
-
-    // Preserve any existing sort parameters
-    const sortBy = searchParams.get('SortBy');
-    const sortDescending = searchParams.get('SortDescending');
-    if (sortBy) {
-      apiParams = apiParams.set('SortBy', sortBy);
-    }
-    if (sortDescending) {
-      apiParams = apiParams.set('SortDescending', sortDescending);
-    }
-
-    // Add filter parameters (paramKey should already match backend where applicable)
-    this.tableFilters().forEach((filter) => {
-      if (
-        filter.paramKey &&
-        filter.value &&
-        filter.value !== '' &&
-        filter.value !== 'All'
-      ) {
-        apiParams = apiParams.set(filter.paramKey, filter.value);
-      }
+    // Use all params from table (includes PageNumber, PageSize, SearchTerm, SortBy, and filter values)
+    // Table emits searchParams with filter paramKey/value when user selects filters
+    let apiParams = new HttpParams();
+    searchParams.keys().forEach((key) => {
+      const values = searchParams.getAll(key);
+      (values ?? []).forEach((value) => {
+        if (value != null) apiParams = apiParams.append(key, value);
+      });
     });
 
     // Use getAssestByMinistry API for table data
@@ -620,8 +752,19 @@ export class MinistryDetailComponent implements OnInit {
       // Risk Exposure Index
       const riskExposureIndex = item.riskExposureIndex || 'N/A';
 
-      // Use full citizen impact level from API (e.g. "LOW - Supporting Services")
-      const citizenImpactLevel = item.citizenImpactLevel || 'N/A';
+      // Citizen impact: badge = first part (LOW/HIGH/MEDIUM/UNKNOWN), subtext = part after " - " (e.g. "Supporting Services")
+      const citizenImpactRaw = item.citizenImpactLevel || 'N/A';
+      const dashIndex = String(citizenImpactRaw).indexOf(' - ');
+      const citizenImpactLevel =
+        dashIndex >= 0
+          ? String(citizenImpactRaw).slice(0, dashIndex).trim() || 'N/A'
+          : citizenImpactRaw;
+      const citizenImpactLevelSubtext =
+        dashIndex >= 0
+          ? String(citizenImpactRaw)
+              .slice(dashIndex + 3)
+              .trim()
+          : '';
 
       // Open Incidents: openIncidents as primary, highSeverityIncidents as secondary
       const openIncidents =
@@ -651,6 +794,7 @@ export class MinistryDetailComponent implements OnInit {
         compliancePercentage: compliancePercentage,
         riskExposureIndex: riskExposureIndex,
         citizenImpactLevel: citizenImpactLevel,
+        citizenImpactLevelSubtext: citizenImpactLevelSubtext,
         openIncidents: openIncidents,
         highSeverityIncidents: highSeverityIncidents,
       };

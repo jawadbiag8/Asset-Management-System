@@ -537,7 +537,7 @@
 // Tab view (1400px - 769px): sidebar side mein, 2 col cards, tables stack
 @media (max-width: 1400px) {
   .pm-dashboard-container {
-    padding: 20px 0 0 20px;
+    padding: 0 0 0 20px;
     gap: 20px;
   }
 
@@ -562,7 +562,7 @@
 // Tab view (1024px - 769px): sidebar ab bhi side mein, choti width
 @media (max-width: 1024px) {
   .pm-dashboard-container {
-    padding: 16px 0 0 16px;
+    padding: 0 0 0 16px;
     gap: 16px;
     flex-direction: row; // Tab tak sidebar side mein
   }

@@ -20,7 +20,7 @@ export interface ApiResponse<T = any> {
 export class ApiService {
   private baseUrl: string = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(username: string, password: string): Observable<ApiResponse<string>> {
     return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, {
@@ -49,7 +49,7 @@ export class ApiService {
   }
 
   getLovByType(
-    lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status',
+    lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status' | 'IncidentCreationFrequency	',
   ): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/CommonLookup/type/${lovType}`,
@@ -124,9 +124,14 @@ export class ApiService {
     let url = `${this.baseUrl}/Asset/ministry/${ministryId}/summary`;
     return this.http.get<ApiResponse<any>>(url);
   }
-  getIncidentByAssetId(assetId: any, searchQuery?: HttpParams): Observable<ApiResponse<any>> {
+  getIncidentByAssetId(
+    assetId: any,
+    searchQuery?: HttpParams,
+  ): Observable<ApiResponse<any>> {
     const url = `${this.baseUrl}/Incident/asset/${assetId}`;
-    return this.http.get<ApiResponse<any>>(url, { params: searchQuery ?? undefined });
+    return this.http.get<ApiResponse<any>>(url, {
+      params: searchQuery ?? undefined,
+    });
   }
   getAssetsDashboad(id: any): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset/${id}/dashboard/header`;
