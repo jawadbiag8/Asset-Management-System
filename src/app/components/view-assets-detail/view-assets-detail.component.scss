@@ -1,13 +1,76 @@
-.container-fluid {
+.container-fluid.view-assets-detail-page {
   background-color: var(--color-bg-secondary);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-// Left section styling for proper alignment - matching Figma design
+// Header card - prevent overlap/overflow at tablet (768px)
+.header-card {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.header-card-body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.header-row {
+  > [class^='col-'] {
+    min-width: 0; // Allow columns to shrink and prevent overflow
+  }
+
+  // Extra gap between left column and metrics box so DEPARTMENT doesn't overlap
+  @media (min-width: 992px) {
+    .col-lg-5:first-child {
+      padding-right: 12px;
+    }
+    .col-lg-5:nth-child(2) {
+      padding-left: 12px;
+    }
+  }
+
+  // At 1024px (laptop) ensure clear gap and no overflow from left into metrics box
+  @media (min-width: 992px) and (max-width: 1199px) {
+    .col-lg-5:first-child {
+      padding-right: 24px;
+      overflow: hidden;
+    }
+    .col-lg-5:nth-child(2) {
+      padding-left: 24px;
+    }
+  }
+}
+
+// Long text wrap (ministry, badges) - prevent truncation/overlap
+.left-section .info-item span,
+.left-section .info-item a {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.metrics-box .badge {
+  white-space: normal;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+// Left section styling - URL, MINISTRY, DEPARTMENT labels on same baseline (2nd SS alignment)
 .left-section {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @media (min-width: 992px) {
+    padding-right: 20px; // Gap so DEPARTMENT doesn't overlap CITIZEN IMPACT LEVEL box
+  }
+  @media (min-width: 992px) and (max-width: 1199px) {
+    padding-right: 32px; // Larger gap at laptop (1024px) to prevent overlap
+    max-width: 100%;
+  }
 
   h1 {
     margin-bottom: 28px;
@@ -19,19 +82,39 @@
     flex-direction: column;
     gap: 0;
     margin-bottom: 28px;
+    align-items: flex-start;
 
-    @media (min-width: 768px) {
+    @media (min-width: 992px) {
       flex-direction: row;
       gap: 0;
+      align-items: flex-start; // URL, MINISTRY, DEPARTMENT in one row only on large screens
     }
 
     .info-item {
       display: flex;
       flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+      max-width: 100%;
 
-      @media (min-width: 768px) {
+      label {
+        line-height: 1.2;
+        min-height: 1.2em;
+      }
+
+      @media (min-width: 992px) {
         &:not(:last-child) {
-          margin-right: 64px; // Figma: significant horizontal spacing between URL / Ministry / Department
+          margin-right: 64px;
+        }
+      }
+      // At laptop (1024px) use smaller gap so DEPARTMENT doesn't run into metrics box
+      @media (min-width: 992px) and (max-width: 1199px) {
+        &:not(:last-child) {
+          margin-right: 32px;
+        }
+        &:last-child {
+          margin-right: 0;
+          max-width: 100%;
         }
       }
     }
@@ -40,6 +123,19 @@
   .analyze-button-container {
     margin-top: 28px;
   }
+}
+
+// Status box wrapper - max-width on desktop, full width on mobile
+.status-box-wrapper {
+  max-width: 220px;
+}
+
+// Right section: LAST OUTAGE - label left, value right (2nd SS alignment)
+.status-last-outage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
 }
 
 // Badge styles - using same approach as reusable-table
@@ -54,11 +150,49 @@
   white-space: nowrap;
 }
 
+// CITIZEN IMPACT LEVEL, CURRENT HEALTH, RISK EXPOSURE INDEX - same baseline (labels & badges aligned)
+.metrics-row {
+  align-items: flex-start;
+
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+
+    label {
+      text-align: center;
+      width: 100%;
+      min-height: 2.5em; // Same height so badges align (CITIZEN IMPACT LEVEL can wrap to 2 lines)
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .badge {
+      text-align: center;
+    }
+  }
+}
+
+// CURRENT STATUS box - centered
 .center {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  text-align: center;
+
+  label {
+    text-align: center;
+    width: 100%;
+  }
+
+  .badge,
+  .fw-semibold {
+    text-align: center;
+  }
 }
 
 // Ensure link styling matches the image
@@ -278,51 +412,101 @@ a.link {
   }
 }
 
-// Responsive Design
+// ========== Responsive Design (fully mobile responsive) ==========
+
 @media (max-width: 1200px) {
   .standards-cards {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .ownership-section {
-    .ownership-cards {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  .ownership-section .ownership-cards {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 992px) {
   .kpi-cards-section {
     grid-template-columns: repeat(2, 1fr);
+    margin-top: 24px;
+    margin-bottom: 24px;
   }
 
   .standards-cards {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .ownership-section {
-    .ownership-cards {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  .ownership-section .ownership-cards {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .container-fluid {
+  .container-fluid.view-assets-detail-page {
     padding: 16px !important;
   }
 
+  // Header card - stack and tighten on tablet
+  .card.shadow-sm .card-body {
+    padding: 20px;
+  }
+
+  .left-section {
+    h1 {
+      font-size: 1.35rem;
+      margin-bottom: 20px;
+    }
+
+    .info-row {
+      margin-bottom: 20px;
+
+      .info-item {
+        margin-bottom: 12px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .analyze-button-container {
+      margin-top: 20px;
+
+      .btn-analyze {
+        width: 100%;
+        max-width: 280px;
+      }
+    }
+  }
+
+  // Metrics row - stack with dividers on tablet
+  .metrics-row {
+    .center label {
+      min-height: 2em;
+    }
+  }
+
+  .border.rounded.p-4 {
+    padding: 16px !important;
+  }
+
+  // Status box - full width on tablet
+  .status-box-wrapper {
+    max-width: 100%;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
 
   .kpi-cards-section {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    margin-top: 20px;
     margin-bottom: 24px;
 
     .kpi-card {
       padding: 16px;
 
       .kpi-value {
-        font-size: 28px;
+        font-size: 26px;
       }
 
       .kpi-label {
@@ -358,6 +542,11 @@ a.link {
       font-size: 18px;
       margin-bottom: 12px;
     }
+
+    ::ng-deep app-reusable-table {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
   }
 
   .ownership-section {
@@ -370,7 +559,7 @@ a.link {
     }
 
     .ownership-cards {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
 
       .ownership-card {
@@ -380,15 +569,76 @@ a.link {
   }
 }
 
-@media (max-width: 480px) {
-  .container-fluid {
+@media (max-width: 576px) {
+  .container-fluid.view-assets-detail-page {
     padding: 12px !important;
   }
 
+  .card.shadow-sm {
+    margin-top: 16px;
+  }
+
+  .card.shadow-sm .card-body {
+    padding: 16px;
+  }
+
+  .left-section {
+    h1 {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+    }
+
+    .info-row .info-item {
+      margin-bottom: 14px;
+    }
+
+    .analyze-button-container .btn-analyze {
+      width: 100%;
+      max-width: none;
+      padding: 12px 16px;
+      font-size: 15px;
+    }
+  }
+
+  // Metrics - single column, border between items
+  .metrics-row {
+    .col-12.col-sm-4 {
+      border-end: none !important;
+      border-bottom: 1px solid var(--color-border, #e5e7eb);
+      padding-bottom: 16px !important;
+      margin-bottom: 0;
+      padding-top: 12px;
+
+      &:first-child {
+        padding-top: 0;
+      }
+
+      &:last-child {
+        border-bottom: none;
+        padding-bottom: 0 !important;
+      }
+    }
+
+    .center label {
+      min-height: 1.8em;
+      font-size: 0.7rem;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 10px;
+    }
+  }
+
+  .border.rounded.p-4 {
+    padding: 12px !important;
+  }
 
   .kpi-cards-section {
     grid-template-columns: 1fr;
     gap: 10px;
+    margin-top: 16px;
+    margin-bottom: 20px;
 
     .kpi-card {
       padding: 14px;
@@ -409,7 +659,7 @@ a.link {
 
     .section-title {
       font-size: 16px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .standards-cards {
@@ -432,7 +682,7 @@ a.link {
 
     .section-title {
       font-size: 16px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
   }
 
@@ -442,11 +692,11 @@ a.link {
 
     .section-title {
       font-size: 16px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .ownership-cards {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
       gap: 10px;
 
       .ownership-card {
@@ -461,5 +711,23 @@ a.link {
         }
       }
     }
+  }
+}
+
+@media (max-width: 380px) {
+  .container-fluid.view-assets-detail-page {
+    padding: 10px !important;
+  }
+
+  .left-section h1 {
+    font-size: 1.1rem;
+  }
+
+  .kpi-cards-section .kpi-card .kpi-value {
+    font-size: 22px;
+  }
+
+  .ownership-section .ownership-cards {
+    grid-template-columns: 1fr;
   }
 }

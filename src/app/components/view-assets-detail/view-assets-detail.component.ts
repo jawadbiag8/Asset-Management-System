@@ -58,6 +58,7 @@ export class ViewAssetsDetailComponent implements OnInit {
 
   // Asset Details
   assetDetails = {
+    assetName: '',
     url: '',
     ministry: '',
     department: '',
@@ -102,6 +103,7 @@ export class ViewAssetsDetailComponent implements OnInit {
 
           // Map API response to assetDetails (dashboard header)
           this.assetDetails = {
+            assetName: d.assetName ?? '',
             url: d.assetUrl ?? '',
             ministry: d.ministry ?? '',
             department: d.department ?? '',
@@ -178,6 +180,25 @@ export class ViewAssetsDetailComponent implements OnInit {
     return '';
   }
 
+  /** Health / impact badge: show only LOW / HIGH / MEDIUM / UNKNOWN (strip extra text) */
+  getHealthOrImpactBadgeLabel(value: string | undefined | null): string {
+    if (!value) return 'UNKNOWN';
+    const s = String(value).trim();
+    const dash = s.indexOf(' - ');
+    const short = dash >= 0 ? s.slice(0, dash).trim() : s;
+    const upper = short.toUpperCase();
+    if (upper === 'LOW' || upper === 'HIGH' || upper === 'MEDIUM' || upper === 'UNKNOWN') return upper;
+    if (upper.includes('LOW')) return 'LOW';
+    if (upper.includes('HIGH')) return 'HIGH';
+    if (upper.includes('MEDIUM')) return 'MEDIUM';
+    return 'UNKNOWN';
+  }
+
+  /** Citizen impact badge: show only LOW / HIGH / MEDIUM / UNKNOWN */
+  getCitizenImpactBadgeLabel(value: string | undefined | null): string {
+    return this.getHealthOrImpactBadgeLabel(value);
+  }
+
   getBadgeColor(
     value: string | undefined | null,
     type: 'citizenImpact' | 'health' | 'risk',
@@ -199,12 +220,10 @@ export class ViewAssetsDetailComponent implements OnInit {
     }
 
     if (type === 'health') {
-      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT'))
-        return 'var(--color-green-light)';
-      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR'))
-        return 'var(--color-yellow-light)';
-      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL'))
-        return 'var(--color-red-light)';
+      // Same as citizen impact / risk: LOW=green, MEDIUM=yellow, HIGH=red, UNKNOWN=default
+      if (upperValue.includes('LOW')) return 'var(--color-green-light)';
+      if (upperValue.includes('MEDIUM')) return 'var(--color-yellow-light)';
+      if (upperValue.includes('HIGH')) return 'var(--color-red-light)';
       return 'var(--color-bg-quaternary)';
     }
 
@@ -239,12 +258,10 @@ export class ViewAssetsDetailComponent implements OnInit {
     }
 
     if (type === 'health') {
-      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT'))
-        return 'var(--color-green-dark)';
-      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR'))
-        return 'var(--color-yellow)';
-      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL'))
-        return 'var(--color-red)';
+      // Same as citizen impact / risk: LOW=green, MEDIUM=yellow, HIGH=red, UNKNOWN=default
+      if (upperValue.includes('LOW')) return 'var(--color-green-dark)';
+      if (upperValue.includes('MEDIUM')) return 'var(--color-yellow)';
+      if (upperValue.includes('HIGH')) return 'var(--color-red)';
       return 'var(--color-text-tertiary)';
     }
 
