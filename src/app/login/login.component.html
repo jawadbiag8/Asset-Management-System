@@ -11,6 +11,12 @@
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="mb-3" *ngIf="errorMessage">
+        <div class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+      </div>
+
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Username</mat-label>
         <input
@@ -57,12 +63,6 @@
           <span *ngIf="f['password'].errors && f['password'].errors['minlength']">Password must be at least 6 characters</span>
         </mat-error>
       </mat-form-field>
-
-      <div class="mb-3" *ngIf="errorMessage">
-        <div class="alert alert-danger" role="alert">
-          {{ errorMessage }}
-        </div>
-      </div>
 
       <button mat-raised-button type="submit" class="btn-signin" [disabled]="submitted && loginForm.invalid">
         Sign In

@@ -205,6 +205,20 @@
               }
             </div>
             }
+            @case ("progress-bar") {
+            <div class="progress-bar-cell">
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" [style.width.%]="getProgressValue(row, column)" [style.background-color]="
+                      getProgressColor(row, column)
+                    "></div>
+              </div>
+              @if (column.progressShowLabel !== false) {
+              <span class="progress-bar-label">
+                {{ getProgressValue(row, column) }}%
+              </span>
+              }
+            </div>
+            }
             @default {
             <div [ngClass]="column.cellClass">
               {{ getCellValue(row, column.primaryField || column.key) }}

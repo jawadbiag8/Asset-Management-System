@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import {
   TableConfig,
   TableColumn,
@@ -9,7 +9,8 @@ import { HttpParams } from '@angular/common/http';
 import { DashboardKpiItem } from '../dashboardkpi/dashboardkpi.component';
 import { UtilsService } from '../../services/utils.service';
 import { forkJoin } from 'rxjs';
-import { Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Router, NavigationEnd } from '@angular/router';
 
 export interface DigitalAsset {
   id: number;
@@ -39,8 +40,10 @@ export interface DigitalAsset {
   styleUrl: './dashboard.component.scss',
   standalone: false,
 })
-export class DashboardComponent implements OnInit {
-  constructor(private apiService: ApiService, private utils: UtilsService, private route: Router) { }
+export class DashboardComponent implements OnInit, OnDestroy {
+  private routerSubscription: any;
+
+  constructor(private apiService: ApiService, private utils: UtilsService, private router: Router) { }
 
   tableFilters = signal<FilterPill[]>([]);
 
@@ -374,7 +377,33 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.initializeFilters();
+    // Refresh KPI cards and table whenever user navigates to dashboard (from anywhere)
+    this.routerSubscription = this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        if (event.urlAfterRedirects === '/dashboard' || event.urlAfterRedirects.startsWith('/dashboard?')) {
+          this.refreshDashboardData();
+        }
+      });
+    // Initial load when component first loads on /dashboard
+    if (this.router.url === '/dashboard' || this.router.url.startsWith('/dashboard?')) {
+      this.refreshDashboardData();
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  /**
+   * Refresh KPI cards and assets table. Called when navigating to dashboard.
+   */
+  refreshDashboardData(): void {
     this.loadDashboardSummary();
+    // Table will re-fetch when it re-emits last search params
+    setTimeout(() => this.utils.refreshTableData(), 0);
   }
 
   initializeFilters(): void {
@@ -769,7 +798,7 @@ export class DashboardComponent implements OnInit {
 
   onActionClick(event: { row: any, columnKey: string }) {
     if (event.columnKey === 'analyze') {
-      this.route.navigate(['/asset-control-panel'], { queryParams: { assetId: event.row.id } });
+      this.router.navigate(['/asset-control-panel'], { queryParams: { assetId: event.row.id } });
       return
     }
 
@@ -783,7 +812,7 @@ export class DashboardComponent implements OnInit {
 
   onEditClick(row: any): void {
     if (row?.id) {
-      this.route.navigate(['/edit-digital-asset'], { queryParams: { assetId: row.id } });
+      this.router.navigate(['/edit-digital-asset'], { queryParams: { assetId: row.id } });
     }
   }
 

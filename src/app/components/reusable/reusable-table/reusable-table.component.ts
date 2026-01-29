@@ -412,7 +412,8 @@ export type CellType =
   | 'badge-with-subtext'
   | 'text-with-color'
   | 'health-status'
-  | 'actions';
+  | 'actions'
+  | 'progress-bar';
 
 export interface TableColumn {
   key: string; // Unique identifier for the column
@@ -424,6 +425,9 @@ export interface TableColumn {
   // For 'text' and 'two-line' cells
   primaryField?: string; // Field name for primary text
   secondaryField?: string; // Field name for secondary text (two-line only)
+  
+  // For 'text' cells with icon (uses iconName/iconUrl from icon cells)
+  showIcon?: boolean; // Show icon next to text
 
   // For 'badge' and 'badge-with-subtext' cells
   badgeField?: string; // Field name for badge text
@@ -451,6 +455,11 @@ export interface TableColumn {
   healthStatusField?: string; // Field name for health status (e.g., 'currentHealthStatus')
   healthIconField?: string; // Field name for icon name (e.g., 'currentHealthIcon')
   healthPercentageField?: string; // Field name for health percentage (e.g., 'currentHealthPercentage')
+
+  // For 'progress-bar' cells
+  progressValueField?: string; // Field name for progress percentage value (e.g., 'percentage')
+  progressColor?: string | ((row: any) => string); // Progress bar color (CSS variable or hex) or function that returns color
+  progressShowLabel?: boolean; // Whether to show percentage label next to progress bar (default: true)
 
   // For custom CSS classes
   cellClass?: string; // CSS class name to apply to the cell content
@@ -506,7 +515,8 @@ export interface TableConfig {
   standalone: false,
 })
 export class ReusableTableComponent
-  implements OnInit, AfterViewInit, OnChanges {
+  implements OnInit, AfterViewInit, OnChanges
+{
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
   @Input() totalItems?: number; // Total items count for server-side pagination
@@ -554,7 +564,7 @@ export class ReusableTableComponent
     private utilsService: UtilsService,
     private router: Router,
     private dialog: MatDialog,
-  ) { }
+  ) {}
 
   ngOnInit() {
     if (this.config && this.config.columns) {
@@ -884,7 +894,7 @@ export class ReusableTableComponent
       width: '90%',
       maxWidth: '600px',
       data: { filters: this.filters },
-      panelClass: 'responsive-modal',
+      panelClass: 'filter-options-dialog',
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -1219,6 +1229,34 @@ export class ReusableTableComponent
       return column.badgeTextColor(row);
     }
     return column.badgeTextColor;
+  }
+
+  getProgressValue(row: any, column: TableColumn): number {
+    if (!column.progressValueField) return 0;
+    const value = this.getCellValue(row, column.progressValueField);
+    // Handle both number and string with % sign
+    if (typeof value === 'number') {
+      return Math.min(100, Math.max(0, value));
+    }
+    if (typeof value === 'string') {
+      const numValue = parseFloat(value.replace('%', '').trim());
+      return isNaN(numValue) ? 0 : Math.min(100, Math.max(0, numValue));
+    }
+    return 0;
+  }
+
+  getProgressColor(row: any, column: TableColumn): string {
+    if (!column.progressColor) {
+      // Default color based on percentage using CSS variables
+      const value = this.getProgressValue(row, column);
+      if (value >= 70) return 'var(--color-green)'; // Green for 70% and above
+      if (value >= 30) return 'var(--color-orange)'; // Orange for 30% to 70%
+      return 'var(--color-red)'; // Red for less than 30%
+    }
+    if (typeof column.progressColor === 'function') {
+      return column.progressColor(row);
+    }
+    return column.progressColor;
   }
 
   getTooltipText(row: any, column: TableColumn): string {

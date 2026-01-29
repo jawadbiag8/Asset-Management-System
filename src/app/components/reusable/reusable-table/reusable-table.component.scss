@@ -408,6 +408,73 @@
     text-align: center; // Center text within badge
 }
 
+// Progress Bar Cell Styles
+.progress-bar-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+
+    .progress-bar-container {
+        flex: 1;
+        height: 8px;
+        background-color: #E5E7EB;
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            min-width: 0;
+        }
+    }
+
+    .progress-bar-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+        white-space: nowrap;
+        min-width: 40px;
+        text-align: right;
+    }
+}
+
+// Clickable and Pointer Classes
+.clickable {
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+// Text Cell with Icon
+.text-cell-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .text-cell-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .text-cell-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    flex-shrink: 0;
+    color: #6B7280;
+  }
+}
+
 // Actions Cell Styles
 .actions-cell {
     display: flex;

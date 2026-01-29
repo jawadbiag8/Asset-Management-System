@@ -11,6 +11,7 @@ import { LoginGuard } from './guards/login.guard';
 import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { AssetControlPanelComponent } from './components/assets/asset-control-panel/asset-control-panel.component';
+import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -60,6 +61,11 @@ export const routes: Routes = [
   {
     path: 'incidents/:id',
     component: IncidentDetailsComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'pm-dashboard',
+    component: PmDashboardComponent,
     canActivate: [AuthGuard],
   },
 ];

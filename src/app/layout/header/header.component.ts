@@ -68,6 +68,14 @@ export class HeaderComponent {
     return this.currentRoute().includes('/incidents');
   }
 
+  isPmDashboardActive(): boolean {
+    return this.currentRoute().includes('/pm-dashboard');
+  }
+
+  navigateToPmDashboard(): void {
+    this.router.navigate(['/pm-dashboard']);
+  }
+
   toggleProfileDropdown() {
     this.profileDropdownOpen = !this.profileDropdownOpen;
     console.log('Profile dropdown open:', this.profileDropdownOpen);
