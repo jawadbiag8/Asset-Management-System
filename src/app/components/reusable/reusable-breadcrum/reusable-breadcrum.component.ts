@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 export interface BreadcrumbItem {
   label: string;
   path?: string; // Optional - if not provided, it's the current page (not a link)
+  queryParams?: { [key: string]: string | number }; // Optional query params for the route
 }
 
 @Component({

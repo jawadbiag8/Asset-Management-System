@@ -55,7 +55,7 @@ export class DashboardComponent implements OnInit {
         header: 'ANALYZE',
         cellType: 'icon',
         iconUrl: '/assets/analyze.svg',
-        sortable: true,
+        sortable: false,
         width: '200px',
       },
       {
@@ -119,20 +119,34 @@ export class DashboardComponent implements OnInit {
       {
         key: 'performanceStatus',
         header: 'PERFORMANCE STATUS',
-        cellType: 'two-line',
+        cellType: 'text-with-color',
         primaryField: 'performanceStatus',
         secondaryField: 'performancePercentage',
         sortable: true,
         width: '200px',
+        textColor: (row: any) => {
+          const status = (row.performanceStatus || '').toLowerCase();
+          if (status.includes('performing well') || status.includes('well') || status.includes('good')) return 'success';
+          if (status.includes('average')) return 'warning';
+          if (status.includes('poor')) return 'danger';
+          return '';
+        },
       },
       {
         key: 'complianceStatus',
         header: 'COMPLIANCE STATUS',
-        cellType: 'two-line',
+        cellType: 'text-with-color',
         primaryField: 'complianceStatus',
         secondaryField: 'compliancePercentage',
         sortable: true,
         width: '200px',
+        textColor: (row: any) => {
+          const status = (row.complianceStatus || '').toLowerCase();
+          if (status.includes('high compliance') || status.includes('high')) return 'success';
+          if (status.includes('medium compliance') || status.includes('medium')) return 'warning';
+          if (status.includes('low compliance') || status.includes('low')) return 'danger';
+          return '';
+        },
       },
       {
         key: 'riskExposureIndex',
@@ -185,6 +199,22 @@ export class DashboardComponent implements OnInit {
         secondaryField: 'highSeverityText',
         sortable: true,
         width: '200px',
+      },
+      {
+        key: 'actions',
+        header: 'ACTION',
+        cellType: 'actions',
+        sortable: false,
+        width: '120px',
+        actionLinks: [
+          {
+            label: 'Edit Asset',
+            display: 'icon',
+            iconName: 'edit',
+            color: 'var(--color-primary)',
+            disabled: (row: any) => !row?.id,
+          },
+        ],
       },
     ],
     data: [],
@@ -740,6 +770,20 @@ export class DashboardComponent implements OnInit {
   onActionClick(event: { row: any, columnKey: string }) {
     if (event.columnKey === 'analyze') {
       this.route.navigate(['/asset-control-panel'], { queryParams: { assetId: event.row.id } });
+      return
+    }
+
+    if (event.columnKey === 'Edit Asset') {
+      this.onEditClick(event.row);
+      return;
+    }
+
+    console.log('Event:', event);
+  }
+
+  onEditClick(row: any): void {
+    if (row?.id) {
+      this.route.navigate(['/edit-digital-asset'], { queryParams: { assetId: row.id } });
     }
   }
 

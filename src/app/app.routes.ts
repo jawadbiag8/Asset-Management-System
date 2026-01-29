@@ -47,7 +47,7 @@ export const routes: Routes = [
     canDeactivate: [CanDeactivateGuard],
   },
   {
-    path: 'edit-digital-assets',
+    path: 'edit-digital-asset',
     component: ManageDigitalAssetsComponent,
     canActivate: [AuthGuard],
     canDeactivate: [CanDeactivateGuard],

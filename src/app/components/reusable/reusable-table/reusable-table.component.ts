@@ -460,9 +460,11 @@ export interface TableColumn {
 
   // For 'actions' cells
   actionLinks?: Array<{
-    label: string;
-    color?: string; // CSS color or class
-    onClick?: (row: any) => void;
+    label: string; // Display text when display is 'text'; used for aria-label/tooltip when 'icon'
+    display?: 'icon' | 'text'; // 'text' = show label, 'icon' = show Material icon
+    iconName?: string; // Material icon name (e.g. 'edit', 'visibility') when display is 'icon'
+    color?: string; // CSS color for icon or text
+    disabled?: boolean | ((row: any) => boolean); // When true or function returns true, button is disabled
   }>;
 }
 
@@ -1183,6 +1185,16 @@ export class ReusableTableComponent
 
   onIconClick(row: any, columnKey: string): void {
     this.actionClick.emit({ row, columnKey });
+  }
+
+  getActionDisabled(row: any, action: { disabled?: boolean | ((row: any) => boolean) }): boolean {
+    if (action.disabled === undefined || action.disabled === null) return false;
+    if (typeof action.disabled === 'boolean') return action.disabled;
+    try {
+      return action.disabled(row) === true;
+    } catch {
+      return false;
+    }
   }
 
   onActionLinkClick(row: any, actionLabel: string): void {

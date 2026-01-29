@@ -82,6 +82,7 @@ import { AssetControlPanelComponent } from './components/assets/asset-control-pa
       positionClass: 'toast-top-right',
       closeButton: true,
       progressBar: true,
+      preventDuplicates: true
     }),
   ],
   providers: [
@@ -93,4 +94,4 @@ import { AssetControlPanelComponent } from './components/assets/asset-control-pa
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

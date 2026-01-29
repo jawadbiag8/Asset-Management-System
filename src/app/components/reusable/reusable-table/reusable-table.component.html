@@ -186,18 +186,17 @@
             }
             @case ("actions") {
             <div class="actions-cell" [ngClass]="column.cellClass">
-              @if (
-              column.actionLinks && column.actionLinks.length > 0
-              ) {
+              @if ( column.actionLinks && column.actionLinks.length > 0 ) {
               @for (action of column.actionLinks; track $index) {
-              <button type="button" class="action-link me-2" [style.color]="
-                              action.color || 'var(--color-primary)'
-                            " (click)="
-                              action.onClick
-                                ? action.onClick(row)
-                                : onActionLinkClick(row, action.label)
-                            ">
+              <button type="button" class="action-link me-2" [class.action-link-icon]="action.display === 'icon'"
+                [style.color]="action.color" [disabled]="getActionDisabled(row, action)"
+                [attr.aria-label]="action.label" [matTooltip]="action.label" matTooltipPosition="above"
+                (click)="$event.stopPropagation(); onIconClick(row, action.label)">
+                @if (action.display === 'icon' && action.iconName) {
+                <mat-icon [attr.aria-hidden]="true">{{ action.iconName }}</mat-icon>
+                } @else {
                 {{ action.label }}
+                }
               </button>
               @if (!$last) {
               <span class="text-muted">|</span>
