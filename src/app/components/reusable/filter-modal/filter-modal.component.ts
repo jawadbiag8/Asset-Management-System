@@ -32,7 +32,7 @@ export class FilterModalComponent implements OnInit, OnDestroy {
 
   constructor(
     public dialogRef: MatDialogRef<FilterModalComponent, FilterModalResult>,
-    @Inject(MAT_DIALOG_DATA) public data: FilterModalData,
+    @Inject(MAT_DIALOG_DATA) public data: FilterModalData | null,
   ) {
     this.filters = data?.filters ?? [];
   }
@@ -46,41 +46,41 @@ export class FilterModalComponent implements OnInit, OnDestroy {
     // Initialize with current values for all filters
     this.selectedValues.clear();
     this.filters.forEach(filter => {
-        // Use filter.value if it exists, otherwise use empty string (which corresponds to "All")
-        const defaultValue = filter.value || '';
-        this.selectedValues.set(filter.id, defaultValue);
+      // Use filter.value if it exists, otherwise use empty string (which corresponds to "All")
+      const defaultValue = filter.value || '';
+      this.selectedValues.set(filter.id, defaultValue);
 
-        // Initialize FormControls for search and select
-        if (!this.filterControls.has(filter.id)) {
-          this.filterControls.set(filter.id, new FormControl());
-        } else {
-          // Reset search control when modal opens
-          this.filterControls.get(filter.id)?.setValue('', { emitEvent: false });
+      // Initialize FormControls for search and select
+      if (!this.filterControls.has(filter.id)) {
+        this.filterControls.set(filter.id, new FormControl());
+      } else {
+        // Reset search control when modal opens
+        this.filterControls.get(filter.id)?.setValue('', { emitEvent: false });
+      }
+
+      if (!this.selectControls.has(filter.id)) {
+        const selectControl = new FormControl(defaultValue);
+        this.selectControls.set(filter.id, selectControl);
+      } else {
+        // Update select control with current value
+        this.selectControls.get(filter.id)?.setValue(defaultValue, { emitEvent: false });
+      }
+
+      if (!this.filteredOptions.has(filter.id)) {
+        this.filteredOptions.set(filter.id, new ReplaySubject<FilterOption[]>(1));
+      }
+
+      // Initialize filtered options with all options
+      if (filter.options) {
+        const filteredOptions = this.filteredOptions.get(filter.id);
+        if (filteredOptions) {
+          filteredOptions.next(filter.options.slice());
         }
+      }
 
-        if (!this.selectControls.has(filter.id)) {
-          const selectControl = new FormControl(defaultValue);
-          this.selectControls.set(filter.id, selectControl);
-        } else {
-          // Update select control with current value
-          this.selectControls.get(filter.id)?.setValue(defaultValue, { emitEvent: false });
-        }
-
-        if (!this.filteredOptions.has(filter.id)) {
-          this.filteredOptions.set(filter.id, new ReplaySubject<FilterOption[]>(1));
-        }
-
-        // Initialize filtered options with all options
-        if (filter.options) {
-          const filteredOptions = this.filteredOptions.get(filter.id);
-          if (filteredOptions) {
-            filteredOptions.next(filter.options.slice());
-          }
-        }
-
-        // Setup filtering for this filter
-        this.setupFiltering(filter.id);
-      });
+      // Setup filtering for this filter
+      this.setupFiltering(filter.id);
+    });
   }
 
   ngOnDestroy() {
@@ -145,7 +145,7 @@ export class FilterModalComponent implements OnInit, OnDestroy {
 
     // Filter the options
     filteredOptions.next(
-      filter.options.filter(option => 
+      filter.options.filter(option =>
         option.label.toLowerCase().indexOf(search) > -1
       )
     );
@@ -205,7 +205,7 @@ export class FilterModalComponent implements OnInit, OnDestroy {
     this.dialogRef.close({ reset: true });
   }
 
-  onClose() {
+  onClose(): void {
     this.dialogRef.close();
   }
 }
