@@ -124,9 +124,14 @@ export class ApiService {
     let url = `${this.baseUrl}/Asset/ministry/${ministryId}/summary`;
     return this.http.get<ApiResponse<any>>(url);
   }
-  getIncidentByAssetId(assetId: any, searchQuery?: HttpParams): Observable<ApiResponse<any>> {
+  getIncidentByAssetId(
+    assetId: any,
+    searchQuery?: HttpParams,
+  ): Observable<ApiResponse<any>> {
     const url = `${this.baseUrl}/Incident/asset/${assetId}`;
-    return this.http.get<ApiResponse<any>>(url, { params: searchQuery ?? undefined });
+    return this.http.get<ApiResponse<any>>(url, {
+      params: searchQuery ?? undefined,
+    });
   }
   getAssetsDashboad(id: any): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset/${id}/dashboard/header`;
