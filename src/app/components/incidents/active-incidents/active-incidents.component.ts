@@ -68,14 +68,12 @@ export class ActiveIncidentsComponent implements OnInit {
   hasRouteQueryParams = false;
   /** When true, came from ministry detail (MinistryId in URL) – hide ministry filter pill but still send MinistryId to API */
   hasMinistryIdFromRoute = false;
-  /** Filters to show in table – hide ministry when from ministry detail; hide ministry & asset when in view-assets-detail (assetId) */
+  /** Filters to show in table – hide ministry & asset only when in view-assets-detail (assetId). From ministry detail we show ministry filter so user sees selected ministry. */
   displayFilters = computed(() => {
     const f = this.tableFilters();
     if (this.assetId) {
       return f.filter((x) => x.id !== 'ministry' && x.id !== 'asset');
     }
-    if (this.hasMinistryIdFromRoute)
-      return f.filter((x) => x.id !== 'ministry');
     return f;
   });
 

@@ -54,11 +54,11 @@ export class DashboardComponent implements OnInit {
     columns: [
       {
         key: 'analyze',
-        header: 'ANALYZE',
+        header: 'Analyze',
         cellType: 'icon',
         iconUrl: '/assets/analyze.svg',
         sortable: false,
-        width: '200px',
+        width: '90px',
       },
       {
         key: 'ministryDepartment',
@@ -174,8 +174,9 @@ export class DashboardComponent implements OnInit {
       {
         key: 'citizenImpactLevel',
         header: 'CITIZEN IMPACT LEVEL',
-        cellType: 'badge',
+        cellType: 'badge-with-subtext',
         badgeField: 'citizenImpactLevel',
+        subtextField: 'citizenImpactLevelSubtext',
         badgeColor: (row: any) => {
           const impact = row.citizenImpactLevel?.toUpperCase();
           if (impact?.includes('LOW')) return 'var(--color-green-light)';
@@ -243,11 +244,29 @@ export class DashboardComponent implements OnInit {
         return `${value}%`;
       };
 
-      // Format lastChecked
+      // Format lastChecked as "Checked: 1 hour ago"
       const formatLastChecked = (checked: string | null): string => {
-        if (!checked) return 'Never checked';
-        // If it's already formatted, return as is, otherwise format it
-        return checked;
+        if (!checked) return 'Checked: N/A';
+        try {
+          const checkedDate = new Date(checked);
+          const now = new Date();
+          const diffMs = now.getTime() - checkedDate.getTime();
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+          let ago = 'Just now';
+          if (diffHours > 24) {
+            const diffDays = Math.floor(diffHours / 24);
+            ago = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+          } else if (diffHours > 0) {
+            ago = diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+          } else if (diffMinutes > 0) {
+            ago = diffMinutes === 1 ? '1 minute ago' : `${diffMinutes} minutes ago`;
+          }
+          return `Checked: ${ago}`;
+        } catch {
+          return 'Checked: N/A';
+        }
       };
 
       // Format health percentage
@@ -271,6 +290,7 @@ export class DashboardComponent implements OnInit {
         return `High severity: ${highSeverity}`;
       };
 
+
       return {
         ...asset,
         healthIcon: getHealthIcon(asset.healthStatus),
@@ -279,6 +299,8 @@ export class DashboardComponent implements OnInit {
         compliancePercentage: formatCompliancePercentage(asset.complianceIndex),
         lastCheckedFormatted: formatLastChecked(asset.lastChecked),
         highSeverityText: formatHighSeverityText(asset.highSeverityIncidents),
+        citizenImpactLevel: asset.citizenImpactLevel.split('-')[0],
+        citizenImpactLevelSubtext: asset.citizenImpactLevel.split('-')[1],
       };
     });
 
@@ -451,7 +473,11 @@ export class DashboardComponent implements OnInit {
   loadFilterOptions(): void {
     forkJoin({
       ministries: this.apiService.getAllMinistries(),
-      citizenImpactLevels: this.apiService.getLovByType('citizenImpactLevel')
+      citizenImpactLevels: this.apiService.getLovByType('citizenImpactLevel'),
+      healthStatus: this.apiService.getLovByType('HealthStatus'),
+      performanceStatus: this.apiService.getLovByType('PerformanceStatus'),
+      complianceStatus: this.apiService.getLovByType('ComplianceStatus'),
+      riskExposureIndex: this.apiService.getLovByType('RiskExposureIndex'),
     }).subscribe({
       next: (responses) => {
         // Update Ministry filter
@@ -471,7 +497,6 @@ export class DashboardComponent implements OnInit {
         const statusOptions = [{ label: 'All', value: '' }, { label: 'Up', value: 'Up' }, { label: 'Down', value: 'Down' }];
         this.updateFilterOptions('status', statusOptions);
 
-
         // Update Citizen Impact filter
         if (responses.citizenImpactLevels.isSuccessful) {
           const citizenImpactOptions = [{ label: 'All', value: '' }];
@@ -479,77 +504,75 @@ export class DashboardComponent implements OnInit {
           citizenImpacts.forEach((impact: any) => {
             citizenImpactOptions.push({
               label: impact.name,
-              value: impact.name || impact.id?.toString()
+              value: impact.id?.toString() ?? impact.name
             });
           });
           this.updateFilterOptions('citizenImpact', citizenImpactOptions);
         }
 
-        // Set static options for Health, Performance, Compliance, and Risk Index
-        // These can be updated later if backend provides LOV endpoints for them
-        this.updateFilterOptions('health', [
-          { label: 'All', value: '' },
-          { label: 'Healthy', value: 'Healthy' },
-          { label: 'Critical', value: 'Critical' },
-          { label: 'Unknown', value: 'Unknown' }
-        ]);
+        // Update Health Status filter from LOV
+        if (responses.healthStatus?.isSuccessful) {
+          const healthOptions = [{ label: 'All', value: '' }];
+          const items = Array.isArray(responses.healthStatus.data) ? responses.healthStatus.data : [];
+          items.forEach((item: any) => {
+            healthOptions.push({
+              label: item.name ?? item.label ?? String(item),
+              value: item.id?.toString() ?? item.name ?? item.value ?? String(item)
+            });
+          });
+          this.updateFilterOptions('health', healthOptions);
+        }
 
-        this.updateFilterOptions('performance', [
-          { label: 'All', value: '' },
-          { label: 'Performing Well', value: 'Performing Well' },
-          { label: 'Average', value: 'Average' },
-          { label: 'Poor', value: 'Poor' }
-        ]);
+        // Update Performance Status filter from LOV
+        if (responses.performanceStatus?.isSuccessful) {
+          const performanceOptions = [{ label: 'All', value: '' }];
+          const items = Array.isArray(responses.performanceStatus.data) ? responses.performanceStatus.data : [];
+          items.forEach((item: any) => {
+            performanceOptions.push({
+              label: item.name ?? item.label ?? String(item),
+              value: item.id?.toString() ?? item.name ?? item.value ?? String(item)
+            });
+          });
+          this.updateFilterOptions('performance', performanceOptions);
+        }
 
-        this.updateFilterOptions('compliance', [
-          { label: 'All', value: '' },
-          { label: 'High Compliance', value: 'High Compliance' },
-          { label: 'Medium Compliance', value: 'Medium Compliance' },
-          { label: 'Low Compliance', value: 'Low Compliance' }
-        ]);
+        // Update Compliance Status filter from LOV
+        if (responses.complianceStatus?.isSuccessful) {
+          const complianceOptions = [{ label: 'All', value: '' }];
+          const items = Array.isArray(responses.complianceStatus.data) ? responses.complianceStatus.data : [];
+          items.forEach((item: any) => {
+            complianceOptions.push({
+              label: item.name ?? item.label ?? String(item),
+              value: item.id?.toString() ?? item.name ?? item.value ?? String(item)
+            });
+          });
+          this.updateFilterOptions('compliance', complianceOptions);
+        }
 
-        this.updateFilterOptions('riskIndex', [
-          { label: 'All', value: '' },
-          { label: 'LOW RISK', value: 'LOW RISK' },
-          { label: 'MEDIUM RISK', value: 'MEDIUM RISK' },
-          { label: 'HIGH RISK', value: 'HIGH RISK' },
-          { label: 'UNKNOWN', value: 'UNKNOWN' }
-        ]);
+        // Update Risk Exposure Index filter from LOV
+        if (responses.riskExposureIndex?.isSuccessful) {
+          const riskOptions = [{ label: 'All', value: '' }];
+          const items = Array.isArray(responses.riskExposureIndex.data) ? responses.riskExposureIndex.data : [];
+          items.forEach((item: any) => {
+            riskOptions.push({
+              label: item.name ?? item.label ?? String(item),
+              value: item.id?.toString() ?? item.name ?? item.value ?? String(item)
+            });
+          });
+          this.updateFilterOptions('riskIndex', riskOptions);
+        }
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error loading filter options', 'error');
-        // Set default static options for all filters on error
         this.updateFilterOptions('ministry', [{ label: 'All', value: '' }]);
         this.updateFilterOptions('status', [{ label: 'All', value: '' }]);
-        this.updateFilterOptions('health', [
-          { label: 'All', value: '' },
-          { label: 'Healthy', value: 'Healthy' },
-          { label: 'Critical', value: 'Critical' },
-          { label: 'Unknown', value: 'Unknown' }
-        ]);
-        this.updateFilterOptions('performance', [
-          { label: 'All', value: '' },
-          { label: 'Performing Well', value: 'Performing Well' },
-          { label: 'Average', value: 'Average' },
-          { label: 'Poor', value: 'Poor' }
-        ]);
-        this.updateFilterOptions('compliance', [
-          { label: 'All', value: '' },
-          { label: 'High Compliance', value: 'High Compliance' },
-          { label: 'Medium Compliance', value: 'Medium Compliance' },
-          { label: 'Low Compliance', value: 'Low Compliance' }
-        ]);
-        this.updateFilterOptions('riskIndex', [
-          { label: 'All', value: '' },
-          { label: 'LOW RISK', value: 'LOW RISK' },
-          { label: 'MEDIUM RISK', value: 'MEDIUM RISK' },
-          { label: 'HIGH RISK', value: 'HIGH RISK' },
-          { label: 'UNKNOWN', value: 'UNKNOWN' }
-        ]);
+
         this.updateFilterOptions('citizenImpact', [{ label: 'All', value: '' }]);
       }
     });
   }
+
+
 
   /**
    * Load KPI cards data from /api/AdminDashboard/summary

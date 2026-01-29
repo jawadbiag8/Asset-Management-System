@@ -41,7 +41,7 @@
                   [ngClass]="getBadgeClass(getBadgeColor(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact'))"
                   [style.background-color]="getBadgeColor(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact')"
                   [style.color]="getBadgeTextColor(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact')">
-                  {{ assetControlPanelData()!.header.citizenImpactLevel || 'UNKNOWN' }}
+                  {{ assetControlPanelData()!.header.citizenImpactLevel.split('-')[0] || 'UNKNOWN' }}
                 </span>
               </div>
               <div class="col-12 col-sm-4 border-end border-sm-end-0  pb-3 pb-sm-0 pe-sm-3">

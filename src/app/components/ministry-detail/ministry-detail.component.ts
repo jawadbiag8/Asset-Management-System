@@ -125,7 +125,7 @@ export class MinistryDetailComponent implements OnInit {
       badgeColor: 'red',
       title: 'High severity open incidents',
       subTitle: 'Active high severity unresolved incidents',
-      linkText: 'View critical assets >',
+      linkText: 'View open high severity incidents >',
       linkPath: '/incidents',
       linkQueryParams: { MinistryId: '', SeverityId: 'P2' },
     },
@@ -166,7 +166,7 @@ export class MinistryDetailComponent implements OnInit {
       },
       {
         key: 'department',
-        header: 'MINISTRY / DEPARTMENT',
+        header: 'DEPARTMENT',
         cellType: 'text',
         primaryField: 'department',
         sortable: true,
@@ -677,8 +677,13 @@ export class MinistryDetailComponent implements OnInit {
           ? item.department
           : 'N/A';
 
-      // Website/Application: Hardcode "Department Website" as primary, full assetUrl as link below
-      const websiteApplication = 'Department Website'; // Hardcoded
+      // Website/Application: Use asset name from API, full assetUrl as link below
+      const websiteApplication =
+        item.assetName ||
+        item.websiteApplication ||
+        item.websiteName ||
+        item.name ||
+        'N/A';
       const assetUrl = item.assetUrl || '';
       // Use full assetUrl for the link href and display
       const websiteUrl = assetUrl || 'N/A';
@@ -847,7 +852,7 @@ export class MinistryDetailComponent implements OnInit {
         badgeColor: 'red',
         title: 'High severity open incidents',
         subTitle: 'Active high severity unresolved incidents',
-        linkText: 'View critical assets >',
+        linkText: 'View open high severity incidents >',
         linkPath: '/incidents',
         linkQueryParams: {
           MinistryId: this.ministryId?.toString() ?? '',
