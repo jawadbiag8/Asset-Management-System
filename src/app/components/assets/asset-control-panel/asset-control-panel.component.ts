@@ -193,7 +193,7 @@ export class AssetControlPanelComponent implements OnInit {
   breadcrumbs = signal<BreadcrumbItem[]>([
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Ministries', path: '/assets/by-ministry' },
-    { label: 'Ministry of Health', path: '/ministry-detail' },
+    { label: 'Ministry', path: '/ministry-detail' },
     { label: 'Ministry Website', path: '/view-assets-detail' },
     { label: 'Compliance Report' }
   ]);
@@ -231,7 +231,7 @@ export class AssetControlPanelComponent implements OnInit {
             { label: 'Dashboard', path: '/dashboard' },
             { label: 'Ministries', path: '/assets/by-ministry' },
             {
-              label: 'Ministry of Health',
+              label: response.data?.header?.ministry ?? '',
               path: '/ministry-detail',
               queryParams: { ministryId: response.data?.header?.ministryId ?? '' },
             },

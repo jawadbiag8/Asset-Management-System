@@ -7,6 +7,14 @@
     >
       @if (filters.length > 0) {
         <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            class="filter-add-btn"
+            (click)="openFilterDialog()"
+            title="Add filter"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
           @for (filter of filters; track filter.id) {
             @if (
               filter.value && filter.value !== "" && filter.value !== "All"
@@ -19,16 +27,6 @@
                 @if (filter.removable) {
                   <mat-icon class="filter-close-icon">close</mat-icon>
                 }
-              </span>
-            } @else {
-              <span
-                class="filter-pill filter-pill-dropdown"
-                (click)="onFilterClick(filter)"
-              >
-                {{ filter.label }}
-                <mat-icon class="filter-dropdown-icon"
-                  >keyboard_arrow_down</mat-icon
-                >
               </span>
             }
           }

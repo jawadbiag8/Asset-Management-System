@@ -20,7 +20,7 @@ export interface ApiResponse<T = any> {
 export class ApiService {
   private baseUrl: string = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(username: string, password: string): Observable<ApiResponse<string>> {
     return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, {
@@ -49,7 +49,7 @@ export class ApiService {
   }
 
   getLovByType(
-    lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status',
+    lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status' | 'IncidentCreationFrequency	',
   ): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/CommonLookup/type/${lovType}`,

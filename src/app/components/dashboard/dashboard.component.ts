@@ -40,8 +40,7 @@ export interface DigitalAsset {
   styleUrl: './dashboard.component.scss',
   standalone: false,
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-  private routerSubscription: any;
+export class DashboardComponent implements OnInit {
 
   constructor(private apiService: ApiService, private utils: UtilsService, private router: Router) { }
 
@@ -377,34 +376,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.initializeFilters();
-    // Refresh KPI cards and table whenever user navigates to dashboard (from anywhere)
-    this.routerSubscription = this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        if (event.urlAfterRedirects === '/dashboard' || event.urlAfterRedirects.startsWith('/dashboard?')) {
-          this.refreshDashboardData();
-        }
-      });
-    // Initial load when component first loads on /dashboard
-    if (this.router.url === '/dashboard' || this.router.url.startsWith('/dashboard?')) {
-      this.refreshDashboardData();
-    }
+    this.loadDashboardSummary()
   }
 
-  ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
-  }
 
-  /**
-   * Refresh KPI cards and assets table. Called when navigating to dashboard.
-   */
-  refreshDashboardData(): void {
-    this.loadDashboardSummary();
-    // Table will re-fetch when it re-emits last search params
-    setTimeout(() => this.utils.refreshTableData(), 0);
-  }
 
   initializeFilters(): void {
     // Initialize filters with "All" as default
@@ -476,7 +451,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadFilterOptions(): void {
     forkJoin({
       ministries: this.apiService.getAllMinistries(),
-      statuses: this.apiService.getLovByType('Status'),
       citizenImpactLevels: this.apiService.getLovByType('citizenImpactLevel')
     }).subscribe({
       next: (responses) => {
@@ -494,17 +468,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
 
         // Update Status filter
-        if (responses.statuses.isSuccessful) {
-          const statusOptions = [{ label: 'All', value: '' }];
-          const statuses = Array.isArray(responses.statuses.data) ? responses.statuses.data : [];
-          statuses.forEach((status: any) => {
-            statusOptions.push({
-              label: status.name,
-              value: status.name || status.id?.toString()
-            });
-          });
-          this.updateFilterOptions('status', statusOptions);
-        }
+        const statusOptions = [{ label: 'All', value: '' }, { label: 'Up', value: 'Up' }, { label: 'Down', value: 'Down' }];
+        this.updateFilterOptions('status', statusOptions);
+
 
         // Update Citizen Impact filter
         if (responses.citizenImpactLevels.isSuccessful) {

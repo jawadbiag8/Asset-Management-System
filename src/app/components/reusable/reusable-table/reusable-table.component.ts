@@ -877,7 +877,7 @@ export class ReusableTableComponent
     }
   }
 
-  onFilterClick(filter: FilterPill) {
+  openFilterDialog() {
     const dialogRef = this.dialog.open(FilterModalComponent, {
       width: '90%',
       maxWidth: '600px',
@@ -892,6 +892,10 @@ export class ReusableTableComponent
         this.onFilterReset();
       }
     });
+  }
+
+  onFilterClick(filter: FilterPill) {
+    this.openFilterDialog();
   }
 
   onFilterApply(
