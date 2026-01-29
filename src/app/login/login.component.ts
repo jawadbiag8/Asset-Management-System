@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -23,7 +23,7 @@ import { UtilsService } from '../services/utils.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   submitted = false;
   errorMessage = '';
@@ -39,6 +39,11 @@ export class LoginComponent {
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+  }
+
+  ngOnInit(): void {
+    // Reset so error toasts work again after next login
+    this.utilsService.setSessionExpiredHandled(false);
   }
 
   get f() {
@@ -61,17 +66,17 @@ export class LoginComponent {
         // Handle successful login
         if (response.isSuccessful && response.data) {
           const token = response.data;
-          
+
           // Store token using UtilsService
           this.utilsService.setStorage('token', token);
-          
+
           // Store user data
           const userData = {
             username: username,
             loginTime: new Date().toISOString()
           };
           this.utilsService.setStorage('user', userData);
-          
+
           // Navigate to dashboard
           this.router.navigate(['/dashboard']);
         } else {

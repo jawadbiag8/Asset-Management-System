@@ -34,15 +34,20 @@
 }
 
 .filter-pill-dropdown {
-    background-color: var(--color-filter-dropdown-bg);
-    color: var(--color-green-teal);
+    background-color: var(--color-bg-primary);
+    color: var(--color-primary);
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    gap: 10px;
 
     .filter-dropdown-icon {
-        color: var(--color-text-tertiary);
+        color: var(--color-primary);
     }
 
     &:hover {
-        background-color: var(--color-filter-dropdown-bg-hover);
+        background-color: var(--color-bg-primary);
+        border-color: var(--color-border-hover);
     }
 }
 
@@ -136,8 +141,7 @@
 
     // Custom scrollbar (vertical & horizontal)
     scrollbar-width: thin; // Firefox
-    scrollbar-color: var(--color-scroll-thumb, var(--color-border))
-                     var(--color-scroll-track, var(--color-bg-secondary));
+    scrollbar-color: var(--color-scroll-thumb, var(--color-border)) var(--color-scroll-track, var(--color-bg-secondary));
 
     &::-webkit-scrollbar {
         width: 8px;
@@ -585,26 +589,6 @@
         margin: 4px 0;
         display: block;
         object-fit: contain;
-
-        &.health-icon-healthy {
-            filter: brightness(0) saturate(100%) invert(67%) sepia(47%) saturate(2000%) hue-rotate(140deg) brightness(95%) contrast(85%);
-            // Teal color: #14b8a6
-        }
-
-        &.health-icon-critical {
-            filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(1352%) hue-rotate(340deg) brightness(99%) contrast(92%);
-            // Red color: #ef4444
-        }
-
-        &.health-icon-warning {
-            filter: brightness(0) saturate(100%) invert(70%) sepia(90%) saturate(2000%) hue-rotate(350deg) brightness(98%) contrast(95%);
-            // Orange color: #f59e0b
-        }
-
-        &.health-icon-unknown {
-            filter: brightness(0) saturate(100%) invert(44%) sepia(6%) saturate(500%) hue-rotate(200deg) brightness(95%) contrast(90%);
-            // Grey color: #6b7280
-        }
     }
 
     .health-percentage {

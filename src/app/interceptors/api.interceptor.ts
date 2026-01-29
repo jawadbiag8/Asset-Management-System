@@ -66,27 +66,30 @@ export class ApiInterceptor implements HttpInterceptor {
   }
 
   /**
-   * Handle HTTP errors globally
+   * Handle HTTP errors globally.
+   * For 401: show "Session expired" once, then redirect to login; no raw HTTP message.
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
     let defaultMessage = 'An unknown error occurred';
 
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
       defaultMessage = 'A client-side error occurred';
     } else {
-      // Server-side error
       const status = error.status;
       switch (status) {
         case 400:
           defaultMessage = 'Bad request. Please check your input.';
           break;
-        case 401:
-          // Unauthorized - clear storage and redirect to login
-          this.utilsService.clearStorage()
+        case 401: {
+          // Show session expired only once; then redirect. Do not show raw 401 message.
+          if (!this.utilsService.getSessionExpiredHandled()) {
+            this.utilsService.showToast('Session expired. Please login again.', 'Session expired', 'error');
+            this.utilsService.setSessionExpiredHandled(true);
+          }
+          this.utilsService.clearStorage();
           this.router.navigate(['/login']);
-          defaultMessage = 'Session expired. Please login again.';
-          break;
+          return throwError(() => new Error('Session expired. Please login again.'));
+        }
         case 403:
           defaultMessage = 'You do not have permission to perform this action.';
           break;
@@ -101,9 +104,7 @@ export class ApiInterceptor implements HttpInterceptor {
       }
     }
 
-    // Extract error message and show toast
     const errorMessage: string = this.utilsService.showToast(error, defaultMessage, 'error', true) as string;
-
     return throwError(() => new Error(errorMessage));
   }
 }

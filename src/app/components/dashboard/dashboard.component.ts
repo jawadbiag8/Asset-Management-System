@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import {
   TableConfig,
   TableColumn,
@@ -9,7 +9,8 @@ import { HttpParams } from '@angular/common/http';
 import { DashboardKpiItem } from '../dashboardkpi/dashboardkpi.component';
 import { UtilsService } from '../../services/utils.service';
 import { forkJoin } from 'rxjs';
-import { Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Router, NavigationEnd } from '@angular/router';
 
 export interface DigitalAsset {
   id: number;
@@ -39,8 +40,10 @@ export interface DigitalAsset {
   styleUrl: './dashboard.component.scss',
   standalone: false,
 })
-export class DashboardComponent implements OnInit {
-  constructor(private apiService: ApiService, private utils: UtilsService, private route: Router) { }
+export class DashboardComponent implements OnInit, OnDestroy {
+  private routerSubscription: any;
+
+  constructor(private apiService: ApiService, private utils: UtilsService, private router: Router) { }
 
   tableFilters = signal<FilterPill[]>([]);
 
@@ -263,7 +266,7 @@ export class DashboardComponent implements OnInit {
         id: 1,
         title: 'Total Digital Assets Monitored',
         subTitle: 'Active monitoring across all departments',
-        value: '334',
+        value: '0',
         subValue: '',
         subValueColor: '',
         subValueText: 'View All',
@@ -273,8 +276,8 @@ export class DashboardComponent implements OnInit {
         id: 2,
         title: 'Assets online',
         subTitle: 'Assets currently operational and reachable',
-        value: '214',
-        subValue: '83%',
+        value: '0',
+        subValue: '',
         subValueColor: 'success',
         subValueText: 'View online assets',
         subValueLink: '/assets/by-ministry?status=Online',
@@ -283,8 +286,8 @@ export class DashboardComponent implements OnInit {
         id: 3,
         title: 'Health Index',
         subTitle: 'Overall stability and availability score',
-        value: '83%',
-        subValue: 'HEALTHY',
+        value: '0%',
+        subValue: '',
         subValueColor: 'success',
         subValueText: 'View critical assets',
         subValueLink: '/assets/by-ministry?health=critical',
@@ -293,8 +296,8 @@ export class DashboardComponent implements OnInit {
         id: 4,
         title: 'Performance Index',
         subTitle: 'Overall speed and efficiency score',
-        value: '23.53%',
-        subValue: 'AVERAGE',
+        value: '0%',
+        subValue: '',
         subValueColor: 'danger',
         subValueText: 'View critical assets',
         subValueLink: '/assets/by-ministry?performance=critical',
@@ -303,8 +306,8 @@ export class DashboardComponent implements OnInit {
         id: 5,
         title: 'Compliance Index',
         subTitle: 'Overall adherence to compliance standards',
-        value: '23.53%',
-        subValue: 'LOW',
+        value: '0%',
+        subValue: '',
         subValueColor: 'danger',
         subValueText: 'View critical assets',
         subValueLink: '/assets/by-ministry?compliance=critical',
@@ -313,8 +316,8 @@ export class DashboardComponent implements OnInit {
         id: 6,
         title: 'High Risk Assets',
         subTitle: 'Assets with risk index > 80%',
-        value: '43',
-        subValue: 'MEDIUM',
+        value: '0',
+        subValue: '',
         subValueColor: 'danger',
         subValueText: 'View critical assets',
         subValueLink: '/assets/by-ministry?riskRating=Red',
@@ -323,7 +326,7 @@ export class DashboardComponent implements OnInit {
         id: 7,
         title: 'Open incidents',
         subTitle: 'Active unresolved incidents',
-        value: '43',
+        value: '0',
         subValue: '',
         subValueColor: '',
         subValueText: 'View open incidents',
@@ -333,8 +336,8 @@ export class DashboardComponent implements OnInit {
         id: 8,
         title: 'Critical severity open incidents',
         subTitle: 'Active critical severity unresolved incidents',
-        value: '15',
-        subValue: '17%',
+        value: '0',
+        subValue: '',
         subValueColor: 'success',
         subValueText: 'View open critical severity incidents',
         subValueLink: '/active-incidents?severity=critical',
@@ -344,6 +347,33 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.initializeFilters();
+    // Refresh KPI cards and table whenever user navigates to dashboard (from anywhere)
+    this.routerSubscription = this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        if (event.urlAfterRedirects === '/dashboard' || event.urlAfterRedirects.startsWith('/dashboard?')) {
+          this.refreshDashboardData();
+        }
+      });
+    // Initial load when component first loads on /dashboard
+    if (this.router.url === '/dashboard' || this.router.url.startsWith('/dashboard?')) {
+      this.refreshDashboardData();
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  /**
+   * Refresh KPI cards and assets table. Called when navigating to dashboard.
+   */
+  refreshDashboardData(): void {
+    this.loadDashboardSummary();
+    // Table will re-fetch when it re-emits last search params
+    setTimeout(() => this.utils.refreshTableData(), 0);
   }
 
   initializeFilters(): void {
@@ -525,6 +555,170 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Load KPI cards data from /api/AdminDashboard/summary
+   * and map to the existing 8 dashboard cards.
+   */
+  loadDashboardSummary(): void {
+    this.apiService.getAdminDashboardSummary().subscribe({
+      next: (response: ApiResponse<any>) => {
+        if (!response.isSuccessful || !response.data) {
+          this.resetDashboardKpis();
+          if (response.message) {
+            this.utils.showToast(response.message, 'Error loading dashboard summary', 'error');
+          }
+          return;
+        }
+
+        const data = response.data;
+
+        // Map directly from API contract
+        const summary = {
+          totalAssets: data.totalDigitalAssetsMonitored ?? 0,
+          assetsOnline: data.assetsOnline ?? 0,
+          assetsOnlinePercentage: data.assetsOnlinePercentage ?? 0,
+          healthIndex: data.healthIndex ?? 0,
+          healthStatus: data.healthStatus ?? 'Unknown',
+          performanceIndex: data.performanceIndex ?? 0,
+          performanceStatus: data.performanceStatus ?? 'Unknown',
+          complianceIndex: data.complianceIndex ?? 0,
+          complianceStatus: data.complianceStatus ?? 'Unknown',
+          highRiskAssets: data.highRiskAssets ?? 0,
+          highRiskAssetsStatus: data.highRiskAssetsStatus ?? '',
+          openIncidents: data.openIncidents ?? 0,
+          criticalOpenIncidents: data.criticalSeverityOpenIncidents ?? 0,
+          criticalOpenIncidentsPercentage:
+            data.criticalSeverityOpenIncidentsPercentage ?? 0,
+        };
+
+        const toPercent = (value: number): string =>
+          `${(value ?? 0).toString()}%`;
+
+        this.dashboardKpis.set({
+          isVisible: true,
+          data: [
+            {
+              id: 1,
+              title: 'Total Digital Assets Monitored',
+              subTitle: 'Active monitoring across all departments',
+              value: summary.totalAssets.toString(),
+              subValue: '',
+              subValueColor: '',
+              subValueText: 'View All',
+              subValueLink: '/assets/by-ministry',
+            },
+            {
+              id: 2,
+              title: 'Assets online',
+              subTitle: 'Assets currently operational and reachable',
+              value: summary.assetsOnline.toString(),
+              // Use percentage directly from API
+              subValue:
+                summary.assetsOnlinePercentage > 0
+                  ? toPercent(summary.assetsOnlinePercentage)
+                  : '',
+              subValueColor: 'success',
+              subValueText: 'View online assets',
+              subValueLink: '/assets/by-ministry?status=Online',
+            },
+            {
+              id: 3,
+              title: 'Health Index',
+              subTitle: 'Overall stability and availability score',
+              value: toPercent(summary.healthIndex),
+              subValue: summary.healthStatus,
+              subValueColor:
+                (summary.healthStatus || '').toLowerCase() === 'healthy'
+                  ? 'success'
+                  : 'danger',
+              subValueText: 'View critical assets',
+              subValueLink: '/assets/by-ministry?health=critical',
+            },
+            {
+              id: 4,
+              title: 'Performance Index',
+              subTitle: 'Overall speed and efficiency score',
+              value: toPercent(summary.performanceIndex),
+              subValue: summary.performanceStatus,
+              subValueColor:
+                (summary.performanceStatus || '').toUpperCase() === 'AVERAGE'
+                  ? 'danger'
+                  : 'success',
+              subValueText: 'View critical assets',
+              subValueLink: '/assets/by-ministry?performance=critical',
+            },
+            {
+              id: 5,
+              title: 'Compliance Index',
+              subTitle: 'Overall adherence to compliance standards',
+              value: toPercent(summary.complianceIndex),
+              subValue: summary.complianceStatus,
+              subValueColor:
+                (summary.complianceStatus || '').toUpperCase() === 'HIGH'
+                  ? 'success'
+                  : 'danger',
+              subValueText: 'View critical assets',
+              subValueLink: '/assets/by-ministry?compliance=critical',
+            },
+            {
+              id: 6,
+              title: 'High Risk Assets',
+              subTitle: 'Assets with risk index > 80%',
+              value: summary.highRiskAssets.toString(),
+              subValue: summary.highRiskAssetsStatus,
+              subValueColor: 'danger',
+              subValueText: 'View critical assets',
+              subValueLink: '/assets/by-ministry?riskRating=Red',
+            },
+            {
+              id: 7,
+              title: 'Open incidents',
+              subTitle: 'Active unresolved incidents',
+              value: summary.openIncidents.toString(),
+              subValue: '',
+              subValueColor: '',
+              subValueText: 'View open incidents',
+              subValueLink: '/active-incidents',
+            },
+            {
+              id: 8,
+              title: 'Critical severity open incidents',
+              subTitle: 'Active critical severity unresolved incidents',
+              value: summary.criticalOpenIncidents.toString(),
+              subValue:
+                summary.criticalOpenIncidentsPercentage > 0
+                  ? toPercent(summary.criticalOpenIncidentsPercentage)
+                  : '',
+              subValueColor: 'success',
+              subValueText: 'View open critical severity incidents',
+              subValueLink: '/active-incidents?severity=critical',
+            },
+          ],
+        });
+      },
+      error: (error) => {
+        this.resetDashboardKpis();
+        this.utils.showToast(
+          error,
+          'Error loading dashboard summary',
+          'error',
+        );
+      },
+    });
+  }
+
+  private resetDashboardKpis(): void {
+    // Keep structure but reset numeric values to 0
+    this.dashboardKpis.update((current) => ({
+      ...current,
+      data: current.data.map((item) => ({
+        ...item,
+        value: item.id === 3 || item.id === 4 || item.id === 5 ? '0%' : '0',
+        subValue: '',
+      })),
+    }));
+  }
+
   updateFilterOptions(filterId: string, options: { label: string, value: string }[]): void {
     this.tableFilters.update(filters => {
       return filters.map(filter => {
@@ -574,7 +768,7 @@ export class DashboardComponent implements OnInit {
 
   onActionClick(event: { row: any, columnKey: string }) {
     if (event.columnKey === 'analyze') {
-      this.route.navigate(['/asset-control-panel'], { queryParams: { assetId: event.row.id } });
+      this.router.navigate(['/asset-control-panel'], { queryParams: { assetId: event.row.id } });
     }
   }
 

@@ -297,7 +297,10 @@ export class ViewAssetsDetailComponent implements OnInit {
 
   // Action Methods
   onAnalyze() {
-    console.log('Analyze clicked');
-    // Implement analyze functionality
+    this.router.navigate(['/asset-control-panel'], {
+      queryParams: {
+        assetId: this.assetId != null ? this.assetId.toString() : '',
+      },
+    });
   }
 }

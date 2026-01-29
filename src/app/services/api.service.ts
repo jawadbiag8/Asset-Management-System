@@ -145,4 +145,15 @@ export class ApiService {
     let url = `${this.baseUrl}/Incident/${incidentId}`;
     return this.http.get<ApiResponse<any>>(url);
   }
+
+  // Admin Dashboard
+
+  /**
+   * Fetch high-level summary metrics for the admin dashboard.
+   * Matches /api/AdminDashboard/summary from the OpenAPI spec.
+   */
+  getAdminDashboardSummary(): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/AdminDashboard/summary`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
 }

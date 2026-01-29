@@ -8,8 +8,18 @@ import { ReusableTableComponent } from '../components/reusable/reusable-table/re
 })
 export class UtilsService {
   private tableComponentRef: ReusableTableComponent | null = null;
+  /** When true, error toasts are skipped (used after showing single "Session expired" for 401). */
+  private sessionExpiredHandled = false;
 
   constructor(private toastr: ToastrService) { }
+
+  setSessionExpiredHandled(value: boolean): void {
+    this.sessionExpiredHandled = value;
+  }
+
+  getSessionExpiredHandled(): boolean {
+    return this.sessionExpiredHandled;
+  }
 
   getEnvironmentVariable(key: string): any {
     return (environment as any)[key];
@@ -100,17 +110,22 @@ export class UtilsService {
     msgType: 'success' | 'info' | 'warning' | 'error' = 'error',
     onlyReturnMessage: boolean = false
   ): string | void {
+    // After 401 we show only one "Session expired" toast; skip other error toasts
+    if (this.sessionExpiredHandled && msgType === 'error') {
+      return onlyReturnMessage ? msg : undefined;
+    }
+
     let errorMessage = msg;
 
     if (typeof error === 'string') {
       errorMessage = error;
-    } else if (typeof error.error === 'string') {
+    } else if (typeof error?.error === 'string') {
       errorMessage = error.error;
-    } else if (error.error?.ErrorMessage) {
+    } else if (error?.error?.ErrorMessage) {
       errorMessage = error.error.ErrorMessage;
-    } else if (error.error?.message) {
+    } else if (error?.error?.message) {
       errorMessage = error.error.message;
-    } else if (error.error?.error) {
+    } else if (error?.error?.error) {
       errorMessage = error.error.error;
     } else if (error?.message) {
       errorMessage = error.message;
