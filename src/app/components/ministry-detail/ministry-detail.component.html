@@ -24,16 +24,13 @@
           <h5 class="card-title">{{ card.title }}</h5>
           <p class="card-subtitle">{{ card.subTitle }}</p>
           <div class="card-separator"></div>
-          <a href="#" class="card-link">{{ card.linkText }}</a>
-        </div>
-        @if (card.badge) {
-          <span
-            class="card-badge"
-            [ngClass]="{ 'badge-red': card.badgeColor === 'red' }"
+          <a
+            [routerLink]="card.linkPath || '#'"
+            [queryParams]="card.linkQueryParams || null"
+            class="card-link"
+            >{{ card.linkText }}</a
           >
-            {{ card.badge }}
-          </span>
-        }
+        </div>
       </div>
     }
   </div>
