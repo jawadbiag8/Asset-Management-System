@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { DigitalAssetRequest } from '../components/manage-digital-assets/manage-digital-assets.component';
@@ -48,9 +48,57 @@ export class ApiService {
     );
   }
 
-  getLovByType(
-    lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status' | 'IncidentCreationFrequency	',
-  ): Observable<ApiResponse> {
+  getLovByType(lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status' | 'IncidentCreationFrequency' | 'HealthStatus' | 'PerformanceStatus' | 'ComplianceStatus' | 'RiskExposureIndex'): Observable<ApiResponse> {
+
+    if (lovType === 'HealthStatus') {
+      return of({
+        isSuccessful: true,
+        data: [
+          { label: 'HEALTHY', id: 'HEALTHY' },
+          { label: 'FAIR', id: 'FAIR' },
+          { label: 'POOR', id: 'POOR' },
+          { label: 'Unknown', id: 'Unknown' },
+        ]
+      })
+    }
+
+    if (lovType === 'PerformanceStatus') {
+      return of({
+        isSuccessful: true,
+        data: [
+          { label: 'GOOD', id: 'GOOD' },
+          { label: 'AVERAGE', id: 'AVERAGE' },
+          { label: 'BELOW AVERAGE', id: 'BELOW AVERAGE' },
+          { label: 'Unknown', id: 'Unknown' },
+        ]
+      })
+    }
+
+    if (lovType === 'ComplianceStatus') {
+      return of({
+        isSuccessful: true,
+        data: [
+          { label: 'HIGH', id: 'HIGH' },
+          { label: 'MEDIUM', id: 'MEDIUM' },
+          { label: 'LOW', id: 'LOW' },
+          { label: 'Unknown', id: 'Unknown' },
+        ]
+      })
+    }
+
+    if (lovType === 'RiskExposureIndex') {
+      return of({
+        isSuccessful: true,
+        data: [
+          { label: 'LOW RISK', id: 'LOW RISK' },
+          { label: 'MEDIUM RISK', id: 'MEDIUM RISK' },
+          { label: 'HIGH RISK', id: 'HIGH RISK' },
+          { label: 'Unknown', id: 'Unknown' },
+        ]
+      })
+    }
+
+
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/CommonLookup/type/${lovType}`,
     );
