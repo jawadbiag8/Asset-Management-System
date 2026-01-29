@@ -102,26 +102,7 @@ export class HeaderComponent {
   logout() {
     // Close profile dropdown
     this.closeProfileDropdown();
-
-    // Call logout API
-    this.apiService.logout().subscribe({
-      next: () => {
-        // Clear token and user data
-        this.utilsService.clearStorage();
-
-        // Close mobile menu if open
-        this.menuOpen = false;
-
-        // Redirect to login
-        this.router.navigate(['/login']);
-      },
-      error: (error: any) => {
-        // Even if API call fails, clear local data and logout
-        console.error('Logout error:', error);
-        this.utilsService.clearStorage();
-        this.menuOpen = false;
-        this.router.navigate(['/login']);
-      },
-    });
+    this.utilsService.clearStorage();
+    this.router.navigate(['/login']);
   }
 }

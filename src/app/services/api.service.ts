@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
 import { DigitalAssetRequest } from '../components/manage-digital-assets/manage-digital-assets.component';
 import { ActiveIncident } from '../components/incidents/active-incidents/active-incidents.component';
 import { IncidentRequest } from '../components/incidents/manage-incidents/manage-incidents.component';
 import { DigitalAsset } from '../components/dashboard/dashboard.component';
 import { AssetControlPanelData } from '../components/assets/asset-control-panel/asset-control-panel.component';
+import { UtilsService } from './utils.service';
 
 export interface ApiResponse<T = any> {
   isSuccessful: boolean;
@@ -18,9 +17,11 @@ export interface ApiResponse<T = any> {
   providedIn: 'root',
 })
 export class ApiService {
-  private baseUrl: string = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private utils: UtilsService) { }
+  get baseUrl(): string {
+    return this.utils.getEnvironmentVariable('apiUrl');
+  }
 
   login(username: string, password: string): Observable<ApiResponse<string>> {
     return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, {

@@ -3,7 +3,6 @@ import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse
 import { Observable, throwError } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
 import { UtilsService } from '../services/utils.service';
 import { LoaderService } from '../services/loader.service';
 
@@ -17,8 +16,8 @@ export class ApiInterceptor implements HttpInterceptor {
   ) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Only intercept requests to the API base URL
-    if (!req.url.startsWith(environment.apiUrl)) {
+    const apiUrl = this.utilsService.getEnvironment()?.apiUrl as string | undefined;
+    if (!apiUrl || typeof apiUrl !== 'string' || !req.url.startsWith(apiUrl)) {
       return next.handle(req);
     }
 

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { UtilsService } from './services/utils.service';
 
 @Component({
   selector: 'app-root',
@@ -13,15 +12,10 @@ export class AppComponent implements OnInit {
   noHeaderPages = ['login', 'forget-password', 'otp']; // pages where header should hide
 
   constructor(
-    public utilsService: UtilsService,
     private router: Router,
-  ) {}
+  ) { }
 
   ngOnInit() {
-    // Log environment
-    const env = this.utilsService.getEnvironment();
-    console.log('Environment:', env);
-
     // Initial check for current URL
     this.updateHeader(this.router.url);
 
