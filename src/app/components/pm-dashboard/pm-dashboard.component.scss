@@ -90,14 +90,67 @@
 }
 
 .kpi-card-highlighted {
-  background: #14B8A6; // Teal color
-  border-color: #14B8A6;
+  background: var(--color-green-teal); // #008080
+  border-color: var(--color-green-teal);
 }
 
 .kpi-card-content {
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
+}
+
+// Top-right corner icon on white KPI cards (arrow up-right)
+.kpi-card-corner-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+// Highlighted card: header (value + badge), white line, link
+.kpi-card-highlighted-content {
+  position: relative;
+}
+
+.kpi-highlighted-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px; // 78% / badge ke neeche gap - doosri card jaisa (25 ke neeche 16px)
+
+  .kpi-value-white {
+    margin: 0;
+  }
+}
+
+.kpi-badge-change {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.2;
+  background-color: #FFFFFF; // Badge background neutral (white)
+}
+
+.kpi-badge-positive {
+  color: var(--color-green); // #10B981 - positive value text
+}
+
+.kpi-badge-negative {
+  color: var(--color-red); // #EF4444 - negative value text
+}
+
+.kpi-divider-white {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.8);
+  margin: 16px 0;
+  width: 100%;
 }
 
 .kpi-value {
@@ -180,7 +233,7 @@
 .kpi-link {
   font-weight: 400;
   font-size: 12px;
-  color: #2563EB;
+  color: var(--color-green-teal);
   text-decoration: none;
   transition: opacity 0.2s;
   word-wrap: break-word;
@@ -279,22 +332,23 @@
   margin: 0 0 16px 0;
 }
 
-::ng-deep .ministry-link {
-  color: #2563EB;
-  cursor: pointer;
-  text-decoration: underline;
-  transition: opacity 0.2s;
+::ng-deep .text-cell-with-icon.has-icon {
+  .ministry-link {
+    color: var(--color-green-teal);
+    cursor: pointer;
+    text-decoration: underline;
+    transition: opacity 0.2s;
 
-  &:hover {
-    opacity: 0.8;
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   .text-cell-icon {
-    color: #6B7280;
+    color: var(--color-green-teal) !important;
     font-size: 16px;
     width: 16px;
     height: 16px;
-    margin-left: 4px;
   }
 }
 
@@ -389,10 +443,10 @@
 
 .index-progress-container {
   height: 8px;
-  background-color: #E5E7EB;
   border-radius: 4px;
   overflow: hidden;
   position: relative;
+  // background set via getIndexBgColor: green-light / red-light / orange-light
 }
 
 .index-progress-bar {
@@ -426,7 +480,7 @@
   color: #111827;
 }
 
-// Insights section (inside single sidebar box)
+// Insights section (Figma-aligned: white card, circular nav, same-size dots)
 .sidebar-section-last {
   display: flex;
   flex-direction: column;
@@ -445,18 +499,22 @@
 }
 
 .nav-button {
-  background: none;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #F3F4F6;
   border: 1px solid #E5E7EB;
-  border-radius: 4px;
-  padding: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: background-color 0.2s, border-color 0.2s;
 
   &:hover:not(:disabled) {
-    background-color: #F3F4F6;
+    background-color: #E5E7EB;
     border-color: #D1D5DB;
   }
 
@@ -469,8 +527,16 @@
     font-size: 20px;
     width: 20px;
     height: 20px;
-    color: #6B7280;
+    color: #374151;
   }
+}
+
+.insights-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  border: 1px solid #E5E7EB;
 }
 
 .insights-content {
@@ -520,16 +586,14 @@
   border-radius: 50%;
   background-color: #D1D5DB;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 
   &:hover {
     background-color: #9CA3AF;
   }
 
   &.active {
-    background-color: #6B7280;
-    width: 24px;
-    border-radius: 4px;
+    background-color: var(--color-green-teal);
   }
 }
 

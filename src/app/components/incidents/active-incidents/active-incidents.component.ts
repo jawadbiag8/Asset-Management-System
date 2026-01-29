@@ -479,15 +479,32 @@ export class ActiveIncidentsComponent implements OnInit {
       this.queryParamsChange.emit(params);
       return;
     }
-    // When came from ministry detail, table doesn't show ministry filter – merge MinistryId from route into API params
+    // When came from ministry detail: add MinistryId from route only if user hasn't removed the ministry filter
     let apiParams = searchQuery;
     if (this.hasMinistryIdFromRoute) {
       const mid =
         this.activatedRoute.snapshot.queryParams['MinistryId'] ??
         this.activatedRoute.snapshot.queryParams['ministryId'];
-      if (mid) {
+      const ministryInQuery =
+        searchQuery.get('MinistryId') ?? searchQuery.get('ministryId');
+      const ministryRemoved =
+        ministryInQuery === '' ||
+        ministryInQuery === null ||
+        ministryInQuery === undefined;
+      if (ministryRemoved) {
+        // User removed ministry filter (All) – build API params without MinistryId
+        let params = new HttpParams();
+        searchQuery.keys().forEach((k) => {
+          if (k === 'MinistryId' || k === 'ministryId') return;
+          (searchQuery.getAll(k) ?? []).forEach((v) => {
+            if (v != null && v !== '') params = params.append(k, v);
+          });
+        });
+        apiParams = params;
+      } else if (mid) {
         let merged = new HttpParams().set('MinistryId', mid);
         searchQuery.keys().forEach((k) => {
+          if (k === 'MinistryId' || k === 'ministryId') return;
           (searchQuery.getAll(k) ?? []).forEach((v) => {
             if (v != null) merged = merged.append(k, v);
           });

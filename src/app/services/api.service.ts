@@ -17,8 +17,10 @@ export interface ApiResponse<T = any> {
   providedIn: 'root',
 })
 export class ApiService {
-
-  constructor(private http: HttpClient, private utils: UtilsService) { }
+  constructor(
+    private http: HttpClient,
+    private utils: UtilsService,
+  ) {}
   get baseUrl(): string {
     return this.utils.getEnvironmentVariable('apiUrl');
   }
@@ -49,8 +51,17 @@ export class ApiService {
     );
   }
 
-  getLovByType(lovType: 'citizenImpactLevel' | 'SeverityLevel' | 'Status' | 'IncidentCreationFrequency' | 'HealthStatus' | 'PerformanceStatus' | 'ComplianceStatus' | 'RiskExposureIndex'): Observable<ApiResponse> {
-
+  getLovByType(
+    lovType:
+      | 'citizenImpactLevel'
+      | 'SeverityLevel'
+      | 'Status'
+      | 'IncidentCreationFrequency'
+      | 'HealthStatus'
+      | 'PerformanceStatus'
+      | 'ComplianceStatus'
+      | 'RiskExposureIndex',
+  ): Observable<ApiResponse> {
     if (lovType === 'HealthStatus') {
       return of({
         isSuccessful: true,
@@ -59,8 +70,8 @@ export class ApiService {
           { label: 'FAIR', id: 'FAIR' },
           { label: 'POOR', id: 'POOR' },
           { label: 'Unknown', id: 'Unknown' },
-        ]
-      })
+        ],
+      });
     }
 
     if (lovType === 'PerformanceStatus') {
@@ -71,8 +82,8 @@ export class ApiService {
           { label: 'AVERAGE', id: 'AVERAGE' },
           { label: 'BELOW AVERAGE', id: 'BELOW AVERAGE' },
           { label: 'Unknown', id: 'Unknown' },
-        ]
-      })
+        ],
+      });
     }
 
     if (lovType === 'ComplianceStatus') {
@@ -83,8 +94,8 @@ export class ApiService {
           { label: 'MEDIUM', id: 'MEDIUM' },
           { label: 'LOW', id: 'LOW' },
           { label: 'Unknown', id: 'Unknown' },
-        ]
-      })
+        ],
+      });
     }
 
     if (lovType === 'RiskExposureIndex') {
@@ -95,10 +106,9 @@ export class ApiService {
           { label: 'MEDIUM RISK', id: 'MEDIUM RISK' },
           { label: 'HIGH RISK', id: 'HIGH RISK' },
           { label: 'Unknown', id: 'Unknown' },
-        ]
-      })
+        ],
+      });
     }
-
 
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/CommonLookup/type/${lovType}`,
@@ -225,7 +235,7 @@ export class ApiService {
    */
   addIncidentComment(
     incidentId: number,
-    payload: { incidentId: number; comment: string; status: string }
+    payload: { incidentId: number; comment: string; status: string },
   ): Observable<ApiResponse<any>> {
     const url = `${this.baseUrl}/Incident/${incidentId}/comments`;
     return this.http.post<ApiResponse<any>>(url, payload);
@@ -239,6 +249,33 @@ export class ApiService {
    */
   getAdminDashboardSummary(): Observable<ApiResponse<any>> {
     const url = `${this.baseUrl}/AdminDashboard/summary`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
+  // PM Dashboard
+
+  getPMDashboard(): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/PMDashboard`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
+  getPMDashboardHeader(): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/PMDashboard/header`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
+  getPMDashboardIndices(): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/PMDashboard/indices`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
+  getPMDashboardBottomMinistries(): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/PMDashboard/bottom-ministries`;
+    return this.http.get<ApiResponse<any>>(url);
+  }
+
+  getPMDashboardTopMinistries(): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/PMDashboard/top-ministries`;
     return this.http.get<ApiResponse<any>>(url);
   }
 }

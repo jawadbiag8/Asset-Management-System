@@ -468,10 +468,10 @@
     .progress-bar-container {
         flex: 1;
         height: 8px;
-        background-color: #E5E7EB;
         border-radius: 4px;
         overflow: hidden;
         position: relative;
+        // background set via getProgressBgColor: green-light / orange-light / red-light
 
         .progress-bar-fill {
             height: 100%;
@@ -521,6 +521,21 @@
     height: 16px;
     font-size: 16px;
     flex-shrink: 0;
+    color: #6B7280;
+  }
+}
+
+// Text cell with optional icon (icon inside span so it appears at end of text, including when text wraps)
+.text-cell-with-icon {
+  display: block;
+
+  .text-cell-icon {
+    display: inline-flex;
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    margin-left: 4px;
     color: #6B7280;
   }
 }
