@@ -174,8 +174,9 @@ export class DashboardComponent implements OnInit {
       {
         key: 'citizenImpactLevel',
         header: 'CITIZEN IMPACT LEVEL',
-        cellType: 'badge',
+        cellType: 'badge-with-subtext',
         badgeField: 'citizenImpactLevel',
+        subtextField: 'citizenImpactLevelSubtext',
         badgeColor: (row: any) => {
           const impact = row.citizenImpactLevel?.toUpperCase();
           if (impact?.includes('LOW')) return 'var(--color-green-light)';
@@ -271,6 +272,7 @@ export class DashboardComponent implements OnInit {
         return `High severity: ${highSeverity}`;
       };
 
+
       return {
         ...asset,
         healthIcon: getHealthIcon(asset.healthStatus),
@@ -279,6 +281,8 @@ export class DashboardComponent implements OnInit {
         compliancePercentage: formatCompliancePercentage(asset.complianceIndex),
         lastCheckedFormatted: formatLastChecked(asset.lastChecked),
         highSeverityText: formatHighSeverityText(asset.highSeverityIncidents),
+        citizenImpactLevel: asset.citizenImpactLevel.split('-')[0],
+        citizenImpactLevelSubtext: asset.citizenImpactLevel.split('-')[1],
       };
     });
 
