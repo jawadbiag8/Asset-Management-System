@@ -2,8 +2,12 @@
   <!-- LEFT -->
   <div class="left">
     <div class="logo pointer" routerLink="/dashboard">
-      <img src="Images/Dashboard/logo.svg" alt="logo" class="logo-img" />
-      <span class="title">Citizen Experience Dashboard</span>
+      <img src="Images/Dashboard/PDA-logo-icon.svg" alt="PDA logo" class="logo-img" />
+      <span class="logo-divider" aria-hidden="true"></span>
+      <div class="logo-text">
+        <span class="logo-title">Citizen Experience Dashboard</span>
+        <span class="logo-subtitle">Pakistan Digital Authority</span>
+      </div>
     </div>
 
     <nav class="nav" [class.open]="menuOpen">
@@ -27,13 +31,10 @@
 
   <!-- RIGHT -->
   <div class="right">
-    <button 
-      class="pm-btn" 
-      *ngIf="!isPmDashboardActive()"
-      (click)="navigateToPmDashboard()">
+    <button class="pm-btn" *ngIf="!isPmDashboardActive()" (click)="navigateToPmDashboard()">
       <!-- PROFILE SVG NEXT TO PM DASHBOARD -->
       <img src="Images/Dashboard/windows.svg" alt="pm icon" class="pm-icon" />
-      PM Dashboard
+      Executive Dashboard
     </button>
 
     <!-- PROFILE DROPDOWN -->
