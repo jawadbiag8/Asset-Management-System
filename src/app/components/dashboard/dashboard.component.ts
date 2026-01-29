@@ -412,7 +412,7 @@ export class DashboardComponent implements OnInit {
         value: '',
         removable: true,
         // Backend expects MinistryId as query parameter
-        paramKey: 'MinistryId',
+        paramKey: 'ministryId',
         options: [{ label: 'All', value: '' }]
       },
       {
@@ -420,7 +420,7 @@ export class DashboardComponent implements OnInit {
         label: 'Status: All',
         value: '',
         removable: true,
-        paramKey: 'status',
+        paramKey: 'currentStatus',
         options: [{ label: 'All', value: '' }]
       },
       {
