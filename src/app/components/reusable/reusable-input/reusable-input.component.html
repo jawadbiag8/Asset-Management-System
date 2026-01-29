@@ -4,7 +4,8 @@
     </mat-label>
 
     @if(mergedConfig.type === 'select') {
-    <mat-select [formControl]="control" [placeholder]="mergedConfig.placeholder || ''" #singleSelect>
+    <mat-select [formControl]="control" [placeholder]="mergedConfig.placeholder || ''" #singleSelect
+            panelClass="reusable-input-select-panel">
         <mat-option>
             <ngx-mat-select-search [formControl]="filterControl"
                 [placeholderLabel]="'Search...'"></ngx-mat-select-search>

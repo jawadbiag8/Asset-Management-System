@@ -5,10 +5,6 @@
             @if(item.subValue) {
             <span [ngClass]="getBadgeClass()" class="kpi-badge">
                 {{ item.subValue }}
-                @if(isPercentageBadge()) {
-                <mat-icon class="badge-icon">{{ item.subValueColor === 'success' ? 'keyboard_arrow_up' :
-                    'keyboard_arrow_down' }}</mat-icon>
-                }
             </span>
             }
         </div>

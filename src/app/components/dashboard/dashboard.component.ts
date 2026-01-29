@@ -54,11 +54,11 @@ export class DashboardComponent implements OnInit {
     columns: [
       {
         key: 'analyze',
-        header: 'ANALYZE',
+        header: 'Analyze',
         cellType: 'icon',
         iconUrl: '/assets/analyze.svg',
         sortable: false,
-        width: '200px',
+        width: '90px',
       },
       {
         key: 'ministryDepartment',
@@ -243,11 +243,29 @@ export class DashboardComponent implements OnInit {
         return `${value}%`;
       };
 
-      // Format lastChecked
+      // Format lastChecked as "Checked: 1 hour ago"
       const formatLastChecked = (checked: string | null): string => {
-        if (!checked) return 'Never checked';
-        // If it's already formatted, return as is, otherwise format it
-        return checked;
+        if (!checked) return 'Checked: N/A';
+        try {
+          const checkedDate = new Date(checked);
+          const now = new Date();
+          const diffMs = now.getTime() - checkedDate.getTime();
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+          let ago = 'Just now';
+          if (diffHours > 24) {
+            const diffDays = Math.floor(diffHours / 24);
+            ago = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+          } else if (diffHours > 0) {
+            ago = diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+          } else if (diffMinutes > 0) {
+            ago = diffMinutes === 1 ? '1 minute ago' : `${diffMinutes} minutes ago`;
+          }
+          return `Checked: ${ago}`;
+        } catch {
+          return 'Checked: N/A';
+        }
       };
 
       // Format health percentage
@@ -479,7 +497,7 @@ export class DashboardComponent implements OnInit {
           citizenImpacts.forEach((impact: any) => {
             citizenImpactOptions.push({
               label: impact.name,
-              value: impact.name || impact.id?.toString()
+              value: impact.id?.toString()
             });
           });
           this.updateFilterOptions('citizenImpact', citizenImpactOptions);

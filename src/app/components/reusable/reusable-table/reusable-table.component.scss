@@ -250,6 +250,21 @@
         border-right: 1px solid var(--color-border);
     }
 
+    // Keep Analyze (and other narrow headers) on one line
+    th[data-column="analyze"] {
+        white-space: nowrap;
+    }
+
+    // Center-align header where cell data is center-aligned (icon, badge columns)
+    th[data-cell-type="icon"],
+    th[data-cell-type="badge"] {
+        text-align: center;
+
+        .sortable-header {
+            justify-content: center;
+        }
+    }
+
     tr:hover {
         background-color: var(--color-bg-hover);
     }
@@ -355,7 +370,7 @@
     color: var(--color-text-tertiary);
 }
 
-// Badge Cell
+// Badge Cell (e.g. CURRENT STATUS – left-aligned)
 .badge-cell {
     display: flex;
     flex-direction: column;
@@ -363,6 +378,10 @@
     align-items: flex-start;
     width: 100%;
     overflow: visible; // Allow badge to wrap properly
+
+    .badge {
+        text-align: left;
+    }
 }
 
 // Analyze Icon - Center aligned in cell
@@ -405,6 +424,11 @@
 .assets-table {
     td:has(.badge) {
         text-align: center;
+    }
+
+    // Left-align badge-with-subtext cells (e.g. CURRENT STATUS)
+    td:has(.badge-cell) {
+        text-align: left;
     }
 }
 
