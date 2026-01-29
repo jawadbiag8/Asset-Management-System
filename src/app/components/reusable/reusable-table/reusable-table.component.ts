@@ -739,24 +739,27 @@ export class ReusableTableComponent
       }
     });
 
-    // Server-side sorting: only SortBy (column key), no SortDescending
+    // Server-side sorting: 1st click SortBy+SortDescending=false, 2nd SortBy+SortDescending=true, 3rd no SortBy
     const activeSortColumnKey = Object.keys(this.sortState).find(
       (key) => this.sortState[key] !== null,
     );
     if (activeSortColumnKey && this.config?.serverSideSearch) {
       const sortByKey = this.getSortByParamForColumn(activeSortColumnKey);
+      const sortDirection = this.sortState[activeSortColumnKey];
       if (sortByKey) {
-        httpParams = httpParams.set('SortBy', sortByKey);
+        httpParams = httpParams
+          .set('SortBy', sortByKey)
+          .set('SortDescending', sortDirection === 'desc' ? 'true' : 'false');
       }
     }
 
     // Store the last search params for refresh functionality
     this.lastSearchParams = httpParams;
 
-    // 🔒 GUARD: prevent duplicate emits (include sort column+direction so asc/desc both trigger API)
+    // 🔒 GUARD: prevent duplicate emits (asc/desc/null alag queryKey)
     const sortGuard = activeSortColumnKey
       ? `${activeSortColumnKey}:${this.sortState[activeSortColumnKey] ?? ''}`
-      : '';
+      : 'none';
     const queryKey = httpParams.toString() + '|' + sortGuard;
     if (this.lastQueryKey === queryKey) {
       return; // ❌ BLOCK duplicate call
@@ -971,11 +974,13 @@ export class ReusableTableComponent
     const currentSort = this.sortState[columnKey];
     let newSort: 'asc' | 'desc' | null;
 
-    // Only toggle asc ↔ desc so SortBy is sent every click (no clear → null)
+    // 3-state cycle: null → asc → desc → null (har click pe alag queryKey → API call)
     if (currentSort === 'asc') {
       newSort = 'desc';
+    } else if (currentSort === 'desc') {
+      newSort = null;
     } else {
-      newSort = 'asc'; // desc → asc, or null → asc
+      newSort = 'asc';
     }
 
     // Reset other columns
@@ -1095,6 +1100,14 @@ export class ReusableTableComponent
       return column.progressColor(row);
     }
     return column.progressColor;
+  }
+
+  /** Progress bar track background: light shade matching fill (green-light / orange-light / red-light) */
+  getProgressBgColor(row: any, column: TableColumn): string {
+    const value = this.getProgressValue(row, column);
+    if (value >= 70) return 'var(--color-green-light)';
+    if (value >= 30) return 'var(--color-orange-light)';
+    return 'var(--color-red-light)';
   }
 
   getTooltipText(row: any, column: TableColumn): string {

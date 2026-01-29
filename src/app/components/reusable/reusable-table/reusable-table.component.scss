@@ -468,10 +468,10 @@
     .progress-bar-container {
         flex: 1;
         height: 8px;
-        background-color: #E5E7EB;
         border-radius: 4px;
         overflow: hidden;
         position: relative;
+        // background set via getProgressBgColor: green-light / orange-light / red-light
 
         .progress-bar-fill {
             height: 100%;

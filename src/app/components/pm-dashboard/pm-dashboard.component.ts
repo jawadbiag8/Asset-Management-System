@@ -30,6 +30,15 @@ interface MinistryData {
 export class PmDashboardComponent {
   currentInsightIndex = signal(0);
 
+  // Digital Experience Score card: badge change (positive = green, negative = red)
+  digitalScoreChange = -12;
+
+  // KPI values for cards 2, 3, 5, 6 (zero hone par variant.svg dikhani hai)
+  totalIncidentsThisMonth = 25;
+  avgPageLoadMs = 221;
+  totalAssetsMonitored = 524;
+  assetsNonCompliance = 3;
+
   performanceIndices: PerformanceIndex[] = [
     { label: 'Overall Compliance Index', value: 85 },
     { label: 'Accessibility Index', value: 29 },
@@ -63,7 +72,11 @@ export class PmDashboardComponent {
 
   bottomMinistriesData: MinistryData[] = [
     { ministry: 'Ministry of Water Resources', assets: 5, percentage: 29 },
-    { ministry: 'Ministry of Industries and Production', assets: 5, percentage: 27 },
+    {
+      ministry: 'Ministry of Industries and Production',
+      assets: 5,
+      percentage: 27,
+    },
     { ministry: 'Ministry of Communications', assets: 5, percentage: 22 },
     { ministry: 'Ministry of Law and Justice', assets: 5, percentage: 18 },
     { ministry: 'Ministry of Housing and Works', assets: 5, percentage: 12 },
@@ -178,6 +191,13 @@ export class PmDashboardComponent {
     if (value >= 70) return 'var(--color-green)'; // Green
     if (value >= 30) return 'var(--color-orange)'; // Orange
     return 'var(--color-red)'; // Red
+  }
+
+  getIndexBgColor(value: number): string {
+    // Bar track: light shade matching filled color (green → green-light, etc.)
+    if (value >= 70) return 'var(--color-green-light)';
+    if (value >= 30) return 'var(--color-orange-light)';
+    return 'var(--color-red-light)';
   }
 
   previousInsight(): void {

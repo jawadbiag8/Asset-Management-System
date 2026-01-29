@@ -90,14 +90,67 @@
 }
 
 .kpi-card-highlighted {
-  background: #14B8A6; // Teal color
-  border-color: #14B8A6;
+  background: var(--color-green-teal); // #008080
+  border-color: var(--color-green-teal);
 }
 
 .kpi-card-content {
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
+}
+
+// Top-right corner icon on white KPI cards (arrow up-right)
+.kpi-card-corner-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+// Highlighted card: header (value + badge), white line, link
+.kpi-card-highlighted-content {
+  position: relative;
+}
+
+.kpi-highlighted-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px; // 78% / badge ke neeche gap - doosri card jaisa (25 ke neeche 16px)
+
+  .kpi-value-white {
+    margin: 0;
+  }
+}
+
+.kpi-badge-change {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.2;
+  background-color: #FFFFFF; // Badge background neutral (white)
+}
+
+.kpi-badge-positive {
+  color: var(--color-green); // #10B981 - positive value text
+}
+
+.kpi-badge-negative {
+  color: var(--color-red); // #EF4444 - negative value text
+}
+
+.kpi-divider-white {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.8);
+  margin: 16px 0;
+  width: 100%;
 }
 
 .kpi-value {
@@ -180,7 +233,7 @@
 .kpi-link {
   font-weight: 400;
   font-size: 12px;
-  color: #2563EB;
+  color: var(--color-green-teal);
   text-decoration: none;
   transition: opacity 0.2s;
   word-wrap: break-word;
@@ -389,10 +442,10 @@
 
 .index-progress-container {
   height: 8px;
-  background-color: #E5E7EB;
   border-radius: 4px;
   overflow: hidden;
   position: relative;
+  // background set via getIndexBgColor: green-light / red-light / orange-light
 }
 
 .index-progress-bar {

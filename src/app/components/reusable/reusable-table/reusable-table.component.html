@@ -299,7 +299,12 @@
                   }
                   @case ("progress-bar") {
                     <div class="progress-bar-cell">
-                      <div class="progress-bar-container">
+                      <div
+                        class="progress-bar-container"
+                        [style.background-color]="
+                          getProgressBgColor(row, column)
+                        "
+                      >
                         <div
                           class="progress-bar-fill"
                           [style.width.%]="getProgressValue(row, column)"
