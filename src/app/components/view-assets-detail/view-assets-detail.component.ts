@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, Params } from '@angular/router';
+import { ApiService, ApiResponse } from '../../services/api.service';
 
 @Component({
   selector: 'app-view-assets-detail',
@@ -7,58 +8,164 @@ import { ActivatedRoute, Router } from '@angular/router';
   templateUrl: './view-assets-detail.component.html',
   styleUrl: './view-assets-detail.component.scss',
 })
-export class ViewAssetsDetailComponent {
+export class ViewAssetsDetailComponent implements OnInit {
+  assetId: number | null = null;
+  ministryId: number | null = null;
 
-  assetId = signal<number>(0);
-
-  constructor(private route: Router, private activatedRoute: ActivatedRoute) { }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private apiService: ApiService,
+  ) {}
 
   ngOnInit() {
-    this.assetId.set(Number(this.activatedRoute.snapshot.queryParams['id']));
+    // React only when id or ministryId change (not when incident filters change URL)
+    this.route.queryParams.subscribe((params) => {
+      const id = params['id'];
+      const ministryId = params['ministryId'];
+      const idChanged = id != null && +id !== this.assetId;
+      const ministryIdChanged =
+        ministryId != null && +ministryId !== this.ministryId;
+      if (id) this.assetId = +id;
+      if (ministryId) this.ministryId = +ministryId;
+      if (idChanged && this.assetId) this.loadAssetDashboard();
+    });
+  }
+
+  /** Current route query params so incident filters can be initialised and stay in URL */
+  get incidentQueryParams(): Params {
+    return this.route.snapshot.queryParams;
+  }
+
+  /** When incident filters change, update URL query params. Empty/removed filters are removed from URL (null). */
+  onIncidentQueryParamsChange(params: Params): void {
+    const current = this.route.snapshot.queryParams;
+    const merged: Params = { ...current, ...params };
+    // Remove incident filter keys from URL when value is empty so refresh doesn't re-apply them
+    const keysToRemove = Object.keys(merged).filter(
+      (k) =>
+        k !== 'id' &&
+        k !== 'ministryId' &&
+        (merged[k] === '' || merged[k] == null),
+    );
+    keysToRemove.forEach((k) => (merged[k] = null));
+    this.router.navigate([], {
+      queryParams: merged,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   // Asset Details
   assetDetails = {
-    type: 'Website',
-    url: 'nespak.com.pk',
-    ministry: 'Ministry of Health',
-    department: 'Department Name',
-    lastAssessed: 'Never',
-    citizenImpactLevel: 'LOW',
-    currentStatus: 'Down',
-    lastOutage: '5 hours ago',
-    currentHealth: 'AVERAGE',
-    riskExposureIndex: 'HIGH RISK',
+    url: '',
+    ministry: '',
+    department: '',
+    citizenImpactLevel: '',
+    currentStatus: '',
+    lastOutage: '',
+    currentHealth: '',
+    riskExposureIndex: '',
   };
 
   // Summary KPIs
   summaryKpis = {
-    citizenHappiness: 100,
-    overallCompliance: 100,
-    openIncidents: 3,
-    highSeverityOpenIncidents: 5,
+    citizenHappiness: 0,
+    overallCompliance: 0,
+    openIncidents: 0,
+    highSeverityOpenIncidents: 0,
   };
 
   // Standards Compliance
-  standardsCompliance = [
-    { name: 'Accessibility & Inclusivity', status: 'HIGH' },
-    { name: 'Availability & Reliability', status: 'MEDIUM' },
-    { name: 'Navigation & Discoverability', status: 'LOW' },
-    { name: 'Performance & Efficiency', status: 'HIGH' },
-    { name: 'Security, Trust & Privacy', status: 'MEDIUM' },
-    { name: 'User Experience & Journey Quality', status: 'LOW' },
-  ];
+  standardsCompliance: { name: string; status: string }[] = [];
 
   // Ownership & Accountability
   ownership = {
-    ownerName: 'Owner name Here',
-    ownerEmail: 'owneremail@gov.com.pk',
-    ownerContact: '+92 321 123 4567',
+    ownerName: '',
+    ownerEmail: '',
+    ownerContact: '',
     technicalOwnerName: '',
     technicalOwnerEmail: '',
     technicalOwnerContact: '',
   };
 
+  loadAssetDashboard() {
+    if (!this.assetId) {
+      console.error('Asset ID is required');
+      return;
+    }
+
+    this.apiService.getAssetsDashboad(this.assetId).subscribe({
+      next: (response: ApiResponse<any>) => {
+        if (response.isSuccessful && response.data) {
+          const d = response.data;
+
+          // Map API response to assetDetails (dashboard header)
+          this.assetDetails = {
+            url: d.assetUrl ?? '',
+            ministry: d.ministry ?? '',
+            department: d.department ?? '',
+            citizenImpactLevel: d.citizenImpactLevel ?? '',
+            currentStatus: d.currentStatus ?? '',
+            lastOutage: d.lastOutage ?? '',
+            currentHealth: d.currentHealth ?? '',
+            riskExposureIndex: d.riskExposureIndex ?? '',
+          };
+
+          // Map API response to summary KPIs
+          this.summaryKpis = {
+            citizenHappiness: Number(d.citizenHappinessMetric) ?? 0,
+            overallCompliance: Number(d.overallComplianceMetric) ?? 0,
+            openIncidents: Number(d.openIncidents) ?? 0,
+            highSeverityOpenIncidents: Number(d.highSeverityOpenIncidents) ?? 0,
+          };
+
+          // Map API response to standards compliance (Compliance Overview)
+          this.standardsCompliance = [
+            {
+              name: 'Accessibility & Inclusivity',
+              status: d.accessibilityInclusivityStatus ?? 'N/A',
+            },
+            {
+              name: 'Availability & Reliability',
+              status: d.availabilityReliabilityStatus ?? 'N/A',
+            },
+            {
+              name: 'Navigation & Discoverability',
+              status: d.navigationDiscoverabilityStatus ?? 'N/A',
+            },
+            {
+              name: 'Performance & Efficiency',
+              status: d.performanceEfficiencyStatus ?? 'N/A',
+            },
+            {
+              name: 'Security, Trust & Privacy',
+              status: d.securityTrustPrivacyStatus ?? 'N/A',
+            },
+            {
+              name: 'User Experience & Journey Quality',
+              status: d.userExperienceJourneyQualityStatus ?? 'N/A',
+            },
+          ];
+
+          // Map API response to ownership
+          this.ownership = {
+            ownerName: d.ownerName ?? '',
+            ownerEmail: d.ownerEmail ?? '',
+            ownerContact: d.ownerContact ?? '',
+            technicalOwnerName: d.technicalOwnerName ?? '',
+            technicalOwnerEmail: d.technicalOwnerEmail ?? '',
+            technicalOwnerContact: d.technicalOwnerContact ?? '',
+          };
+        } else {
+          console.error('API Error:', response.message);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading asset dashboard:', error);
+      },
+    });
+  }
 
   getStatusBadgeClass(status: string): string {
     if (status === 'HIGH') {
@@ -71,7 +178,10 @@ export class ViewAssetsDetailComponent {
     return '';
   }
 
-  getBadgeColor(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk'): string {
+  getBadgeColor(
+    value: string | undefined | null,
+    type: 'citizenImpact' | 'health' | 'risk',
+  ): string {
     if (!value) return 'var(--color-bg-quaternary)';
 
     const upperValue = value.toUpperCase();
@@ -89,9 +199,12 @@ export class ViewAssetsDetailComponent {
     }
 
     if (type === 'health') {
-      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT')) return 'var(--color-green-light)';
-      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR')) return 'var(--color-yellow-light)';
-      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL')) return 'var(--color-red-light)';
+      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT'))
+        return 'var(--color-green-light)';
+      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR'))
+        return 'var(--color-yellow-light)';
+      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL'))
+        return 'var(--color-red-light)';
       return 'var(--color-bg-quaternary)';
     }
 
@@ -105,7 +218,10 @@ export class ViewAssetsDetailComponent {
     return 'var(--color-bg-quaternary)';
   }
 
-  getBadgeTextColor(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk'): string {
+  getBadgeTextColor(
+    value: string | undefined | null,
+    type: 'citizenImpact' | 'health' | 'risk',
+  ): string {
     if (!value) return 'var(--color-text-tertiary)';
 
     const upperValue = value.toUpperCase();
@@ -123,9 +239,12 @@ export class ViewAssetsDetailComponent {
     }
 
     if (type === 'health') {
-      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT')) return 'var(--color-green-dark)';
-      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR')) return 'var(--color-yellow)';
-      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL')) return 'var(--color-red)';
+      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT'))
+        return 'var(--color-green-dark)';
+      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR'))
+        return 'var(--color-yellow)';
+      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL'))
+        return 'var(--color-red)';
       return 'var(--color-text-tertiary)';
     }
 
@@ -178,9 +297,9 @@ export class ViewAssetsDetailComponent {
 
   // Action Methods
   onAnalyze() {
-    this.route.navigate(['/asset-control-panel'], {
+    this.router.navigate(['/asset-control-panel'], {
       queryParams: {
-        assetId: this.assetId().toString(),
+        assetId: this.assetId != null ? this.assetId.toString() : '',
       },
     });
   }

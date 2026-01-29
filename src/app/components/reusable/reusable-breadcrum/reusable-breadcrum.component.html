@@ -3,7 +3,7 @@
   <nav class="breadcrumb">
     <ng-container *ngFor="let item of breadcrumbs; let last = last; let i = index">
       <span *ngIf="item.path && !last" class="breadcrumb-link">
-        <a [routerLink]="item.path">{{ item.label }}</a>
+        <a (click)="navigate(item)" style="cursor: pointer;">{{ item.label }}</a>
       </span>
       <span *ngIf="!item.path || last" class="breadcrumb-current">
         {{ item.label }}

@@ -148,7 +148,7 @@ export class MinistryDetailComponent implements OnInit {
   ministryId: number | null = null;
   totalItems = signal<number>(0);
   isLoading = signal<boolean>(false);
-  ministryName = signal<string>('Ministry of Health');
+  ministryName = signal<string>('');
 
   constructor(
     private router: Router,
@@ -171,7 +171,10 @@ export class MinistryDetailComponent implements OnInit {
         sortable: false,
         onClick: (row: AssetDetail) => {
           this.router.navigate(['/view-assets-detail'], {
-            queryParams: { id: row.id },
+            queryParams: { 
+              id: row.id,
+              ministryId: this.ministryId 
+            },
           });
         },
       },
