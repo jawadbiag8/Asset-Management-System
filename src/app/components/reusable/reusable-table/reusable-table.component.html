@@ -1,40 +1,56 @@
 <div>
   <!-- Filter Bar -->
   <div class="mb-3">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2" style="width: 100%">
+    <div
+      class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+      style="width: 100%"
+    >
       @if (filters.length > 0) {
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        @for (filter of filters; track filter.id) {
-        @if (
-        filter.value && filter.value !== "" && filter.value !== "All"
-        ) {
-        <span class="filter-pill filter-pill-selected" (click)="filter.removable && onFilterRemove(filter.id)">
-          {{ filter.label }}
-          @if (filter.removable) {
-          <mat-icon class="filter-close-icon">close</mat-icon>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          @for (filter of filters; track filter.id) {
+            @if (
+              filter.value && filter.value !== "" && filter.value !== "All"
+            ) {
+              <span
+                class="filter-pill filter-pill-selected"
+                (click)="filter.removable && onFilterRemove(filter.id)"
+              >
+                {{ filter.label }}
+                @if (filter.removable) {
+                  <mat-icon class="filter-close-icon">close</mat-icon>
+                }
+              </span>
+            } @else {
+              <span
+                class="filter-pill filter-pill-dropdown"
+                (click)="onFilterClick(filter)"
+              >
+                {{ filter.label }}
+                <mat-icon class="filter-dropdown-icon"
+                  >keyboard_arrow_down</mat-icon
+                >
+              </span>
+            }
           }
-        </span>
-        } @else {
-        <span class="filter-pill filter-pill-dropdown" (click)="onFilterClick(filter)">
-          {{ filter.label }}
-          <mat-icon class="filter-dropdown-icon">keyboard_arrow_down</mat-icon>
-        </span>
-        }
-        }
-      </div>
+        </div>
       }
 
       <!-- Search Bar and Refresh Button -->
       <div class="d-flex align-items-center gap-2">
         @if (config.searchPlaceholder) {
-        <div class="search-container">
-          <mat-icon class="search-icon">search</mat-icon>
-          <input type="text" class="search-input" [placeholder]="config.searchPlaceholder" [(ngModel)]="searchValue"
-            (keyup.enter)="onSearchButtonClick()" />
-          <!-- <button class="search-button" (click)="onSearchButtonClick()" type="button">
+          <div class="search-container">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input
+              type="text"
+              class="search-input"
+              [placeholder]="config.searchPlaceholder"
+              [(ngModel)]="searchValue"
+              (keyup.enter)="onSearchButtonClick()"
+            />
+            <!-- <button class="search-button" (click)="onSearchButtonClick()" type="button">
             <mat-icon>search</mat-icon>
           </button> -->
-        </div>
+          </div>
         }
       </div>
     </div>
@@ -43,231 +59,326 @@
   <!-- Table + Scrollable Area -->
   <div class="table-wrapper">
     @if (sortedData.length === 0) {
-    <div class="empty-state">
-      <p class="empty-state-text">
-        {{ config.emptyStateMessage || "No data available" }}
-      </p>
-    </div>
+      <div class="empty-state">
+        <p class="empty-state-text">
+          {{ config.emptyStateMessage || "No data available" }}
+        </p>
+      </div>
     } @else {
-    <div class="table-container">
-      <table mat-table [dataSource]="sortedData" class="assets-table" [style.min-width]="config.minWidth || '1400px'">
-        @for (column of config.columns; track column.key) {
-        <ng-container [matColumnDef]="column.key">
-          <th mat-header-cell *matHeaderCellDef [style.width]="column.width">
-            @if (column.sortable !== false) {
-            <div class="sortable-header" (click)="onSort(column.key)">
-              <span class="header-text">{{ column.header }}</span>
-              <mat-icon class="sort-icon" [ngClass]="getSortIconClass(column.key)">
-                {{ getSortIcon(column.key) }}
-              </mat-icon>
-            </div>
-            } @else {
-            {{ column.header }}
-            }
-          </th>
-          <td mat-cell *matCellDef="let row" [style.width]="column.width" [matTooltip]="
+      <div class="table-container">
+        <table
+          mat-table
+          [dataSource]="sortedData"
+          class="assets-table"
+          [style.min-width]="config.minWidth || '1400px'"
+        >
+          @for (column of config.columns; track column.key) {
+            <ng-container [matColumnDef]="column.key">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [style.width]="column.width"
+              >
+                @if (column.sortable !== false) {
+                  <div class="sortable-header" (click)="onSort(column.key)">
+                    <span class="header-text">{{ column.header }}</span>
+                    <mat-icon
+                      class="sort-icon"
+                      [ngClass]="getSortIconClass(column.key)"
+                    >
+                      {{ getSortIcon(column.key) }}
+                    </mat-icon>
+                  </div>
+                } @else {
+                  {{ column.header }}
+                }
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let row"
+                [style.width]="column.width"
+                [matTooltip]="
                   hasTooltip(column) ? getTooltipText(row, column) : ''
-                " [matTooltipPosition]="column.tooltipPosition || 'above'" [matTooltipDisabled]="!hasTooltip(column)">
-            @switch (column.cellType) {
-            @case ("icon") {
-            <div class="analyze-icon-container" [style.background-color]="column.iconBgColor"
-              [class.clickable]="column.onClick" [class.pointer]="column.onClick" (click)="
+                "
+                [matTooltipPosition]="column.tooltipPosition || 'above'"
+                [matTooltipDisabled]="!hasTooltip(column)"
+              >
+                @switch (column.cellType) {
+                  @case ("icon") {
+                    <div
+                      class="analyze-icon-container"
+                      [style.background-color]="column.iconBgColor"
+                      [class.clickable]="column.onClick"
+                      [class.pointer]="column.onClick"
+                      (click)="
                         column.onClick
                           ? column.onClick(row)
                           : onIconClick(row, column.key)
-                      ">
-              @if (column.iconUrl) {
-              <img [src]="column.iconUrl" alt="icon" class="custom-icon" />
-              } @else {
-              <mat-icon class="analyze-icon" [style.color]="column.iconColor">
-                {{ column.iconName }}
-              </mat-icon>
-              }
-            </div>
-            }
-            @case ("two-line") {
-            <div class="two-line-cell">
-              <div class="line-primary" [ngClass]="column.cellClass">
-                {{ getCellValue(row, column.primaryField || "") }}
-              </div>
-              @if (column.linkField) {
-              <a [href]="getCellValue(row, column.linkField || '')" target="_blank" class="line-primary line-link"
-                [ngClass]="column.cellClass">
-                {{ getCellValue(row, column.secondaryField || "") }}
-              </a>
-              } @else {
-              <div class="line-secondary">
-                {{ getCellValue(row, column.secondaryField || "") }}
-              </div>
-              }
-            </div>
-            }
-            @case ("link") {
-            <div class="two-line-cell">
-              @if (getCellValue(row, column.linkField || "")) {
-              <a [href]="getCellValue(row, column.linkField || '')" target="_blank" rel="noopener noreferrer"
-                class="link-text">
-                {{ getCellValue(row, column.primaryField || "") }}
-              </a>
-              @if (column.secondaryField) {
-              <div class="line-secondary">
-                {{ getCellValue(row, column.secondaryField || "") }}
-              </div>
-              }
-              } @else {
-              <div class="line-primary">
-                {{ getCellValue(row, column.primaryField || "") }}
-              </div>
-              @if (column.secondaryField) {
-              <div class="line-secondary">
-                {{ getCellValue(row, column.secondaryField || "") }}
-              </div>
-              }
-              }
-            </div>
-            }
-            @case ("badge") {
-            <div class="badge-wrapper">
-              <span class="badge" [ngClass]="getBadgeClass(getBadgeColor(row, column))"
-                [style.background-color]="getBadgeColor(row, column)" [style.color]="getBadgeTextColor(row, column)">
-                {{ getCellValue(row, column.badgeField || "") }}
-              </span>
-            </div>
-            }
-            @case ("badge-with-subtext") {
-            <div class="badge-cell">
-              <span class="badge" [ngClass]="getBadgeClass(getBadgeColor(row, column))"
-                [style.background-color]="getBadgeColor(row, column)" [style.color]="getBadgeTextColor(row, column)">
-                {{ getCellValue(row, column.badgeField || "") }}
-              </span>
-              <div class="line-secondary mt-1">
-                {{ getCellValue(row, column.subtextField || "") }}
-              </div>
-            </div>
-            }
-            @case ("text-with-color") {
-            <div class="two-line-cell">
-              <div class="line-primary" [ngClass]="getTextColorClass(row, column)">
-                {{ getCellValue(row, column.primaryField || "") }}
-              </div>
-              <div class="line-secondary" [ngClass]="getSecondaryTextColorClass(row, column)">
-                {{ getCellValue(row, column.secondaryField || "") }}
-              </div>
-            </div>
-            }
-            @case ("health-status") {
-            <div class="health-status-cell">
-              <div class="health-icon-wrapper">
-                <div class="health-tooltip" [attr.data-status]="
+                      "
+                    >
+                      @if (column.iconUrl) {
+                        <img
+                          [src]="column.iconUrl"
+                          alt="icon"
+                          class="custom-icon"
+                        />
+                      } @else {
+                        <mat-icon
+                          class="analyze-icon"
+                          [style.color]="column.iconColor"
+                        >
+                          {{ column.iconName }}
+                        </mat-icon>
+                      }
+                    </div>
+                  }
+                  @case ("two-line") {
+                    <div class="two-line-cell">
+                      <div class="line-primary" [ngClass]="column.cellClass">
+                        {{ getCellValue(row, column.primaryField || "") }}
+                      </div>
+                      @if (column.linkField) {
+                        <a
+                          [href]="getCellValue(row, column.linkField || '')"
+                          target="_blank"
+                          class="line-primary line-link"
+                          [ngClass]="column.cellClass"
+                        >
+                          {{ getCellValue(row, column.secondaryField || "") }}
+                        </a>
+                      } @else {
+                        <div class="line-secondary">
+                          {{ getCellValue(row, column.secondaryField || "") }}
+                        </div>
+                      }
+                    </div>
+                  }
+                  @case ("link") {
+                    <div class="two-line-cell">
+                      @if (getCellValue(row, column.linkField || "")) {
+                        <a
+                          [href]="getCellValue(row, column.linkField || '')"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="link-text"
+                        >
+                          {{ getCellValue(row, column.primaryField || "") }}
+                        </a>
+                        @if (column.secondaryField) {
+                          <div class="line-secondary">
+                            {{ getCellValue(row, column.secondaryField || "") }}
+                          </div>
+                        }
+                      } @else {
+                        <div class="line-primary">
+                          {{ getCellValue(row, column.primaryField || "") }}
+                        </div>
+                        @if (column.secondaryField) {
+                          <div class="line-secondary">
+                            {{ getCellValue(row, column.secondaryField || "") }}
+                          </div>
+                        }
+                      }
+                    </div>
+                  }
+                  @case ("badge") {
+                    <div class="badge-wrapper">
+                      <span
+                        class="badge"
+                        [ngClass]="getBadgeClass(getBadgeColor(row, column))"
+                        [style.background-color]="getBadgeColor(row, column)"
+                        [style.color]="getBadgeTextColor(row, column)"
+                      >
+                        {{ getCellValue(row, column.badgeField || "") }}
+                      </span>
+                    </div>
+                  }
+                  @case ("badge-with-subtext") {
+                    <div class="badge-cell">
+                      <span
+                        class="badge"
+                        [ngClass]="getBadgeClass(getBadgeColor(row, column))"
+                        [style.background-color]="getBadgeColor(row, column)"
+                        [style.color]="getBadgeTextColor(row, column)"
+                      >
+                        {{ getCellValue(row, column.badgeField || "") }}
+                      </span>
+                      <div class="line-secondary mt-1">
+                        {{ getCellValue(row, column.subtextField || "") }}
+                      </div>
+                    </div>
+                  }
+                  @case ("text-with-color") {
+                    <div class="two-line-cell">
+                      <div
+                        class="line-primary"
+                        [ngClass]="getTextColorClass(row, column)"
+                      >
+                        {{ getCellValue(row, column.primaryField || "") }}
+                      </div>
+                      <div
+                        class="line-secondary"
+                        [ngClass]="getSecondaryTextColorClass(row, column)"
+                      >
+                        {{ getCellValue(row, column.secondaryField || "") }}
+                      </div>
+                    </div>
+                  }
+                  @case ("health-status") {
+                    <div class="health-status-cell">
+                      <div class="health-icon-wrapper">
+                        <div
+                          class="health-tooltip"
+                          [attr.data-status]="
                             getCellValue(row, column.healthStatusField || '')
-                          ">
-                  {{
-                  getCellValue(row, column.healthStatusField || "")
-                  }}
-                </div>
-                <img [src]="
+                          "
+                        >
+                          {{
+                            getCellValue(row, column.healthStatusField || "")
+                          }}
+                        </div>
+                        <img
+                          [src]="
                             getHealthIconPath(
                               getCellValue(row, column.healthIconField || '')
                             )
-                          " [alt]="
+                          "
+                          [alt]="
                             getCellValue(row, column.healthStatusField || '')
-                          " class="health-icon" [ngClass]="
+                          "
+                          class="health-icon"
+                          [ngClass]="
                             getHealthIconClass(
                               getCellValue(row, column.healthIconField || '')
                             )
-                          " />
-              </div>
-              <div class="health-percentage">
-                {{
-                getCellValue(row, column.healthPercentageField || "")
-                }}
-              </div>
-            </div>
-            }
-            @case ("actions") {
-            <div class="actions-cell" [ngClass]="column.cellClass">
-              @if ( column.actionLinks && column.actionLinks.length > 0 ) {
-              @for (action of column.actionLinks; track $index) {
-              <button type="button" class="action-link me-2" [class.action-link-icon]="action.display === 'icon'"
-                [style.color]="action.color" [disabled]="getActionDisabled(row, action)"
-                [attr.aria-label]="action.label" [matTooltip]="action.label" matTooltipPosition="above"
-                (click)="$event.stopPropagation(); onIconClick(row, action.label)">
-                @if (action.display === 'icon' && action.iconName) {
-                <mat-icon [attr.aria-hidden]="true">{{ action.iconName }}</mat-icon>
-                } @else {
-                {{ action.label }}
+                          "
+                        />
+                      </div>
+                      <div class="health-percentage">
+                        {{
+                          getCellValue(row, column.healthPercentageField || "")
+                        }}
+                      </div>
+                    </div>
+                  }
+                  @case ("actions") {
+                    <div class="actions-cell" [ngClass]="column.cellClass">
+                      @if (
+                        column.actionLinks && column.actionLinks.length > 0
+                      ) {
+                        @for (action of column.actionLinks; track $index) {
+                          <button
+                            type="button"
+                            class="action-link me-2"
+                            [class.action-link-icon]="action.display === 'icon'"
+                            [style.color]="action.color"
+                            [disabled]="getActionDisabled(row, action)"
+                            [attr.aria-label]="action.label"
+                            [matTooltip]="action.label"
+                            matTooltipPosition="above"
+                            (click)="
+                              $event.stopPropagation();
+                              onIconClick(row, action.label)
+                            "
+                          >
+                            @if (action.display === "icon" && action.iconName) {
+                              <mat-icon [attr.aria-hidden]="true">{{
+                                action.iconName
+                              }}</mat-icon>
+                            } @else {
+                              {{ action.label }}
+                            }
+                          </button>
+                          @if (!$last) {
+                            <span class="text-muted">|</span>
+                          }
+                        }
+                      }
+                    </div>
+                  }
+                  @case ("progress-bar") {
+                    <div class="progress-bar-cell">
+                      <div class="progress-bar-container">
+                        <div
+                          class="progress-bar-fill"
+                          [style.width.%]="getProgressValue(row, column)"
+                          [style.background-color]="
+                            getProgressColor(row, column)
+                          "
+                        ></div>
+                      </div>
+                      @if (column.progressShowLabel !== false) {
+                        <span class="progress-bar-label">
+                          {{ getProgressValue(row, column) }}%
+                        </span>
+                      }
+                    </div>
+                  }
+                  @default {
+                    <div [ngClass]="column.cellClass">
+                      {{ getCellValue(row, column.primaryField || column.key) }}
+                    </div>
+                  }
                 }
+              </td>
+            </ng-container>
+          }
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+
+      <!-- Pagination (sticky inside wrapper) -->
+      @if (sortedData.length > 0) {
+        <div class="pagination-container">
+          <div class="pagination-info">
+            <span class="row-count-text"
+              >{{ getDisplayedRange() }} of {{ effectiveTotalItems }}</span
+            >
+          </div>
+
+          <div class="pagination-right-section">
+            <div class="pagination-rows-per-page">
+              <span class="rows-per-page-label">Rows per page:</span>
+              <select
+                class="rows-per-page-select"
+                [value]="pageSize"
+                (change)="onPageSizeChange($event)"
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+
+            <div class="pagination-navigation">
+              <button
+                class="pagination-button"
+                [disabled]="currentPage === 1"
+                (click)="onPreviousPage()"
+                type="button"
+              >
+                <mat-icon>chevron_left</mat-icon>
               </button>
-              @if (!$last) {
-              <span class="text-muted">|</span>
-              }
-              }
-              }
-            </div>
-            }
-            @case ("progress-bar") {
-            <div class="progress-bar-cell">
-              <div class="progress-bar-container">
-                <div class="progress-bar-fill" [style.width.%]="getProgressValue(row, column)" [style.background-color]="
-                      getProgressColor(row, column)
-                    "></div>
-              </div>
-              @if (column.progressShowLabel !== false) {
-              <span class="progress-bar-label">
-                {{ getProgressValue(row, column) }}%
+              <span class="page-indicator">
+                <span class="current-page">{{ currentPage }}</span
+                >/<span class="total-pages">{{ totalPages }}</span>
               </span>
-              }
+              <button
+                class="pagination-button"
+                [disabled]="currentPage === totalPages"
+                (click)="onNextPage()"
+                type="button"
+              >
+                <mat-icon>chevron_right</mat-icon>
+              </button>
             </div>
-            }
-            @default {
-            <div [ngClass]="column.cellClass">
-              {{ getCellValue(row, column.primaryField || column.key) }}
-            </div>
-            }
-            }
-          </td>
-        </ng-container>
-        }
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
-    </div>
-
-    <!-- Pagination (sticky inside wrapper) -->
-    @if (sortedData.length > 0) {
-    <div class="pagination-container">
-      <div class="pagination-info">
-        <span class="row-count-text">{{ getDisplayedRange() }} of {{ effectiveTotalItems }}</span>
-      </div>
-
-      <div class="pagination-right-section">
-        <div class="pagination-rows-per-page">
-          <span class="rows-per-page-label">Rows per page:</span>
-          <select class="rows-per-page-select" [value]="pageSize" (change)="onPageSizeChange($event)">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
+          </div>
         </div>
-
-        <div class="pagination-navigation">
-          <button class="pagination-button" [disabled]="currentPage === 1" (click)="onPreviousPage()" type="button">
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-          <span class="page-indicator">
-            <span class="current-page">{{ currentPage }}</span>/<span class="total-pages">{{ totalPages }}</span>
-          </span>
-          <button class="pagination-button" [disabled]="currentPage === totalPages" (click)="onNextPage()"
-            type="button">
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-        </div>
-      </div>
-    </div>
-    }
+      }
     }
   </div>
 </div>
