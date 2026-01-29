@@ -479,7 +479,7 @@ export class DashboardComponent implements OnInit {
           citizenImpacts.forEach((impact: any) => {
             citizenImpactOptions.push({
               label: impact.name,
-              value: impact.name || impact.id?.toString()
+              value: impact.id?.toString()
             });
           });
           this.updateFilterOptions('citizenImpact', citizenImpactOptions);
