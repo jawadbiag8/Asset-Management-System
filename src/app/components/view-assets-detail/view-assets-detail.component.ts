@@ -41,6 +41,9 @@ export class ViewAssetsDetailComponent implements OnInit {
   onIncidentQueryParamsChange(params: Params): void {
     const current = this.route.snapshot.queryParams;
     const merged: Params = { ...current, ...params };
+    // Do not put pagination in URL for asset detail view
+    const paginationKeys = ['pageNumber', 'pageSize', 'PageNumber', 'PageSize'];
+    paginationKeys.forEach((k) => (merged[k] = null));
     // Remove incident filter keys from URL when value is empty so refresh doesn't re-apply them
     const keysToRemove = Object.keys(merged).filter(
       (k) =>
@@ -187,7 +190,13 @@ export class ViewAssetsDetailComponent implements OnInit {
     const dash = s.indexOf(' - ');
     const short = dash >= 0 ? s.slice(0, dash).trim() : s;
     const upper = short.toUpperCase();
-    if (upper === 'LOW' || upper === 'HIGH' || upper === 'MEDIUM' || upper === 'UNKNOWN') return upper;
+    if (
+      upper === 'LOW' ||
+      upper === 'HIGH' ||
+      upper === 'MEDIUM' ||
+      upper === 'UNKNOWN'
+    )
+      return upper;
     if (upper.includes('LOW')) return 'LOW';
     if (upper.includes('HIGH')) return 'HIGH';
     if (upper.includes('MEDIUM')) return 'MEDIUM';

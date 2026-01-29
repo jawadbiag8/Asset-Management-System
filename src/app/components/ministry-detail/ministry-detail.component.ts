@@ -161,6 +161,7 @@ export class MinistryDetailComponent implements OnInit {
               id: row.id,
               ministryId: this.ministryId,
             },
+            queryParamsHandling: '',
           });
         },
       },
