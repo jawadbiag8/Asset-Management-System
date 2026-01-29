@@ -450,7 +450,7 @@ export class ActiveIncidentsComponent implements OnInit {
       level === 'MEDIUM' ||
       level === 'MODERATE'
     ) {
-      return 'var(--color-yellow-light)';
+      return 'var(--color-green-light)';;
     } else if (
       level === 'P4' ||
       level === '4' ||
@@ -458,7 +458,7 @@ export class ActiveIncidentsComponent implements OnInit {
       level === 'LOW' ||
       level === 'INFO'
     ) {
-      return 'var(--color-green-light)';
+      return 'var(--color-light-lightgrey2)';
     }
     return '#F3F4F6';
   }
@@ -487,7 +487,7 @@ export class ActiveIncidentsComponent implements OnInit {
       level === 'MEDIUM' ||
       level === 'MODERATE'
     ) {
-      return 'var(--color-yellow)';
+      return 'var(--color-green-dark)';
     } else if (
       level === 'P4' ||
       level === '4' ||
@@ -495,7 +495,7 @@ export class ActiveIncidentsComponent implements OnInit {
       level === 'LOW' ||
       level === 'INFO'
     ) {
-      return 'var(--color-green-dark)';
+      return 'var(--color-text-white)';
     }
     return '#6B7280';
   }
@@ -509,9 +509,9 @@ export class ActiveIncidentsComponent implements OnInit {
     } else if (statusUpper === 'FIXING') {
       return 'var(--color-yellow-light)'; // Yellow background
     } else if (statusUpper === 'MONITORING') {
-      return 'var(--color-green-light)'; // Light green background
+      return 'var(--color-light-brown)'; // Light green background
     } else if (statusUpper === 'RESOLVED' || statusUpper === 'CLOSED') {
-      return '#B2F5EA'; // Teal/blue-green background
+      return 'var(--color-green-light)'; // Light green background
     } else if (statusUpper === 'IN PROGRESS' || statusUpper === 'IN_PROGRESS') {
       return 'var(--color-blue-light)';
     }
@@ -527,9 +527,9 @@ export class ActiveIncidentsComponent implements OnInit {
     } else if (statusUpper === 'FIXING') {
       return 'var(--color-yellow)'; // Yellow text
     } else if (statusUpper === 'MONITORING') {
-      return 'var(--color-green-dark)'; // Green text
+      return 'var(--color-dark-brown)'; // Green text
     } else if (statusUpper === 'RESOLVED' || statusUpper === 'CLOSED') {
-      return '#047857'; // Dark teal text
+      return 'var(--color-green-dark)'; // Green text
     } else if (statusUpper === 'IN PROGRESS' || statusUpper === 'IN_PROGRESS') {
       return 'var(--color-blue-dark)';
     }

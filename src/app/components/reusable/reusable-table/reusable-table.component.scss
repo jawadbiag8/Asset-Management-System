@@ -34,15 +34,20 @@
 }
 
 .filter-pill-dropdown {
-    background-color: var(--color-filter-dropdown-bg);
-    color: var(--color-green-teal);
+    background-color: var(--color-bg-primary);
+    color: var(--color-primary);
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    gap: 10px;
 
     .filter-dropdown-icon {
-        color: var(--color-text-tertiary);
+        color: var(--color-primary);
     }
 
     &:hover {
-        background-color: var(--color-filter-dropdown-bg-hover);
+        background-color: var(--color-bg-primary);
+        border-color: var(--color-border-hover);
     }
 }
 
@@ -136,8 +141,7 @@
 
     // Custom scrollbar (vertical & horizontal)
     scrollbar-width: thin; // Firefox
-    scrollbar-color: var(--color-scroll-thumb, var(--color-border))
-                     var(--color-scroll-track, var(--color-bg-secondary));
+    scrollbar-color: var(--color-scroll-thumb, var(--color-border)) var(--color-scroll-track, var(--color-bg-secondary));
 
     &::-webkit-scrollbar {
         width: 8px;

@@ -92,7 +92,7 @@ export class ManageIncidentsComponent implements OnInit {
       incidentTitle: ['', Validators.required],
       assetId: [this.data.assetId || '', Validators.required],
       kpiId: [this.data.kpiId || '', Validators.required],
-      securityLevel: ['', Validators.required],
+      severityId: ['', Validators.required],
       description: [''],
       status: [''],
     });
