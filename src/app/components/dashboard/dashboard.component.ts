@@ -368,7 +368,7 @@ export class DashboardComponent implements OnInit {
         subValueText: 'View online assets',
         subValueLink: '/assets/by-ministry?status=Online',
         scrollToId: 'assets-table',
-        filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
+        filterOnClick: { paramKey: 'currentStatusId', value: '1' },
       },
       {
         id: 3,
@@ -426,7 +426,7 @@ export class DashboardComponent implements OnInit {
         subValue: '',
         subValueColor: '',
         subValueText: 'View open incidents',
-        subValueLink: '/incidents?Status=8',
+        subValueLink: '/incidents?StatusId=8',
       },
       {
         id: 8,
@@ -447,20 +447,22 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardSummary();
   }
 
-  /** URL se currentStatus / riskIndex padhkar table filters par lagao (PM dashboard links se aane par). */
+  /** URL se currentStatusId/currentStatus / riskIndex padhkar table filters par lagao (PM dashboard links se aane par). */
   private applyInitialQueryParams(): void {
     const qp = this.activatedRoute.snapshot.queryParams;
-    const currentStatus = qp['currentStatus'];
+    const currentStatusId = qp['currentStatusId'] ?? qp['currentStatus'];
     const riskIndex = qp['riskIndex'];
-    if (!currentStatus && !riskIndex) return;
+    if (!currentStatusId && !riskIndex) return;
 
     this.tableFilters.update((filters) =>
       filters.map((f) => {
-        if (f.paramKey === 'currentStatus' && currentStatus) {
+        if (f.paramKey === 'currentStatusId' && currentStatusId) {
+          const option = f.options?.find((o) => o.value === currentStatusId);
+          const label = option ? option.label : String(currentStatusId);
           return {
             ...f,
-            value: currentStatus,
-            label: `Status: ${currentStatus}`,
+            value: currentStatusId,
+            label: `Status: ${label}`,
             removable: true,
           };
         }
@@ -494,7 +496,7 @@ export class DashboardComponent implements OnInit {
         label: 'Status: All',
         value: '',
         removable: true,
-        paramKey: 'currentStatus',
+        paramKey: 'currentStatusId',
         options: [{ label: 'All', value: '' }],
       },
       {
@@ -572,11 +574,11 @@ export class DashboardComponent implements OnInit {
           this.updateFilterOptions('ministry', ministryOptions);
         }
 
-        // Update Status filter
+        // Update Status filter (/api/Asset expects currentStatusId)
         const statusOptions = [
           { label: 'All', value: '' },
-          { label: 'Up', value: 'Up' },
-          { label: 'Down', value: 'Down' },
+          { label: 'Up', value: '1' },
+          { label: 'Down', value: '2' },
         ];
         this.updateFilterOptions('status', statusOptions);
 
@@ -744,7 +746,7 @@ export class DashboardComponent implements OnInit {
               subValueText: 'View online assets',
               subValueLink: '/assets/by-ministry?status=Online',
               scrollToId: 'assets-table',
-              filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
+              filterOnClick: { paramKey: 'currentStatusId', value: '1' },
             },
             {
               id: 3,
@@ -814,7 +816,7 @@ export class DashboardComponent implements OnInit {
               subValue: '',
               subValueColor: '',
               subValueText: 'View open incidents',
-              subValueLink: '/incidents?Status=8',
+              subValueLink: '/incidents?StatusId=8',
             },
             {
               id: 8,

@@ -226,7 +226,6 @@ export class AssetControlPanelComponent implements OnInit {
     this.api.getAssetControlPanelData(this.previousPageMetadata().assetId).subscribe({
       next: (response: ApiResponse<AssetControlPanelData>) => {
         if (response.isSuccessful) {
-
           this.breadcrumbs.set([
             { label: 'Dashboard', path: '/dashboard' },
             { label: 'Ministries', path: '/assets/by-ministry' },
@@ -236,7 +235,7 @@ export class AssetControlPanelComponent implements OnInit {
               queryParams: { ministryId: response.data?.header?.ministryId ?? '' },
             },
             {
-              label: 'Ministry Website',
+              label: response.data?.header?.assetName ?? '',
               path: '/view-assets-detail',
               queryParams: { id: this.previousPageMetadata().assetId,ministryId: response.data?.header?.ministryId ?? '' },
             },
