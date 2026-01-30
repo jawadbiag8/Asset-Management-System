@@ -640,6 +640,12 @@ export class ReusableTableComponent
      SERVER-SIDE MODE
      ========================= */
     if (this.config?.serverSideSearch) {
+      // Sync filters from parent when parent updates (e.g. after KPI click or syncFiltersFromParams)
+      if (changes['filters'] && changes['filters'].currentValue) {
+        this.filters = changes['filters'].currentValue;
+        // Reset guard so next emit (e.g. on filter remove) is not blocked when params match initial load
+        this.lastQueryKey = null;
+      }
       // ✅ Only update displayed data when server responds
       if (
         changes['config'] &&
