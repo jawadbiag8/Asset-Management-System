@@ -19,29 +19,6 @@
   margin: 0;
 }
 
-.add-asset-btn {
-  background-color: var(--color-primary, #0D9488);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-
-  &:hover {
-    background-color: var(--color-primary-hover, #0f766e);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
 .loading-state,
 .error-state {
   text-align: center;
@@ -91,8 +68,4 @@
     gap: 16px;
   }
 
-  .add-asset-btn {
-    width: 100%;
-    justify-content: center;
-  }
 }

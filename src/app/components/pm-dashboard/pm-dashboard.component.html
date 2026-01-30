@@ -35,7 +35,7 @@
               </p>
               <div class="kpi-divider-white"></div>
               <div class="kpi-footer-white">
-                <a href="#" class="kpi-link-white"
+                <a routerLink="/dashboard" class="kpi-link-white"
                   >View assets with low Digital Experience Score ></a
                 >
               </div>
@@ -46,11 +46,7 @@
           <div class="kpi-card">
             <div class="kpi-card-content">
               <img
-                [src]="
-                  totalAssetsBeingMonitored === 0
-                    ? '/Images/PM-Dashboard/Variant3.svg'
-                    : '/Images/PM-Dashboard/arrow-tr.svg'
-                "
+                src="/Images/PM-Dashboard/arrow-tr.svg"
                 alt=""
                 class="kpi-card-corner-icon"
               />
@@ -70,7 +66,7 @@
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link"
+                <a routerLink="/dashboard" class="kpi-link"
                   >View assets that meet Compliance standards ></a
                 >
               </div>
@@ -105,7 +101,12 @@
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link">View Assets currently down ></a>
+                <a
+                  routerLink="/dashboard"
+                  [queryParams]="{ currentStatus: 'Down' }"
+                  class="kpi-link"
+                  >View Assets currently down ></a
+                >
               </div>
             </div>
           </div>
@@ -134,7 +135,9 @@
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link">View non-compliant ministries ></a>
+                <a routerLink="/assets/by-ministry" class="kpi-link"
+                  >View non-compliant ministries ></a
+                >
               </div>
             </div>
           </div>
@@ -201,7 +204,10 @@
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link"
+                <a
+                  routerLink="/dashboard"
+                  [queryParams]="{ riskIndex: 'LOW RISK' }"
+                  class="kpi-link"
                   >View Assets with high security compliance ></a
                 >
               </div>
