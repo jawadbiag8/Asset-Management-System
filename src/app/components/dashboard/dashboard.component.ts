@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit {
     columns: [
       {
         key: 'analyze',
-        header: 'Analyze',
+        header: 'ANALYZE',
         cellType: 'icon',
         iconUrl: '/assets/analyze.svg',
         sortable: false,

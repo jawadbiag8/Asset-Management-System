@@ -66,6 +66,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         cellType: 'text',
         primaryField: 'ministryName',
         sortable: true,
+        sortByKey: 'ministryName',
         width: '250px',
       },
       {
@@ -74,6 +75,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         cellType: 'text',
         primaryField: 'departmentCount',
         sortable: true,
+        sortByKey: 'departmentCount',
         width: '150px',
       },
       {
@@ -82,6 +84,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         cellType: 'text',
         primaryField: 'assetCount',
         sortable: true,
+        sortByKey: 'assetCount',
         width: '130px',
       },
       {
@@ -100,6 +103,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         primaryField: 'openIncidents',
         secondaryField: 'highSeverityText',
         sortable: true,
+        sortByKey: 'openIncidents',
         width: '180px',
       },
     ],
@@ -128,6 +132,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         cellType: 'text',
         primaryField: 'ministryName',
         sortable: true,
+        sortByKey: 'ministryName',
         width: '250px',
       },
       {
@@ -136,6 +141,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         cellType: 'text',
         primaryField: 'departmentCount',
         sortable: true,
+        sortByKey: 'departmentCount',
         width: '150px',
       },
       {
@@ -144,6 +150,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         cellType: 'text',
         primaryField: 'assetCount',
         sortable: true,
+        sortByKey: 'assetCount',
         width: '130px',
       },
       {
@@ -162,6 +169,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
         primaryField: 'openIncidents',
         secondaryField: 'highSeverityText',
         sortable: true,
+        sortByKey: 'openIncidents',
         width: '180px',
       },
     ],
@@ -178,11 +186,9 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
   }
 
   loadMinistries(searchParams: HttpParams): void {
-    // Same as dashboard: forward table params (PageNumber, PageSize, SearchTerm, SortBy, SortDescending)
-    let apiParams = searchParams;
-    if (!searchParams.has('SortBy') || !searchParams.get('SortBy')) {
-      apiParams = searchParams.set('SortBy', 'ministryName');
-    }
+    // Forward table params as-is (PageNumber, PageSize, SearchTerm, SortBy, SortDescending).
+    // Component load par sort nahi bhejte – sirf jab user column pe click kare tab SortBy/SortDescending jayega.
+    const apiParams = searchParams;
 
     this.loading.set(true);
     this.errorMessage.set('');
