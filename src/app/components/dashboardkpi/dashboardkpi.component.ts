@@ -35,25 +35,29 @@ export class DashboardkpiComponent {
   constructor(private router: Router) {}
 
   get isClickable(): boolean {
-    return !!(this.item.scrollToId || this.item.subValueLink || this.item.filterOnClick);
+    return !!(
+      this.item.scrollToId ||
+      this.item.subValueLink ||
+      this.item.filterOnClick
+    );
   }
 
   isPercentageBadge(): boolean {
     if (!this.item.subValue) return false;
-    return !!(this.item.subValue.includes('%') || this.item.subValue.match(/^\d+%$/));
+    return !!(
+      this.item.subValue.includes('%') || this.item.subValue.match(/^\d+%$/)
+    );
   }
 
-  /** Handle whole-card click: emit to parent if filterOnClick; else scroll or navigate. */
+  /** Handle whole-card click: emit to parent if scrollToId (so filters clear + apply); else navigate. */
   onCardClick(event: Event): void {
     if (!this.isClickable) return;
     event.preventDefault();
-    if (this.item.filterOnClick) {
+    if (this.item.scrollToId) {
       this.cardAction.emit({
         scrollToId: this.item.scrollToId,
         filterOnClick: this.item.filterOnClick,
       });
-    } else if (this.item.scrollToId) {
-      document.getElementById(this.item.scrollToId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (this.item.subValueLink) {
       this.router.navigateByUrl(this.item.subValueLink);
     }
@@ -64,7 +68,9 @@ export class DashboardkpiComponent {
 
     const isPercentage = this.isPercentageBadge();
     if (isPercentage) {
-      return this.item.subValueColor === 'success' ? 'kpi-badge-percentage kpi-badge-success' : 'kpi-badge-percentage kpi-badge-danger';
+      return this.item.subValueColor === 'success'
+        ? 'kpi-badge-percentage kpi-badge-success'
+        : 'kpi-badge-percentage kpi-badge-danger';
     } else {
       // Text badges like HEALTHY, AVERAGE, LOW, MEDIUM
       const badgeText = this.item.subValue.toUpperCase();
@@ -77,7 +83,9 @@ export class DashboardkpiComponent {
       } else if (badgeText === 'MEDIUM') {
         return 'kpi-badge-text kpi-badge-medium';
       }
-      return this.item.subValueColor === 'success' ? 'kpi-badge-text kpi-badge-success' : 'kpi-badge-text kpi-badge-danger';
+      return this.item.subValueColor === 'success'
+        ? 'kpi-badge-text kpi-badge-success'
+        : 'kpi-badge-text kpi-badge-danger';
     }
   }
 }
