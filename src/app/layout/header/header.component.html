@@ -2,7 +2,11 @@
   <!-- LEFT -->
   <div class="left">
     <div class="logo pointer" routerLink="/dashboard">
-      <img src="Images/Dashboard/PDA-logo-icon.svg" alt="PDA logo" class="logo-img" />
+      <img
+        src="Images/Dashboard/PDA-logo-icon.svg"
+        alt="PDA logo"
+        class="logo-img"
+      />
       <span class="logo-divider" aria-hidden="true"></span>
       <div class="logo-text">
         <span class="logo-title">Citizen Experience Dashboard</span>
@@ -11,13 +15,25 @@
     </div>
 
     <nav class="nav" [class.open]="menuOpen">
-      <a routerLink="/dashboard" [class.active]="isDashboardActive()" (click)="menuOpen = false">
+      <a
+        routerLink="/dashboard"
+        [class.active]="isDashboardActive()"
+        (click)="menuOpen = false"
+      >
         Dashboard
       </a>
-      <a routerLink="/assets/by-ministry" [class.active]="isAssetsActive()" (click)="menuOpen = false">
+      <a
+        routerLink="/assets/by-ministry"
+        [class.active]="isAssetsActive()"
+        (click)="menuOpen = false"
+      >
         Ministries
       </a>
-      <a routerLink="/incidents" [class.active]="isIncidentsActive()" (click)="menuOpen = false">
+      <a
+        routerLink="/incidents"
+        [class.active]="isIncidentsActive()"
+        (click)="menuOpen = false"
+      >
         Incidents
       </a>
 
@@ -31,7 +47,11 @@
 
   <!-- RIGHT -->
   <div class="right">
-    <button class="pm-btn" *ngIf="!isPmDashboardActive()" (click)="navigateToPmDashboard()">
+    <button
+      class="pm-btn"
+      *ngIf="isPmoExecutive() && !isPmDashboardActive()"
+      (click)="navigateToPmDashboard()"
+    >
       <!-- PROFILE SVG NEXT TO PM DASHBOARD -->
       <img src="Images/Dashboard/windows.svg" alt="pm icon" class="pm-icon" />
       Executive Dashboard
@@ -41,15 +61,31 @@
     <div class="profile-dropdown" #profileDropdown>
       <div class="profile-trigger" (click)="toggleProfileDropdown()">
         <div class="profile-icon">
-          <img src="Images/Dashboard/profile.svg" alt="user icon" class="user-icon-img" />
+          <img
+            src="Images/Dashboard/profile.svg"
+            alt="user icon"
+            class="user-icon-img"
+          />
         </div>
         <div class="profile-info">
-          <span class="username">{{user().userName}}</span>
-          <span class="user-role">{{user().role}}</span>
+          <span class="username">{{ user().name }}</span>
+          <span class="user-role">{{ user().role }}</span>
         </div>
-        <svg class="dropdown-arrow" [class.open]="profileDropdownOpen" width="12" height="8" viewBox="0 0 12 8"
-          fill="none">
-          <path d="M1 1L6 6L11 1" stroke="#008080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <svg
+          class="dropdown-arrow"
+          [class.open]="profileDropdownOpen"
+          width="12"
+          height="8"
+          viewBox="0 0 12 8"
+          fill="none"
+        >
+          <path
+            d="M1 1L6 6L11 1"
+            stroke="#008080"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </div>
 

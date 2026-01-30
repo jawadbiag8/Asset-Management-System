@@ -1,12 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { ApiService, ApiResponse } from '../services/api.service';
+import { ApiService, ApiResponse, LoginData } from '../services/api.service';
 import { UtilsService } from '../services/utils.service';
 
 @Component({
@@ -18,10 +23,10 @@ import { UtilsService } from '../services/utils.service';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -33,11 +38,11 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private apiService: ApiService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
@@ -62,33 +67,40 @@ export class LoginComponent implements OnInit {
 
     // Call login API
     this.apiService.login(username, password).subscribe({
-      next: (response: ApiResponse<string>) => {
+      next: (response: ApiResponse<LoginData>) => {
         // Handle successful login
         if (response.isSuccessful && response.data) {
-          const token = response.data;
+          const data = response.data;
 
-          // Store token using UtilsService
-          this.utilsService.setStorage('token', token);
+          // Store token, name and roles in local storage
+          this.utilsService.setStorage('token', data.token);
+          this.utilsService.setStorage('name', data.name);
+          this.utilsService.setStorage('roles', data.roles);
 
-          // Store user data
+          // Store user data (for header and guards)
           const userData = {
             username: username,
-            loginTime: new Date().toISOString()
+            name: data.name,
+            roles: data.roles,
+            role: data.roles?.[0] ?? '',
+            loginTime: new Date().toISOString(),
           };
           this.utilsService.setStorage('user', userData);
 
           // Navigate to dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          this.errorMessage = response.message || 'Login failed. Please check your credentials.';
+          this.errorMessage =
+            response.message || 'Login failed. Please check your credentials.';
           console.error('Login response:', response);
         }
       },
       error: (error) => {
         // Handle error
-        this.errorMessage = error.message || 'Login failed. Please check your credentials.';
+        this.errorMessage =
+          error.message || 'Login failed. Please check your credentials.';
         console.error('Login error:', error);
-      }
+      },
     });
   }
 

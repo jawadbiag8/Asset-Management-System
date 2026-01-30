@@ -55,9 +55,9 @@ export class ManageIncidentsComponent implements OnInit {
           value: asset.id
         })) || [];
 
-        if (this.data.assetId) {
+        if (Number(this.data.assetId)) {
           this.incidentForm.patchValue({
-            assetId: this.data.assetId,
+            assetId: Number(this.data.assetId),
           });
         }
 
@@ -66,9 +66,9 @@ export class ManageIncidentsComponent implements OnInit {
           value: kpi.id
         })) || [];
 
-        if (this.data.kpiId) {
+        if (Number(this.data.kpiId)) {
           this.incidentForm.patchValue({
-            kpiId: this.data.kpiId,
+            kpiId: Number(this.data.kpiId),
           });
         }
 
@@ -92,8 +92,8 @@ export class ManageIncidentsComponent implements OnInit {
   createForm(): void {
     this.incidentForm = this.fb.group({
       incidentTitle: ['', Validators.required],
-      assetId: [this.data.assetId || '', Validators.required],
-      kpiId: [this.data.kpiId || '', Validators.required],
+      assetId: [Number(this.data.assetId) || null, Validators.required],
+      kpiId: [Number(this.data.kpiId) || null, Validators.required],
       severityId: ['', Validators.required],
       description: ['', Validators.maxLength(500)],
       type: ['Manual', Validators.required],

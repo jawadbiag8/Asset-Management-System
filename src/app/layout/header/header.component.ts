@@ -1,4 +1,10 @@
-import { Component, HostListener, ElementRef, ViewChild, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  ElementRef,
+  ViewChild,
+  signal,
+} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
@@ -15,17 +21,17 @@ export class HeaderComponent {
   profileDropdownOpen = false;
   currentRoute = signal<string>('');
 
-  user = signal<{ userName: string, role: string }>({
-    userName: '',
-    role: ''
-  })
+  user = signal<{ name: string; role: string }>({
+    name: '',
+    role: '',
+  });
 
   @ViewChild('profileDropdown', { static: false }) profileDropdown!: ElementRef;
 
   constructor(
     private apiService: ApiService,
     private router: Router,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
   ) {
     // Track current route
     this.router.events
@@ -34,11 +40,15 @@ export class HeaderComponent {
         this.currentRoute.set(event.url);
       });
 
-    const userData = this.utilsService.getStorage<{ username?: string; role?: string }>('user');
+    const userData = this.utilsService.getStorage<{
+      username?: string;
+      name?: string;
+      role?: string;
+    }>('user');
     this.user.set({
-      userName: userData?.username || '',
-      role: userData?.role || 'Admin'
-    })
+      name: userData?.name || userData?.username || '',
+      role: userData?.role || 'Admin',
+    });
     // Set initial route
     this.currentRoute.set(this.router.url);
   }
@@ -58,7 +68,8 @@ export class HeaderComponent {
     const route = this.currentRoute();
     // Active on dashboard and root only (Ministries is active for view-assets-detail, add/edit digital assets)
     const isDashboardRoute = route === '/dashboard' || route === '/';
-    const isMinistryRoute = route.includes('/assets/by-ministry') ||
+    const isMinistryRoute =
+      route.includes('/assets/by-ministry') ||
       route.includes('/ministry-detail') ||
       route.includes('/view-assets-detail') ||
       route.includes('/add-digital-assets') ||
@@ -74,6 +85,11 @@ export class HeaderComponent {
 
   isPmDashboardActive(): boolean {
     return this.currentRoute().includes('/pm-dashboard');
+  }
+
+  /** Show Executive Dashboard button only when role is PMO Executive */
+  isPmoExecutive(): boolean {
+    return this.user().role === 'PMO Executive';
   }
 
   navigateToPmDashboard(): void {

@@ -1043,6 +1043,13 @@ export class ReusableTableComponent
     this.actionClick.emit({ row, columnKey });
   }
 
+  /** Default text cell click: stop propagation and call column.onClick(row) if defined */
+  onTextCellClick(event: Event, column: TableColumn, row: any): void {
+    if (!column.onClick) return;
+    event.stopPropagation();
+    column.onClick(row);
+  }
+
   getActionDisabled(
     row: any,
     action: { disabled?: boolean | ((row: any) => boolean) },

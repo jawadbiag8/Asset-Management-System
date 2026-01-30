@@ -238,7 +238,7 @@ export class AssetControlPanelComponent implements OnInit {
             {
               label: 'Ministry Website',
               path: '/view-assets-detail',
-              queryParams: { id: this.previousPageMetadata().assetId },
+              queryParams: { id: this.previousPageMetadata().assetId,ministryId: response.data?.header?.ministryId ?? '' },
             },
             { label: 'Compliance Report' },
           ]);
