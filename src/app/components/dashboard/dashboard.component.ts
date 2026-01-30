@@ -426,7 +426,7 @@ export class DashboardComponent implements OnInit {
         subValue: '',
         subValueColor: '',
         subValueText: 'View open incidents',
-        subValueLink: '/active-incidents',
+        subValueLink: '/incidents?Status=8',
       },
       {
         id: 8,
@@ -436,7 +436,7 @@ export class DashboardComponent implements OnInit {
         subValue: '',
         subValueColor: 'success',
         subValueText: 'View open critical severity incidents',
-        subValueLink: '/active-incidents?severity=critical',
+        subValueLink: '/incidents?SeverityId=4',
       },
     ],
   });
@@ -814,7 +814,7 @@ export class DashboardComponent implements OnInit {
               subValue: '',
               subValueColor: '',
               subValueText: 'View open incidents',
-              subValueLink: '/active-incidents',
+              subValueLink: '/incidents?Status=8',
             },
             {
               id: 8,
@@ -827,7 +827,7 @@ export class DashboardComponent implements OnInit {
                   : '',
               subValueColor: 'success',
               subValueText: 'View open critical severity incidents',
-              subValueLink: '/active-incidents?severity=critical',
+              subValueLink: '/incidents?SeverityId=4',
             },
           ],
         });

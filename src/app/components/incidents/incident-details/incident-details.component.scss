@@ -312,12 +312,12 @@
 
       .form-row {
         display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
+        align-items: center;
         gap: 16px;
 
         .status-select-field {
           flex: 1;
+          margin-bottom: 0;
 
           ::ng-deep {
             .mat-mdc-form-field-subscript-wrapper {
@@ -332,8 +332,10 @@
 
         .submit-btn {
           white-space: nowrap;
-          height: 56px; // Match Material form field height
-          margin-bottom: 8px; // Align with form field bottom
+          flex-shrink: 0;
+          align-self: center;
+          height: 56px; // Match Material outline form field height
+          box-sizing: border-box;
         }
       }
     }
