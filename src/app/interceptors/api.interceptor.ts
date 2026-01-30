@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpInterceptor,
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -8,15 +14,19 @@ import { LoaderService } from '../services/loader.service';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
-
   constructor(
     private router: Router,
     private utilsService: UtilsService,
-    private loaderService: LoaderService
-  ) { }
+    private loaderService: LoaderService,
+  ) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const apiUrl = this.utilsService.getEnvironment()?.apiUrl as string | undefined;
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<any>> {
+    const apiUrl = this.utilsService.getEnvironment()?.apiUrl as
+      | string
+      | undefined;
     if (!apiUrl || typeof apiUrl !== 'string' || !req.url.startsWith(apiUrl)) {
       return next.handle(req);
     }
@@ -26,18 +36,18 @@ export class ApiInterceptor implements HttpInterceptor {
 
     // Clone the request and add headers
     let clonedRequest = req.clone({
-      setHeaders: this.getHeaders(req)
+      setHeaders: this.getHeaders(req),
     });
 
     // Handle the request and catch errors
     return next.handle(clonedRequest).pipe(
       catchError((error: HttpErrorResponse) => {
-        return this.handleError(error);
+        return this.handleError(error, clonedRequest);
       }),
       finalize(() => {
         // Hide loader when request completes (success or error)
         this.loaderService.hide();
-      })
+      }),
     );
   }
 
@@ -66,9 +76,13 @@ export class ApiInterceptor implements HttpInterceptor {
 
   /**
    * Handle HTTP errors globally.
-   * For 401: show "Session expired" once, then redirect to login; no raw HTTP message.
+   * For 401 on login API: show API message (e.g. "Invalid username or password.").
+   * For 401 on other APIs: show "Session expired" once, then redirect to login.
    */
-  private handleError(error: HttpErrorResponse): Observable<never> {
+  private handleError(
+    error: HttpErrorResponse,
+    req: HttpRequest<any>,
+  ): Observable<never> {
     let defaultMessage = 'An unknown error occurred';
 
     if (error.error instanceof ErrorEvent) {
@@ -80,14 +94,28 @@ export class ApiInterceptor implements HttpInterceptor {
           defaultMessage = 'Bad request. Please check your input.';
           break;
         case 401: {
-          // Show session expired only once; then redirect. Do not show raw 401 message.
+          const isLoginRequest =
+            req.url.includes('Auth/login') || req.url.includes('/login');
+          if (isLoginRequest) {
+            const apiMessage =
+              error.error?.message || 'Invalid username or password.';
+            this.utilsService.showToast(apiMessage, 'Login failed', 'error');
+            return throwError(() => new Error(apiMessage));
+          }
+          // Session expired on other APIs
           if (!this.utilsService.getSessionExpiredHandled()) {
-            this.utilsService.showToast('Session expired. Please login again.', 'Session expired', 'error');
+            this.utilsService.showToast(
+              'Session expired. Please login again.',
+              'Session expired',
+              'error',
+            );
             this.utilsService.setSessionExpiredHandled(true);
           }
           this.utilsService.clearStorage();
           this.router.navigate(['/login']);
-          return throwError(() => new Error('Session expired. Please login again.'));
+          return throwError(
+            () => new Error('Session expired. Please login again.'),
+          );
         }
         case 403:
           defaultMessage = 'You do not have permission to perform this action.';
@@ -103,7 +131,12 @@ export class ApiInterceptor implements HttpInterceptor {
       }
     }
 
-    const errorMessage: string = this.utilsService.showToast(error, defaultMessage, 'error', true) as string;
+    const errorMessage: string = this.utilsService.showToast(
+      error,
+      defaultMessage,
+      'error',
+      true,
+    ) as string;
     return throwError(() => new Error(errorMessage));
   }
 }
