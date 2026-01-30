@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit {
     columns: [
       {
         key: 'analyze',
-        header: 'Analyze',
+        header: 'ANALYZE',
         cellType: 'icon',
         iconUrl: '/assets/analyze.svg',
         sortable: false,
@@ -980,21 +980,39 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /** Handle KPI card action: apply filter, load assets, then scroll to table. */
+  /** Reset all table filters to default (All) so card links show only that card's filter. */
+  private resetTableFiltersToDefault(): void {
+    this.tableFilters.update((filters) =>
+      filters.map((f) => {
+        const labelPrefix = f.label.split(':')[0];
+        return {
+          ...f,
+          value: '',
+          label: `${labelPrefix}: All`,
+          removable: true,
+        };
+      }),
+    );
+  }
+
+  /** Handle KPI card action: clear existing filters, apply only this card's filter (if any), load assets, scroll to table. */
   onKpiCardAction(event: KpiCardAction): void {
-    if (event.filterOnClick) {
-      const { paramKey, value } = event.filterOnClick;
-      this.tableFilters.update((filters) =>
-        filters.map((f) => {
-          if (f.paramKey !== paramKey) return f;
-          const option = f.options?.find((o) => o.value === value);
-          const label = option
-            ? `${f.label.split(':')[0]}: ${option.label}`
-            : `${f.label.split(':')[0]}: ${value}`;
-          return { ...f, value, label, removable: true };
-        }),
-      );
-      // Build params from current filters (after update); table uses PageNumber/PageSize
+    if (event.scrollToId) {
+      // Pehle se lage filters hatao – sirf is card wala filter lagega (ya koi nahi "View All" par)
+      this.resetTableFiltersToDefault();
+      if (event.filterOnClick) {
+        const { paramKey, value } = event.filterOnClick;
+        this.tableFilters.update((filters) =>
+          filters.map((f) => {
+            if (f.paramKey !== paramKey) return f;
+            const option = f.options?.find((o) => o.value === value);
+            const label = option
+              ? `${f.label.split(':')[0]}: ${option.label}`
+              : `${f.label.split(':')[0]}: ${value}`;
+            return { ...f, value, label, removable: true };
+          }),
+        );
+      }
       let params = new HttpParams()
         .set('PageNumber', '1')
         .set('PageSize', '10');
@@ -1004,8 +1022,6 @@ export class DashboardComponent implements OnInit {
         }
       });
       this.loadAssets(params);
-    }
-    if (event.scrollToId) {
       setTimeout(
         () =>
           document

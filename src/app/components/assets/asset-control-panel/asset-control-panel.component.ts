@@ -3,7 +3,10 @@ import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-bread
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, ApiResponse } from '../../../services/api.service';
 import { UtilsService } from '../../../services/utils.service';
-import { TableConfig, TableColumn } from '../../reusable/reusable-table/reusable-table.component';
+import {
+  TableConfig,
+  TableColumn,
+} from '../../reusable/reusable-table/reusable-table.component';
 import { ManageIncidentsComponent } from '../../incidents/manage-incidents/manage-incidents.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -50,7 +53,6 @@ export interface AssetControlPanelData {
   kpiCategories: KPICategory[];
 }
 
-
 @Component({
   selector: 'app-asset-control-panel',
   templateUrl: './asset-control-panel.component.html',
@@ -58,9 +60,8 @@ export interface AssetControlPanelData {
   standalone: false,
 })
 export class AssetControlPanelComponent implements OnInit {
-
   previousPageMetadata = signal<PreviousPageMetadata>({
-    assetId: 0
+    assetId: 0,
   });
 
   assetControlPanelData = signal<AssetControlPanelData | null>(null);
@@ -137,13 +138,13 @@ export class AssetControlPanelComponent implements OnInit {
             label: 'Check',
             color: 'var(--color-primary)',
             display: 'text',
-            disabled: (row: any) => row?.manual === 'Manual',
+            disabled: () => true,
           },
           {
             label: 'Add Incident',
             display: 'text',
             color: 'var(--color-red)',
-            disabled: (row: any) => false
+            disabled: (row: any) => false,
           },
         ],
       },
@@ -162,7 +163,7 @@ export class AssetControlPanelComponent implements OnInit {
     }
 
     const category = data.kpiCategories.find(
-      (cat) => cat.categoryName === categoryName
+      (cat) => cat.categoryName === categoryName,
     );
 
     if (!category) {
@@ -184,7 +185,7 @@ export class AssetControlPanelComponent implements OnInit {
     if (!data) return 0;
 
     const category = data.kpiCategories.find(
-      (cat) => cat.categoryName === categoryName
+      (cat) => cat.categoryName === categoryName,
     );
 
     return category ? category.kpis.length : 0;
@@ -195,7 +196,7 @@ export class AssetControlPanelComponent implements OnInit {
     { label: 'Ministries', path: '/assets/by-ministry' },
     { label: 'Ministry', path: '/ministry-detail' },
     { label: 'Ministry Website', path: '/view-assets-detail' },
-    { label: 'Compliance Report' }
+    { label: 'Compliance Report' },
   ]);
 
   constructor(
@@ -203,14 +204,14 @@ export class AssetControlPanelComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private api: ApiService,
     private utils: UtilsService,
-    private dialog: MatDialog
-  ) { }
+    private dialog: MatDialog,
+  ) {}
 
   ngOnInit(): void {
     // Fetch query parameters
     const assetId = this.activatedRoute.snapshot.queryParams['assetId'];
     this.previousPageMetadata.set({
-      assetId: Number(assetId)
+      assetId: Number(assetId),
     });
 
     if (!assetId) {
@@ -255,7 +256,10 @@ export class AssetControlPanelComponent implements OnInit {
     });
   }
 
-  getBadgeColor(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk'): string {
+  getBadgeColor(
+    value: string | undefined | null,
+    type: 'citizenImpact' | 'health' | 'risk',
+  ): string {
     if (!value) return 'var(--color-bg-quaternary)';
 
     const upperValue = value.toUpperCase();
@@ -273,9 +277,12 @@ export class AssetControlPanelComponent implements OnInit {
     }
 
     if (type === 'health') {
-      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT')) return 'var(--color-green-light)';
-      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR')) return 'var(--color-yellow-light)';
-      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL')) return 'var(--color-red-light)';
+      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT'))
+        return 'var(--color-green-light)';
+      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR'))
+        return 'var(--color-yellow-light)';
+      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL'))
+        return 'var(--color-red-light)';
       return 'var(--color-bg-quaternary)';
     }
 
@@ -289,7 +296,10 @@ export class AssetControlPanelComponent implements OnInit {
     return 'var(--color-bg-quaternary)';
   }
 
-  getBadgeTextColor(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk'): string {
+  getBadgeTextColor(
+    value: string | undefined | null,
+    type: 'citizenImpact' | 'health' | 'risk',
+  ): string {
     if (!value) return 'var(--color-text-tertiary)';
 
     const upperValue = value.toUpperCase();
@@ -307,9 +317,12 @@ export class AssetControlPanelComponent implements OnInit {
     }
 
     if (type === 'health') {
-      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT')) return 'var(--color-green-dark)';
-      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR')) return 'var(--color-yellow)';
-      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL')) return 'var(--color-red)';
+      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT'))
+        return 'var(--color-green-dark)';
+      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR'))
+        return 'var(--color-yellow)';
+      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL'))
+        return 'var(--color-red)';
       return 'var(--color-text-tertiary)';
     }
 
@@ -365,10 +378,16 @@ export class AssetControlPanelComponent implements OnInit {
 
     const upperStatus = slaStatus.toUpperCase().trim();
     // Check NON-COMPLIANT first (so it doesn't match COMPLIANT)
-    if (upperStatus.includes('NON-COMPLIANT') || upperStatus.includes('NON-COMPLIANT')) {
+    if (
+      upperStatus.includes('NON-COMPLIANT') ||
+      upperStatus.includes('NON-COMPLIANT')
+    ) {
       return 'var(--color-red-light)';
     }
-    if (upperStatus.includes('COMPLIANT') || upperStatus.includes('COMPLIANT')) {
+    if (
+      upperStatus.includes('COMPLIANT') ||
+      upperStatus.includes('COMPLIANT')
+    ) {
       return 'var(--color-green-light)';
     }
     if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) {
@@ -382,10 +401,16 @@ export class AssetControlPanelComponent implements OnInit {
 
     const upperStatus = slaStatus.toUpperCase().trim();
     // Check NON-COMPLIANT first (so it doesn't match COMPLIANT)
-    if (upperStatus.includes('NON-COMPLIANT') || upperStatus.includes('NON-COMPLIANT')) {
+    if (
+      upperStatus.includes('NON-COMPLIANT') ||
+      upperStatus.includes('NON-COMPLIANT')
+    ) {
       return 'var(--color-red)';
     }
-    if (upperStatus.includes('COMPLIANT') || upperStatus.includes('COMPLIANT')) {
+    if (
+      upperStatus.includes('COMPLIANT') ||
+      upperStatus.includes('COMPLIANT')
+    ) {
       return 'var(--color-green-dark)';
     }
     if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) {
@@ -425,5 +450,4 @@ export class AssetControlPanelComponent implements OnInit {
       this.onAddIncidentClick(row);
     }
   }
-
 }

@@ -17,22 +17,26 @@
     </a>
   </div>
 
-  @if (loading()) {
-    <div class="loading-state">
-      <p>Loading ministry assets...</p>
-    </div>
-  } @else if (errorMessage()) {
+  @if (errorMessage()) {
     <div class="error-state">
       <p>{{ errorMessage() }}</p>
     </div>
-  } @else {
-    <div class="table-container" #tableContainer>
-      <app-reusable-table
-        [config]="tableConfigWithData()"
-        [filters]="tableFilters()"
-        [totalItems]="totalItems()"
-        (searchQuery)="loadMinistries($event)"
-      ></app-reusable-table>
-    </div>
   }
+  <div
+    class="table-container"
+    #tableContainer
+    [class.loading-overlay]="loading()"
+  >
+    @if (loading()) {
+      <div class="loading-state table-loading-inline">
+        <p>Loading ministry assets...</p>
+      </div>
+    }
+    <app-reusable-table
+      [config]="tableConfigWithData()"
+      [filters]="tableFilters()"
+      [totalItems]="totalItems()"
+      (searchQuery)="loadMinistries($event)"
+    ></app-reusable-table>
+  </div>
 </div>

@@ -40,6 +40,24 @@
   margin-bottom: 24px;
   background: var(--color-bg-primary, #ffffff);
   border-radius: 8px;
+  position: relative;
+
+  &.loading-overlay {
+    pointer-events: none;
+    opacity: 0.85;
+  }
+
+  .table-loading-inline {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    padding: 16px 24px;
+    background: var(--color-bg-primary, #fff);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 
 // Custom styles for view details icon click
