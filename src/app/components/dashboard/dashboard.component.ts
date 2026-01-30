@@ -6,7 +6,7 @@ import {
 } from '../reusable/reusable-table/reusable-table.component';
 import { ApiResponse, ApiService } from '../../services/api.service';
 import { HttpParams } from '@angular/common/http';
-import { DashboardKpiItem } from '../dashboardkpi/dashboardkpi.component';
+import { DashboardKpiItem, KpiCardAction } from '../dashboardkpi/dashboardkpi.component';
 import { UtilsService } from '../../services/utils.service';
 import { forkJoin } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -322,6 +322,7 @@ export class DashboardComponent implements OnInit {
         subValueColor: '',
         subValueText: 'View All',
         subValueLink: '/assets/by-ministry',
+        scrollToId: 'assets-table',
       },
       {
         id: 2,
@@ -332,6 +333,8 @@ export class DashboardComponent implements OnInit {
         subValueColor: 'success',
         subValueText: 'View online assets',
         subValueLink: '/assets/by-ministry?status=Online',
+        scrollToId: 'assets-table',
+        filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
       },
       {
         id: 3,
@@ -340,8 +343,10 @@ export class DashboardComponent implements OnInit {
         value: '0%',
         subValue: '',
         subValueColor: 'success',
-        subValueText: 'View critical assets',
+        subValueText: 'View assets with poor health',
         subValueLink: '/assets/by-ministry?health=critical',
+        scrollToId: 'assets-table',
+        filterOnClick: { paramKey: 'health', value: 'Poor' },
       },
       {
         id: 4,
@@ -350,8 +355,10 @@ export class DashboardComponent implements OnInit {
         value: '0%',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View critical assets',
+        subValueText: 'View assets with poor performance',
         subValueLink: '/assets/by-ministry?performance=critical',
+        scrollToId: 'assets-table',
+        filterOnClick: { paramKey: 'performance', value: 'BELOW AVERAGE' },
       },
       {
         id: 5,
@@ -360,18 +367,22 @@ export class DashboardComponent implements OnInit {
         value: '0%',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View critical assets',
+        subValueText: 'View assets with poor compliance',
         subValueLink: '/assets/by-ministry?compliance=critical',
+        scrollToId: 'assets-table',
+        filterOnClick: { paramKey: 'compliance', value: 'LOW' },
       },
       {
         id: 6,
         title: 'High Risk Assets',
-        subTitle: 'Assets with risk index > 80%',
+        subTitle: 'Assets with risk index > 70%',
         value: '0',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View critical assets',
+        subValueText: 'View assets with high risk',
         subValueLink: '/assets/by-ministry?riskRating=Red',
+        scrollToId: 'assets-table',
+        filterOnClick: { paramKey: 'riskIndex', value: 'HIGH RISK' },
       },
       {
         id: 7,
@@ -625,6 +636,7 @@ export class DashboardComponent implements OnInit {
               subValueColor: '',
               subValueText: 'View All',
               subValueLink: '/assets/by-ministry',
+              scrollToId: 'assets-table',
             },
             {
               id: 2,
@@ -639,6 +651,8 @@ export class DashboardComponent implements OnInit {
               subValueColor: 'success',
               subValueText: 'View online assets',
               subValueLink: '/assets/by-ministry?status=Online',
+              scrollToId: 'assets-table',
+              filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
             },
             {
               id: 3,
@@ -650,8 +664,10 @@ export class DashboardComponent implements OnInit {
                 (summary.healthStatus || '').toLowerCase() === 'healthy'
                   ? 'success'
                   : 'danger',
-              subValueText: 'View critical assets',
+              subValueText: 'View assets with poor health',
               subValueLink: '/assets/by-ministry?health=critical',
+              scrollToId: 'assets-table',
+              filterOnClick: { paramKey: 'health', value: 'Poor' },
             },
             {
               id: 4,
@@ -663,8 +679,10 @@ export class DashboardComponent implements OnInit {
                 (summary.performanceStatus || '').toUpperCase() === 'AVERAGE'
                   ? 'danger'
                   : 'success',
-              subValueText: 'View critical assets',
+              subValueText: 'View assets with poor performance',
               subValueLink: '/assets/by-ministry?performance=critical',
+              scrollToId: 'assets-table',
+              filterOnClick: { paramKey: 'performance', value: 'BELOW AVERAGE' },
             },
             {
               id: 5,
@@ -676,18 +694,22 @@ export class DashboardComponent implements OnInit {
                 (summary.complianceStatus || '').toUpperCase() === 'HIGH'
                   ? 'success'
                   : 'danger',
-              subValueText: 'View critical assets',
+              subValueText: 'View assets with poor compliance',
               subValueLink: '/assets/by-ministry?compliance=critical',
+              scrollToId: 'assets-table',
+              filterOnClick: { paramKey: 'compliance', value: 'LOW' },
             },
             {
               id: 6,
               title: 'High Risk Assets',
-              subTitle: 'Assets with risk index > 80%',
+              subTitle: 'Assets with risk index > 70%',
               value: summary.highRiskAssets.toString(),
               subValue: summary.highRiskAssetsStatus,
               subValueColor: 'danger',
-              subValueText: 'View critical assets',
+              subValueText: 'View assets with high risk',
               subValueLink: '/assets/by-ministry?riskRating=Red',
+              scrollToId: 'assets-table',
+              filterOnClick: { paramKey: 'riskIndex', value: 'HIGH RISK' },
             },
             {
               id: 7,
@@ -757,6 +779,36 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /** Sync tableFilters from emitted params so removing a filter pill keeps parent in sync and table updates. */
+  private syncFiltersFromParams(params: HttpParams): void {
+    this.tableFilters.update((filters) =>
+      filters.map((f) => {
+        if (!f.paramKey) return f;
+        const paramValue = params.get(f.paramKey);
+        const value = paramValue ?? '';
+        const isAll = value === '' || value === 'All';
+        const option = !isAll && f.options?.length ? f.options.find((o) => o.value === value) : null;
+        const label = isAll
+          ? `${f.label.split(':')[0]}: All`
+          : option
+            ? `${f.label.split(':')[0]}: ${option.label}`
+            : `${f.label.split(':')[0]}: ${value}`;
+        return {
+          ...f,
+          value,
+          label,
+          removable: !isAll,
+        };
+      })
+    );
+  }
+
+  /** Handle table search/filter/page: sync filters from params then load assets. */
+  onSearchQuery(params: HttpParams): void {
+    this.syncFiltersFromParams(params);
+    this.loadAssets(params);
+  }
+
   loadAssets(searchParams: HttpParams) {
     this.apiService.getAssets(searchParams).subscribe({
       next: (response: ApiResponse) => {
@@ -802,6 +854,34 @@ export class DashboardComponent implements OnInit {
   onEditClick(row: any): void {
     if (row?.id) {
       this.router.navigate(['/edit-digital-asset'], { queryParams: { assetId: row.id } });
+    }
+  }
+
+  /** Handle KPI card action: apply filter, load assets, then scroll to table. */
+  onKpiCardAction(event: KpiCardAction): void {
+    if (event.filterOnClick) {
+      const { paramKey, value } = event.filterOnClick;
+      this.tableFilters.update((filters) =>
+        filters.map((f) => {
+          if (f.paramKey !== paramKey) return f;
+          const option = f.options?.find((o) => o.value === value);
+          const label = option ? `${f.label.split(':')[0]}: ${option.label}` : `${f.label.split(':')[0]}: ${value}`;
+          return { ...f, value, label, removable: true };
+        })
+      );
+      // Build params from current filters (after update); table uses PageNumber/PageSize
+      let params = new HttpParams()
+        .set('PageNumber', '1')
+        .set('PageSize', '10');
+      this.tableFilters().forEach((f) => {
+        if (f.paramKey && f.value && f.value !== '' && f.value !== 'All') {
+          params = params.set(f.paramKey, f.value);
+        }
+      });
+      this.loadAssets(params);
+    }
+    if (event.scrollToId) {
+      setTimeout(() => document.getElementById(event.scrollToId!)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
   }
 

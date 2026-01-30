@@ -10,8 +10,11 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    cursor: pointer;
     transition: all 0.2s ease;
+
+    &.kpi-card-clickable {
+        cursor: pointer;
+    }
 
     &:hover {
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

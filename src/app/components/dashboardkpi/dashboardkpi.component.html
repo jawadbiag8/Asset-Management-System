@@ -1,5 +1,8 @@
 <div class="kpi-card-wrapper">
-    <div class="kpi-card">
+    <div
+        class="kpi-card"
+        [class.kpi-card-clickable]="isClickable"
+        (click)="onCardClick($event)">
         <div class="kpi-header">
             <h1 class="kpi-value">{{ item.value }}</h1>
             @if(item.subValue) {
@@ -14,9 +17,9 @@
 
         <div class="kpi-divider"></div>
 
-        <div class="kpi-footer ">
-            <a [routerLink]="item.subValueLink" class="kpi-link">{{
-                item.subValueText }}</a>
+        <div class="kpi-footer">
+            <span class="kpi-link" (click)="$event.stopPropagation(); onCardClick($event)">{{
+                item.subValueText }}</span>
             <mat-icon class="kpi-chevron">keyboard_arrow_right</mat-icon>
         </div>
     </div>
