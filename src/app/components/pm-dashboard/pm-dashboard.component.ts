@@ -1,4 +1,5 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   TableConfig,
   TableColumn,
@@ -20,6 +21,7 @@ interface Insight {
 }
 
 interface MinistryData {
+  ministryId?: number;
   ministry: string;
   assets: number;
   percentage: number;
@@ -31,13 +33,16 @@ interface MinistryData {
   styleUrl: './pm-dashboard.component.scss',
   standalone: false,
 })
-export class PmDashboardComponent implements OnInit {
+export class PmDashboardComponent implements OnInit, OnDestroy {
   currentInsightIndex = signal(0);
   loading = signal(true);
 
-  // Card 1: Digital Experience Score
+  /** Auto-play interval: har 5 sec next insight; hover par stop */
+  private insightAutoPlayInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly INSIGHT_AUTO_PLAY_MS = 5000;
+
+  // Card 1: Digital Experience Score (right corner badge = score - 90%, hardcoded)
   digitalExperienceScore = 0;
-  digitalScoreChange = 0;
 
   // Card 2: Total Assets Being Monitored
   totalAssetsBeingMonitored = 0;
@@ -116,22 +121,20 @@ export class PmDashboardComponent implements OnInit {
         header: 'MINISTRY',
         cellType: 'text',
         primaryField: 'ministry',
-        sortable: true,
+        sortable: false,
         width: '50%',
         cellClass: 'ministry-link',
         showIcon: true,
         iconName: 'open_in_new',
-        onClick: (row: any) => {
-          // Handle ministry click navigation
-          console.log('Ministry clicked:', row.ministry);
-        },
+        iconUrl: '/Images/PM-Dashboard/arrow-tr.svg',
+        onClick: (row: any) => this.navigateToMinistryDetail(row),
       },
       {
         key: 'assets',
         header: 'ASSETS',
         cellType: 'text',
         primaryField: 'assets',
-        sortable: true,
+        sortable: false,
         width: '20%',
       },
       {
@@ -141,11 +144,12 @@ export class PmDashboardComponent implements OnInit {
         progressValueField: 'percentage',
         // progressColor will use default logic (red < 30%, orange 30-70%, green >= 70%)
         progressShowLabel: true,
-        sortable: true,
+        sortable: false,
         width: '30%',
       },
     ],
     data: this.bottomMinistriesData.map((item) => ({
+      ministryId: item.ministryId,
       ministry: item.ministry,
       assets: item.assets,
       percentage: item.percentage,
@@ -161,22 +165,20 @@ export class PmDashboardComponent implements OnInit {
         header: 'MINISTRY',
         cellType: 'text',
         primaryField: 'ministry',
-        sortable: true,
+        sortable: false,
         width: '50%',
         cellClass: 'ministry-link',
         showIcon: true,
         iconName: 'open_in_new',
-        onClick: (row: any) => {
-          // Handle ministry click navigation
-          console.log('Ministry clicked:', row.ministry);
-        },
+        iconUrl: '/Images/PM-Dashboard/arrow-tr.svg',
+        onClick: (row: any) => this.navigateToMinistryDetail(row),
       },
       {
         key: 'assets',
         header: 'ASSETS',
         cellType: 'text',
         primaryField: 'assets',
-        sortable: true,
+        sortable: false,
         width: '20%',
       },
       {
@@ -186,11 +188,12 @@ export class PmDashboardComponent implements OnInit {
         progressValueField: 'percentage',
         // progressColor will use default logic (red < 30%, orange 30-70%, green >= 70%)
         progressShowLabel: true,
-        sortable: true,
+        sortable: false,
         width: '30%',
       },
     ],
     data: this.topMinistriesData.map((item) => ({
+      ministryId: item.ministryId,
       ministry: item.ministry,
       assets: item.assets,
       percentage: item.percentage,
@@ -202,12 +205,59 @@ export class PmDashboardComponent implements OnInit {
   private emptyInsight: Insight = { value: '', subtitle: '', description: '' };
   currentInsight = signal<Insight>(this.emptyInsight);
 
-  constructor(private apiService: ApiService) {
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+  ) {
     this.currentInsight.set(this.insights[0] ?? this.emptyInsight);
   }
 
   ngOnInit(): void {
     this.loadPMDashboardData();
+    this.startInsightAutoPlay();
+  }
+
+  ngOnDestroy(): void {
+    this.stopInsightAutoPlay();
+  }
+
+  startInsightAutoPlay(): void {
+    this.stopInsightAutoPlay();
+    if (this.insights.length <= 1) return;
+    this.insightAutoPlayInterval = setInterval(() => {
+      this.advanceToNextInsight();
+    }, this.INSIGHT_AUTO_PLAY_MS);
+  }
+
+  stopInsightAutoPlay(): void {
+    if (this.insightAutoPlayInterval != null) {
+      clearInterval(this.insightAutoPlayInterval);
+      this.insightAutoPlayInterval = null;
+    }
+  }
+
+  /** Auto-play ke liye: next slide, end pe wapas 0 */
+  private advanceToNextInsight(): void {
+    const next = (this.currentInsightIndex() + 1) % this.insights.length;
+    this.currentInsightIndex.set(next);
+    this.currentInsight.set(this.insights[next] ?? this.emptyInsight);
+  }
+
+  onInsightsMouseEnter(): void {
+    this.stopInsightAutoPlay();
+  }
+
+  onInsightsMouseLeave(): void {
+    this.startInsightAutoPlay();
+  }
+
+  /** Ministry row click: navigate to ministry-detail with ministryId (query param) */
+  navigateToMinistryDetail(row: { ministryId?: number }): void {
+    const id = row?.ministryId;
+    if (id == null) return;
+    this.router.navigate(['/ministry-detail'], {
+      queryParams: { ministryId: id },
+    });
   }
 
   loadPMDashboardData(): void {
@@ -243,6 +293,7 @@ export class PmDashboardComponent implements OnInit {
           this.bottomMinistriesTableConfig = {
             ...this.bottomMinistriesTableConfig,
             data: this.bottomMinistriesData.map((item) => ({
+              ministryId: item.ministryId,
               ministry: item.ministry,
               assets: item.assets,
               percentage: item.percentage,
@@ -254,6 +305,7 @@ export class PmDashboardComponent implements OnInit {
           this.topMinistriesTableConfig = {
             ...this.topMinistriesTableConfig,
             data: this.topMinistriesData.map((item) => ({
+              ministryId: item.ministryId,
               ministry: item.ministry,
               assets: item.assets,
               percentage: item.percentage,
@@ -272,10 +324,7 @@ export class PmDashboardComponent implements OnInit {
   private applyHeaderData(data: any): void {
     if (data.digitalExperienceScore != null)
       this.digitalExperienceScore = Number(data.digitalExperienceScore);
-    if (data.digitalExperienceScoreChange != null)
-      this.digitalScoreChange = Number(data.digitalExperienceScoreChange);
-    if (data.digitalScoreChange != null)
-      this.digitalScoreChange = Number(data.digitalScoreChange);
+    // Right corner badge = digitalExperienceScore - 90 (hardcoded), not from API
     if (data.totalAssetsBeingMonitored != null)
       this.totalAssetsBeingMonitored = Number(data.totalAssetsBeingMonitored);
     if (data.totalMinistries != null)
@@ -302,6 +351,12 @@ export class PmDashboardComponent implements OnInit {
   }
 
   /** Returns relative time string for lastChecked, e.g. "3 minutes ago" */
+  /** Card 1 right corner badge: API value (65.05) - hardcoded 90% = -24.95% */
+  getDigitalScoreBadgeValue(): number {
+    const TARGET = 90;
+    return this.digitalExperienceScore - TARGET;
+  }
+
   getLastCheckedText(): string {
     if (!this.lastChecked) return '-';
     const date = new Date(this.lastChecked);
@@ -327,6 +382,7 @@ export class PmDashboardComponent implements OnInit {
       this.bottomMinistriesTableConfig = {
         ...this.bottomMinistriesTableConfig,
         data: this.bottomMinistriesData.map((item) => ({
+          ministryId: item.ministryId,
           ministry: item.ministry,
           assets: item.assets,
           percentage: item.percentage,
@@ -338,6 +394,7 @@ export class PmDashboardComponent implements OnInit {
       this.topMinistriesTableConfig = {
         ...this.topMinistriesTableConfig,
         data: this.topMinistriesData.map((item) => ({
+          ministryId: item.ministryId,
           ministry: item.ministry,
           assets: item.assets,
           percentage: item.percentage,
@@ -408,6 +465,7 @@ export class PmDashboardComponent implements OnInit {
   /** Maps API items to MinistryData (bottom: ministryName/citizenHappinessIndex, top: ministryName/complianceIndex) */
   private mapMinistryData(data: any[]): MinistryData[] {
     return (data || []).map((x: any) => ({
+      ministryId: x.ministryId != null ? Number(x.ministryId) : undefined,
       ministry: x.ministry ?? x.ministryName ?? x.name ?? '',
       assets: Number(x.assets ?? x.assetCount ?? 0),
       percentage: Number(
@@ -456,5 +514,6 @@ export class PmDashboardComponent implements OnInit {
   goToInsight(index: number): void {
     this.currentInsightIndex.set(index);
     this.currentInsight.set(this.insights[index] ?? this.emptyInsight);
+    // Manual click ke baad bhi auto-play dobara chalega (mouseleave pe)
   }
 }

@@ -13,6 +13,13 @@ export interface ApiResponse<T = any> {
   data?: T;
   message?: string | null;
 }
+
+export interface LoginData {
+  token: string;
+  name: string;
+  roles: string[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -25,11 +32,17 @@ export class ApiService {
     return this.utils.getEnvironmentVariable('apiUrl');
   }
 
-  login(username: string, password: string): Observable<ApiResponse<string>> {
-    return this.http.post<ApiResponse<string>>(`${this.baseUrl}/Auth/login`, {
-      username,
-      password,
-    });
+  login(
+    username: string,
+    password: string,
+  ): Observable<ApiResponse<LoginData>> {
+    return this.http.post<ApiResponse<LoginData>>(
+      `${this.baseUrl}/Auth/login`,
+      {
+        username,
+        password,
+      },
+    );
   }
 
   logout(): Observable<ApiResponse<any>> {
