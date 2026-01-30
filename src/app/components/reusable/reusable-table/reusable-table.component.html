@@ -323,11 +323,28 @@
                   @default {
                     <div
                       class="text-cell-with-icon"
-                      [class.has-icon]="column.showIcon && column.iconName"
+                      [class.has-icon]="
+                        column.showIcon && (column.iconName || column.iconUrl)
+                      "
+                      [class.clickable]="column.onClick"
+                      [class.pointer]="column.onClick"
+                      (click)="onTextCellClick($event, column, row)"
                     >
                       <span [ngClass]="column.cellClass">
-                        {{ getCellValue(row, column.primaryField || column.key) }}
-                        @if (column.showIcon && column.iconName) {
+                        {{
+                          getCellValue(row, column.primaryField || column.key)
+                        }}
+                        @if (column.showIcon && column.iconUrl) {
+                          <img
+                            [src]="column.iconUrl"
+                            alt=""
+                            class="text-cell-icon text-cell-icon-img"
+                            aria-hidden="true"
+                          />
+                        }
+                        @if (
+                          column.showIcon && column.iconName && !column.iconUrl
+                        ) {
                           <mat-icon class="text-cell-icon" aria-hidden="true">{{
                             column.iconName
                           }}</mat-icon>

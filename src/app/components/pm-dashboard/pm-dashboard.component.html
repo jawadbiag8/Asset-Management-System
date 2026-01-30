@@ -20,13 +20,13 @@
                 <span
                   class="kpi-badge-change"
                   [ngClass]="
-                    digitalScoreChange >= 0
+                    getDigitalScoreBadgeValue() >= 0
                       ? 'kpi-badge-positive'
                       : 'kpi-badge-negative'
                   "
                 >
-                  {{ digitalScoreChange >= 0 ? "+" : ""
-                  }}{{ digitalScoreChange | number: "1.0-2" }}%
+                  {{ getDigitalScoreBadgeValue() >= 0 ? "+" : ""
+                  }}{{ getDigitalScoreBadgeValue() | number: "1.0-2" }}%
                 </span>
               </div>
               <h5 class="kpi-title-white">Digital Experience Score</h5>
@@ -35,7 +35,7 @@
               </p>
               <div class="kpi-divider-white"></div>
               <div class="kpi-footer-white">
-                <a href="#" class="kpi-link-white"
+                <a routerLink="/dashboard" class="kpi-link-white"
                   >View assets with low Digital Experience Score ></a
                 >
               </div>
@@ -46,22 +46,27 @@
           <div class="kpi-card">
             <div class="kpi-card-content">
               <img
-                [src]="
-                  totalAssetsBeingMonitored === 0
-                    ? '/Images/PM-Dashboard/Variant3.svg'
-                    : '/Images/PM-Dashboard/arrow-tr.svg'
-                "
+                src="/Images/PM-Dashboard/arrow-tr.svg"
                 alt=""
                 class="kpi-card-corner-icon"
               />
-              <h1 class="kpi-value">{{ totalAssetsBeingMonitored }}</h1>
+              <h1
+                class="kpi-value"
+                [style.color]="
+                  totalAssetsBeingMonitored === 0
+                    ? 'var(--color-red)'
+                    : 'var(--color-green-teal)'
+                "
+              >
+                {{ totalAssetsBeingMonitored }}
+              </h1>
               <h5 class="kpi-title">Total Assets Being Monitored</h5>
               <p class="kpi-subtitle">
                 Across {{ totalMinistries }} Ministries
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link"
+                <a routerLink="/dashboard" class="kpi-link"
                   >View assets that meet Compliance standards ></a
                 >
               </div>
@@ -80,14 +85,28 @@
                 alt=""
                 class="kpi-card-corner-icon"
               />
-              <h1 class="kpi-value">{{ digitalAssetsOffline }}</h1>
+              <h1
+                class="kpi-value"
+                [style.color]="
+                  digitalAssetsOffline === 0
+                    ? 'var(--color-green-teal)'
+                    : 'var(--color-red)'
+                "
+              >
+                {{ digitalAssetsOffline }}
+              </h1>
               <h5 class="kpi-title">Digital Assets Are Offline</h5>
               <p class="kpi-subtitle">
                 Last Checked: {{ getLastCheckedText() }}
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link">View Assets currently down ></a>
+                <a
+                  routerLink="/dashboard"
+                  [queryParams]="{ currentStatus: 'Down' }"
+                  class="kpi-link"
+                  >View Assets currently down ></a
+                >
               </div>
             </div>
           </div>
@@ -100,14 +119,25 @@
                 alt=""
                 class="kpi-card-corner-icon"
               />
-              <h1 class="kpi-value">{{ ministriesMeetComplianceStandards }}</h1>
+              <h1
+                class="kpi-value"
+                [style.color]="
+                  ministriesMeetComplianceStandards === 0
+                    ? 'var(--color-red)'
+                    : 'var(--color-green-teal)'
+                "
+              >
+                {{ ministriesMeetComplianceStandards }}
+              </h1>
               <h5 class="kpi-title">Ministries meet Compliance standards</h5>
               <p class="kpi-subtitle">
                 Ministries with Compliance score &gt; {{ complianceThreshold }}%
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link">View non-compliant ministries ></a>
+                <a routerLink="/assets/by-ministry" class="kpi-link"
+                  >View non-compliant ministries ></a
+                >
               </div>
             </div>
           </div>
@@ -124,12 +154,21 @@
                 alt=""
                 class="kpi-card-corner-icon"
               />
-              <h1 class="kpi-value">{{ activeIncidents }}</h1>
+              <h1
+                class="kpi-value"
+                [style.color]="
+                  activeIncidents === 0
+                    ? 'var(--color-green-teal)'
+                    : 'var(--color-red)'
+                "
+              >
+                {{ activeIncidents }}
+              </h1>
               <h5 class="kpi-title">Active Incidents</h5>
               <p class="kpi-subtitle">Currently unresolved incidents</p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link"
+                <a routerLink="/incidents" class="kpi-link"
                   >View {{ resolvedIncidentsLast30Days }} incidents resolved in
                   last 30 days ></a
                 >
@@ -149,14 +188,26 @@
                 alt=""
                 class="kpi-card-corner-icon"
               />
-              <h1 class="kpi-value">{{ assetsAreVulnerable }}</h1>
+              <h1
+                class="kpi-value"
+                [style.color]="
+                  assetsAreVulnerable === 0
+                    ? 'var(--color-green-teal)'
+                    : 'var(--color-red)'
+                "
+              >
+                {{ assetsAreVulnerable }}
+              </h1>
               <h5 class="kpi-title">Assets are vulnerable</h5>
               <p class="kpi-subtitle">
                 Assets with Security Index &lt;{{ securityThreshold }}
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a href="#" class="kpi-link"
+                <a
+                  routerLink="/dashboard"
+                  [queryParams]="{ riskIndex: 'LOW RISK' }"
+                  class="kpi-link"
                   >View Assets with high security compliance ></a
                 >
               </div>
@@ -216,7 +267,7 @@
     </div>
 
     <!-- Section: Traffic Overview -->
-    <div class="sidebar-section">
+    <!-- <div class="sidebar-section">
       <h3 class="section-title">Traffic Overview</h3>
       <div class="traffic-overview">
         <div class="traffic-item">
@@ -232,10 +283,14 @@
           }}</span>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Section: Insights (Figma-aligned: card, circular nav, dots) -->
-    <div class="sidebar-section sidebar-section-last">
+    <div
+      class="sidebar-section sidebar-section-last"
+      (mouseenter)="onInsightsMouseEnter()"
+      (mouseleave)="onInsightsMouseLeave()"
+    >
       <div class="insights-header">
         <h3 class="section-title">Insights</h3>
         <div class="insights-navigation">

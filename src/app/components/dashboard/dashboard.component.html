@@ -18,16 +18,16 @@
         <div class="row g-3">
             @if(dashboardKpis().isVisible){
             @for(item of dashboardKpis().data; track item.id){
-            <app-dashboardkpi class="col-lg-3 col-sm-12" [item]="item"></app-dashboardkpi>
+            <app-dashboardkpi class="col-lg-3 col-sm-12" [item]="item" (cardAction)="onKpiCardAction($event)"></app-dashboardkpi>
             } }
         </div>
 
     </div>
 
     <!-- Table with Filters and Search -->
-    <div class="mt-5">
+    <div id="assets-table" class="mt-5">
         <app-reusable-table [config]="tableConfigWithData()" [filters]="tableFilters()"
-            (searchQuery)="loadAssets($event)" [totalItems]="totalItems()" (actionClick)="onActionClick($event)">
+            (searchQuery)="onSearchQuery($event)" [totalItems]="totalItems()" (actionClick)="onActionClick($event)">
         </app-reusable-table>
     </div>
 

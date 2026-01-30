@@ -640,6 +640,12 @@ export class ReusableTableComponent
      SERVER-SIDE MODE
      ========================= */
     if (this.config?.serverSideSearch) {
+      // Sync filters from parent when parent updates (e.g. after KPI click or syncFiltersFromParams)
+      if (changes['filters'] && changes['filters'].currentValue) {
+        this.filters = changes['filters'].currentValue;
+        // Reset guard so next emit (e.g. on filter remove) is not blocked when params match initial load
+        this.lastQueryKey = null;
+      }
       // ✅ Only update displayed data when server responds
       if (
         changes['config'] &&
@@ -1035,6 +1041,13 @@ export class ReusableTableComponent
 
   onIconClick(row: any, columnKey: string): void {
     this.actionClick.emit({ row, columnKey });
+  }
+
+  /** Default text cell click: stop propagation and call column.onClick(row) if defined */
+  onTextCellClick(event: Event, column: TableColumn, row: any): void {
+    if (!column.onClick) return;
+    event.stopPropagation();
+    column.onClick(row);
   }
 
   getActionDisabled(
