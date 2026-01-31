@@ -224,49 +224,36 @@ export class AssetControlPanelComponent implements OnInit {
   }
 
   loadAssetData(): void {
-    this.api
-      .getAssetControlPanelData(this.previousPageMetadata().assetId)
-      .subscribe({
-        next: (response: ApiResponse<AssetControlPanelData>) => {
-          if (response.isSuccessful) {
-            this.breadcrumbs.set([
-              { label: 'Dashboard', path: '/dashboard' },
-              { label: 'Ministries', path: '/assets/by-ministry' },
-              {
-                label: response.data?.header?.ministry ?? '',
-                path: '/ministry-detail',
-                queryParams: {
-                  ministryId: response.data?.header?.ministryId ?? '',
-                },
-              },
-              {
-                label: 'Ministry Website',
-                path: '/view-assets-detail',
-                queryParams: {
-                  id: this.previousPageMetadata().assetId,
-                  ministryId: response.data?.header?.ministryId ?? '',
-                },
-              },
-              { label: 'Compliance Report' },
-            ]);
+    this.api.getAssetControlPanelData(this.previousPageMetadata().assetId).subscribe({
+      next: (response: ApiResponse<AssetControlPanelData>) => {
+        if (response.isSuccessful) {
+          this.breadcrumbs.set([
+            { label: 'Dashboard', path: '/dashboard' },
+            { label: 'Ministries', path: '/assets/by-ministry' },
+            {
+              label: response.data?.header?.ministry ?? '',
+              path: '/ministry-detail',
+              queryParams: { ministryId: response.data?.header?.ministryId ?? '' },
+            },
+            {
+              label: response.data?.header?.assetName ?? '',
+              path: '/view-assets-detail',
+              queryParams: { id: this.previousPageMetadata().assetId,ministryId: response.data?.header?.ministryId ?? '' },
+            },
+            { label: 'Compliance Report' },
+          ]);
 
-            this.tableConfigCache.clear();
-            this.assetControlPanelData.set(
-              response.data as AssetControlPanelData,
-            );
-          } else {
-            this.utils.showToast(
-              response.message || 'Failed to load asset data',
-              'Error',
-              'error',
-            );
-          }
-        },
-        error: (error: any) => {
-          this.utils.showToast(error, 'Error loading asset data', 'error');
-          this.route.navigate(['/dashboard']);
-        },
-      });
+          this.tableConfigCache.clear();
+          this.assetControlPanelData.set(response.data as AssetControlPanelData);
+        } else {
+          this.utils.showToast(response.message || 'Failed to load asset data', 'Error', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error loading asset data', 'error');
+        this.route.navigate(['/dashboard']);
+      }
+    });
   }
 
   getBadgeColor(

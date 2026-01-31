@@ -426,7 +426,7 @@ export class DashboardComponent implements OnInit {
         subValue: '',
         subValueColor: '',
         subValueText: 'View open incidents',
-        subValueLink: '/incidents?Status=8',
+        subValueLink: '/incidents?StatusId=8',
       },
       {
         id: 8,
@@ -572,7 +572,7 @@ export class DashboardComponent implements OnInit {
           this.updateFilterOptions('ministry', ministryOptions);
         }
 
-        // Update Status filter
+        // Update Status filter (/api/Asset expects currentStatus)
         const statusOptions = [
           { label: 'All', value: '' },
           { label: 'Up', value: 'Up' },
@@ -814,7 +814,7 @@ export class DashboardComponent implements OnInit {
               subValue: '',
               subValueColor: '',
               subValueText: 'View open incidents',
-              subValueLink: '/incidents?Status=8',
+              subValueLink: '/incidents?StatusId=8',
             },
             {
               id: 8,
