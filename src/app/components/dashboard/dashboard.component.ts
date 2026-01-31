@@ -368,7 +368,7 @@ export class DashboardComponent implements OnInit {
         subValueText: 'View online assets',
         subValueLink: '/assets/by-ministry?status=Online',
         scrollToId: 'assets-table',
-        filterOnClick: { paramKey: 'currentStatusId', value: '1' },
+        filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
       },
       {
         id: 3,
@@ -447,22 +447,20 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardSummary();
   }
 
-  /** URL se currentStatusId/currentStatus / riskIndex padhkar table filters par lagao (PM dashboard links se aane par). */
+  /** URL se currentStatus / riskIndex padhkar table filters par lagao (PM dashboard links se aane par). */
   private applyInitialQueryParams(): void {
     const qp = this.activatedRoute.snapshot.queryParams;
-    const currentStatusId = qp['currentStatusId'] ?? qp['currentStatus'];
+    const currentStatus = qp['currentStatus'];
     const riskIndex = qp['riskIndex'];
-    if (!currentStatusId && !riskIndex) return;
+    if (!currentStatus && !riskIndex) return;
 
     this.tableFilters.update((filters) =>
       filters.map((f) => {
-        if (f.paramKey === 'currentStatusId' && currentStatusId) {
-          const option = f.options?.find((o) => o.value === currentStatusId);
-          const label = option ? option.label : String(currentStatusId);
+        if (f.paramKey === 'currentStatus' && currentStatus) {
           return {
             ...f,
-            value: currentStatusId,
-            label: `Status: ${label}`,
+            value: currentStatus,
+            label: `Status: ${currentStatus}`,
             removable: true,
           };
         }
@@ -496,7 +494,7 @@ export class DashboardComponent implements OnInit {
         label: 'Status: All',
         value: '',
         removable: true,
-        paramKey: 'currentStatusId',
+        paramKey: 'currentStatus',
         options: [{ label: 'All', value: '' }],
       },
       {
@@ -574,11 +572,11 @@ export class DashboardComponent implements OnInit {
           this.updateFilterOptions('ministry', ministryOptions);
         }
 
-        // Update Status filter (/api/Asset expects currentStatusId)
+        // Update Status filter (/api/Asset expects currentStatus)
         const statusOptions = [
           { label: 'All', value: '' },
-          { label: 'Up', value: '1' },
-          { label: 'Down', value: '2' },
+          { label: 'Up', value: 'Up' },
+          { label: 'Down', value: 'Down' },
         ];
         this.updateFilterOptions('status', statusOptions);
 
@@ -746,7 +744,7 @@ export class DashboardComponent implements OnInit {
               subValueText: 'View online assets',
               subValueLink: '/assets/by-ministry?status=Online',
               scrollToId: 'assets-table',
-              filterOnClick: { paramKey: 'currentStatusId', value: '1' },
+              filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
             },
             {
               id: 3,
