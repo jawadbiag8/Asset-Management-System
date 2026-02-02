@@ -98,10 +98,16 @@
         }
     }
 
-    /* Hide mobile logout button on desktop */
-    .mobile-logout {
+    /* Hide mobile-only elements on desktop */
+    .mobile-logout,
+    .mobile-executive-dashboard {
         display: none;
     }
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
 }
 
 
@@ -305,6 +311,12 @@
 
         &.open {
             display: flex;
+        }
+
+        .mobile-executive-dashboard {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .mobile-logout {

@@ -37,6 +37,18 @@
         Incidents
       </a>
 
+      <!-- MOBILE EXECUTIVE DASHBOARD (PMO Executive only) -->
+      <a
+        *ngIf="isPmoExecutive() && !isPmDashboardActive()"
+        routerLink="/pm-dashboard"
+        [class.active]="isPmDashboardActive()"
+        (click)="menuOpen = false"
+        class="mobile-executive-dashboard"
+      >
+        <img src="Images/Dashboard/windows.svg" alt="pm icon" class="nav-icon" />
+        Executive Dashboard
+      </a>
+
       <!-- MOBILE LOGOUT BUTTON -->
       <button class="action-btn mobile-logout" (click)="logout()">
         <img src="Images/Dashboard/log-out.svg" alt="logout icon" />

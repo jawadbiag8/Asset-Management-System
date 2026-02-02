@@ -65,7 +65,7 @@ export class DashboardComponent implements OnInit {
         cellType: 'icon',
         iconUrl: '/assets/analyze.svg',
         sortable: false,
-        width: '90px',
+        width: '110px',
       },
       {
         key: 'ministryDepartment',
