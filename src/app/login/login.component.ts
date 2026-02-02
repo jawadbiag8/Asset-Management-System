@@ -87,8 +87,13 @@ export class LoginComponent implements OnInit {
           };
           this.utilsService.setStorage('user', userData);
 
-          // Navigate to dashboard
-          this.router.navigate(['/dashboard']);
+          // PMO Executive lands on Executive Dashboard; others on main dashboard
+          const role = userData.role ?? '';
+          if (role === 'PMO Executive') {
+            this.router.navigate(['/pm-dashboard']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         } else {
           this.errorMessage =
             response.message || 'Login failed. Please check your credentials.';

@@ -40,15 +40,21 @@
           <div class="search-container">
             <mat-icon class="search-icon">search</mat-icon>
             <input
-              type="text"
+              type="search"
+              inputmode="search"
               class="search-input"
               [placeholder]="config.searchPlaceholder"
               [(ngModel)]="searchValue"
               (keyup.enter)="onSearchButtonClick()"
             />
-            <!-- <button class="search-button" (click)="onSearchButtonClick()" type="button">
-            <mat-icon>search</mat-icon>
-          </button> -->
+            <button
+              class="search-button search-button-mobile"
+              (click)="onSearchButtonClick()"
+              type="button"
+              title="Search"
+            >
+              <mat-icon>search</mat-icon>
+            </button>
           </div>
         }
       </div>

@@ -150,6 +150,10 @@
             box-shadow: 0 0 0 2px rgba(0, 102, 102, 0.2);
         }
     }
+
+    .search-button-mobile {
+        display: none; // Desktop: Enter key se search, button hidden
+    }
 }
 
 // Table Wrapper (scrollable body with sticky header/footer)
@@ -864,7 +868,7 @@
         padding: 4px 10px;
     }
 
-    // Search Container - Full width on mobile
+    // Search Container - Full width on mobile + Search button visible
     .search-container {
         min-width: 100%;
         width: 100%;
@@ -872,6 +876,10 @@
         .search-input {
             font-size: 14px;
             padding: 8px 12px 8px 36px;
+        }
+
+        .search-button-mobile {
+            display: flex; // Mobile: visible button for tap-to-search
         }
 
         .search-button {
