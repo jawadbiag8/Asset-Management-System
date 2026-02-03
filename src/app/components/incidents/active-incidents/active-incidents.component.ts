@@ -193,7 +193,9 @@ export class ActiveIncidentsComponent implements OnInit {
       params[key] ??
       (key === 'MinistryId' ? params['ministryId'] : undefined) ??
       (key === 'SeverityId' ? params['severityId'] : undefined) ??
-      (key === 'StatusId' ? params['Status'] : undefined);
+      (key === 'StatusId'
+        ? params['Status'] ?? params['StatuId'] ?? params['statusId']
+        : undefined);
     this.tableFilters.update((filters) =>
       filters.map((f) => {
         const key = f.paramKey;
