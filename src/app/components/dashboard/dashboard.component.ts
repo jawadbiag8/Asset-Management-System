@@ -55,13 +55,13 @@ export class DashboardComponent implements OnInit {
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
-    searchPlaceholder: 'Search assets',
+    searchPlaceholder: 'Search Assets',
     serverSideSearch: true, // Enable server-side search
     defaultPageSize: 10, // Default page size
     columns: [
       {
         key: 'analyze',
-        header: 'ANALYZE',
+        header: 'Analyze',
         cellType: 'icon',
         iconUrl: '/assets/analyze.svg',
         sortable: false,
@@ -69,7 +69,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'ministryDepartment',
-        header: 'MINISTRY / DEPARTMENT',
+        header: 'Ministry / Department',
         cellType: 'two-line',
         primaryField: 'ministryDepartment',
         secondaryField: 'department',
@@ -78,7 +78,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'websiteApplication',
-        header: 'WEBSITE / APPLICATION',
+        header: 'Website / Application',
         cellType: 'two-line',
         primaryField: 'websiteApplication',
         secondaryField: 'assetUrl',
@@ -88,7 +88,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'currentStatus',
-        header: 'CURRENT STATUS',
+        header: 'Current Status',
         cellType: 'badge-with-subtext',
         badgeField: 'currentStatus',
         subtextField: 'lastCheckedFormatted',
@@ -113,7 +113,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'lastOutage',
-        header: 'LAST OUTAGE',
+        header: 'Last Outage',
         cellType: 'text',
         primaryField: 'lastOutage',
         sortable: true,
@@ -121,7 +121,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'currentHealth',
-        header: 'CURRENT HEALTH',
+        header: 'Current Health',
         cellType: 'health-status',
         healthStatusField: 'healthStatus',
         healthIconField: 'healthIcon',
@@ -131,7 +131,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'performanceStatus',
-        header: 'PERFORMANCE STATUS',
+        header: 'Performance Status',
         cellType: 'text-with-color',
         primaryField: 'performanceStatus',
         secondaryField: 'performancePercentage',
@@ -152,7 +152,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'complianceStatus',
-        header: 'COMPLIANCE STATUS',
+        header: 'Compliance Status',
         cellType: 'text-with-color',
         primaryField: 'complianceStatus',
         secondaryField: 'compliancePercentage',
@@ -171,7 +171,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'riskExposureIndex',
-        header: 'RISK EXPOSURE INDEX',
+        header: 'Risk Exposure Index',
         cellType: 'text-with-color',
         primaryField: 'riskExposureIndex',
         textColor: (row: any) => {
@@ -192,7 +192,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'citizenImpactLevel',
-        header: 'CITIZEN IMPACT LEVEL',
+        header: 'Citizen Impact Level',
         cellType: 'badge-with-subtext',
         badgeField: 'citizenImpactLevel',
         subtextField: 'citizenImpactLevelSubtext',
@@ -215,7 +215,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'openIncidents',
-        header: 'OPEN INCIDENTS',
+        header: 'Open Incidents',
         cellType: 'two-line',
         primaryField: 'openIncidents',
         secondaryField: 'highSeverityText',
@@ -224,7 +224,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'actions',
-        header: 'ACTION',
+        header: 'Action',
         cellType: 'actions',
         sortable: false,
         width: '120px',
@@ -350,22 +350,22 @@ export class DashboardComponent implements OnInit {
       {
         id: 1,
         title: 'Total Digital Assets Monitored',
-        subTitle: 'Active monitoring across all departments',
+        subTitle: 'Active Monitoring Across All Departments',
         value: '0',
         subValue: '',
         subValueColor: '',
-        subValueText: 'View All',
+        subValueText: 'View All >',
         subValueLink: '/assets/by-ministry',
         scrollToId: 'assets-table',
       },
       {
         id: 2,
-        title: 'Assets online',
-        subTitle: 'Assets currently operational and reachable',
+        title: 'Assets Online',
+        subTitle: 'Assets Currently Operational And Reachable',
         value: '0',
         subValue: '',
         subValueColor: 'success',
-        subValueText: 'View online assets',
+        subValueText: 'View Online Assets >',
         subValueLink: '/assets/by-ministry?status=Online',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
@@ -373,11 +373,11 @@ export class DashboardComponent implements OnInit {
       {
         id: 3,
         title: 'Health Index',
-        subTitle: 'Overall stability and availability score',
+        subTitle: 'Overall Stability And Availability Score',
         value: '0%',
         subValue: '',
         subValueColor: 'success',
-        subValueText: 'View assets with poor health',
+        subValueText: 'View Assets With Poor Health >',
         subValueLink: '/assets/by-ministry?health=critical',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'health', value: 'Poor' },
@@ -385,11 +385,11 @@ export class DashboardComponent implements OnInit {
       {
         id: 4,
         title: 'Performance Index',
-        subTitle: 'Overall speed and efficiency score',
+        subTitle: 'Overall Speed And Efficiency Score',
         value: '0%',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View assets with poor performance',
+        subValueText: 'View Assets With Poor Performance >',
         subValueLink: '/assets/by-ministry?performance=critical',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'performance', value: 'BELOW AVERAGE' },
@@ -397,11 +397,11 @@ export class DashboardComponent implements OnInit {
       {
         id: 5,
         title: 'Compliance Index',
-        subTitle: 'Overall adherence to compliance standards',
+        subTitle: 'Overall Adherence To Compliance Standards',
         value: '0%',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View assets with poor compliance',
+        subValueText: 'View Assets With Poor Compliance >',
         subValueLink: '/assets/by-ministry?compliance=critical',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'compliance', value: 'LOW' },
@@ -409,33 +409,33 @@ export class DashboardComponent implements OnInit {
       {
         id: 6,
         title: 'High Risk Assets',
-        subTitle: 'Assets with risk index > 70%',
+        subTitle: 'Assets With Risk Index > 70%',
         value: '0',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View assets with high risk',
+        subValueText: 'View Assets With High Risk >',
         subValueLink: '/assets/by-ministry?riskRating=Red',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'riskIndex', value: 'HIGH RISK' },
       },
       {
         id: 7,
-        title: 'Open incidents',
-        subTitle: 'Active unresolved incidents',
+        title: 'Open Incidents',
+        subTitle: 'Active Unresolved Incidents',
         value: '0',
         subValue: '',
         subValueColor: '',
-        subValueText: 'View open incidents',
+        subValueText: 'View Open Incidents >',
         subValueLink: '/incidents?StatusId=8',
       },
       {
         id: 8,
-        title: 'Critical severity open incidents',
-        subTitle: 'Active critical severity unresolved incidents',
+        title: 'Critical Severity Open Incidents',
+        subTitle: 'Active Critical Severity Unresolved Incidents',
         value: '0',
         subValue: '',
         subValueColor: 'success',
-        subValueText: 'View open critical severity incidents',
+        subValueText: 'View Open Critical Severity Incidents >',
         subValueLink: '/incidents?SeverityId=4',
       },
     ],
@@ -722,18 +722,18 @@ export class DashboardComponent implements OnInit {
             {
               id: 1,
               title: 'Total Digital Assets Monitored',
-              subTitle: 'Active monitoring across all departments',
+              subTitle: 'Active Monitoring Across All Departments',
               value: summary.totalAssets.toString(),
               subValue: '',
               subValueColor: '',
-              subValueText: 'View All',
+              subValueText: 'View All >',
               subValueLink: '/assets/by-ministry',
               scrollToId: 'assets-table',
             },
             {
               id: 2,
-              title: 'Assets online',
-              subTitle: 'Assets currently operational and reachable',
+              title: 'Assets Online',
+              subTitle: 'Assets Currently Operational And Reachable',
               value: summary.assetsOnline.toString(),
               // Use percentage directly from API
               subValue:
@@ -741,7 +741,7 @@ export class DashboardComponent implements OnInit {
                   ? toPercent(summary.assetsOnlinePercentage)
                   : '',
               subValueColor: 'success',
-              subValueText: 'View online assets',
+              subValueText: 'View Online Assets >',
               subValueLink: '/assets/by-ministry?status=Online',
               scrollToId: 'assets-table',
               filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
@@ -749,14 +749,14 @@ export class DashboardComponent implements OnInit {
             {
               id: 3,
               title: 'Health Index',
-              subTitle: 'Overall stability and availability score',
+              subTitle: 'Overall Stability And Availability Score',
               value: toPercent(summary.healthIndex),
               subValue: summary.healthStatus,
               subValueColor:
                 (summary.healthStatus || '').toLowerCase() === 'healthy'
                   ? 'success'
                   : 'danger',
-              subValueText: 'View assets with poor health',
+              subValueText: 'View Assets With Poor Health >',
               subValueLink: '/assets/by-ministry?health=critical',
               scrollToId: 'assets-table',
               filterOnClick: { paramKey: 'health', value: 'Poor' },
@@ -764,14 +764,14 @@ export class DashboardComponent implements OnInit {
             {
               id: 4,
               title: 'Performance Index',
-              subTitle: 'Overall speed and efficiency score',
+              subTitle: 'Overall Speed And Efficiency Score',
               value: toPercent(summary.performanceIndex),
               subValue: summary.performanceStatus,
               subValueColor:
                 (summary.performanceStatus || '').toUpperCase() === 'AVERAGE'
                   ? 'danger'
                   : 'success',
-              subValueText: 'View assets with poor performance',
+              subValueText: 'View Assets With Poor Performance >',
               subValueLink: '/assets/by-ministry?performance=critical',
               scrollToId: 'assets-table',
               filterOnClick: {
@@ -782,14 +782,14 @@ export class DashboardComponent implements OnInit {
             {
               id: 5,
               title: 'Compliance Index',
-              subTitle: 'Overall adherence to compliance standards',
+              subTitle: 'Overall Adherence To Compliance Standards',
               value: toPercent(summary.complianceIndex),
               subValue: summary.complianceStatus,
               subValueColor:
                 (summary.complianceStatus || '').toUpperCase() === 'HIGH'
                   ? 'success'
                   : 'danger',
-              subValueText: 'View assets with poor compliance',
+              subValueText: 'View Assets With Poor Compliance >',
               subValueLink: '/assets/by-ministry?compliance=critical',
               scrollToId: 'assets-table',
               filterOnClick: { paramKey: 'compliance', value: 'LOW' },
@@ -797,36 +797,36 @@ export class DashboardComponent implements OnInit {
             {
               id: 6,
               title: 'High Risk Assets',
-              subTitle: 'Assets with risk index > 70%',
+              subTitle: 'Assets With Risk Index > 70%',
               value: summary.highRiskAssets.toString(),
               subValue: summary.highRiskAssetsStatus,
               subValueColor: 'danger',
-              subValueText: 'View assets with high risk',
+              subValueText: 'View Assets With High Risk >',
               subValueLink: '/assets/by-ministry?riskRating=Red',
               scrollToId: 'assets-table',
               filterOnClick: { paramKey: 'riskIndex', value: 'HIGH RISK' },
             },
             {
               id: 7,
-              title: 'Open incidents',
-              subTitle: 'Active unresolved incidents',
+              title: 'Open Incidents',
+              subTitle: 'Active Unresolved Incidents',
               value: summary.openIncidents.toString(),
               subValue: '',
               subValueColor: '',
-              subValueText: 'View open incidents',
+              subValueText: 'View Open Incidents >',
               subValueLink: '/incidents?StatusId=8',
             },
             {
               id: 8,
-              title: 'Critical severity open incidents',
-              subTitle: 'Active critical severity unresolved incidents',
+              title: 'Critical Severity Open Incidents',
+              subTitle: 'Active Critical Severity Unresolved Incidents',
               value: summary.criticalOpenIncidents.toString(),
               subValue:
                 summary.criticalOpenIncidentsPercentage > 0
                   ? toPercent(summary.criticalOpenIncidentsPercentage)
                   : '',
               subValueColor: 'success',
-              subValueText: 'View open critical severity incidents',
+              subValueText: 'View Open Critical Severity Incidents >',
               subValueLink: '/incidents?SeverityId=4',
             },
           ],

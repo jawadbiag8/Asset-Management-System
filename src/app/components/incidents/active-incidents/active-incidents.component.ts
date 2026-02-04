@@ -86,7 +86,7 @@ export class ActiveIncidentsComponent implements OnInit {
 
   tableConfig = signal<TableConfig>({
     minWidth: '1400px',
-    searchPlaceholder: 'Search incidents',
+    searchPlaceholder: 'Search Incidents',
     serverSideSearch: true,
     columns: [
       {
