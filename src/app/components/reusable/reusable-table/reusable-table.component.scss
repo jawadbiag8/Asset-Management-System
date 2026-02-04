@@ -235,6 +235,7 @@
         overflow: visible; // Allow tooltips to overflow
         background-color: var(--color-bg-primary);
         position: relative; // Ensure proper containment
+        text-transform: capitalize; // All table cell text capitalized on every page
     }
 
     tr:first-child td {
