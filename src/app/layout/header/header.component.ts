@@ -66,8 +66,9 @@ export class HeaderComponent {
 
   isDashboardActive(): boolean {
     const route = this.currentRoute();
-    // Active on dashboard and root only (Ministries is active for view-assets-detail, add/edit digital assets)
-    const isDashboardRoute = route === '/dashboard' || route === '/';
+    // Path only (ignore query params) so Dashboard stays active when filters are selected
+    const path = route.split('?')[0];
+    const isDashboardRoute = path === '/dashboard' || path === '/';
     const isMinistryRoute =
       route.includes('/assets/by-ministry') ||
       route.includes('/ministry-detail') ||
