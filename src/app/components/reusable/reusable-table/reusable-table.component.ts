@@ -693,12 +693,7 @@ export class ReusableTableComponent
       this.filteredData = [];
     }
 
-    // Update when search value changes (client-side only)
-    if (changes['searchValue']) {
-      this.applySearch();
-      this.currentPage = 1; // ✅ Reset page on search (client-side only)
-      this.applyPagination();
-    }
+    // Search triggers on (change) / Enter / button only, not on every keyup
   }
 
   onSearchChange(event: Event) {

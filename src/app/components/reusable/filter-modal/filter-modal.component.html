@@ -17,7 +17,7 @@
           </ngx-mat-select-search>
         </mat-option>
         @if ((getFilteredOptions(filter.id) | async)?.length === 0) {
-        <mat-option disabled>No data found</mat-option>
+        <mat-option disabled>No Items Found</mat-option>
         }
         @for (option of getFilteredOptions(filter.id) | async; track option.value) {
         <mat-option [value]="option.value">{{ option.label }}</mat-option>

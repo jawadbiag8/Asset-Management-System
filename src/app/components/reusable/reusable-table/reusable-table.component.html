@@ -45,6 +45,7 @@
               class="search-input"
               [placeholder]="config.searchPlaceholder"
               [(ngModel)]="searchValue"
+              (change)="onSearchButtonClick()"
               (keyup.enter)="onSearchButtonClick()"
             />
             <button
