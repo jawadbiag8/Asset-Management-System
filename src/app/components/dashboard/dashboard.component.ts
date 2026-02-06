@@ -575,8 +575,8 @@ export class DashboardComponent implements OnInit {
         // Update Status filter (/api/Asset expects currentStatus)
         const statusOptions = [
           { label: 'All', value: '' },
-          { label: 'Up', value: 'Up' },
-          { label: 'Down', value: 'Down' },
+          { label: 'UP', value: 'Up' },
+          { label: 'DOWN', value: 'Down' },
         ];
         this.updateFilterOptions('status', statusOptions);
 
