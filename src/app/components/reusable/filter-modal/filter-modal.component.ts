@@ -202,7 +202,12 @@ export class FilterModalComponent implements OnInit, OnDestroy {
         filteredOptions.next(filter.options.slice());
       }
     });
-    this.dialogRef.close({ reset: true });
+    // Submit with all values as "All" (same as Apply Filters) so table refreshes
+    const filterChanges = this.filters.map((filter) => ({
+      filterId: filter.id,
+      selectedValues: [''],
+    }));
+    this.dialogRef.close({ filterChanges });
   }
 
   onClose(): void {

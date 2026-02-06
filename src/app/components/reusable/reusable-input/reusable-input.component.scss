@@ -1,6 +1,9 @@
 .full-width {
     width: 100%;
     margin-bottom: 12px;
+    // Reserve space for hint/error so they never overlap the next row at low resolution
+    display: block;
+    min-height: 1px; // allow subscript to define height
 }
 
 .required-asterisk {
@@ -21,6 +24,9 @@
 
         .mat-mdc-form-field-subscript-wrapper {
             margin-top: 4px;
+            // Reserve space for hint/error so text never overlaps the next row
+            min-height: 3em; /* space for hint/error so no overlap with next row */
+            display: block;
         }
     }
 
