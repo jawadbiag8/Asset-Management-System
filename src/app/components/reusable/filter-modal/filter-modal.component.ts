@@ -193,6 +193,7 @@ export class FilterModalComponent implements OnInit, OnDestroy {
   }
 
   onReset() {
+    // Only reset form fields to "All" — do not submit and do not close the dialog
     this.filters.forEach(filter => {
       this.selectedValues.set(filter.id, '');
       this.selectControls.get(filter.id)?.setValue('');
@@ -202,12 +203,6 @@ export class FilterModalComponent implements OnInit, OnDestroy {
         filteredOptions.next(filter.options.slice());
       }
     });
-    // Submit with all values as "All" (same as Apply Filters) so table refreshes
-    const filterChanges = this.filters.map((filter) => ({
-      filterId: filter.id,
-      selectedValues: [''],
-    }));
-    this.dialogRef.close({ filterChanges });
   }
 
   onClose(): void {

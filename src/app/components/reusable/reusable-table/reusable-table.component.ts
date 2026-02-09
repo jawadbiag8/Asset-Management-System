@@ -887,6 +887,7 @@ export class ReusableTableComponent
       maxWidth: '600px',
       data: { filters: this.filters },
       panelClass: 'filter-options-dialog',
+      autoFocus: false,
     });
 
     dialogRef.afterClosed().subscribe((result) => {

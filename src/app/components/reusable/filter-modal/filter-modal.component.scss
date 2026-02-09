@@ -1,3 +1,4 @@
+.filter-modal,
 .manage-incident-modal {
   width: 100%;
   max-width: 100%;
@@ -7,19 +8,22 @@
   overflow: hidden;
 }
 
-.modal-header {
+.filter-modal .modal-header,
+.manage-incident-modal .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
+  gap: 16px;
 
   .modal-title {
     font-size: 20px;
     font-weight: 600;
     color: var(--color-text-primary);
     margin: 0;
+    flex: 1;
 
     @media (max-width: 767px) {
       font-size: 18px;
@@ -27,25 +31,37 @@
   }
 
   .btn-close {
-    background: none;
+    background: transparent;
     border: none;
     cursor: pointer;
-    padding: 4px;
-    display: flex;
+    padding: 0;
+    margin: 0 0 0 auto;
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     color: var(--color-text-secondary);
-    transition: color 0.2s;
+    border-radius: 50%;
+    transition: color 0.2s, background-color 0.2s;
     flex-shrink: 0;
 
     &:hover {
       color: var(--color-text-primary);
+      background-color: rgba(0, 0, 0, 0.06);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary, #1976d2);
+      outline-offset: 2px;
     }
 
     mat-icon {
       font-size: 24px;
       width: 24px;
       height: 24px;
+      line-height: 1;
+      display: block;
 
       @media (max-width: 767px) {
         font-size: 20px;
