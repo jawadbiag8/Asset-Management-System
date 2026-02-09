@@ -8,6 +8,12 @@
   overflow: hidden;
 }
 
+/* Selected value in filter dropdowns – uppercase */
+.filter-modal .mat-mdc-select-value,
+.filter-modal .mat-mdc-select-value-text {
+  text-transform: uppercase;
+}
+
 .filter-modal .modal-header,
 .manage-incident-modal .modal-header {
   display: flex;

@@ -14,6 +14,7 @@
     <mat-form-field appearance="outline" class="w-100">
       <mat-label>Select {{ filter.label.split(':')[0] }}</mat-label>
       <mat-select [formControl]="getSelectControl(filter.id)"
+        panelClass="filter-modal-select-panel"
         (selectionChange)="onSelectChange(filter.id, $event.value)">
         <mat-option>
           <ngx-mat-select-search [formControl]="getFilterControl(filter.id)" [placeholderLabel]="'Search...'">

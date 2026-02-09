@@ -262,6 +262,11 @@ body {
   border-radius: 8px;
 }
 
+/* Filter modal – dropdown options uppercase */
+.filter-modal-select-panel.mat-mdc-select-panel .mat-mdc-option {
+  text-transform: uppercase;
+}
+
 /* Add Assets page – dropdown list line spacing (reusable-input select) */
 .reusable-input-select-panel.mat-mdc-select-panel .mat-mdc-option {
   min-height: 44px;
