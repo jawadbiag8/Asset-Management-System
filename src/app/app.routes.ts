@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
-import { AssetsByMinistryComponent } from './components/assets/assetsByMinistry/assets-by-ministry.component';
 import { ActiveIncidentsComponent } from './components/incidents/active-incidents/active-incidents.component';
 import { IncidentDetailsComponent } from './components/incidents/incident-details/incident-details.component';
 import { MinistryDetailComponent } from './components/ministry-detail/ministry-detail.component';
@@ -29,8 +28,8 @@ export const routes: Routes = [
   },
   {
     path: 'assets/by-ministry',
-    component: AssetsByMinistryComponent,
-    canActivate: [AuthGuard],
+    redirectTo: 'ministries',
+    pathMatch: 'full',
   },
   {
     path: 'asset-control-panel',

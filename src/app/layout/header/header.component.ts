@@ -57,7 +57,7 @@ export class HeaderComponent {
     const route = this.currentRoute();
     return (
       route.includes('/ministries') ||
-      route.includes('/assets/by-ministry') ||
+      route.includes('/ministries') ||
       route.includes('/ministry-detail') ||
       route.includes('/view-assets-detail') ||
       route.includes('/add-digital-assets') ||
@@ -72,7 +72,7 @@ export class HeaderComponent {
     const isDashboardRoute = path === '/dashboard' || path === '/';
     const isMinistryRoute =
       route.includes('/ministries') ||
-      route.includes('/assets/by-ministry') ||
+      route.includes('/ministries') ||
       route.includes('/ministry-detail') ||
       route.includes('/view-assets-detail') ||
       route.includes('/add-digital-assets') ||
