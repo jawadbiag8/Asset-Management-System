@@ -97,7 +97,37 @@
           <div class="description-text">
             {{ incident()?.description || 'No description available' }}
           </div>
+          <!-- Incident Reason (only when kpiDetails is present) -->
+        @if (showIncidentReasonSection()) {
+          <div class="incident-reason-section">
+            <div class="incident-reason-label">INCIDENT REASON</div>
+            <div class="incident-reason-card">
+              @for (metric of incidentReasonMetrics(); track $index) {
+                <div class="reason-metric-row">
+                  <div class="reason-metric-left">
+                    <div class="reason-metric-name">{{ metric.name }}</div>
+                    <div class="reason-metric-ts">{{ metric.timestamp }}</div>
+                  </div>
+                  <div class="reason-metric-right">
+                    <div class="reason-labels-col">
+                      <span class="reason-label">VALUE</span>
+                      <span class="reason-label">TARGET</span>
+                    </div>
+                    <div class="reason-values-col">
+                      <span class="reason-value-num">{{ metric.value }}</span>
+                      <span class="reason-value-num">{{ metric.target }}</span>
+                    </div>
+                  </div>
+                </div>
+              } @empty {
+                <div class="reason-metric-empty">No incident reason metrics available</div>
+              }
+            </div>
+          </div>
+        }
         </div>
+
+
       </div>
 
       <!-- Right Panel: Timeline and Comments -->

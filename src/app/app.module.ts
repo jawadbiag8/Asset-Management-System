@@ -40,6 +40,7 @@ import { ConfirmationDialogComponent } from './components/reusable/confirmation-
 import { LoaderComponent } from './components/loader/loader.component';
 import { AssetControlPanelComponent } from './components/assets/asset-control-panel/asset-control-panel.component';
 import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
+import { MinistryDashboardComponent } from './components/ministry-dashboard/ministry-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.com
     LoaderComponent,
     AssetControlPanelComponent,
     PmDashboardComponent,
+    MinistryDashboardComponent,
   ],
   imports: [
     BrowserModule,

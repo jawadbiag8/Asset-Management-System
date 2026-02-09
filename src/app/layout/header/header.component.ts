@@ -56,6 +56,7 @@ export class HeaderComponent {
   isAssetsActive(): boolean {
     const route = this.currentRoute();
     return (
+      route.includes('/ministries') ||
       route.includes('/assets/by-ministry') ||
       route.includes('/ministry-detail') ||
       route.includes('/view-assets-detail') ||
@@ -70,6 +71,7 @@ export class HeaderComponent {
     const path = route.split('?')[0];
     const isDashboardRoute = path === '/dashboard' || path === '/';
     const isMinistryRoute =
+      route.includes('/ministries') ||
       route.includes('/assets/by-ministry') ||
       route.includes('/ministry-detail') ||
       route.includes('/view-assets-detail') ||

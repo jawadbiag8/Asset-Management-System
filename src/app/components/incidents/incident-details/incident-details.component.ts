@@ -12,6 +12,32 @@ interface TimelineEvent {
   status: string;
 }
 
+/** Metric row for Incident Reason card (timestamp, value, target) */
+export interface IncidentReasonMetric {
+  name: string;
+  timestamp: string;
+  value: string | number;
+  target: string | number;
+}
+
+/** kpiDetails from API (kpiName + optional metrics list) */
+export interface KpiDetailsResponse {
+  kpiName?: string;
+  metrics?: Array<{ name?: string; metricName?: string; timestamp?: string; value?: string | number; target?: string | number; failedAt?: string; targetValue?: string }>;
+}
+
+/** History entry from API (used for timeline and optionally for incident reason) */
+export interface HistoryEntry {
+  failedAt?: string;
+  targetValue?: string;
+  currentValue?: string | number;
+  value?: string | number;
+  status?: string;
+  comment?: string;
+  createdBy?: string;
+  [key: string]: any;
+}
+
 type IncidentDetails = ActiveIncident & { severityCode?: string; departmentName?: string };
 
 @Component({
@@ -26,6 +52,12 @@ export class IncidentDetailsComponent implements OnInit {
   loading = signal<boolean>(false);
   errorMessage = signal<string>('');
   timelineEvents = signal<TimelineEvent[]>([]);
+  /** Metrics for Incident Reason card (from kpiDetails or history) */
+  incidentReasonMetrics = signal<IncidentReasonMetric[]>([]);
+  /** KPI name from API (e.g. for Incident Reason section) */
+  kpiName = signal<string>('');
+  /** When false, hide the entire Incident Reason section (e.g. when kpiDetails is null) */
+  showIncidentReasonSection = signal<boolean>(false);
   submittingComment = signal<boolean>(false);
   commentText: string = '';
   selectedStatus: string = '';
@@ -53,17 +85,34 @@ export class IncidentDetailsComponent implements OnInit {
     this.loading.set(true);
     this.errorMessage.set('');
     this.timelineEvents.set([]);
+    this.incidentReasonMetrics.set([]);
+    this.kpiName.set('');
+    this.showIncidentReasonSection.set(false);
 
     this.apiService.getIncidentDetailsById(incidentId).subscribe({
-      next: (response: ApiResponse<any>) => {
+      next: (response: any) => {
         this.loading.set(false);
-        if (response.isSuccessful && response.data) {
-          const data = response.data;
+        const isSuccess = response?.isSuccessful === true;
+        const data = response?.data ?? response?.Data;
+        const kpiDetails: KpiDetailsResponse | undefined = response?.kpiDetails ?? response?.KpiDetails;
+        const history: HistoryEntry[] =
+          response?.history ??
+          response?.History ??
+          (data && Array.isArray(data.history) ? data.history : undefined) ??
+          (data && Array.isArray(data.History) ? data.History : undefined) ??
+          response?.kpiDetails?.history ??
+          response?.kpiDetails?.History ??
+          [];
+
+        if (isSuccess && data) {
           this.incident.set(this.processIncidentData(data));
-          this.loadTimelineFromComments(incidentId, data);
+          this.showIncidentReasonSection.set(kpiDetails != null);
+          this.kpiName.set(kpiDetails?.kpiName ?? data?.kpiName ?? data?.kpiDescription ?? '');
+          this.buildIncidentReasonMetrics(kpiDetails, history);
+          this.loadTimelineFromComments(incidentId, data, history);
         } else {
-          this.errorMessage.set(response.message || 'Failed to load incident details');
-          this.utils.showToast(response.message || 'Failed to load incident details', 'Error', 'error');
+          this.errorMessage.set(response?.message || 'Failed to load incident details');
+          this.utils.showToast(response?.message || 'Failed to load incident details', 'Error', 'error');
         }
       },
       error: (error: any) => {
@@ -75,12 +124,55 @@ export class IncidentDetailsComponent implements OnInit {
     });
   }
 
+  /** Build Incident Reason metrics from kpiDetails.metrics or from history array. */
+  private buildIncidentReasonMetrics(kpiDetails: KpiDetailsResponse | undefined, history: HistoryEntry[]): void {
+    const metrics: IncidentReasonMetric[] = [];
+    const rawMetrics = kpiDetails?.metrics;
+    if (Array.isArray(rawMetrics) && rawMetrics.length > 0) {
+      rawMetrics.forEach((m: any, idx: number) => {
+        metrics.push({
+          name: m.name ?? m.metricName ?? m.kpiName ?? `Metric ${idx + 1}`,
+          timestamp: this.formatMetricTimestamp(m.timestamp ?? m.failedAt ?? m.createdAt),
+          value: m.value ?? m.currentValue ?? '—',
+          target: m.target ?? m.targetValue ?? '—',
+        });
+      });
+    } else if (Array.isArray(history) && history.length > 0) {
+      history.forEach((h: HistoryEntry, idx: number) => {
+        metrics.push({
+          name: this.kpiName() || `Reason ${idx + 1}`,
+          timestamp: this.formatMetricTimestamp(h.failedAt),
+          value: h.currentValue ?? h.value ?? '—',
+          target: h.targetValue ?? '—',
+        });
+      });
+    }
+    this.incidentReasonMetrics.set(metrics);
+  }
+
+  private formatMetricTimestamp(value: string | undefined): string {
+    if (!value) return '—';
+    try {
+      const d = new Date(value);
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      return `${mm}-${dd}-${yyyy} ${time}`;
+    } catch {
+      return String(value);
+    }
+  }
+
   /**
-   * Load timeline from GET /api/Incident/{id}/comments.
-   * Maps comment items (id, comment, status, createdBy, createdAt) to TimelineEvent[].
-   * Falls back to details.timeline when comments API fails or returns empty.
+   * Load timeline from GET /api/Incident/{id}/comments on page load.
+   * Shows comments in timeline; if comments empty, falls back to history or details.
    */
-  private loadTimelineFromComments(incidentId: number, detailsData: any): void {
+  private loadTimelineFromComments(
+    incidentId: number,
+    detailsData: any,
+    history: HistoryEntry[] = []
+  ): void {
     this.apiService.getIncidentCommentsById(incidentId).subscribe({
       next: (res: ApiResponse<any[]>) => {
         if (res.isSuccessful && Array.isArray(res.data) && res.data.length > 0) {
@@ -93,11 +185,32 @@ export class IncidentDetailsComponent implements OnInit {
           }));
           this.timelineEvents.set(events);
         } else {
-          this.mapTimelineFromDetails(detailsData);
+          this.setTimelineFromHistoryOrDetails(history, detailsData);
         }
       },
-      error: () => this.mapTimelineFromDetails(detailsData),
+      error: () => this.setTimelineFromHistoryOrDetails(history, detailsData),
     });
+  }
+
+  /** Fallback: show timeline from history or from details.timeline when comments are empty. */
+  private setTimelineFromHistoryOrDetails(history: HistoryEntry[], detailsData: any): void {
+    if (Array.isArray(history) && history.length > 0) {
+      const sorted = [...history].sort((a, b) => {
+        const tA = a.failedAt ? new Date(a.failedAt).getTime() : 0;
+        const tB = b.failedAt ? new Date(b.failedAt).getTime() : 0;
+        return tB - tA;
+      });
+      const events: TimelineEvent[] = sorted.map((h: HistoryEntry, idx: number) => ({
+        id: (h as any).id ?? idx + 1,
+        time: this.formatTimelineTime(h.failedAt),
+        user: h.createdBy ?? '—',
+        description: h.comment ?? (h.targetValue != null && h.targetValue !== '' ? `Target: ${h.targetValue}` : '—'),
+        status: h.status ?? '—',
+      }));
+      this.timelineEvents.set(events);
+    } else {
+      this.mapTimelineFromDetails(detailsData);
+    }
   }
 
   /** Refetch comments and update timeline (e.g. after adding a comment). */

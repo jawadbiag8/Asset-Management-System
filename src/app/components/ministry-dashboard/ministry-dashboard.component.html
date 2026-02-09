@@ -1,0 +1,154 @@
+<div class="ministry-dashboard">
+  <app-reusable-breadcrum
+    [breadcrumbs]="[
+      { label: 'Dashboard', path: '/dashboard' },
+      { label: 'Ministries' },
+    ]"
+  ></app-reusable-breadcrum>
+
+  <div class="page-header">
+    <h1 class="page-title">Ministries</h1>
+    <div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        class="search-input"
+        [value]="searchTerm()"
+        (input)="onSearchChange(($any($event.target)).value)"
+        placeholder="Search ministries..."
+      />
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="error-state">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">Loading ministries...</div>
+  } @else {
+    <div class="accordion-list">
+      @for (m of ministries(); track m.ministryId) {
+        <div class="accordion-item" [class.expanded]="isExpanded(m.ministryId)">
+          <div class="accordion-header">
+            <div class="header-left">
+              <a
+                class="info-icon-link"
+                [routerLink]="['/ministry-detail']"
+                [queryParams]="{ ministryId: m.ministryId }"
+                (click)="goToMinistryDetail(m.ministryId, $event)"
+                title="View ministry details"
+                aria-label="Ministry details"
+              >
+                <img src="/assets/info-icon.svg" alt="Info" class="info-icon" />
+              </a>
+              <span class="ministry-name">{{ m.ministryName }}</span>
+            </div>
+            <div class="header-stats">
+              <div class="stat">
+                <span class="stat-label"># of Departments</span>
+                <span class="stat-value">{{ m.departmentCount }}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label"># of Assets</span>
+                <span class="stat-value">{{ m.assetCount }}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Open Incidents</span>
+                <span class="stat-value">{{ m.openIncidents }}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn-report"
+              (click)="generateReport(m.ministryId, $event)"
+            >
+              Generate Report
+            </button>
+            <button
+              type="button"
+              class="accordion-toggle"
+              (click)="toggleAccordion(m.ministryId, $event)"
+              [attr.aria-expanded]="isExpanded(m.ministryId)"
+              aria-label="Expand or collapse ministry"
+            >
+              @if (isExpanded(m.ministryId)) {
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              } @else {
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              }
+            </button>
+          </div>
+
+          @if (isExpanded(m.ministryId)) {
+            <div class="accordion-body">
+              @if (isAssetsLoading(m.ministryId)) {
+                <div class="tiles-loading">Loading assets...</div>
+              } @else {
+                <div class="asset-tiles">
+                  @for (asset of getAssets(m.ministryId); track asset.id) {
+                    <a
+                      class="asset-tile"
+                      [ngClass]="tileBgClass(asset.currentStatus)"
+                      [routerLink]="['/view-assets-detail']"
+                      [queryParams]="{ id: asset.id, ministryId: m.ministryId }"
+                    >
+                      <div class="tile-content">
+                        <span class="tile-url" [title]="asset.assetName || asset.assetUrl">{{ asset.assetName || asset.assetUrl || '—' }}</span>
+                        <div class="tile-row2">
+                          <span class="tile-value" [ngClass]="valueColorClass(asset.currentStatus)">{{ formatTileValue(asset.tileValue) }}</span>
+                          <span class="tile-status" [ngClass]="statusBadgeClass(asset.currentStatus)">
+                            {{ asset.currentStatus || 'UNKNOWN' }}
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                  }
+                  @if (getAssets(m.ministryId).length === 0 && !isAssetsLoading(m.ministryId)) {
+                    <div class="no-assets">No assets for this ministry.</div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="pagination">
+      <span class="pagination-info">
+        {{ paginationStart() }}-{{ paginationEnd() }} of {{ totalCount() }}
+      </span>
+      <span class="rows-per-page">Rows per page: {{ pageSize() }}</span>
+      <div class="pagination-buttons">
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="pageIndex() <= 0"
+          (click)="onPageChange(pageIndex() - 1)"
+          aria-label="Previous page"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginationEnd() >= totalCount()"
+          (click)="onPageChange(pageIndex() + 1)"
+          aria-label="Next page"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  }
+</div>
