@@ -5,13 +5,13 @@ import {
   FilterPill,
 } from '../reusable/reusable-table/reusable-table.component';
 import { ApiResponse, ApiService } from '../../services/api.service';
+import { FilterOptionsService } from '../../services/filter-options.service';
 import { HttpParams } from '@angular/common/http';
 import {
   DashboardKpiItem,
   KpiCardAction,
 } from '../dashboardkpi/dashboardkpi.component';
 import { UtilsService } from '../../services/utils.service';
-import { forkJoin } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 
@@ -46,6 +46,7 @@ export interface DigitalAsset {
 export class DashboardComponent implements OnInit {
   constructor(
     private apiService: ApiService,
+    private filterOptions: FilterOptionsService,
     private utils: UtilsService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -376,7 +377,7 @@ export class DashboardComponent implements OnInit {
         value: '0',
         subValue: '',
         subValueColor: '',
-        subValueText: 'View All >',
+        subValueText: 'View All ',
         subValueLink: '/ministries',
         scrollToId: 'assets-table',
       },
@@ -387,7 +388,7 @@ export class DashboardComponent implements OnInit {
         value: '0',
         subValue: '',
         subValueColor: 'success',
-        subValueText: 'View Online Assets >',
+        subValueText: 'View Online Assets ',
         subValueLink: '/ministries?status=Online',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
@@ -399,7 +400,7 @@ export class DashboardComponent implements OnInit {
         value: '0%',
         subValue: '',
         subValueColor: 'success',
-        subValueText: 'View Assets With Poor Health >',
+        subValueText: 'View Assets With Poor Health ',
         subValueLink: '/ministries?health=critical',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'health', value: 'Poor' },
@@ -411,7 +412,7 @@ export class DashboardComponent implements OnInit {
         value: '0%',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View Assets With Poor Performance >',
+        subValueText: 'View Assets With Poor Performance ',
         subValueLink: '/ministries?performance=critical',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'performance', value: 'BELOW AVERAGE' },
@@ -423,7 +424,7 @@ export class DashboardComponent implements OnInit {
         value: '0%',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View Assets With Poor Compliance >',
+        subValueText: 'View Assets With Poor Compliance ',
         subValueLink: '/ministries?compliance=critical',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'compliance', value: 'LOW' },
@@ -435,7 +436,7 @@ export class DashboardComponent implements OnInit {
         value: '0',
         subValue: '',
         subValueColor: 'danger',
-        subValueText: 'View Assets With High Risk >',
+        subValueText: 'View Assets With High Risk ',
         subValueLink: '/ministries?riskRating=Red',
         scrollToId: 'assets-table',
         filterOnClick: { paramKey: 'riskIndex', value: 'HIGH RISK' },
@@ -447,7 +448,7 @@ export class DashboardComponent implements OnInit {
         value: '0',
         subValue: '',
         subValueColor: '',
-        subValueText: 'View Open Incidents >',
+        subValueText: 'View Open Incidents ',
         subValueLink: '/incidents?StatusId=8',
       },
       {
@@ -457,7 +458,7 @@ export class DashboardComponent implements OnInit {
         value: '0',
         subValue: '',
         subValueColor: 'success',
-        subValueText: 'View Open Critical Severity Incidents >',
+        subValueText: 'View Open Critical Severity Incidents ',
         subValueLink: '/incidents?SeverityId=4',
       },
     ],
@@ -567,130 +568,21 @@ export class DashboardComponent implements OnInit {
   }
 
   loadFilterOptions(): void {
-    forkJoin({
-      ministries: this.apiService.getAllMinistries(),
-      citizenImpactLevels: this.apiService.getLovByType('citizenImpactLevel'),
-      healthStatus: this.apiService.getLovByType('HealthStatus'),
-      performanceStatus: this.apiService.getLovByType('PerformanceStatus'),
-      complianceStatus: this.apiService.getLovByType('ComplianceStatus'),
-      riskExposureIndex: this.apiService.getLovByType('RiskExposureIndex'),
-    }).subscribe({
-      next: (responses) => {
-        // Update Ministry filter
-        if (responses.ministries.isSuccessful) {
-          const ministryOptions = [{ label: 'All', value: '' }];
-          const ministries = Array.isArray(responses.ministries.data)
-            ? responses.ministries.data
-            : [];
-          ministries.forEach((ministry: any) => {
-            ministryOptions.push({
-              label: ministry.ministryName || ministry.name,
-              value:
-                ministry.id?.toString() ||
-                ministry.ministryName ||
-                ministry.name,
-            });
-          });
-          this.updateFilterOptions('ministry', ministryOptions);
-        }
-
-        // Update Status filter (/api/Asset expects currentStatus)
-        const statusOptions = [
-          { label: 'All', value: '' },
-          { label: 'UP', value: 'Up' },
-          { label: 'DOWN', value: 'Down' },
-        ];
-        this.updateFilterOptions('status', statusOptions);
-
-        // Update Citizen Impact filter
-        if (responses.citizenImpactLevels.isSuccessful) {
-          const citizenImpactOptions = [{ label: 'All', value: '' }];
-          const citizenImpacts = Array.isArray(
-            responses.citizenImpactLevels.data,
-          )
-            ? responses.citizenImpactLevels.data
-            : [];
-          citizenImpacts.forEach((impact: any) => {
-            citizenImpactOptions.push({
-              label: impact.name,
-              value: impact.id?.toString() ?? impact.name,
-            });
-          });
-          this.updateFilterOptions('citizenImpact', citizenImpactOptions);
-        }
-
-        // Update Health Status filter from LOV
-        if (responses.healthStatus?.isSuccessful) {
-          const healthOptions = [{ label: 'All', value: '' }];
-          const items = Array.isArray(responses.healthStatus.data)
-            ? responses.healthStatus.data
-            : [];
-          items.forEach((item: any) => {
-            healthOptions.push({
-              label: item.name ?? item.label ?? String(item),
-              value:
-                item.id?.toString() ?? item.name ?? item.value ?? String(item),
-            });
-          });
-          this.updateFilterOptions('health', healthOptions);
-        }
-
-        // Update Performance Status filter from LOV
-        if (responses.performanceStatus?.isSuccessful) {
-          const performanceOptions = [{ label: 'All', value: '' }];
-          const items = Array.isArray(responses.performanceStatus.data)
-            ? responses.performanceStatus.data
-            : [];
-          items.forEach((item: any) => {
-            performanceOptions.push({
-              label: item.name ?? item.label ?? String(item),
-              value:
-                item.id?.toString() ?? item.name ?? item.value ?? String(item),
-            });
-          });
-          this.updateFilterOptions('performance', performanceOptions);
-        }
-
-        // Update Compliance Status filter from LOV
-        if (responses.complianceStatus?.isSuccessful) {
-          const complianceOptions = [{ label: 'All', value: '' }];
-          const items = Array.isArray(responses.complianceStatus.data)
-            ? responses.complianceStatus.data
-            : [];
-          items.forEach((item: any) => {
-            complianceOptions.push({
-              label: item.name ?? item.label ?? String(item),
-              value:
-                item.id?.toString() ?? item.name ?? item.value ?? String(item),
-            });
-          });
-          this.updateFilterOptions('compliance', complianceOptions);
-        }
-
-        // Update Risk Exposure Index filter from LOV
-        if (responses.riskExposureIndex?.isSuccessful) {
-          const riskOptions = [{ label: 'All', value: '' }];
-          const items = Array.isArray(responses.riskExposureIndex.data)
-            ? responses.riskExposureIndex.data
-            : [];
-          items.forEach((item: any) => {
-            riskOptions.push({
-              label: item.name ?? item.label ?? String(item),
-              value:
-                item.id?.toString() ?? item.name ?? item.value ?? String(item),
-            });
-          });
-          this.updateFilterOptions('riskIndex', riskOptions);
-        }
+    this.filterOptions.loadFilterOptions().subscribe({
+      next: () => {
+        this.updateFilterOptions('ministry', this.filterOptions.ministryOptions());
+        this.updateFilterOptions('status', this.filterOptions.statusOptions());
+        this.updateFilterOptions('citizenImpact', this.filterOptions.citizenImpactOptions());
+        this.updateFilterOptions('health', this.filterOptions.healthOptions());
+        this.updateFilterOptions('performance', this.filterOptions.performanceOptions());
+        this.updateFilterOptions('compliance', this.filterOptions.complianceOptions());
+        this.updateFilterOptions('riskIndex', this.filterOptions.riskIndexOptions());
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         this.utils.showToast(error, 'Error loading filter options', 'error');
         this.updateFilterOptions('ministry', [{ label: 'All', value: '' }]);
         this.updateFilterOptions('status', [{ label: 'All', value: '' }]);
-
-        this.updateFilterOptions('citizenImpact', [
-          { label: 'All', value: '' },
-        ]);
+        this.updateFilterOptions('citizenImpact', [{ label: 'All', value: '' }]);
       },
     });
   }
@@ -748,7 +640,7 @@ export class DashboardComponent implements OnInit {
               value: summary.totalAssets.toString(),
               subValue: '',
               subValueColor: '',
-              subValueText: 'View All >',
+              subValueText: 'View All ',
               subValueLink: '/ministries',
               scrollToId: 'assets-table',
             },
@@ -763,7 +655,7 @@ export class DashboardComponent implements OnInit {
                   ? toPercent(summary.assetsOnlinePercentage)
                   : '',
               subValueColor: 'success',
-              subValueText: 'View Online Assets >',
+              subValueText: 'View Online Assets ',
               subValueLink: '/ministries?status=Online',
               scrollToId: 'assets-table',
               filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
@@ -778,7 +670,7 @@ export class DashboardComponent implements OnInit {
                 (summary.healthStatus || '').toLowerCase() === 'healthy'
                   ? 'success'
                   : 'danger',
-              subValueText: 'View Assets With Poor Health >',
+              subValueText: 'View Assets With Poor Health ',
               subValueLink: '/ministries?health=critical',
               scrollToId: 'assets-table',
               filterOnClick: { paramKey: 'health', value: 'Poor' },
@@ -793,7 +685,7 @@ export class DashboardComponent implements OnInit {
                 (summary.performanceStatus || '').toUpperCase() === 'AVERAGE'
                   ? 'danger'
                   : 'success',
-              subValueText: 'View Assets With Poor Performance >',
+              subValueText: 'View Assets With Poor Performance ',
               subValueLink: '/ministries?performance=critical',
               scrollToId: 'assets-table',
               filterOnClick: {
@@ -811,7 +703,7 @@ export class DashboardComponent implements OnInit {
                 (summary.complianceStatus || '').toUpperCase() === 'HIGH'
                   ? 'success'
                   : 'danger',
-              subValueText: 'View Assets With Poor Compliance >',
+              subValueText: 'View Assets With Poor Compliance ',
               subValueLink: '/ministries?compliance=critical',
               scrollToId: 'assets-table',
               filterOnClick: { paramKey: 'compliance', value: 'LOW' },
@@ -823,7 +715,7 @@ export class DashboardComponent implements OnInit {
               value: summary.highRiskAssets.toString(),
               subValue: summary.highRiskAssetsStatus,
               subValueColor: 'danger',
-              subValueText: 'View Assets With High Risk >',
+              subValueText: 'View Assets With High Risk ',
               subValueLink: '/ministries?riskRating=Red',
               scrollToId: 'assets-table',
               filterOnClick: { paramKey: 'riskIndex', value: 'HIGH RISK' },
@@ -835,7 +727,7 @@ export class DashboardComponent implements OnInit {
               value: summary.openIncidents.toString(),
               subValue: '',
               subValueColor: '',
-              subValueText: 'View Open Incidents >',
+              subValueText: 'View Open Incidents ',
               subValueLink: '/incidents?StatusId=8',
             },
             {
@@ -848,7 +740,7 @@ export class DashboardComponent implements OnInit {
                   ? toPercent(summary.criticalOpenIncidentsPercentage)
                   : '',
               subValueColor: 'success',
-              subValueText: 'View Open Critical Severity Incidents >',
+              subValueText: 'View Open Critical Severity Incidents ',
               subValueLink: '/incidents?SeverityId=4',
             },
           ],

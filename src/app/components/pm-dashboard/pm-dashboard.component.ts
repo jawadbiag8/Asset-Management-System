@@ -139,7 +139,7 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
       },
       {
         key: 'citizenHappiness',
-        header: 'CITIZEN HAPPINESS INDEX',
+        header: 'Digital Experience score',
         cellType: 'progress-bar',
         progressValueField: 'percentage',
         // progressColor will use default logic (red < 30%, orange 30-70%, green >= 70%)

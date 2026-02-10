@@ -58,6 +58,15 @@ export class ApiService {
     return this.http.get<ApiResponse<any>>(url, { params: searchQuery });
   }
 
+  /**
+   * Ministry details with ministries + assets in one response.
+   * Params: status (ALL|Up|Down), filterType, filterValue, pageNumber, pageSize, searchTerm (optional).
+   */
+  getMinistryDetails(params?: HttpParams): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/Ministry/ministrydetails`;
+    return this.http.get<ApiResponse<any>>(url, { params: params ?? undefined });
+  }
+
   getDepartmentsByMinistry(ministryId: number): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/Department/ministry/${ministryId}`,

@@ -437,6 +437,16 @@ export class IncidentDetailsComponent implements OnInit {
     return this.incident()?.departmentName ?? '';
   }
 
+  /** Capitalize each word for display in info grid */
+  capitalize(val: string | null | undefined): string {
+    if (val == null || String(val).trim() === '') return val ?? '';
+    const s = String(val).trim();
+    return s
+      .split(/\s+/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+
   onSubmitComment(): void {
     if (!this.commentText.trim() && !this.selectedStatus) {
       this.utils.showToast('Please enter a comment or select a status', 'Validation Error', 'warning');

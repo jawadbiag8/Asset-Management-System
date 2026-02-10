@@ -6,21 +6,82 @@
   ></app-reusable-breadcrum>
 
   <div class="page-header">
-    <h1 class="page-title">Ministries</h1>
-    <div class="search-wrap">
-      <span class="search-icon" aria-hidden="true">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="M21 21l-4.35-4.35"/>
-        </svg>
-      </span>
-      <input
-        type="text"
-        class="search-input"
-        [value]="searchTerm()"
-        (input)="onSearchChange(($any($event.target)).value)"
-        placeholder="Search ministries..."
-      />
+    <div class="header-left">
+      <h1 class="page-title">Ministries</h1>
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </span>
+        <input
+          type="text"
+          class="search-input"
+          [value]="searchTerm()"
+          (input)="onSearchChange(($any($event.target)).value)"
+          placeholder="Search ministries..."
+        />
+      </div>
+    </div>
+    <div class="header-filters">
+      <div class="filter-options-beside">
+        @for (opt of getOptionsBesideButton(); track opt.value) {
+          <button
+            type="button"
+            class="filter-option-beside"
+            [class.selected]="opt.value === getSelectedValueForCurrentFilter()"
+            (click)="applyFilterOption(opt.value, currentFilterId())"
+          >
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+      <div class="filter-menu-host">
+        <button
+          type="button"
+          class="btn-current-status"
+          (click)="toggleFilterMenu()"
+          [attr.aria-expanded]="filterMenuOpen()"
+          [attr.aria-label]="'Filter: ' + filterButtonTitle()"
+          aria-haspopup="menu"
+        >
+          <mat-icon class="btn-check-icon">check</mat-icon>
+          {{ filterButtonTitle() }}
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        @if (filterMenuOpen()) {
+          <div class="filter-dropdown filter-dropdown--right" (click)="$event.stopPropagation()">
+            <div class="filter-dropdown-inner">
+              <div class="filter-dropdown-left">
+                @for (f of menuFilters; track f.id) {
+                  <button
+                    type="button"
+                    class="filter-menu-item"
+                    [class.active]="activeFilterId() === f.id"
+                    (click)="setActiveFilter(f.id)"
+                  >
+                    {{ f.label }}
+                  </button>
+                }
+              </div>
+              <div class="filter-dropdown-right">
+                @for (opt of getActiveFilterOptions(); track opt.value) {
+                  <button
+                    type="button"
+                    class="filter-option-link"
+                    (click)="applyFilterOption(opt.value)"
+                  >
+                    {{ opt.label }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
     </div>
   </div>
 
@@ -90,33 +151,31 @@
 
           @if (isExpanded(m.ministryId)) {
             <div class="accordion-body">
-              @if (isAssetsLoading(m.ministryId)) {
-                <div class="tiles-loading">Loading assets...</div>
-              } @else {
-                <div class="asset-tiles">
-                  @for (asset of getAssets(m.ministryId); track asset.id) {
-                    <a
-                      class="asset-tile"
-                      [ngClass]="tileBgClass(asset.currentStatus)"
-                      [routerLink]="['/view-assets-detail']"
-                      [queryParams]="{ id: asset.id, ministryId: m.ministryId }"
-                    >
-                      <div class="tile-content">
-                        <span class="tile-url" [title]="asset.assetName || asset.assetUrl">{{ asset.assetName || asset.assetUrl || '—' }}</span>
-                        <div class="tile-row2">
-                          <span class="tile-value" [ngClass]="valueColorClass(asset.currentStatus)">{{ formatTileValue(asset.tileValue) }}</span>
-                          <span class="tile-status" [ngClass]="statusBadgeClass(asset.currentStatus)">
-                            {{ asset.currentStatus || 'UNKNOWN' }}
-                          </span>
-                        </div>
+              <div class="asset-tiles">
+                @for (asset of getFilteredAssets(m.ministryId); track asset.id) {
+                  <a
+                    class="asset-tile"
+                    [ngClass]="tileBgClass(asset.currentStatus)"
+                    [routerLink]="['/view-assets-detail']"
+                    [queryParams]="{ id: asset.id, ministryId: m.ministryId }"
+                  >
+                    <div class="tile-content">
+                      <span class="tile-url" [title]="asset.assetName || asset.assetUrl">{{ asset.assetName || asset.assetUrl || '—' }}</span>
+                      <div class="tile-row2">
+                        <span class="tile-value" [ngClass]="valueColorClass(asset.currentStatus)">{{ formatTileValue(asset.tileValue) }}</span>
+                        <span class="tile-status" [ngClass]="statusBadgeClass(asset.currentStatus)">
+                          {{ asset.currentStatus || 'UNKNOWN' }}
+                        </span>
                       </div>
-                    </a>
-                  }
-                  @if (getAssets(m.ministryId).length === 0 && !isAssetsLoading(m.ministryId)) {
-                    <div class="no-assets">No assets for this ministry.</div>
-                  }
-                </div>
-              }
+                    </div>
+                  </a>
+                }
+                @if (getFilteredAssets(m.ministryId).length === 0) {
+                  <div class="no-assets">
+                    {{ (currentFilterId() === 'status' && selectedStatus()) ? 'No assets match the selected status.' : 'No assets for this ministry.' }}
+                  </div>
+                }
+              </div>
             </div>
           }
         </div>
@@ -127,7 +186,19 @@
       <span class="pagination-info">
         {{ paginationStart() }}-{{ paginationEnd() }} of {{ totalCount() }}
       </span>
-      <span class="rows-per-page">Rows per page: {{ pageSize() }}</span>
+      <div class="pagination-rows-per-page">
+        <span class="rows-per-page-label">Rows per page:</span>
+        <select
+          class="rows-per-page-select"
+          [ngModel]="pageSize()"
+          (ngModelChange)="onPageSizeChange($event)"
+          aria-label="Rows per page"
+        >
+          @for (size of pageSizeOptions; track size) {
+            <option [ngValue]="size">{{ size }}</option>
+          }
+        </select>
+      </div>
       <div class="pagination-buttons">
         <button
           type="button"
