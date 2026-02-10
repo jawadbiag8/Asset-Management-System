@@ -78,7 +78,6 @@ export class ActiveIncidentsComponent implements OnInit {
   });
 
   breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Dashboard', path: '/dashboard' },
     { label: 'Incidents' },
   ];
 

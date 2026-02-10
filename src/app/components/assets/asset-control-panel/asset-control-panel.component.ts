@@ -192,7 +192,6 @@ export class AssetControlPanelComponent implements OnInit {
   }
 
   breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: 'Dashboard', path: '/dashboard' },
     { label: 'Ministries', path: '/ministries' },
     { label: 'Ministry', path: '/ministry-detail' },
     { label: 'Ministry Website', path: '/view-assets-detail' },
@@ -228,7 +227,6 @@ export class AssetControlPanelComponent implements OnInit {
       next: (response: ApiResponse<AssetControlPanelData>) => {
         if (response.isSuccessful) {
           this.breadcrumbs.set([
-            { label: 'Dashboard', path: '/dashboard' },
             { label: 'Ministries', path: '/ministries' },
             {
               label: response.data?.header?.ministry ?? '',

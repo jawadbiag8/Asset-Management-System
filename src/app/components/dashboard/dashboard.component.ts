@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit {
   tableFilters = signal<FilterPill[]>([]);
 
   tableConfig = signal<TableConfig>({
-    minWidth: '1400px',
+    minWidth: '1150px',
     searchPlaceholder: 'Search Assets',
     serverSideSearch: true, // Enable server-side search
     defaultPageSize: 10, // Default page size
@@ -65,30 +65,30 @@ export class DashboardComponent implements OnInit {
         cellType: 'icon',
         iconUrl: '/assets/analyze.svg',
         sortable: false,
-        width: '110px',
+        width: '70px',
       },
       {
         key: 'ministryDepartment',
-        header: 'Ministry / Department',
+        header: 'Ministry/Department',
         cellType: 'two-line',
         primaryField: 'ministryDepartment',
         secondaryField: 'department',
         sortable: true,
-        width: '400px',
+        width: '180px',
       },
       {
         key: 'websiteApplication',
-        header: 'Website / Application',
+        header: 'Asset',
         cellType: 'two-line',
         primaryField: 'websiteApplication',
         secondaryField: 'assetUrl',
         linkField: 'assetUrl',
         sortable: true,
-        width: '200px',
+        width: '140px',
       },
       {
         key: 'currentStatus',
-        header: 'Current Status',
+        header: 'Status',
         cellType: 'badge-with-subtext',
         badgeField: 'currentStatus',
         subtextField: 'lastCheckedFormatted',
@@ -109,34 +109,34 @@ export class DashboardComponent implements OnInit {
           return 'var(--color-text-tertiary)';
         },
         sortable: true,
-        width: '200px',
+        width: '95px',
       },
       {
         key: 'lastOutage',
         header: 'Last Outage',
         cellType: 'text',
-        primaryField: 'lastOutage',
+        primaryField: 'lastOutageFormatted',
         sortable: true,
-        width: '200px',
+        width: '85px',
       },
       {
         key: 'currentHealth',
-        header: 'Current Health',
+        header: 'Health',
         cellType: 'health-status',
         healthStatusField: 'healthStatus',
         healthIconField: 'healthIcon',
         healthPercentageField: 'healthPercentage',
         sortable: true,
-        width: '200px',
+        width: '85px',
       },
       {
         key: 'performanceStatus',
-        header: 'Performance Status',
+        header: 'Performance',
         cellType: 'text-with-color',
         primaryField: 'performanceStatus',
         secondaryField: 'performancePercentage',
         sortable: true,
-        width: '200px',
+        width: '100px',
         textColor: (row: any) => {
           const status = (row.performanceStatus || '').toLowerCase();
           if (
@@ -152,12 +152,12 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'complianceStatus',
-        header: 'Compliance Status',
+        header: 'Compliance',
         cellType: 'text-with-color',
         primaryField: 'complianceStatus',
         secondaryField: 'compliancePercentage',
         sortable: true,
-        width: '200px',
+        width: '100px',
         textColor: (row: any) => {
           const status = (row.complianceStatus || '').toLowerCase();
           if (status.includes('high compliance') || status.includes('high'))
@@ -171,9 +171,9 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'riskExposureIndex',
-        header: 'Risk Exposure Index',
+        header: 'Risk',
         cellType: 'text-with-color',
-        primaryField: 'riskExposureIndex',
+        primaryField: 'riskExposureDisplay',
         textColor: (row: any) => {
           const risk = (row.riskExposureIndex || '').toUpperCase();
           if (risk === 'LOW RISK' || risk.includes('LOW')) {
@@ -188,11 +188,11 @@ export class DashboardComponent implements OnInit {
           return 'default';
         },
         sortable: true,
-        width: '200px',
+        width: '65px',
       },
       {
         key: 'citizenImpactLevel',
-        header: 'Citizen Impact Level',
+        header: 'Citizen Impact',
         cellType: 'badge-with-subtext',
         badgeField: 'citizenImpactLevel',
         subtextField: 'citizenImpactLevelSubtext',
@@ -211,7 +211,7 @@ export class DashboardComponent implements OnInit {
           return 'var(--color-text-tertiary)';
         },
         sortable: true,
-        width: '200px',
+        width: '105px',
       },
       {
         key: 'openIncidents',
@@ -220,14 +220,14 @@ export class DashboardComponent implements OnInit {
         primaryField: 'openIncidents',
         secondaryField: 'highSeverityText',
         sortable: true,
-        width: '200px',
+        width: '110px',
       },
       {
         key: 'actions',
         header: 'Action',
         cellType: 'actions',
         sortable: false,
-        width: '120px',
+        width: '85px',
         actionLinks: [
           {
             label: 'Edit Asset',
@@ -270,9 +270,9 @@ export class DashboardComponent implements OnInit {
         return `${value}%`;
       };
 
-      // Format lastChecked as "Checked: 1 hour ago"
+      // Format lastChecked as "1 min ago" / "1 hr ago" (no "Checked" word)
       const formatLastChecked = (checked: string | null): string => {
-        if (!checked) return 'Checked: N/A';
+        if (!checked) return 'N/A';
         try {
           const checkedDate = new Date(checked);
           const now = new Date();
@@ -285,33 +285,53 @@ export class DashboardComponent implements OnInit {
             const diffDays = Math.floor(diffHours / 24);
             ago = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
           } else if (diffHours > 0) {
-            ago = diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+            ago = diffHours === 1 ? '1 hr ago' : `${diffHours} hrs ago`;
           } else if (diffMinutes > 0) {
             ago =
-              diffMinutes === 1 ? '1 minute ago' : `${diffMinutes} minutes ago`;
+              diffMinutes === 1 ? '1 min ago' : `${diffMinutes} mins ago`;
           }
-          return `Checked: ${ago}`;
+          return ago;
         } catch {
-          return 'Checked: N/A';
+          return 'N/A';
         }
       };
 
-      // Format health percentage
+      // Format lastOutage display: "1 Minute Ago" -> "1 min ago", "1 hour Ago" -> "1 hr ago"
+      const formatLastOutageDisplay = (value: string | null | undefined): string => {
+        if (!value || value === 'N/A') return value || 'N/A';
+        return String(value)
+          .replace(/\b1 minute ago\b/gi, '1 min ago')
+          .replace(/\b(\d+) minutes ago\b/gi, '$1 mins ago')
+          .replace(/\b1 hour ago\b/gi, '1 hr ago')
+          .replace(/\b(\d+) hours ago\b/gi, '$1 hrs ago');
+      };
+
+      // Health: show only % (and icon in template)
       const formatHealthPercentage = (
-        status: string,
+        _status: string,
         index: number,
       ): string => {
-        return `Health Index: ${formatPercentage(index)}`;
+        return formatPercentage(index);
       };
 
-      // Format performance percentage
+      // Performance: show only %
       const formatPerformancePercentage = (index: number): string => {
-        return `Performance Index: ${formatPercentage(index)}`;
+        return formatPercentage(index);
       };
 
-      // Format compliance percentage
+      // Compliance: show only %
       const formatCompliancePercentage = (index: number): string => {
-        return `Compliance Index: ${formatPercentage(index)}`;
+        return formatPercentage(index);
+      };
+
+      // Risk display: "LOW RISK" -> "Low", "MEDIUM RISK" -> "Medium", "HIGH RISK" -> "High"
+      const formatRiskDisplay = (value: string | null | undefined): string => {
+        if (!value) return value ?? '';
+        const u = value.toUpperCase();
+        if (u === 'LOW RISK' || u.includes('LOW')) return 'Low';
+        if (u === 'MEDIUM RISK' || u.includes('MEDIUM')) return 'Medium';
+        if (u === 'HIGH RISK' || u.includes('HIGH')) return 'High';
+        return value;
       };
 
       // Format high severity text
@@ -332,6 +352,8 @@ export class DashboardComponent implements OnInit {
         ),
         compliancePercentage: formatCompliancePercentage(asset.complianceIndex),
         lastCheckedFormatted: formatLastChecked(asset.lastChecked),
+        lastOutageFormatted: formatLastOutageDisplay(asset.lastOutage),
+        riskExposureDisplay: formatRiskDisplay(asset.riskExposureIndex),
         highSeverityText: formatHighSeverityText(asset.highSeverityIncidents),
         citizenImpactLevel: asset.citizenImpactLevel.split('-')[0],
         citizenImpactLevelSubtext: asset.citizenImpactLevel.split('-')[1],

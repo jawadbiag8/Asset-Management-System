@@ -45,7 +45,6 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
   digitalAssetForm!: FormGroup;
 
   breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Dashboard', path: '/dashboard' },
     { label: 'Add Digital Assets' }
   ];
 
@@ -101,7 +100,6 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
       };
 
       this.breadcrumbs = [
-        { label: 'Dashboard', path: '/dashboard' },
         { label: 'Edit Digital Assets' }
       ];
 
