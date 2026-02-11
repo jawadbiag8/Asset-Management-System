@@ -3,6 +3,7 @@ import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-bread
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, ApiResponse } from '../../../services/api.service';
 import { UtilsService } from '../../../services/utils.service';
+import { formatDateOrPassThrough } from '../../../utils/date-format.util';
 import {
   TableConfig,
   TableColumn,
@@ -252,6 +253,12 @@ export class AssetControlPanelComponent implements OnInit {
         this.route.navigate(['/dashboard']);
       }
     });
+  }
+
+  /** Format date/datetime as MM/DD/YYYY or MM/DD/YYYY, time; otherwise pass through. */
+  formatLastOutage(value: string | null | undefined): string {
+    if (value == null || value === '') return 'N/A';
+    return formatDateOrPassThrough(value);
   }
 
   getBadgeColor(

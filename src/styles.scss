@@ -262,8 +262,27 @@ body {
   border-radius: 8px;
 }
 
-/* Filter modal – dropdown options uppercase */
-.filter-modal-select-panel.mat-mdc-select-panel .mat-mdc-option {
+/* Dropdown options – uppercase everywhere (mat-select + native select) */
+.mat-mdc-select-panel .mat-mdc-option,
+.mat-mdc-option {
+  text-transform: uppercase;
+}
+
+/* mat-select trigger: show selected value in uppercase */
+.mat-mdc-select-value,
+.mat-mdc-select .mat-mdc-select-value-text {
+  text-transform: uppercase;
+}
+
+/* Native select: options and displayed value */
+select,
+select option {
+  text-transform: uppercase;
+}
+
+/* Incident details – status dropdown: option text uppercase (display only, values unchanged) */
+.incident-status-select-panel .mat-mdc-option,
+.incident-status-select-panel .mdc-list-item__primary-text {
   text-transform: uppercase;
 }
 

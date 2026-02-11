@@ -142,19 +142,18 @@ export class ReusableInputComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    // Get the search keyword
-    let search = this.filterControl.value;
-    if (!search) {
+    // Get the search keyword (case-insensitive)
+    const rawSearch = this.filterControl.value;
+    if (rawSearch == null || String(rawSearch).trim() === '') {
       this.filteredOptions.next(this.mergedConfig.options.slice());
       return;
-    } else {
-      search = search.toLowerCase();
     }
+    const search = String(rawSearch).trim().toLowerCase();
 
-    // Filter the options
+    // Filter the options (case-insensitive)
     this.filteredOptions.next(
-      this.mergedConfig.options.filter(option => 
-        option.label.toLowerCase().indexOf(search) > -1
+      this.mergedConfig.options.filter(option =>
+        String(option.label ?? '').toLowerCase().includes(search)
       )
     );
   }

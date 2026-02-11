@@ -81,6 +81,7 @@
   border: none;
   cursor: pointer;
   transition: background 0.15s;
+  text-transform: uppercase;
 
   &:hover {
     background: var(--color-bg-hover);
@@ -111,6 +112,7 @@
   cursor: pointer;
   text-decoration: none;
   transition: background 0.15s;
+  text-transform: uppercase;
 
   &:hover {
     background: var(--color-bg-hover);
@@ -295,6 +297,13 @@
   padding: 2rem;
   text-align: center;
   color: var(--color-text-tertiary);
+}
+
+.no-data-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: 1rem;
 }
 
 .accordion-list {

@@ -63,7 +63,7 @@
                     [class.active]="activeFilterId() === f.id"
                     (click)="setActiveFilter(f.id)"
                   >
-                    {{ f.label }}
+                    {{ f.id === 'citizenImpact' ? 'Digital Experience' : f.label }}
                   </button>
                 }
               </div>
@@ -91,6 +91,8 @@
 
   @if (loading()) {
     <div class="loading-state">Loading ministries...</div>
+  } @else if (ministries().length === 0) {
+    <div class="no-data-state">No Ministry Data Found</div>
   } @else {
     <div class="accordion-list">
       @for (m of ministries(); track m.ministryId) {

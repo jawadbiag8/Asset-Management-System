@@ -83,7 +83,7 @@ export class MinistryDashboardComponent implements OnInit {
     this.loadMinistryDetails();
     const firstId = this.menuFilters[0]?.id ?? 'status';
     this.currentFilterId.set(firstId);
-    this.filterButtonTitle.set(this.menuFilters[0]?.label ?? 'Status');
+    this.filterButtonTitle.set(this.getFilterDisplayLabel(this.menuFilters[0]?.id ?? '') || 'Status');
   }
 
   /** Toggle filter menu (dropdown); right-aligned. */
@@ -110,8 +110,15 @@ export class MinistryDashboardComponent implements OnInit {
   setActiveFilter(filterId: string): void {
     this.activeFilterId.set(filterId);
     this.currentFilterId.set(filterId);
-    const label = this.menuFilters.find((f) => f.id === filterId)?.label;
+    const label = this.getFilterDisplayLabel(filterId);
     if (label) this.filterButtonTitle.set(label);
+  }
+
+  /** Display label for filter (e.g. "Digital Experience" for citizenImpact). */
+  private getFilterDisplayLabel(filterId: string): string {
+    const f = this.menuFilters.find((m) => m.id === filterId);
+    if (f?.id === 'citizenImpact') return 'Digital Experience';
+    return f?.label ?? '';
   }
 
   /** Get options for the active filter — shown in dropdown. */
@@ -123,7 +130,7 @@ export class MinistryDashboardComponent implements OnInit {
   applyFilterOption(value: string, filterId?: string): void {
     const id = (filterId ?? this.activeFilterId()) || this.currentFilterId();
     if (id) this.currentFilterId.set(id);
-    const activeLabel = this.menuFilters.find((f) => f.id === id)?.label ?? '';
+    const activeLabel = this.getFilterDisplayLabel(id);
     const opts = this.getOptionsForFilterId(id);
     const opt = opts.find((o) => o.value === value);
     const optionLabel = opt?.label ?? value;
@@ -170,7 +177,12 @@ export class MinistryDashboardComponent implements OnInit {
       case 'performance': return this.filterOptions.performanceOptions().length ? this.filterOptions.performanceOptions() : empty;
       case 'compliance': return this.filterOptions.complianceOptions().length ? this.filterOptions.complianceOptions() : empty;
       case 'riskIndex': return this.filterOptions.riskIndexOptions().length ? this.filterOptions.riskIndexOptions() : empty;
-      case 'citizenImpact': return this.filterOptions.citizenImpactOptions().length ? this.filterOptions.citizenImpactOptions() : empty;
+      case 'citizenImpact': return [
+        { label: 'All', value: '' },
+        { label: 'HIGH', value: 'High' },
+        { label: 'MEDIUM', value: 'Average' },
+        { label: 'LOW', value: 'Poor' },
+      ];
       default: return empty;
     }
   }
@@ -242,10 +254,12 @@ export class MinistryDashboardComponent implements OnInit {
   /** Map our LOV option values to API filterValue: High / Average / Poor / Unknown. */
   private mapToApiFilterValue(ourValue: string): string {
     if (!ourValue) return '';
-    const v = ourValue.toLowerCase();
-    if (v === 'high' || v === 'healthy' || v === 'good' || v === 'high compliance' || v === 'low risk') return 'High';
-    if (v === 'average' || v === 'fair' || v === 'medium' || v === 'medium compliance' || v === 'medium risk') return 'Average';
-    if (v === 'poor' || v === 'critical' || v === 'below average' || v === 'low' || v === 'low compliance' || v === 'high risk') return 'Poor';
+    const v = ourValue.toLowerCase().trim();
+    // Match first word / phrase so "LOW - Supporting Services", "MEDIUM - Important Services" etc. work
+    if (v.startsWith('high') && !v.includes('high risk')) return 'High';
+    if (v === 'healthy' || v === 'good' || v === 'high compliance') return 'High';
+    if (v.startsWith('medium') || v.startsWith('average') || v === 'fair' || v === 'medium compliance' || v === 'medium risk') return 'Average';
+    if (v.startsWith('low') || v === 'poor' || v === 'critical' || v === 'below average' || v === 'low compliance' || v.includes('high risk')) return 'Poor';
     return 'Unknown';
   }
 
@@ -346,7 +360,14 @@ export class MinistryDashboardComponent implements OnInit {
     const raw = this.getSelectedValueForCurrentFilter();
     if (!raw) return '';
     if (id === 'status') return raw; // ALL, Up, Down as-is
-    return this.mapToApiFilterValue(raw);
+    let mapped = this.mapToApiFilterValue(raw);
+    // If value is LOV id (e.g. "1") and mapped to Unknown, try mapping by option label (e.g. "LOW - Supporting Services")
+    if (mapped === 'Unknown') {
+      const opts = this.getOptionsForFilterId(id);
+      const option = opts.find((o) => o.value === raw || String(o.value) === raw);
+      if (option?.label) mapped = this.mapToApiFilterValue(option.label);
+    }
+    return mapped;
   }
 
   isExpanded(ministryId: string): boolean {

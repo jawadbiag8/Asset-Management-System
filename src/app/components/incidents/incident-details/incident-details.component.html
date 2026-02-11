@@ -176,13 +176,13 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="status-select-field">
                 <mat-label>Status</mat-label>
-                <mat-select [(ngModel)]="selectedStatus">
-                  <mat-option value="">Change Status</mat-option>
-                  <mat-option value="OPEN">Open</mat-option>
-                  <mat-option value="INVESTIGATING">Investigating</mat-option>
-                  <mat-option value="FIXING">Fixing</mat-option>
-                  <mat-option value="MONITORING">Monitoring</mat-option>
-                  <mat-option value="RESOLVED">Resolved</mat-option>
+                <mat-select [(ngModel)]="selectedStatus" panelClass="incident-status-select-panel">
+                  <mat-option value="">CHANGE STATUS</mat-option>
+                  <mat-option value="OPEN">OPEN</mat-option>
+                  <mat-option value="INVESTIGATING">INVESTIGATING</mat-option>
+                  <mat-option value="FIXING">FIXING</mat-option>
+                  <mat-option value="MONITORING">MONITORING</mat-option>
+                  <mat-option value="RESOLVED">RESOLVED</mat-option>
                 </mat-select>
               </mat-form-field>
               <button

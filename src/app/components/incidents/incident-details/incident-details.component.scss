@@ -431,6 +431,11 @@
             .mat-mdc-text-field-wrapper {
               --mdc-outlined-text-field-container-shape: 8px;
             }
+
+            .mat-mdc-select-value,
+            .mat-mdc-select-value-text {
+              text-transform: uppercase;
+            }
           }
         }
 
@@ -438,7 +443,7 @@
           white-space: nowrap;
           flex-shrink: 0;
           align-self: center;
-          height: 56px; // Match Material outline form field height
+          height: 54px; // Match status (Material outline) field height
           box-sizing: border-box;
         }
       }

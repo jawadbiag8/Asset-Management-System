@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { ApiService, ApiResponse } from '../../services/api.service';
+import { formatDateOrPassThrough } from '../../utils/date-format.util';
 
 @Component({
   selector: 'app-view-assets-detail',
@@ -153,14 +154,16 @@ export class ViewAssetsDetailComponent implements OnInit {
             },
           ];
 
-          // Map API response to ownership
+          // Map API response to ownership (show N/A instead of NA for empty/NA values)
+          const na = (v: any) =>
+            v == null || String(v).trim() === '' || String(v).toUpperCase() === 'NA' ? 'N/A' : String(v).trim();
           this.ownership = {
-            ownerName: d.ownerName ?? '',
-            ownerEmail: d.ownerEmail ?? '',
-            ownerContact: d.ownerContact ?? '',
-            technicalOwnerName: d.technicalOwnerName ?? '',
-            technicalOwnerEmail: d.technicalOwnerEmail ?? '',
-            technicalOwnerContact: d.technicalOwnerContact ?? '',
+            ownerName: d.ownerName?.trim() || 'Not Assigned',
+            ownerEmail: na(d.ownerEmail),
+            ownerContact: na(d.ownerContact),
+            technicalOwnerName: d.technicalOwnerName?.trim() || 'Not Assigned',
+            technicalOwnerEmail: na(d.technicalOwnerEmail),
+            technicalOwnerContact: na(d.technicalOwnerContact),
           };
         } else {
           console.error('API Error:', response.message);
@@ -170,6 +173,12 @@ export class ViewAssetsDetailComponent implements OnInit {
         console.error('Error loading asset dashboard:', error);
       },
     });
+  }
+
+  /** Format date/datetime as MM/DD/YYYY or MM/DD/YYYY, time; otherwise pass through (e.g. "5 mins ago"). */
+  formatLastOutage(value: string | null | undefined): string {
+    if (value == null || value === '') return 'N/A';
+    return formatDateOrPassThrough(value);
   }
 
   getStatusBadgeClass(status: string): string {

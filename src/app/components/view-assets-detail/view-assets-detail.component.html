@@ -177,7 +177,7 @@
               <label class="text-uppercase text-muted small fw-medium mb-1"
                 >LAST OUTAGE</label
               >
-              <span>{{ assetDetails.lastOutage || "N/A" }}</span>
+              <span>{{ formatLastOutage(assetDetails.lastOutage) }}</span>
             </div>
           </div>
         </div>
@@ -244,15 +244,15 @@
     <div class="ownership-cards">
       <div class="ownership-card">
         <div class="ownership-label">OWNER NAME</div>
-        <div class="ownership-value">{{ ownership.ownerName }}</div>
+        <div class="ownership-value">{{ ownership.ownerName || "Not Assigned" }}</div>
       </div>
       <div class="ownership-card">
         <div class="ownership-label">OWNER EMAIL</div>
-        <div class="ownership-value">{{ ownership.ownerEmail }}</div>
+        <div class="ownership-value">{{ ownership.ownerEmail || "N/A" }}</div>
       </div>
       <div class="ownership-card">
         <div class="ownership-label">OWNER CONTACT</div>
-        <div class="ownership-value">{{ ownership.ownerContact }}</div>
+        <div class="ownership-value">{{ ownership.ownerContact || "N/A" }}</div>
       </div>
       <div class="ownership-card">
         <div class="ownership-label">TECHNICAL OWNER NAME</div>
@@ -266,13 +266,13 @@
       <div class="ownership-card">
         <div class="ownership-label">EMAIL</div>
         <div class="ownership-value">
-          {{ ownership.technicalOwnerEmail || "NA" }}
+          {{ ownership.technicalOwnerEmail || "N/A" }}
         </div>
       </div>
       <div class="ownership-card">
         <div class="ownership-label">CONTACT</div>
         <div class="ownership-value">
-          {{ ownership.technicalOwnerContact || "NA" }}
+          {{ ownership.technicalOwnerContact || "N/A" }}
         </div>
       </div>
     </div>

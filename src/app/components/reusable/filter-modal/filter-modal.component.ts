@@ -134,19 +134,18 @@ export class FilterModalComponent implements OnInit, OnDestroy {
 
     if (!filterControl || !filteredOptions) return;
 
-    // Get the search keyword
-    let search = filterControl.value;
-    if (!search) {
+    // Get the search keyword (case-insensitive)
+    const rawSearch = filterControl.value;
+    if (rawSearch == null || String(rawSearch).trim() === '') {
       filteredOptions.next(filter.options.slice());
       return;
-    } else {
-      search = search.toLowerCase();
     }
+    const search = String(rawSearch).trim().toLowerCase();
 
-    // Filter the options
+    // Filter the options (case-insensitive)
     filteredOptions.next(
       filter.options.filter(option =>
-        option.label.toLowerCase().indexOf(search) > -1
+        String(option.label ?? '').toLowerCase().includes(search)
       )
     );
   }

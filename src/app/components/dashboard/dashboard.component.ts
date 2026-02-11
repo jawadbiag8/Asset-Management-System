@@ -12,6 +12,7 @@ import {
   KpiCardAction,
 } from '../dashboardkpi/dashboardkpi.component';
 import { UtilsService } from '../../services/utils.service';
+import { formatDateOrPassThrough } from '../../utils/date-format.util';
 import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 
@@ -297,9 +298,11 @@ export class DashboardComponent implements OnInit {
         }
       };
 
-      // Format lastOutage display: "1 Minute Ago" -> "1 min ago", "1 hour Ago" -> "1 hr ago"
+      // Format lastOutage: if it's a date string use MM/DD/YYYY, time; else pass through (e.g. "5 mins ago")
       const formatLastOutageDisplay = (value: string | null | undefined): string => {
         if (!value || value === 'N/A') return value || 'N/A';
+        const formatted = formatDateOrPassThrough(value);
+        if (formatted !== value) return formatted;
         return String(value)
           .replace(/\b1 minute ago\b/gi, '1 min ago')
           .replace(/\b(\d+) minutes ago\b/gi, '$1 mins ago')

@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiResponse, ApiService } from '../../../services/api.service';
 import { UtilsService } from '../../../services/utils.service';
+import { formatDateOnly, formatDateTime } from '../../../utils/date-format.util';
 import { ActiveIncident } from '../active-incidents/active-incidents.component';
 
 interface TimelineEvent {
@@ -152,16 +153,8 @@ export class IncidentDetailsComponent implements OnInit {
 
   private formatMetricTimestamp(value: string | undefined): string {
     if (!value) return '—';
-    try {
-      const d = new Date(value);
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const yyyy = d.getFullYear();
-      const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      return `${mm}-${dd}-${yyyy} ${time}`;
-    } catch {
-      return String(value);
-    }
+    const formatted = formatDateTime(value);
+    return formatted === 'N/A' ? String(value) : formatted;
   }
 
   /**
@@ -255,12 +248,8 @@ export class IncidentDetailsComponent implements OnInit {
 
   private formatTimelineTime(value: string | undefined): string {
     if (!value) return '—';
-    try {
-      const d = new Date(value);
-      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return String(value);
-    }
+    const formatted = formatDateTime(value);
+    return formatted === 'N/A' ? String(value) : formatted;
   }
 
   private processIncidentData(data: any): IncidentDetails {
@@ -390,19 +379,7 @@ export class IncidentDetailsComponent implements OnInit {
   }
 
   formatDate(dateString: string | null | undefined): string {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (error) {
-      return 'N/A';
-    }
+    return formatDateTime(dateString);
   }
 
   getSeverityLabel(severity: string): string {
@@ -420,17 +397,7 @@ export class IncidentDetailsComponent implements OnInit {
   }
 
   formatDateShort(dateString: string | null | undefined): string {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return 'N/A';
-    }
+    return formatDateOnly(dateString);
   }
 
   getDepartmentName(): string {
