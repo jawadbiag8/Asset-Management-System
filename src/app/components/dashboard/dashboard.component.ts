@@ -122,7 +122,7 @@ export class DashboardComponent implements OnInit {
         width: '85px',
       },
       {
-        key: 'currentHealth',
+        key: 'healthstatus',
         header: 'Health',
         cellType: 'health-status',
         healthStatusField: 'healthStatus',
