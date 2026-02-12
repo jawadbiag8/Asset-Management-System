@@ -223,6 +223,7 @@
         word-wrap: break-word; // Break long words if needed
         vertical-align: middle;
         line-height: 1.4; // Better line spacing for wrapped text
+        text-transform: uppercase;
     }
 
     td {
@@ -236,6 +237,19 @@
         background-color: var(--color-bg-primary);
         position: relative; // Ensure proper containment
         text-transform: capitalize; // All table cell text capitalized on every page
+    }
+
+    // Time / relative date columns: show in lowercase (e.g. "5 days ago", "Since: 1 day ago", "Created: 1 day ago", status "1 day ago")
+    td[data-column="lastOutage"],
+    td[data-column="status"],
+    td[data-column="createdBy"],
+    td[data-column="currentStatus"] {
+        text-transform: none;
+    }
+
+    // Risk column: show values in uppercase (LOW, MEDIUM, HIGH)
+    td[data-column="riskExposureIndex"] {
+        text-transform: uppercase;
     }
 
     tr:first-child td {

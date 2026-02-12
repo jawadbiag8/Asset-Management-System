@@ -262,6 +262,13 @@ body {
   border-radius: 8px;
 }
 
+/* Table headers – uppercase throughout the application */
+table th,
+.assets-table th,
+.mat-mdc-header-cell {
+  text-transform: uppercase;
+}
+
 /* Dropdown options – uppercase everywhere (mat-select + native select) */
 .mat-mdc-select-panel .mat-mdc-option,
 .mat-mdc-option {

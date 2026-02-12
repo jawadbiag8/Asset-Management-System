@@ -105,6 +105,7 @@
                 mat-cell
                 *matCellDef="let row"
                 [style.width]="column.width"
+                [attr.data-column]="column.key"
                 [matTooltip]="
                   hasTooltip(column) ? getTooltipText(row, column) : ''
                 "

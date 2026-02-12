@@ -282,7 +282,7 @@ export class DashboardComponent implements OnInit {
           const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
           const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-          let ago = 'Just now';
+          let ago = 'just now';
           if (diffHours > 24) {
             const diffDays = Math.floor(diffHours / 24);
             ago = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
@@ -328,14 +328,14 @@ export class DashboardComponent implements OnInit {
         return formatPercentage(index);
       };
 
-      // Risk display: "LOW RISK" -> "Low", "MEDIUM RISK" -> "Medium", "HIGH RISK" -> "High"
+      // Risk display: "LOW RISK" -> "LOW", "MEDIUM RISK" -> "MEDIUM", "HIGH RISK" -> "HIGH"
       const formatRiskDisplay = (value: string | null | undefined): string => {
         if (!value) return value ?? '';
         const u = value.toUpperCase();
-        if (u === 'LOW RISK' || u.includes('LOW')) return 'Low';
-        if (u === 'MEDIUM RISK' || u.includes('MEDIUM')) return 'Medium';
-        if (u === 'HIGH RISK' || u.includes('HIGH')) return 'High';
-        return value;
+        if (u === 'LOW RISK' || u.includes('LOW')) return 'LOW';
+        if (u === 'MEDIUM RISK' || u.includes('MEDIUM')) return 'MEDIUM';
+        if (u === 'HIGH RISK' || u.includes('HIGH')) return 'HIGH';
+        return value.toUpperCase();
       };
 
       // Format high severity text

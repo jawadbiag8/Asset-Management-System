@@ -216,7 +216,7 @@ export class AssetControlPanelComponent implements OnInit {
 
     if (!assetId) {
       this.utils.showToast('Asset ID is required', 'Error', 'error');
-      this.route.navigate(['/dashboard']);
+      this.route.navigate(['/assets']);
       return;
     }
 
@@ -250,7 +250,7 @@ export class AssetControlPanelComponent implements OnInit {
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error loading asset data', 'error');
-        this.route.navigate(['/dashboard']);
+        this.route.navigate(['/assets']);
       }
     });
   }

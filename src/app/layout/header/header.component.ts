@@ -69,7 +69,7 @@ export class HeaderComponent {
     const route = this.currentRoute();
     // Path only (ignore query params) so Dashboard stays active when filters are selected
     const path = route.split('?')[0];
-    const isDashboardRoute = path === '/dashboard' || path === '/';
+    const isDashboardRoute = path === '/assets' || path === '/';
     const isMinistryRoute =
       route.includes('/ministries') ||
       route.includes('/ministries') ||

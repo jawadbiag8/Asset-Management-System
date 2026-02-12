@@ -524,10 +524,10 @@ export class ActiveIncidentsComponent implements OnInit {
             ...incident,
             status: incident.status || 'Open',
             statusSince: incident.statusSince
-              ? `Since: ${incident.statusSince}`
+              ? `Since: ${String(incident.statusSince).toLowerCase()}`
               : `Since: ${this.formatTimeAgo(incident.createdAt)}`,
             createdAgo: incident.createdAgo
-              ? `Created: ${incident.createdAgo}`
+              ? `Created: ${String(incident.createdAgo).toLowerCase()}`
               : `Created: ${this.formatTimeAgo(incident.createdAt)}`,
             // Format severity code (P1, P2, P3, P4) from severity value
             severityCode: this.formatSeverityCode(incident.severity),
@@ -578,10 +578,10 @@ export class ActiveIncidentsComponent implements OnInit {
             ...incident,
             status: incident.status || 'Open',
             statusSince: incident.statusSince
-              ? `Since: ${incident.statusSince}`
+              ? `Since: ${String(incident.statusSince).toLowerCase()}`
               : `Since: ${this.formatTimeAgo(incident.createdAt)}`,
             createdAgo: incident.createdAgo
-              ? `Created: ${incident.createdAgo}`
+              ? `Created: ${String(incident.createdAgo).toLowerCase()}`
               : `Created: ${this.formatTimeAgo(incident.createdAt)}`,
             severityCode: this.formatSeverityCode(incident.severity),
             severityDescription:
@@ -749,7 +749,7 @@ export class ActiveIncidentsComponent implements OnInit {
       const diffInDays = Math.floor(diffInHours / 24);
 
       if (diffInMinutes < 1) {
-        return 'Just now';
+        return 'just now';
       } else if (diffInMinutes < 60) {
         return `${diffInMinutes} ${diffInMinutes === 1 ? 'min' : 'mins'} ago`;
       } else if (diffInHours < 24) {

@@ -95,7 +95,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
 
       if (!this.pageInfo().assetId) {
         this.utils.showToast('Asset ID is required', 'Error', 'error');
-        this.route.navigate(['/dashboard']);
+        this.route.navigate(['/assets']);
         return;
       };
 
@@ -227,7 +227,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
           if (res.isSuccessful) {
             this.utils.showToast(res.message, 'Asset updated successfully', 'success');
             this.digitalAssetForm.markAsPristine();
-            this.route.navigateByUrl('/dashboard');
+            this.route.navigateByUrl('/assets');
           } else {
             this.utils.showToast(res.message, 'Error updating asset', 'error');
           }
@@ -245,7 +245,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
         if (res.isSuccessful) {
           this.utils.showToast(res.message, 'Asset added successfully', 'success');
           this.digitalAssetForm.markAsPristine();
-          this.route.navigateByUrl('/dashboard');
+          this.route.navigateByUrl('/assets');
         } else {
           this.utils.showToast(res.message, 'Error adding asset', 'error');
         }

@@ -258,8 +258,8 @@ export class IncidentDetailsComponent implements OnInit {
     return {
       ...data,
       status: data.status ?? 'Open',
-      statusSince: data.statusSince ? `Since: ${data.statusSince}` : `Since: ${this.formatTimeAgo(data.createdAt)}`,
-      createdAgo: data.createdAgo ? `Created: ${data.createdAgo}` : `Created: ${this.formatTimeAgo(data.createdAt)}`,
+      statusSince: data.statusSince ? `Since: ${String(data.statusSince).toLowerCase()}` : `Since: ${this.formatTimeAgo(data.createdAt)}`,
+      createdAgo: data.createdAgo ? `Created: ${String(data.createdAgo).toLowerCase()}` : `Created: ${this.formatTimeAgo(data.createdAt)}`,
       severityCode: this.formatSeverityCode(data.severity),
       severityDescription: data.severityDescription ?? data.severity ?? 'N/A',
       assetName: data.assetName ?? (data.assetId != null ? `Asset ${data.assetId}` : 'N/A'),
@@ -292,7 +292,7 @@ export class IncidentDetailsComponent implements OnInit {
       const diffInDays = Math.floor(diffInHours / 24);
 
       if (diffInMinutes < 1) {
-        return 'Just now';
+        return 'just now';
       } else if (diffInMinutes < 60) {
         return `${diffInMinutes} ${diffInMinutes === 1 ? 'min' : 'mins'} ago`;
       } else if (diffInHours < 24) {

@@ -97,7 +97,7 @@ export class MinistryDetailComponent implements OnInit {
       title: 'Total Assets',
       subTitle: 'Active Monitoring Across All Departments',
       linkText: 'View All >',
-      linkPath: '/dashboard',
+      linkPath: '/assets',
     },
     {
       id: 2,
@@ -757,8 +757,8 @@ export class MinistryDetailComponent implements OnInit {
           ? `Compliance Index: ${complianceIndex}%`
           : 'Compliance Index: N/A';
 
-      // Risk Exposure Index
-      const riskExposureIndex = item.riskExposureIndex || 'N/A';
+      // Risk Exposure Index (uppercase for display)
+      const riskExposureIndex = (item.riskExposureIndex || 'N/A').toUpperCase();
 
       // Citizen impact: badge = first part (LOW/HIGH/MEDIUM/UNKNOWN), subtext = part after " - " (e.g. "Supporting Services")
       const citizenImpactRaw = item.citizenImpactLevel || 'N/A';
@@ -822,7 +822,7 @@ export class MinistryDetailComponent implements OnInit {
         title: 'Total Assets',
         subTitle: 'Active Monitoring Across All Departments',
         linkText: 'View All >',
-        linkPath: '/dashboard',
+        linkPath: '/assets',
       },
       {
         id: 2,
