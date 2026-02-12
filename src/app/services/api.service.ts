@@ -67,6 +67,16 @@ export class ApiService {
     return this.http.get<ApiResponse<any>>(url, { params: params ?? undefined });
   }
 
+  /**
+   * Download ministry report as PDF. Returns blob for opening in new tab or saving.
+   * GET Ministry/{ministryId}/report
+   */
+  getMinistryReport(ministryId: number | string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/Ministry/${ministryId}/report`, {
+      responseType: 'blob',
+    });
+  }
+
   getDepartmentsByMinistry(ministryId: number): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/Department/ministry/${ministryId}`,
@@ -140,6 +150,19 @@ export class ApiService {
   getAllKpis(): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(
       `${this.baseUrl}/KpisLov/dropdown`,
+    );
+  }
+
+  /**
+   * Trigger manual check for a KPI on an asset.
+   * GET KpisLov/manual-from-asset/{assetId}?kpiId={kpiId}
+   * Returns JSON: { isSuccessful, message, data: { success, message, data: { kpiId, ... } } }
+   */
+  manualCheckFromAsset(assetId: number, kpiId: number): Observable<ApiResponse<any>> {
+    const params = new HttpParams().set('kpiId', String(kpiId));
+    return this.http.get<ApiResponse<any>>(
+      `${this.baseUrl}/KpisLov/manual-from-asset/${assetId}`,
+      { params },
     );
   }
 

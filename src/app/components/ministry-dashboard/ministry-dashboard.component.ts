@@ -453,7 +453,18 @@ export class MinistryDashboardComponent implements OnInit {
   generateReport(ministryId: string, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    // Placeholder: could open report modal or navigate to report page
+    const id = typeof ministryId === 'string' ? parseInt(ministryId, 10) : ministryId;
+    if (isNaN(id)) return;
+    this.apiService.getMinistryReport(id).subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      },
+      error: () => {
+        this.errorMessage.set('Failed to generate report. Please try again.');
+      },
+    });
   }
 
   paginationStart(): number {

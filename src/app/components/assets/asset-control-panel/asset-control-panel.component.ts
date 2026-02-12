@@ -139,7 +139,7 @@ export class AssetControlPanelComponent implements OnInit {
             label: 'Check',
             color: 'var(--color-primary)',
             display: 'text',
-            disabled: () => true,
+            disabled: (row: any) => String(row?.dataSource || '').toLowerCase() === 'manual',
           },
           {
             label: 'Add Incident',
@@ -425,8 +425,30 @@ export class AssetControlPanelComponent implements OnInit {
   }
 
   onCheckClick(row: any): void {
-    console.log('Check clicked for KPI:', row);
-    // Implement check functionality
+    const assetId = this.previousPageMetadata().assetId;
+    const kpiId = row?.kpiId;
+    if (!assetId || kpiId == null) {
+      this.utils.showToast('Invalid asset or KPI.', 'Check', 'error');
+      return;
+    }
+    this.api.manualCheckFromAsset(assetId, Number(kpiId)).subscribe({
+      next: (res) => {
+        const msg =
+          res?.data?.message ??
+          res?.message ??
+          'Manual check completed successfully.';
+        this.utils.showToast(msg, 'Check', 'success');
+        this.loadAssetData();
+      },
+      error: (err) => {
+        const msg =
+          err?.error?.message ??
+          err?.error ??
+          err?.message ??
+          'Manual check failed.';
+        this.utils.showToast(msg, 'Check', 'error');
+      },
+    });
   }
 
   onAddIncidentClick(row: any): void {
