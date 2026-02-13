@@ -227,6 +227,7 @@ export class AssetControlPanelComponent implements OnInit {
   }
 
   loadAssetData(): void {
+    this.tableConfigCache.clear();
     this.api.getAssetControlPanelData(this.previousPageMetadata().assetId).subscribe({
       next: (response: ApiResponse<AssetControlPanelData>) => {
         if (response.isSuccessful) {
@@ -274,20 +275,34 @@ export class AssetControlPanelComponent implements OnInit {
   /** Format last checked for table: short form ("5 mins ago", "2 hrs ago", "just now"). */
   private formatLastCheckedShort(checked: string | null | undefined): string {
     if (checked == null || checked === '') return 'N/A';
+    const raw = String(checked).trim();
+    const toShortForm = (s: string) =>
+      s
+        .replace(/\b1 minute ago\b/gi, '1 min ago')
+        .replace(/\b(\d+) minutes ago\b/gi, '$1 mins ago')
+        .replace(/\b(\d+) minute ago\b/gi, '$1 mins ago')
+        .replace(/\b1 hour ago\b/gi, '1 hr ago')
+        .replace(/\b(\d+) hours ago\b/gi, '$1 hrs ago')
+        .replace(/\b(\d+) hour ago\b/gi, '$1 hrs ago')
+        .replace(/\b1 day ago\b/gi, '1 day ago')
+        .replace(/\b(\d+) days ago\b/gi, '$1 days ago')
+        .replace(/\bJust now\b/gi, 'just now');
     try {
-      const d = new Date(checked);
-      if (isNaN(d.getTime())) return String(checked);
+      const d = new Date(raw);
+      if (isNaN(d.getTime())) return toShortForm(raw);
       const now = new Date();
       const diffMs = now.getTime() - d.getTime();
       const diffMinutes = Math.floor(diffMs / (1000 * 60));
       const diffHours = Math.floor(diffMinutes / 60);
       const diffDays = Math.floor(diffHours / 24);
-      if (diffDays > 0) return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
-      if (diffHours > 0) return diffHours === 1 ? '1 hr ago' : `${diffHours} hrs ago`;
-      if (diffMinutes > 0) return diffMinutes === 1 ? '1 min ago' : `${diffMinutes} mins ago`;
-      return 'just now';
+      let out: string;
+      if (diffDays > 0) out = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+      else if (diffHours > 0) out = diffHours === 1 ? '1 hr ago' : `${diffHours} hrs ago`;
+      else if (diffMinutes > 0) out = diffMinutes === 1 ? '1 min ago' : `${diffMinutes} mins ago`;
+      else out = 'just now';
+      return toShortForm(out);
     } catch {
-      return String(checked);
+      return toShortForm(raw);
     }
   }
 

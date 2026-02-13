@@ -130,6 +130,7 @@ export class DashboardComponent implements OnInit {
         healthIconField: 'healthIcon',
         healthPercentageField: 'healthPercentage',
         sortable: true,
+        sortByKey: 'healthindex',
         width: '85px',
       },
       {
