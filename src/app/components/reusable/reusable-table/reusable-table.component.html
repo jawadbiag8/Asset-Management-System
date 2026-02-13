@@ -34,8 +34,9 @@
         </div>
       }
 
-      <!-- Search Bar and Refresh Button -->
+      <!-- Optional header actions (e.g. Import Assets) + Search Bar -->
       <div class="d-flex align-items-center gap-2">
+        <ng-content select="[headerActions]"></ng-content>
         @if (config.searchPlaceholder) {
           <div class="search-container">
             <mat-icon class="search-icon">search</mat-icon>
@@ -142,7 +143,12 @@
                     </div>
                   }
                   @case ("two-line") {
-                    <div class="two-line-cell">
+                    <div
+                      class="two-line-cell"
+                      [class.clickable]="column.onClick"
+                      [class.pointer]="column.onClick"
+                      (click)="column.onClick ? column.onClick(row) : null"
+                    >
                       <div class="line-primary" [ngClass]="column.cellClass">
                         {{ getCellValue(row, column.primaryField || "") }}
                       </div>
@@ -152,6 +158,7 @@
                           target="_blank"
                           class="line-primary line-link"
                           [ngClass]="column.cellClass"
+                          (click)="$event.stopPropagation()"
                         >
                           {{ getCellValue(row, column.secondaryField || "") }}
                         </a>

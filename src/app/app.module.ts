@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -82,6 +83,7 @@ import { MinistryDashboardComponent } from './components/ministry-dashboard/mini
     MatSelectModule,
     MatTooltipModule,
     MatDialogModule,
+    MatMenuModule,
     NgxMatSelectSearchModule,
     ToastrModule.forRoot({
       timeOut: 7000,

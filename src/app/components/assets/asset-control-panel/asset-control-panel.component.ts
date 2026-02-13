@@ -172,7 +172,10 @@ export class AssetControlPanelComponent implements OnInit {
       return empty;
     }
 
-    const processedData = category.kpis.map((kpi) => ({ ...kpi }));
+    const processedData = category.kpis.map((kpi) => ({
+      ...kpi,
+      lastChecked: this.formatLastCheckedShort(kpi.lastChecked),
+    }));
     const config: TableConfig = {
       ...this.tableConfig(),
       data: processedData,
@@ -255,10 +258,37 @@ export class AssetControlPanelComponent implements OnInit {
     });
   }
 
-  /** Format date/datetime as MM/DD/YYYY or MM/DD/YYYY, time; otherwise pass through. */
+  /** Format last outage: short form for relative times ("5 mins ago", "2 days ago"), else date or pass-through. */
   formatLastOutage(value: string | null | undefined): string {
     if (value == null || value === '') return 'N/A';
-    return formatDateOrPassThrough(value);
+    const formatted = formatDateOrPassThrough(value);
+    if (formatted !== value) return formatted;
+    return String(value)
+      .replace(/\b1 minute ago\b/gi, '1 min ago')
+      .replace(/\b(\d+) minutes ago\b/gi, '$1 mins ago')
+      .replace(/\b1 hour ago\b/gi, '1 hr ago')
+      .replace(/\b(\d+) hours ago\b/gi, '$1 hrs ago')
+      .replace(/\bJust now\b/gi, 'just now');
+  }
+
+  /** Format last checked for table: short form ("5 mins ago", "2 hrs ago", "just now"). */
+  private formatLastCheckedShort(checked: string | null | undefined): string {
+    if (checked == null || checked === '') return 'N/A';
+    try {
+      const d = new Date(checked);
+      if (isNaN(d.getTime())) return String(checked);
+      const now = new Date();
+      const diffMs = now.getTime() - d.getTime();
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMinutes / 60);
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays > 0) return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+      if (diffHours > 0) return diffHours === 1 ? '1 hr ago' : `${diffHours} hrs ago`;
+      if (diffMinutes > 0) return diffMinutes === 1 ? '1 min ago' : `${diffMinutes} mins ago`;
+      return 'just now';
+    } catch {
+      return String(checked);
+    }
   }
 
   getBadgeColor(

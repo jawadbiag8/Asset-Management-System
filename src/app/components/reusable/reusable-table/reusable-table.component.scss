@@ -239,11 +239,12 @@
         text-transform: capitalize; // All table cell text capitalized on every page
     }
 
-    // Time / relative date columns: show in lowercase (e.g. "5 days ago", "Since: 1 day ago", "Created: 1 day ago", status "1 day ago")
+    // Time / relative date columns: show in lowercase (e.g. "5 days ago", "Since: 1 day ago", "Created: 1 day ago", status "1 day ago", last checked "5 mins ago")
     td[data-column="lastOutage"],
     td[data-column="status"],
     td[data-column="createdBy"],
-    td[data-column="currentStatus"] {
+    td[data-column="currentStatus"],
+    td[data-column="lastChecked"] {
         text-transform: none;
     }
 

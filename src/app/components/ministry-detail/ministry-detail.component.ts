@@ -689,7 +689,7 @@ export class MinistryDetailComponent implements OnInit {
       // Use full assetUrl for the link href and display
       const websiteUrl = assetUrl || 'N/A';
 
-      // Current Status: currentStatus as badge, lastChecked as subtext with "Checked: " prefix
+      // Current Status: currentStatus as badge, lastChecked as subtext (short form, no "Checked:" prefix)
       const currentStatus = item.currentStatus || 'N/A';
       let currentStatusChecked = 'N/A';
       if (item.lastChecked) {
@@ -706,23 +706,21 @@ export class MinistryDetailComponent implements OnInit {
               diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
           } else if (diffHours > 0) {
             currentStatusChecked =
-              diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+              diffHours === 1 ? '1 hr ago' : `${diffHours} hrs ago`;
           } else if (diffMinutes > 0) {
             currentStatusChecked =
-              diffMinutes === 1 ? '1 minute ago' : `${diffMinutes} minutes ago`;
+              diffMinutes === 1 ? '1 min ago' : `${diffMinutes} mins ago`;
           } else {
-            currentStatusChecked = 'Just now';
+            currentStatusChecked = 'just now';
           }
-          currentStatusChecked = `Checked: ${currentStatusChecked}`;
         } catch {
-          currentStatusChecked = 'Checked: N/A';
+          currentStatusChecked = 'N/A';
         }
-      } else {
-        currentStatusChecked = 'Checked: N/A';
       }
 
-      // Last Outage
-      const lastOutage = item.lastOutage || 'N/A';
+      // Last Outage (short form: "5 mins ago", "2 days ago", etc.)
+      const lastOutage = this.formatLastOutageShort(item.lastOutage);
+
 
       // Current Health: healthStatus with icon, healthIndex as percentage with "Health Index: " prefix
       const healthStatus = item.healthStatus || 'Unknown';
@@ -862,6 +860,39 @@ export class MinistryDetailComponent implements OnInit {
         },
       },
     ]);
+  }
+
+  /**
+   * Format last outage for display: short form like dashboard ("5 mins ago", "2 hrs ago", "3 days ago").
+   */
+  private formatLastOutageShort(value: string | null | undefined): string {
+    if (value == null || value === '') return 'N/A';
+    const s = String(value).trim();
+    if (!s) return 'N/A';
+    // Try parsing as date and compute relative time in short form
+    try {
+      const d = new Date(value);
+      if (!isNaN(d.getTime())) {
+        const now = new Date();
+        const diffMs = now.getTime() - d.getTime();
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMinutes / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        if (diffDays > 0) return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+        if (diffHours > 0) return diffHours === 1 ? '1 hr ago' : `${diffHours} hrs ago`;
+        if (diffMinutes > 0) return diffMinutes === 1 ? '1 min ago' : `${diffMinutes} mins ago`;
+        return 'just now';
+      }
+    } catch {
+      // fall through to string normalization
+    }
+    // Normalize relative-time strings to short form
+    return s
+      .replace(/\b1 minute ago\b/gi, '1 min ago')
+      .replace(/\b(\d+) minutes ago\b/gi, '$1 mins ago')
+      .replace(/\b1 hour ago\b/gi, '1 hr ago')
+      .replace(/\b(\d+) hours ago\b/gi, '$1 hrs ago')
+      .replace(/\bJust now\b/gi, 'just now');
   }
 
   private getHealthIcon(healthStatus: string): string {

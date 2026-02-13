@@ -18,6 +18,7 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 
 export interface DigitalAsset {
   id: number;
+  ministryId?: number;
   ministryDepartment: string;
   department: string;
   websiteApplication: string;
@@ -223,6 +224,7 @@ export class DashboardComponent implements OnInit {
         secondaryField: 'highSeverityText',
         sortable: true,
         width: '110px',
+        onClick: (row: any) => this.navigateToIncidentsWithFilters(row),
       },
       {
         key: 'actions',
@@ -871,6 +873,16 @@ export class DashboardComponent implements OnInit {
     }));
   }
 
+  onDownloadTemplate(): void {
+    // TODO: wire to API or static file when available
+    this.utils.showToast('Download template will be available soon.', 'Import Assets', 'info');
+  }
+
+  onBulkUpload(): void {
+    // TODO: open bulk upload dialog/modal when available
+    this.utils.showToast('Bulk upload will be available soon.', 'Import Assets', 'info');
+  }
+
   onActionClick(event: { row: any; columnKey: string }) {
     if (event.columnKey === 'analyze') {
       this.router.navigate(['/asset-control-panel'], {
@@ -893,6 +905,20 @@ export class DashboardComponent implements OnInit {
         queryParams: { assetId: row.id },
       });
     }
+  }
+
+  /** Navigate to incidents page with filters: MinistryId, StatusId=14 (Open), AssetId */
+  navigateToIncidentsWithFilters(row: any): void {
+    const queryParams: Record<string, string | number> = {
+      PageNumber: 1,
+      PageSize: 10,
+      StatusId: 14,
+      AssetId: row?.id ?? 0,
+    };
+    if (row?.ministryId != null && row.ministryId !== '') {
+      queryParams['MinistryId'] = row.ministryId;
+    }
+    this.router.navigate(['/incidents'], { queryParams });
   }
 
   /** Reset all table filters to default (All) so card links show only that card's filter. */
