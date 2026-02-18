@@ -192,6 +192,16 @@ export class ApiService {
     return this.http.get<ApiResponse<any>>(url);
   }
 
+  /**
+   * GET Asset/bulk-upload/template — returns template file for bulk upload (e.g. Excel/CSV).
+   * Use responseType blob and optionally read Content-Disposition for filename.
+   */
+  getBulkUploadTemplate(): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/Asset/bulk-upload/template`, {
+      responseType: 'blob',
+    });
+  }
+
   updateAsset(
     assetId: number | null,
     asset: DigitalAssetRequest,

@@ -875,8 +875,20 @@ export class DashboardComponent implements OnInit {
   }
 
   onDownloadTemplate(): void {
-    // TODO: wire to API or static file when available
-    this.utils.showToast('Download template will be available soon.', 'Import Assets', 'info');
+    this.apiService.getBulkUploadTemplate().subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'bulk-upload-template.xlsx';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.utils.showToast('Template downloaded successfully.', 'Import Assets', 'success');
+      },
+      error: () => {
+        this.utils.showToast('Failed to download template. Please try again.', 'Import Assets', 'error');
+      },
+    });
   }
 
   onBulkUpload(): void {
