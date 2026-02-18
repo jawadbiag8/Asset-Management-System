@@ -882,7 +882,8 @@ export class DashboardComponent implements OnInit {
         a.href = url;
         a.download = 'bulk-upload-template.xlsx';
         a.click();
-        URL.revokeObjectURL(url);
+        // Revoke after a short delay so the browser can capture the URL for the async download
+        setTimeout(() => URL.revokeObjectURL(url), 100);
         this.utils.showToast('Template downloaded successfully.', 'Import Assets', 'success');
       },
       error: () => {
