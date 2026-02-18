@@ -222,6 +222,7 @@ export class MinistryDetailComponent implements OnInit {
         healthIconField: 'currentHealthIcon',
         healthPercentageField: 'currentHealthPercentage',
         sortable: true,
+        sortByKey: 'healthindex',
       },
       {
         key: 'performanceStatus',
