@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit {
           commands: ['/ministry-detail'],
           queryParams: { ministryId: row.ministryId ?? '' },
         }),
-        trailingButtonLabel: 'Analyse',
+        trailingButtonLabel: 'Analyze',
         trailingButtonClick: (row) =>
           this.router.navigate(['/asset-control-panel'], {
             queryParams: { assetId: row.id },
