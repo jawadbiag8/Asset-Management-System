@@ -19,6 +19,101 @@
     margin-bottom: 0;
 }
 
+.import-assets-wrapper {
+    display: flex;
+    align-items: center;
+
+    .import-assets-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+
+        .chevron {
+            margin-left: 2px;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+        }
+    }
+}
+
+.bulk-upload-errors-panel {
+    background: var(--bs-light, #f8f9fa);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+
+    .bulk-upload-errors-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .download-errors-csv-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #fff;
+        border: 1px solid var(--color-primary, #0d9488);
+        color: var(--color-primary, #0d9488);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font: inherit;
+        cursor: pointer;
+
+        .mat-icon {
+            color: var(--color-primary, #0d9488);
+            vertical-align: middle;
+            margin-right: 4px;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        &:hover {
+            background: rgba(13, 148, 136, 0.06);
+            border-color: var(--color-primary, #0d9488);
+            color: var(--color-primary, #0d9488);
+        }
+    }
+
+    .close-errors-panel-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #fff;
+        border: 1px solid var(--color-primary, #0d9488);
+        color: var(--color-primary, #0d9488);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font: inherit;
+        cursor: pointer;
+
+        &:hover {
+            background: rgba(13, 148, 136, 0.06);
+            border-color: var(--color-primary, #0d9488);
+            color: var(--color-primary, #0d9488);
+        }
+    }
+
+    .bulk-upload-errors-table {
+        margin-bottom: 0;
+        background: #fff;
+
+        th {
+            font-weight: 600;
+        }
+
+        .mat-icon {
+            vertical-align: middle;
+            margin-right: 4px;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+        }
+    }
+}
+
 // Form Card
 .form-card {
     background: var(--color-bg-primary);

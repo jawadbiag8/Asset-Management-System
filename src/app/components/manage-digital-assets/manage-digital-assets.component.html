@@ -8,9 +8,73 @@
 
             <!-- Page Header -->
             <div class="page-header mb-4">
-                <h1 class="page-title">{{ pageInfo().title }}</h1>
-                <p class="page-subtitle">{{ pageInfo().subtitle }}</p>
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div>
+                        <h1 class="page-title">{{ pageInfo().title }}</h1>
+                        <p class="page-subtitle">{{ pageInfo().subtitle }}</p>
+                    </div>
+                    @if (pageInfo().pageState === 'add') {
+                    <div class="import-assets-wrapper">
+                        <input #bulkUploadInput type="file" accept=".csv" class="d-none"
+                            (change)="onBulkUploadFile($event)">
+                        <button type="button" class="btn btn-primary import-assets-btn"
+                            [matMenuTriggerFor]="importAssetsMenu" aria-label="Import Assets">
+                            <mat-icon>upload</mat-icon>
+                            Import Assets
+                            <mat-icon class="chevron">expand_more</mat-icon>
+                        </button>
+                        <mat-menu #importAssetsMenu="matMenu" class="import-assets-menu">
+                            <button mat-menu-item (click)="onDownloadTemplate()">
+                                <mat-icon>download</mat-icon>
+                                <span>Download Template</span>
+                            </button>
+                            <button mat-menu-item (click)="onBulkUpload()">
+                                <mat-icon>upload</mat-icon>
+                                <span>Bulk Upload</span>
+                            </button>
+                        </mat-menu>
+                    </div>
+                    }
+                </div>
             </div>
+
+            <!-- Bulk upload validation errors (table + CSV download) -->
+            @if (bulkUploadErrors(); as errors) {
+            <div class="bulk-upload-errors-panel mt-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="bulk-upload-errors-title mb-0">Bulk upload failed – validation errors</h2>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn download-errors-csv-btn" (click)="downloadBulkUploadErrorsCsv()">
+                            <mat-icon>download</mat-icon>
+                            Download errors as CSV
+                        </button>
+                        <button type="button" class="btn close-errors-panel-btn" (click)="closeBulkUploadErrors()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped bulk-upload-errors-table">
+                        <thead>
+                            <tr>
+                                <th>Row #</th>
+                                <th>Asset Name</th>
+                                <th>Error Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (row of errors; track row.rowNumber + row.assetName) {
+                            <tr>
+                                <td>{{ row.rowNumber }}</td>
+                                <td>{{ row.assetName }}</td>
+                                <td>{{ row.errorMessage }}</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            }
 
             <!-- Form Card -->
             <div class="form-card">

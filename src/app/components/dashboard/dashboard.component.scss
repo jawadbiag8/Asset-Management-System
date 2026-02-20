@@ -9,22 +9,3 @@
 .grid-icon {
     cursor: pointer;
 }
-
-.import-assets-wrapper {
-    display: flex;
-    align-items: center;
-}
-
-.import-assets-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-
-    .chevron {
-        margin-left: 2px;
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-    }
-}

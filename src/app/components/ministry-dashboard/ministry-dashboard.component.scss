@@ -332,6 +332,7 @@
   padding: 1rem 1.25rem;
   background: var(--color-bg-primary);
   min-height: 56px;
+  cursor: pointer;
 }
 
 .header-left {
@@ -342,27 +343,6 @@
   min-width: 0;
 }
 
-.info-icon-link {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  background-color: transparent;
-  text-decoration: none;
-
-  &:hover {
-    opacity: 0.85;
-  }
-}
-
-.info-icon {
-  width: 20px;
-  height: 20px;
-  display: block;
-}
-
 .ministry-name {
   font-size: 1rem;
   font-weight: 500;
@@ -370,6 +350,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ministry-name-link {
+  text-decoration: none;
+  color: var(--color-primary, #0d9488);
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .header-stats {

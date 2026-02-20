@@ -40,7 +40,7 @@
 
 .incident-details-layout {
   display: grid;
-  grid-template-columns: 30% 70%;
+  grid-template-columns: 35% 65%;
   gap: 1.5rem;
   margin-top: 1.5rem;
   max-width: 1400px;
@@ -180,60 +180,76 @@
   letter-spacing: 0.05em;
   margin: 0 0 1rem 0;
 }
+
+// Incident Reason card — tabular: labels left column, values right column, clear gap, dividers
+.incident-reason-block {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.incident-reason-section-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.75rem 0;
+}
+
 .card-incident-reason {
-  background-color: #F8F8F8;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 0;
+  border: 1px solid var(--color-border, #e5e7eb);
 
-
-  .kpi-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .kpi-item {
-    padding: 1rem 0;
+  .kpi-metric-block {
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--color-border, #e5e7eb);
 
     &:last-child {
       border-bottom: none;
-      padding-bottom: 0;
     }
+  }
+
+  .kpi-metric-row {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 2rem;
+    align-items: baseline;
+    margin-bottom: 0.75rem;
 
     &:first-child {
-      padding-top: 0;
+      margin-bottom: 0.875rem;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 
-  .kpi-name {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-text-primary, #111827);
-    margin-bottom: 6px;
-  }
-
-  .kpi-row {
-    font-size: 0.875rem;
-    color: var(--color-text-primary, #111827);
-    margin-bottom: 4px;
-  }
-
-  .kpi-value-label {
-    font-weight: 500;
-    margin-right: 6px;
-  }
-
-  .kpi-value {
-    font-weight: 600;
-  }
-
-  .kpi-checked {
+  .kpi-metric-label {
     font-size: 0.75rem;
+    font-weight: 500;
     color: var(--color-text-tertiary, #9ca3af);
-    margin-top: 6px;
+    text-align: left;
+  }
+
+  .kpi-metric-value {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--color-text-primary, #374151);
+    text-align: left;
+    word-break: break-word;
+  }
+
+  .kpi-metric-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #111827);
   }
 
   .kpi-empty {
-    padding: 1rem 0;
+    padding: 1.25rem 1.5rem;
     font-size: 0.875rem;
     color: var(--color-text-tertiary, #9ca3af);
   }

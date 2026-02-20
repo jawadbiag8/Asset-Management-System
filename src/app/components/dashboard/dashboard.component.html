@@ -28,26 +28,6 @@
     <div id="assets-table" class="mt-5">
         <app-reusable-table [config]="tableConfigWithData()" [filters]="tableFilters()"
             (searchQuery)="onSearchQuery($event)" [totalItems]="totalItems()" (actionClick)="onActionClick($event)">
-            <div headerActions class="import-assets-wrapper">
-                <input #bulkUploadInput type="file" accept=".csv" class="d-none"
-                    (change)="onBulkUploadFile($event)">
-                <button type="button" class="btn btn-primary import-assets-btn"
-                    [matMenuTriggerFor]="importAssetsMenu" aria-label="Import Assets">
-                    <mat-icon>upload</mat-icon>
-                    Import Assets
-                    <mat-icon class="chevron">expand_more</mat-icon>
-                </button>
-                <mat-menu #importAssetsMenu="matMenu" class="import-assets-menu">
-                    <button mat-menu-item (click)="onDownloadTemplate()">
-                        <mat-icon>download</mat-icon>
-                        <span>Download Template</span>
-                    </button>
-                    <button mat-menu-item (click)="onBulkUpload()">
-                        <mat-icon>upload</mat-icon>
-                        <span>Bulk Upload</span>
-                    </button>
-                </mat-menu>
-            </div>
         </app-reusable-table>
     </div>
 

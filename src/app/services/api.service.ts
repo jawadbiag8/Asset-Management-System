@@ -14,6 +14,21 @@ export interface ApiResponse<T = any> {
   message?: string | null;
 }
 
+/** Single row error from bulk upload API when validation fails. */
+export interface BulkUploadErrorRow {
+  rowNumber: number;
+  assetName: string;
+  errorMessage: string;
+}
+
+/** Bulk upload response data when isSuccessful is false. */
+export interface BulkUploadErrorData {
+  totalRows: number;
+  successfulCount: number;
+  failedCount: number;
+  errors: BulkUploadErrorRow[];
+}
+
 export interface LoginData {
   token: string;
   name: string;
@@ -204,12 +219,12 @@ export class ApiService {
 
   /**
    * POST Asset/bulk-upload — upload CSV file for bulk asset import.
-   * API accepts only CSV files.
+   * API accepts only CSV files. On validation failure, data contains errors array.
    */
-  bulkUpload(file: File): Observable<ApiResponse<string>> {
+  bulkUpload(file: File): Observable<ApiResponse<string | BulkUploadErrorData>> {
     const formData = new FormData();
     formData.append('file', file, file.name);
-    return this.http.post<ApiResponse<string>>(
+    return this.http.post<ApiResponse<string | BulkUploadErrorData>>(
       `${this.baseUrl}/Asset/bulk-upload`,
       formData,
     );

@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import {
   TableConfig,
   TableColumn,
@@ -65,21 +65,22 @@ export class DashboardComponent implements OnInit {
     defaultPageSize: 10, // Default page size
     columns: [
       {
-        key: 'analyze',
-        header: 'Analyze',
-        cellType: 'icon',
-        iconUrl: '/assets/analyze.svg',
-        sortable: false,
-        width: '70px',
-      },
-      {
         key: 'ministryDepartment',
         header: 'Ministry/Department',
         cellType: 'two-line',
         primaryField: 'ministryDepartment',
         secondaryField: 'department',
         sortable: true,
-        width: '180px',
+        width: '220px',
+        routerLinkFn: (row) => ({
+          commands: ['/ministry-detail'],
+          queryParams: { ministryId: row.ministryId ?? '' },
+        }),
+        trailingButtonLabel: 'Analyse',
+        trailingButtonClick: (row) =>
+          this.router.navigate(['/asset-control-panel'], {
+            queryParams: { assetId: row.id },
+          }),
       },
       {
         key: 'websiteApplication',
@@ -115,14 +116,6 @@ export class DashboardComponent implements OnInit {
         },
         sortable: true,
         width: '95px',
-      },
-      {
-        key: 'lastOutage',
-        header: 'Outage',
-        cellType: 'text',
-        primaryField: 'lastOutageFormatted',
-        sortable: true,
-        width: '85px',
       },
       {
         key: 'healthstatus',
@@ -202,6 +195,9 @@ export class DashboardComponent implements OnInit {
         cellType: 'badge-with-subtext',
         badgeField: 'citizenImpactLevel',
         subtextField: 'citizenImpactLevelSubtext',
+        subtextAsTooltip: true,
+        tooltip: (row: any) => row.citizenImpactLevelSubtext ?? '',
+        tooltipPosition: 'above',
         badgeColor: (row: any) => {
           const impact = row.citizenImpactLevel?.toUpperCase();
           if (impact?.includes('LOW')) return 'var(--color-green-light)';
@@ -228,22 +224,6 @@ export class DashboardComponent implements OnInit {
         sortable: true,
         width: '110px',
         onClick: (row: any) => this.navigateToIncidentsWithFilters(row),
-      },
-      {
-        key: 'actions',
-        header: 'Action',
-        cellType: 'actions',
-        sortable: false,
-        width: '85px',
-        actionLinks: [
-          {
-            label: 'Edit Asset',
-            display: 'icon',
-            iconName: 'edit',
-            color: 'var(--color-primary)',
-            disabled: (row: any) => !row?.id,
-          },
-        ],
       },
     ],
     data: [],
@@ -892,75 +872,11 @@ export class DashboardComponent implements OnInit {
     }));
   }
 
-  onDownloadTemplate(): void {
-    this.apiService.getBulkUploadTemplate().subscribe({
-      next: (blob: Blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'bulk-upload-template.csv';
-        a.click();
-        // Revoke after a short delay so the browser can capture the URL for the async download
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-        this.utils.showToast('Template downloaded successfully.', 'Import Assets', 'success');
-      },
-      error: () => {
-        this.utils.showToast('Failed to download template. Please try again.', 'Import Assets', 'error');
-      },
-    });
-  }
-
-  @ViewChild('bulkUploadInput') bulkUploadInput!: ElementRef<HTMLInputElement>;
-
-  onBulkUpload(): void {
-    this.bulkUploadInput?.nativeElement?.click();
-  }
-
-  onBulkUploadFile(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    this.apiService.bulkUpload(file).subscribe({
-      next: (res) => {
-        if (res.isSuccessful) {
-          this.utils.showToast(
-            res.message ?? 'Bulk upload completed successfully.',
-            'Import Assets',
-            'success',
-          );
-          this.loadAssets(this.lastSearchParams);
-        } else {
-          this.utils.showToast(
-            res.message ?? 'Bulk upload failed.',
-            'Import Assets',
-            'error',
-          );
-        }
-        input.value = '';
-      },
-      error: (err) => {
-        const message =
-          err?.error?.message ?? err?.message ?? 'Failed to upload file. Only CSV files are allowed.';
-        this.utils.showToast(message, 'Import Assets', 'error');
-        input.value = '';
-      },
-    });
-  }
-
   onActionClick(event: { row: any; columnKey: string }) {
-    if (event.columnKey === 'analyze') {
-      this.router.navigate(['/asset-control-panel'], {
-        queryParams: { assetId: event.row.id },
-      });
-      return;
-    }
-
     if (event.columnKey === 'Edit Asset') {
       this.onEditClick(event.row);
       return;
     }
-
-    console.log('Event:', event);
   }
 
   onEditClick(row: any): void {

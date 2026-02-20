@@ -97,19 +97,16 @@
     <div class="accordion-list">
       @for (m of ministries(); track m.ministryId) {
         <div class="accordion-item" [class.expanded]="isExpanded(m.ministryId)">
-          <div class="accordion-header">
+          <div class="accordion-header" (click)="toggleAccordion(m.ministryId, $event)" role="button" tabindex="0" (keydown.enter)="toggleAccordion(m.ministryId, $event)" (keydown.space)="toggleAccordion(m.ministryId, $event)">
             <div class="header-left">
               <a
-                class="info-icon-link"
+                class="ministry-name ministry-name-link"
                 [routerLink]="['/ministry-detail']"
                 [queryParams]="{ ministryId: m.ministryId }"
-                (click)="goToMinistryDetail(m.ministryId, $event)"
-                title="View ministry details"
-                aria-label="Ministry details"
+                (click)="$event.stopPropagation()"
               >
-                <img src="/assets/info-icon.svg" alt="Info" class="info-icon" />
+                {{ m.ministryName }}
               </a>
-              <span class="ministry-name">{{ m.ministryName }}</span>
             </div>
             <div class="header-stats">
               <div class="stat">
@@ -128,7 +125,7 @@
             <button
               type="button"
               class="btn-report"
-              (click)="generateReport(m.ministryId, $event)"
+              (click)="$event.stopPropagation(); generateReport(m.ministryId, $event)"
               aria-label="Generate PDF report"
             >
               <svg class="btn-report-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -142,7 +139,7 @@
             <button
               type="button"
               class="accordion-toggle"
-              (click)="toggleAccordion(m.ministryId, $event)"
+              (click)="$event.stopPropagation(); toggleAccordion(m.ministryId, $event)"
               [attr.aria-expanded]="isExpanded(m.ministryId)"
               aria-label="Expand or collapse ministry"
             >

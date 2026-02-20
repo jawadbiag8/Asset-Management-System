@@ -338,4 +338,11 @@ export class ViewAssetsDetailComponent implements OnInit {
       },
     });
   }
+
+  onEdit() {
+    if (this.assetId == null) return;
+    this.router.navigate(['/edit-digital-asset'], {
+      queryParams: { assetId: this.assetId },
+    });
+  }
 }

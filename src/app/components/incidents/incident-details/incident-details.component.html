@@ -83,33 +83,35 @@
           <p class="description-text">{{ incident()?.description || 'No description available' }}</p>
         </div>
 
-        <!-- Card 2: Incident Reason KPIs -->
+        <!-- Card 2: Incident Reason (KPI-style card) -->
         @if (showIncidentReasonSection()) {
-        <br>
-        <div class="description-block">
-
-          <h2 class="card-title-small">INCIDENT REASON</h2>
+        <div class="incident-reason-block">
+          <h2 class="incident-reason-section-label">INCIDENT REASON</h2>
           <div class="card card-incident-reason">
-            <div class="kpi-list">
-              @for (metric of incidentReasonMetrics(); track $index) {
-              <div class="kpi-item">
-                <div class="kpi-name">KPI: {{ metric.name }}</div>
-                <div class="kpi-row">
-                  <span class="kpi-value-label">Value:</span>
-                  <span class="kpi-value">{{ metric.value }}</span>
-                </div>
-                @if (metric.target != null && metric.target !== '' && metric.target !== '—') {
-                <div class="kpi-row">
-                  <span class="kpi-value-label">Target:</span>
-                  <span class="kpi-value">{{ metric.target }}</span>
-                </div>
-                }
-                <div class="kpi-checked">Checked at: {{ metric.timestamp }}</div>
+            @for (metric of incidentReasonMetrics(); track $index) {
+            <div class="kpi-metric-block">
+              <div class="kpi-metric-row">
+                <span class="kpi-metric-label">KPI</span>
+                <span class="kpi-metric-value kpi-metric-name">{{ metric.name }}</span>
               </div>
-              } @empty {
-              <div class="kpi-empty">No incident reason metrics available</div>
+              <div class="kpi-metric-row">
+                <span class="kpi-metric-label">Value</span>
+                <span class="kpi-metric-value">{{ metric.value }}</span>
+              </div>
+              @if (metric.target != null && metric.target !== '' && metric.target !== '—') {
+              <div class="kpi-metric-row">
+                <span class="kpi-metric-label">Target</span>
+                <span class="kpi-metric-value">{{ metric.target }}</span>
+              </div>
               }
+              <div class="kpi-metric-row">
+                <span class="kpi-metric-label">Checked at</span>
+                <span class="kpi-metric-value">{{ metric.timestamp }}</span>
+              </div>
             </div>
+            } @empty {
+            <div class="kpi-empty">No incident reason metrics available</div>
+            }
           </div>
         </div>
         }

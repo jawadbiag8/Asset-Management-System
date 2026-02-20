@@ -425,14 +425,6 @@ export class MinistryDashboardComponent implements OnInit {
     return 'value-unknown';
   }
 
-  goToMinistryDetail(ministryId: string, event: Event): void {
-    event.stopPropagation();
-    event.preventDefault();
-    this.router.navigate(['/ministry-detail'], {
-      queryParams: { ministryId },
-    });
-  }
-
   onSearchChange(value: string): void {
     this.searchTerm.set(value);
     this.pageIndex.set(0);

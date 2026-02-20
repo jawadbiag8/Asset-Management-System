@@ -216,7 +216,7 @@
         font-weight: 600;
         font-size: 14px;
         color: var(--color-text-secondary);
-        padding: 16px;
+        padding: 10px 12px;
         border-bottom: 1px solid var(--color-border);
         text-align: left;
         white-space: normal; // Allow text to wrap
@@ -227,12 +227,12 @@
     }
 
     td {
-        padding: 16px;
+        padding: 10px 12px;
         border: 1px solid var(--color-border);
         border-top: none;
         font-size: 14px;
         color: var(--color-text-primary);
-        vertical-align: middle;
+        vertical-align: top;
         overflow: visible; // Allow tooltips to overflow
         background-color: var(--color-bg-primary);
         position: relative; // Ensure proper containment
@@ -379,6 +379,39 @@
             color: var(--color-green-teal);
             opacity: 0.8;
         }
+    }
+}
+
+.two-line-cell-with-trailing {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+
+    .two-line-cell-text.flex-1 {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.trailing-btn-outline {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #fff;
+    border: 1px solid var(--color-primary, #0d9488);
+    color: var(--color-primary, #0d9488);
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+        background: rgba(13, 148, 136, 0.06);
+        border-color: var(--color-primary, #0d9488);
+        color: var(--color-primary, #0d9488);
     }
 }
 

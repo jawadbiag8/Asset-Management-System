@@ -1,9 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
-import { ApiResponse, ApiService } from '../../services/api.service';
+import { ApiResponse, ApiService, BulkUploadErrorRow, BulkUploadErrorData } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
 import { DashboardReturnStateService } from '../../services/dashboard-return-state.service';
 import { CanComponentDeactivate } from '../../guards/can-deactivate.guard';
@@ -73,6 +73,9 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     min: 'Please enter a value greater than 0'
   };
 
+  @ViewChild('bulkUploadInput') bulkUploadInput!: ElementRef<HTMLInputElement>;
+  bulkUploadErrors = signal<BulkUploadErrorRow[] | null>(null);
+
   constructor(
     private route: Router,
     private activatedRoute: ActivatedRoute,
@@ -86,11 +89,13 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
   ngOnInit() {
     this.createForm();
 
+    const routePath = this.activatedRoute.snapshot.routeConfig?.path ?? '';
+    const isAddMode = routePath === 'add-digital-assets';
     this.pageInfo.set({
-      pageState: this.route.url === '/add-digital-assets' ? 'add' : 'edit',
-      title: this.route.url === '/add-digital-assets' ? 'Add New Digital Asset' : 'Edit Digital Asset',
-      subtitle: this.route.url === '/add-digital-assets' ? 'Fill in the details below to add a new digital asset to the monitoring system' : 'Fill in the details below to update existing digital asset to the monitoring system',
-      assetId: this.route.url === '/add-digital-assets' ? null : this.activatedRoute.snapshot.queryParams['assetId']
+      pageState: isAddMode ? 'add' : 'edit',
+      title: isAddMode ? 'Add New Digital Asset' : 'Edit Digital Asset',
+      subtitle: isAddMode ? 'Fill in the details below to add a new digital asset to the monitoring system' : 'Fill in the details below to update existing digital asset to the monitoring system',
+      assetId: isAddMode ? null : this.activatedRoute.snapshot.queryParams['assetId']
     });
 
     if (this.pageInfo().pageState === 'edit') {
@@ -256,6 +261,103 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
         this.utils.showToast(error, 'Error adding asset', 'error');
       }
     });
+  }
+
+  onDownloadTemplate(): void {
+    this.api.getBulkUploadTemplate().subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'bulk-upload-template.csv';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+        this.utils.showToast('Template downloaded successfully.', 'Import Assets', 'success');
+      },
+      error: () => {
+        this.utils.showToast('Failed to download template. Please try again.', 'Import Assets', 'error');
+      },
+    });
+  }
+
+  onBulkUpload(): void {
+    this.bulkUploadInput?.nativeElement?.click();
+  }
+
+  onBulkUploadFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.bulkUploadErrors.set(null);
+    this.api.bulkUpload(file).subscribe({
+      next: (res) => {
+        if (res.isSuccessful) {
+          this.utils.showToast(
+            res.message ?? 'Bulk upload completed successfully.',
+            'Import Assets',
+            'success',
+          );
+          this.route.navigate(['/dashboard']);
+        } else {
+          const data = res.data as BulkUploadErrorData | undefined;
+          if (data?.errors?.length) {
+            this.bulkUploadErrors.set(data.errors);
+            this.downloadBulkUploadErrorsCsv();
+            this.utils.showToast(
+              (res.message ?? 'Bulk upload failed.') + ' Error report has been downloaded.',
+              'Import Assets',
+              'error',
+            );
+          } else {
+            this.utils.showToast(res.message ?? 'Bulk upload failed.', 'Import Assets', 'error');
+          }
+        }
+        input.value = '';
+      },
+      error: (err: any) => {
+        const body = err?.error;
+        const data = body?.data as BulkUploadErrorData | undefined;
+        if (data?.errors?.length) {
+          this.bulkUploadErrors.set(data.errors);
+          this.utils.showToast(
+            (body?.message ?? 'Bulk upload failed.') + ' Error report has been downloaded.',
+            'Import Assets',
+            'error',
+          );
+        } else {
+          const message =
+            body?.message ?? err?.message ?? 'Failed to upload file. Only CSV files are allowed.';
+          this.utils.showToast(message, 'Import Assets', 'error');
+        }
+        input.value = '';
+      },
+    });
+  }
+
+  downloadBulkUploadErrorsCsv(): void {
+    const errors = this.bulkUploadErrors();
+    if (!errors?.length) return;
+    const headers = ['Row Number', 'Asset Name', 'Error Message'];
+    const rows = errors.map((e) => [
+      String(e.rowNumber),
+      `"${(e.assetName ?? '').replace(/"/g, '""')}"`,
+      `"${(e.errorMessage ?? '').replace(/"/g, '""')}"`,
+    ]);
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bulk-upload-errors-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  closeBulkUploadErrors(): void {
+    this.bulkUploadErrors.set(null);
   }
 
   /** Navigate to assets list, preserving dashboard filters when returning from edit. */

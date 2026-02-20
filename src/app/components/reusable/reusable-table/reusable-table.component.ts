@@ -437,6 +437,8 @@ export interface TableColumn {
   badgeColor?: string | ((row: any) => string); // Background color (CSS variable or hex) or function that returns color
   badgeTextColor?: string | ((row: any) => string); // Text color (CSS variable or hex) or function that returns color
   subtextField?: string; // Field name for subtext (badge-with-subtext only)
+  /** When true, subtext is shown only in tooltip (set tooltip to a function returning subtext) and not below the badge. */
+  subtextAsTooltip?: boolean;
 
   // For 'icon' cells
   iconName?: string; // Material icon name
@@ -446,6 +448,13 @@ export interface TableColumn {
 
   // For 'link' cells
   linkField?: string; // Field name for full URL
+
+  /** For 'two-line' cells: make primary text an internal route link. When set, primary line is rendered as routerLink. */
+  routerLinkFn?: (row: any) => { commands: any[]; queryParams?: { [k: string]: any } };
+
+  /** For 'two-line' cells: optional button shown to the right of the text. */
+  trailingButtonLabel?: string;
+  trailingButtonClick?: (row: any) => void;
 
   // For 'text-with-color' cells
   textColor?: string | ((row: any) => string); // Color class name (e.g., 'success', 'warning', 'danger') or function that returns color class

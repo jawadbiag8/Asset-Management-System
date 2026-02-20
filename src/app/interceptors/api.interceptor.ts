@@ -90,9 +90,15 @@ export class ApiInterceptor implements HttpInterceptor {
     } else {
       const status = error.status;
       switch (status) {
-        case 400:
+        case 400: {
+          // Bulk upload 400 returns validation errors in body; let the caller handle it (errors table + CSV download).
+          const isBulkUpload = req.url.includes('bulk-upload');
+          if (isBulkUpload) {
+            return throwError(() => error);
+          }
           defaultMessage = 'Bad request. Please check your input.';
           break;
+        }
         case 401: {
           const isLoginRequest =
             req.url.includes('Auth/login') || req.url.includes('/login');
