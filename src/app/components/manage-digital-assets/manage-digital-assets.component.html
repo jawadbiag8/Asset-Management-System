@@ -72,7 +72,7 @@
                             <div class="col-md-12">
                                 <!-- Digital Experience Level Field -->
                                 <app-reusable-input label="Digital Experience Level" type="select"
-                                    [options]="citizenImpactLevelOptions" placeholder="Enter citizen impact level"
+                                    [options]="citizenImpactLevelOptions" placeholder="Digital Experience level"
                                     hint="How critical this asset is to citizens"
                                     [control]="getControl('citizenImpactLevelId')">
                                 </app-reusable-input>
@@ -147,7 +147,7 @@
 
                     <!-- Form Actions -->
                     <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" routerLink="/assets">Cancel</button>
+                        <button type="button" class="btn btn-secondary" routerLink="/dashboard">Cancel</button>
                         <button type="submit" class="btn btn-primary"> {{pageInfo().pageState === 'add' ? 'Add Digital
                             Asset' : 'Update Digital Asset'}}</button>
                     </div>

@@ -262,7 +262,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       openIncidents: item.openIncidents || item.numberOfOpenIncidents || 0,
       highSeverityIncidents:
         item.highSeverityIncidents || item.numberOfHighSeverityIncidents || 0,
-      highSeverityText: `High severity: ${item.highSeverityIncidents || item.numberOfHighSeverityIncidents || 0}`,
+      highSeverityText: `Critical Severity: ${item.highSeverityIncidents || item.numberOfHighSeverityIncidents || 0}`,
     }));
   }
 

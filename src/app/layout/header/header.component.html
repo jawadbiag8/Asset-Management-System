@@ -1,7 +1,7 @@
 <header class="header">
   <!-- LEFT -->
   <div class="left">
-    <div class="logo pointer" routerLink="/assets">
+    <div class="logo pointer" routerLink="/dashboard">
       <img
         src="Images/Dashboard/PDA-logo-icon.svg"
         alt="PDA logo"
@@ -16,11 +16,11 @@
 
     <nav class="nav" [class.open]="menuOpen">
       <a
-        routerLink="/assets"
+        routerLink="/dashboard"
         [class.active]="isDashboardActive()"
         (click)="menuOpen = false"
       >
-        Assets
+      Dashboard
       </a>
       <a
         routerLink="/ministries"

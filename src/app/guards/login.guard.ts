@@ -22,7 +22,7 @@ export class LoginGuard implements CanActivate {
       if (role === 'PMO Executive') {
         this.router.navigate(['/pm-dashboard']);
       } else {
-        this.router.navigate(['/assets']);
+        this.router.navigate(['/dashboard']);
       }
       return false;
     }

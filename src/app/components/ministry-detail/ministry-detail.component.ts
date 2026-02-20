@@ -97,7 +97,7 @@ export class MinistryDetailComponent implements OnInit {
       title: 'Total Assets',
       subTitle: 'Active Monitoring Across All Departments',
       linkText: 'View All >',
-      linkPath: '/assets',
+      linkPath: '/dashboard',
     },
     {
       id: 2,
@@ -174,7 +174,7 @@ export class MinistryDetailComponent implements OnInit {
       },
       {
         key: 'websiteApplication',
-        header: 'Website / Application',
+        header: 'Asset',
         cellType: 'two-line',
         primaryField: 'websiteName',
         secondaryField: 'websiteUrl',
@@ -183,7 +183,7 @@ export class MinistryDetailComponent implements OnInit {
       },
       {
         key: 'currentStatus',
-        header: 'Current Status',
+        header: 'Status',
         cellType: 'badge-with-subtext',
         badgeField: 'currentStatus',
         subtextField: 'currentStatusChecked',
@@ -209,14 +209,14 @@ export class MinistryDetailComponent implements OnInit {
       },
       {
         key: 'lastOutage',
-        header: 'LAST OUTAGE',
+        header: 'OUTAGE',
         cellType: 'text',
         primaryField: 'lastOutage',
         sortable: true,
       },
       {
         key: 'currentHealth',
-        header: 'CURRENT HEALTH',
+        header: 'HEALTH',
         cellType: 'health-status',
         healthStatusField: 'currentHealthStatus',
         healthIconField: 'currentHealthIcon',
@@ -226,7 +226,7 @@ export class MinistryDetailComponent implements OnInit {
       },
       {
         key: 'performanceStatus',
-        header: 'PERFORMANCE STATUS',
+        header: 'PERFORMANCE',
         cellType: 'text-with-color',
         primaryField: 'performanceStatus',
         secondaryField: 'performancePercentage',
@@ -247,7 +247,7 @@ export class MinistryDetailComponent implements OnInit {
       },
       {
         key: 'complianceStatus',
-        header: 'COMPLIANCE STATUS',
+        header: 'COMPLIANCE',
         cellType: 'text-with-color',
         primaryField: 'complianceStatus',
         secondaryField: 'compliancePercentage',
@@ -274,7 +274,7 @@ export class MinistryDetailComponent implements OnInit {
       },
       {
         key: 'riskExposureIndex',
-        header: 'RISK EXPOSURE INDEX',
+        header: 'RISK ',
         cellType: 'text-with-color',
         primaryField: 'riskExposureIndex',
         textColor: (row: any) => {
@@ -294,7 +294,7 @@ export class MinistryDetailComponent implements OnInit {
       },
       {
         key: 'citizenImpactLevel',
-        header: 'CITIZEN IMPACT LEVEL',
+        header: 'CITIZEN IMPACT',
         cellType: 'badge-with-subtext',
         badgeField: 'citizenImpactLevel',
         subtextField: 'citizenImpactLevelSubtext',
@@ -340,7 +340,7 @@ export class MinistryDetailComponent implements OnInit {
   tableConfigWithData = computed<TableConfig>(() => {
     const data = this.assetDetails().map((asset) => ({
       ...asset,
-      highSeverityText: `High severity: ${asset.highSeverityIncidents}`,
+      highSeverityText: `Critical Severity: ${asset.highSeverityIncidents}`,
     }));
     return {
       ...this.tableConfig(),
@@ -640,8 +640,8 @@ export class MinistryDetailComponent implements OnInit {
               ...asset,
               highSeverityText:
                 typeof asset.highSeverityIncidents === 'number'
-                  ? `High severity: ${asset.highSeverityIncidents}`
-                  : 'High severity: N/A',
+                  ? `Critical Severity: ${asset.highSeverityIncidents}`
+                  : 'Critical Severity: N/A',
             })),
           }));
         } else {
@@ -821,7 +821,7 @@ export class MinistryDetailComponent implements OnInit {
         title: 'Total Assets',
         subTitle: 'Active Monitoring Across All Departments',
         linkText: 'View All >',
-        linkPath: '/assets',
+        linkPath: '/dashboard',
       },
       {
         id: 2,

@@ -95,10 +95,10 @@ export class AssetControlPanelComponent implements OnInit {
         width: '150px',
       },
       {
-        key: 'currentValue',
-        header: 'CURRENT VALUE',
+        key: 'averageValue',
+        header: 'AVG CURRENT VALUE',
         cellType: 'text',
-        primaryField: 'currentValue',
+        primaryField: 'averageValue',
         sortable: false,
         width: '150px',
       },
@@ -219,7 +219,7 @@ export class AssetControlPanelComponent implements OnInit {
 
     if (!assetId) {
       this.utils.showToast('Asset ID is required', 'Error', 'error');
-      this.route.navigate(['/assets']);
+      this.route.navigate(['/dashboard']);
       return;
     }
 
@@ -254,7 +254,7 @@ export class AssetControlPanelComponent implements OnInit {
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error loading asset data', 'error');
-        this.route.navigate(['/assets']);
+        this.route.navigate(['/dashboard']);
       }
     });
   }

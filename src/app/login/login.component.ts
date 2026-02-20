@@ -92,7 +92,7 @@ export class LoginComponent implements OnInit {
           if (role === 'PMO Executive') {
             this.router.navigate(['/pm-dashboard']);
           } else {
-            this.router.navigate(['/assets']);
+            this.router.navigate(['/dashboard']);
           }
         } else {
           this.errorMessage =

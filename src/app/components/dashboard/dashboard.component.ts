@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import {
   TableConfig,
   TableColumn,
@@ -12,6 +12,7 @@ import {
   KpiCardAction,
 } from '../dashboardkpi/dashboardkpi.component';
 import { UtilsService } from '../../services/utils.service';
+import { DashboardReturnStateService } from '../../services/dashboard-return-state.service';
 import { formatDateOrPassThrough } from '../../utils/date-format.util';
 import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
@@ -52,6 +53,7 @@ export class DashboardComponent implements OnInit {
     private utils: UtilsService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
+    private dashboardReturnState: DashboardReturnStateService,
   ) {}
 
   tableFilters = signal<FilterPill[]>([]);
@@ -116,7 +118,7 @@ export class DashboardComponent implements OnInit {
       },
       {
         key: 'lastOutage',
-        header: 'Last Outage',
+        header: 'Outage',
         cellType: 'text',
         primaryField: 'lastOutageFormatted',
         sortable: true,
@@ -343,8 +345,8 @@ export class DashboardComponent implements OnInit {
 
       // Format high severity text
       const formatHighSeverityText = (highSeverity: number): string => {
-        if (highSeverity === 0) return 'No high severity incidents';
-        return `High severity: ${highSeverity}`;
+        if (highSeverity === 0) return 'Critical Severity: N/A';
+        return `Critical Severity: ${highSeverity}`;
       };
 
       return {
@@ -476,32 +478,36 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardSummary();
   }
 
-  /** URL se currentStatus / riskIndex padhkar table filters par lagao (PM dashboard links se aane par). */
+  /** URL se saare filter query params padhkar table filters par lagao (edit se wapas aane ya direct URL par aane par). */
   private applyInitialQueryParams(): void {
-    const qp = this.activatedRoute.snapshot.queryParams;
-    const currentStatus = qp['currentStatus'];
-    const riskIndex = qp['riskIndex'];
-    if (!currentStatus && !riskIndex) return;
+    const qp = this.activatedRoute.snapshot.queryParams as Record<string, string>;
+    const paramKeys = [
+      'ministryId',
+      'currentStatus',
+      'health',
+      'performance',
+      'compliance',
+      'riskIndex',
+      'CitizenImpactLevelId',
+    ];
+    let hasAny = false;
+    for (const key of paramKeys) {
+      if (qp[key]) hasAny = true;
+    }
+    if (!hasAny) return;
 
     this.tableFilters.update((filters) =>
       filters.map((f) => {
-        if (f.paramKey === 'currentStatus' && currentStatus) {
-          return {
-            ...f,
-            value: currentStatus,
-            label: `Status: ${currentStatus}`,
-            removable: true,
-          };
-        }
-        if (f.paramKey === 'riskIndex' && riskIndex) {
-          return {
-            ...f,
-            value: riskIndex,
-            label: `Risk Index: ${riskIndex}`,
-            removable: true,
-          };
-        }
-        return f;
+        if (!f.paramKey) return f;
+        const value = qp[f.paramKey];
+        if (value == null || value === '') return f;
+        const labelPart = f.label.split(':')[0] ?? f.paramKey;
+        return {
+          ...f,
+          value,
+          label: `${labelPart}: ${value}`,
+          removable: true,
+        };
       }),
     );
   }
@@ -821,21 +827,33 @@ export class DashboardComponent implements OnInit {
     );
   }
 
+  /** Last params emitted by table; used to refresh list after bulk upload. */
+  private lastSearchParams: HttpParams = new HttpParams()
+    .set('PageNumber', '1')
+    .set('PageSize', '10');
+
   /** Handle table search/filter/page: sync filters from params, load assets, aur URL ke query params bhi sync. */
   onSearchQuery(params: HttpParams): void {
+    this.lastSearchParams = params;
     this.syncFiltersFromParams(params);
     this.loadAssets(params);
     this.syncUrlFromFilters();
   }
 
-  /** URL ke query params ko current filters se sync karo – filter remove hone par URL se bhi remove. */
-  private syncUrlFromFilters(): void {
+  /** Current filters se query params object banao (return URL / edit se wapas aane ke liye). */
+  private getCurrentQueryParamsForReturn(): Record<string, string> {
     const queryParams: Record<string, string> = {};
     this.tableFilters().forEach((f) => {
       if (f.paramKey && f.value && f.value !== '' && f.value !== 'All') {
         queryParams[f.paramKey] = f.value;
       }
     });
+    return queryParams;
+  }
+
+  /** URL ke query params ko current filters se sync karo – filter remove hone par URL se bhi remove. */
+  private syncUrlFromFilters(): void {
+    const queryParams = this.getCurrentQueryParamsForReturn();
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
       queryParams,
@@ -880,7 +898,7 @@ export class DashboardComponent implements OnInit {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'bulk-upload-template.xlsx';
+        a.download = 'bulk-upload-template.csv';
         a.click();
         // Revoke after a short delay so the browser can capture the URL for the async download
         setTimeout(() => URL.revokeObjectURL(url), 100);
@@ -892,9 +910,41 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  @ViewChild('bulkUploadInput') bulkUploadInput!: ElementRef<HTMLInputElement>;
+
   onBulkUpload(): void {
-    // TODO: open bulk upload dialog/modal when available
-    this.utils.showToast('Bulk upload will be available soon.', 'Import Assets', 'info');
+    this.bulkUploadInput?.nativeElement?.click();
+  }
+
+  onBulkUploadFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.apiService.bulkUpload(file).subscribe({
+      next: (res) => {
+        if (res.isSuccessful) {
+          this.utils.showToast(
+            res.message ?? 'Bulk upload completed successfully.',
+            'Import Assets',
+            'success',
+          );
+          this.loadAssets(this.lastSearchParams);
+        } else {
+          this.utils.showToast(
+            res.message ?? 'Bulk upload failed.',
+            'Import Assets',
+            'error',
+          );
+        }
+        input.value = '';
+      },
+      error: (err) => {
+        const message =
+          err?.error?.message ?? err?.message ?? 'Failed to upload file. Only CSV files are allowed.';
+        this.utils.showToast(message, 'Import Assets', 'error');
+        input.value = '';
+      },
+    });
   }
 
   onActionClick(event: { row: any; columnKey: string }) {
@@ -915,6 +965,9 @@ export class DashboardComponent implements OnInit {
 
   onEditClick(row: any): void {
     if (row?.id) {
+      this.dashboardReturnState.setReturnQueryParams(
+        this.getCurrentQueryParamsForReturn(),
+      );
       this.router.navigate(['/edit-digital-asset'], {
         queryParams: { assetId: row.id },
       });

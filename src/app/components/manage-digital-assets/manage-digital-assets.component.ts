@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ApiResponse, ApiService } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
+import { DashboardReturnStateService } from '../../services/dashboard-return-state.service';
 import { CanComponentDeactivate } from '../../guards/can-deactivate.guard';
 
 export interface DigitalAssetRequest {
@@ -78,7 +79,8 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     private fb: FormBuilder,
     private api: ApiService,
     private utils: UtilsService,
-    private location: Location
+    private location: Location,
+    private dashboardReturnState: DashboardReturnStateService,
   ) { }
 
   ngOnInit() {
@@ -95,7 +97,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
 
       if (!this.pageInfo().assetId) {
         this.utils.showToast('Asset ID is required', 'Error', 'error');
-        this.route.navigate(['/assets']);
+        this.navigateToAssets();
         return;
       };
 
@@ -227,7 +229,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
           if (res.isSuccessful) {
             this.utils.showToast(res.message, 'Asset updated successfully', 'success');
             this.digitalAssetForm.markAsPristine();
-            this.route.navigateByUrl('/assets');
+            this.navigateToAssets();
           } else {
             this.utils.showToast(res.message, 'Error updating asset', 'error');
           }
@@ -245,7 +247,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
         if (res.isSuccessful) {
           this.utils.showToast(res.message, 'Asset added successfully', 'success');
           this.digitalAssetForm.markAsPristine();
-          this.route.navigateByUrl('/assets');
+          this.navigateToAssets();
         } else {
           this.utils.showToast(res.message, 'Error adding asset', 'error');
         }
@@ -254,6 +256,16 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
         this.utils.showToast(error, 'Error adding asset', 'error');
       }
     });
+  }
+
+  /** Navigate to assets list, preserving dashboard filters when returning from edit. */
+  private navigateToAssets(): void {
+    const queryParams = this.dashboardReturnState.consumeReturnQueryParams();
+    if (queryParams && Object.keys(queryParams).length > 0) {
+      this.route.navigate(['/dashboard'], { queryParams });
+    } else {
+      this.route.navigateByUrl('/dashboard');
+    }
   }
 
   // Helper method to get form control

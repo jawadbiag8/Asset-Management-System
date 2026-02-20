@@ -202,6 +202,19 @@ export class ApiService {
     });
   }
 
+  /**
+   * POST Asset/bulk-upload — upload CSV file for bulk asset import.
+   * API accepts only CSV files.
+   */
+  bulkUpload(file: File): Observable<ApiResponse<string>> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http.post<ApiResponse<string>>(
+      `${this.baseUrl}/Asset/bulk-upload`,
+      formData,
+    );
+  }
+
   updateAsset(
     assetId: number | null,
     asset: DigitalAssetRequest,
