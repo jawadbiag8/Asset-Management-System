@@ -1,9 +1,11 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiResponse, ApiService } from '../../../services/api.service';
 import { UtilsService } from '../../../services/utils.service';
 import { formatDateOnly, formatDateTime } from '../../../utils/date-format.util';
 import { ActiveIncident } from '../active-incidents/active-incidents.component';
+import { SignalRService, TOPICS } from '../../../services/signalr.service';
+import { Subject, takeUntil } from 'rxjs';
 
 interface TimelineEvent {
   id: number;
@@ -47,7 +49,9 @@ type IncidentDetails = ActiveIncident & { severityCode?: string; departmentName?
   styleUrl: './incident-details.component.scss',
   standalone: false,
 })
-export class IncidentDetailsComponent implements OnInit {
+export class IncidentDetailsComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+
   incidentId: string | null = null;
   incident = signal<IncidentDetails | null>(null);
   loading = signal<boolean>(false);
@@ -67,18 +71,36 @@ export class IncidentDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private apiService: ApiService,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private signalR: SignalRService,
   ) {}
 
   ngOnInit(): void {
     this.incidentId = this.route.snapshot.paramMap.get('id');
 
     if (this.incidentId) {
-      this.loadIncidentDetails(Number(this.incidentId));
+      const id = Number(this.incidentId);
+      this.loadIncidentDetails(id);
+
+      const incidentTopic = TOPICS.incident(this.incidentId);
+      this.signalR.joinTopic(incidentTopic).catch(() => {});
+      this.signalR.onDataUpdated.pipe(takeUntil(this.destroy$)).subscribe((topic) => {
+        if (topic === incidentTopic) {
+          this.loadIncidentDetails(id);
+        }
+      });
     } else {
       this.errorMessage.set('Incident ID is required');
       this.utils.showToast('Incident ID is required', 'Error', 'error');
       this.router.navigate(['/incidents']);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    if (this.incidentId) {
+      this.signalR.leaveTopic(TOPICS.incident(this.incidentId)).catch(() => {});
     }
   }
 

@@ -8,6 +8,8 @@ import { ReusableTableComponent } from '../components/reusable/reusable-table/re
 export interface AppConfig {
   production?: boolean;
   apiUrl?: string;
+  /** Optional. If not set, hub URL is derived from apiUrl (base + /hubs/data). */
+  signalRHubUrl?: string;
   appName?: string;
   version?: string;
   [key: string]: unknown;

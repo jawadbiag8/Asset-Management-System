@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, ApiResponse } from '../../../services/api.service';
@@ -10,6 +10,8 @@ import {
 } from '../../reusable/reusable-table/reusable-table.component';
 import { ManageIncidentsComponent } from '../../incidents/manage-incidents/manage-incidents.component';
 import { MatDialog } from '@angular/material/dialog';
+import { SignalRService, TOPICS } from '../../../services/signalr.service';
+import { Subject, takeUntil } from 'rxjs';
 
 export interface PreviousPageMetadata {
   assetId: number;
@@ -60,7 +62,9 @@ export interface AssetControlPanelData {
   styleUrl: './asset-control-panel.component.scss',
   standalone: false,
 })
-export class AssetControlPanelComponent implements OnInit {
+export class AssetControlPanelComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+
   previousPageMetadata = signal<PreviousPageMetadata>({
     assetId: 0,
   });
@@ -208,13 +212,15 @@ export class AssetControlPanelComponent implements OnInit {
     private api: ApiService,
     private utils: UtilsService,
     private dialog: MatDialog,
+    private signalR: SignalRService,
   ) {}
 
   ngOnInit(): void {
     // Fetch query parameters
     const assetId = this.activatedRoute.snapshot.queryParams['assetId'];
+    const assetIdNum = Number(assetId);
     this.previousPageMetadata.set({
-      assetId: Number(assetId),
+      assetId: assetIdNum,
     });
 
     if (!assetId) {
@@ -224,6 +230,26 @@ export class AssetControlPanelComponent implements OnInit {
     }
 
     this.loadAssetData();
+
+    const controlPanelTopic = TOPICS.assetControlPanel(assetId);
+    const kpisLovTopic = TOPICS.assetKpisLov(assetId);
+    this.signalR.joinTopic(controlPanelTopic).catch(() => {});
+    this.signalR.joinTopic(kpisLovTopic).catch(() => {});
+    this.signalR.onDataUpdated.pipe(takeUntil(this.destroy$)).subscribe((topic) => {
+      if (topic === controlPanelTopic || topic === kpisLovTopic) {
+        this.loadAssetData();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    const assetId = this.previousPageMetadata().assetId;
+    if (assetId) {
+      this.signalR.leaveTopic(TOPICS.assetControlPanel(assetId)).catch(() => {});
+      this.signalR.leaveTopic(TOPICS.assetKpisLov(assetId)).catch(() => {});
+    }
   }
 
   loadAssetData(): void {

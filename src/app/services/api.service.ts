@@ -181,6 +181,17 @@ export class ApiService {
     );
   }
 
+  /**
+   * GET KpisLov/manual-from-asset/{assetId}?kpiId={kpiId} — fetch current KPI value for an asset (e.g. on DataUpdated for Asset.{assetId}.KpisLov).
+   */
+  getKpisLovManualFromAsset(assetId: number, kpiId?: number): Observable<ApiResponse<any>> {
+    const params = kpiId != null ? new HttpParams().set('kpiId', String(kpiId)) : undefined;
+    return this.http.get<ApiResponse<any>>(
+      `${this.baseUrl}/KpisLov/manual-from-asset/${assetId}`,
+      { params: params ?? undefined },
+    );
+  }
+
   getAllUsers(): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/User/dropdown`);
   }

@@ -6,8 +6,9 @@ import {
 } from '../reusable/reusable-table/reusable-table.component';
 import { ApiService } from '../../services/api.service';
 import { forkJoin } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, takeUntil } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
+import { SignalRService, TOPICS } from '../../services/signalr.service';
 
 interface PerformanceIndex {
   label: string;
@@ -34,6 +35,9 @@ interface MinistryData {
   standalone: false,
 })
 export class PmDashboardComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+  private readonly headerTopic = TOPICS.pmDashboardHeader;
+
   currentInsightIndex = signal(0);
   loading = signal(true);
 
@@ -208,6 +212,7 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: ApiService,
     private router: Router,
+    private signalR: SignalRService,
   ) {
     this.currentInsight.set(this.insights[0] ?? this.emptyInsight);
   }
@@ -215,9 +220,19 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadPMDashboardData();
     this.startInsightAutoPlay();
+
+    this.signalR.joinTopic(this.headerTopic).catch(() => {});
+    this.signalR.onDataUpdated.pipe(takeUntil(this.destroy$)).subscribe((topic) => {
+      if (topic === this.headerTopic) {
+        this.loadPMDashboardData();
+      }
+    });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.signalR.leaveTopic(this.headerTopic).catch(() => {});
     this.stopInsightAutoPlay();
   }
 

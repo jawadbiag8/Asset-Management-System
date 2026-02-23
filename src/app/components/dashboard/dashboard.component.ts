@@ -16,6 +16,8 @@ import { DashboardReturnStateService } from '../../services/dashboard-return-sta
 import { formatDateOrPassThrough } from '../../utils/date-format.util';
 import { filter } from 'rxjs/operators';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { SignalRService, TOPICS } from '../../services/signalr.service';
+import { Subject, takeUntil } from 'rxjs';
 
 export interface DigitalAsset {
   id: number;
@@ -46,7 +48,10 @@ export interface DigitalAsset {
   styleUrl: './dashboard.component.scss',
   standalone: false,
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+  private readonly summaryTopic = TOPICS.adminDashboardSummary;
+
   constructor(
     private apiService: ApiService,
     private filterOptions: FilterOptionsService,
@@ -54,6 +59,7 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private dashboardReturnState: DashboardReturnStateService,
+    private signalR: SignalRService,
   ) {}
 
   tableFilters = signal<FilterPill[]>([]);
@@ -456,6 +462,19 @@ export class DashboardComponent implements OnInit {
     this.initializeFilters();
     this.applyInitialQueryParams();
     this.loadDashboardSummary();
+
+    this.signalR.joinTopic(this.summaryTopic).catch(() => {});
+    this.signalR.onDataUpdated.pipe(takeUntil(this.destroy$)).subscribe((topic) => {
+      if (topic === this.summaryTopic) {
+        this.loadDashboardSummary();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.signalR.leaveTopic(this.summaryTopic).catch(() => {});
   }
 
   /** URL se saare filter query params padhkar table filters par lagao (edit se wapas aane ya direct URL par aane par). */
