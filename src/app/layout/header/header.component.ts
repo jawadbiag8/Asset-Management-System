@@ -28,6 +28,17 @@ export class HeaderComponent {
 
   @ViewChild('profileDropdown', { static: false }) profileDropdown!: ElementRef;
 
+  /** User initials for avatar (e.g. "PMO USER" → "PU") */
+  getInitials(): string {
+    const name = this.user().name?.trim() || '';
+    if (!name) return '?';
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase().slice(0, 2);
+    }
+    return name.slice(0, 2).toUpperCase();
+  }
+
   constructor(
     private apiService: ApiService,
     private router: Router,

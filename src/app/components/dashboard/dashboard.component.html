@@ -1,34 +1,82 @@
-<div class="container-fluid p-4">
+<div class="dashboard-page container-fluid p-4">
+    <!-- Page Header: Title (left) | Grid icon + Add Digital Assets (right) -->
+    <div class="dashboard-header row align-items-center">
+        <h1 class="dashboard-page-title col">Digital Assets Monitoring Dashboard</h1>
+        <div class="col-auto d-flex align-items-center gap-2">
+            <button type="button" class="grid-toggle-btn" (click)="onGridIconClick()" aria-label="Toggle KPI cards">
+                <mat-icon>{{ dashboardKpis().isVisible ? 'dashboard' : 'view_module' }}</mat-icon>
+            </button>
+            <a routerLink="/add-digital-assets" class="btn-add-assets">
+                <mat-icon>add</mat-icon>
+                Add Digital Assets
+            </a>
+        </div>
+    </div>
 
-    <div class="mt-2 row">
-        <h1 class="digitalAssetsTitle col-12 col-md-6">Digital Assets Monitoring Dashboard</h1>
-        <div class="col-12 col-md-6">
-            <div class="d-flex justify-content-end align-items-center gap-2">
-                <img [src]="dashboardKpis().isVisible ? '/assets/Grid.svg' : '/assets/Grid-hide.svg'" alt="Grid Icon"
-                    class="grid-icon" (click)="onGridIconClick()">
-                <a routerLink="/add-digital-assets" class="btn btn-primary d-flex align-items-center gap-2"
-                    style="text-decoration: none;">
-                    <mat-icon>add</mat-icon> Add Digital Asset
-                </a>
+    <!-- Digital Assets Overall Performance (card: title + badge, pill bar, legend) -->
+    <section class="performance-section" aria-label="Digital Assets Overall Performance">
+        <div class="performance-card">
+            <div class="performance-card-header">
+                <h2 class="performance-card-title">Digital Assets Overall Performance</h2>
+                <span class="performance-badge">{{ performanceBar().compliantPct }}% Compliant</span>
+            </div>
+            <div class="performance-bar" role="presentation">
+                <span class="performance-segment performance-offline" [style.width.%]="performanceBar().offlinePct" title="Assets Offline"></span>
+                <span class="performance-segment performance-non-compliant" [style.width.%]="performanceBar().nonCompliantPct" title="Assets Non Compliant"></span>
+                <span class="performance-segment performance-compliant" [style.width.%]="performanceBar().compliantPct" title="Assets Compliant"></span>
+            </div>
+            <div class="performance-legend">
+                <div class="performance-legend-item performance-legend-offline">
+                    <span class="performance-legend-bullet" aria-hidden="true"></span>
+                    <span class="performance-legend-label">{{ performanceBar().offlinePct }}% Assets Offline</span>
+                </div>
+                <div class="performance-legend-item performance-legend-non-compliant">
+                    <span class="performance-legend-bullet" aria-hidden="true"></span>
+                    <span class="performance-legend-label">{{ performanceBar().nonCompliantPct }}% Assets Non Compliant</span>
+                </div>
+                <div class="performance-legend-item performance-legend-compliant">
+                    <span class="performance-legend-bullet" aria-hidden="true"></span>
+                    <span class="performance-legend-label">{{ performanceBar().compliantPct }}% Assets Compliant</span>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="mt-4">
-        <div class="row g-3">
-            @if(dashboardKpis().isVisible){
-            @for(item of dashboardKpis().data; track item.id){
-            <app-dashboardkpi class="col-lg-3 col-sm-12" [item]="item" (cardAction)="onKpiCardAction($event)"></app-dashboardkpi>
-            } }
+    <!-- Key Metrics: 8 cards in 2 rows x 4 columns -->
+    @if (dashboardKpis().isVisible) {
+        <div class="kpi-grid">
+            @for (item of dashboardKpisDisplay(); track item.id) {
+                <app-dashboardkpi class="kpi-card-cell" [item]="item" (cardAction)="onKpiCardAction($event)"></app-dashboardkpi>
+            }
         </div>
+    }
 
-    </div>
-
-    <!-- Table with Filters and Search -->
-    <div id="assets-table" class="mt-5">
-        <app-reusable-table [config]="tableConfigWithData()" [filters]="tableFilters()"
-            (searchQuery)="onSearchQuery($event)" [totalItems]="totalItems()" (actionClick)="onActionClick($event)">
+    <!-- Table: Add Filters + filter chips + Import Assets + Search -->
+    <div id="assets-table" class="dashboard-table-section">
+        <app-reusable-table
+            [config]="tableConfigWithData()"
+            [filters]="tableFilters()"
+            (searchQuery)="onSearchQuery($event)"
+            [totalItems]="totalItems()"
+            (actionClick)="onActionClick($event)"
+            >
+            <ng-container headerActions>
+                <input #bulkUploadInput type="file" accept=".csv" class="d-none" (change)="onBulkUploadFile($event)">
+                <button type="button" class="btn-import-assets" [matMenuTriggerFor]="importAssetsMenu" aria-label="Import Assets">
+                    <mat-icon>upload</mat-icon>
+                    Import Assets
+                </button>
+                <mat-menu #importAssetsMenu="matMenu" class="import-assets-menu">
+                    <button mat-menu-item (click)="onDownloadTemplate()">
+                        <mat-icon>download</mat-icon>
+                        <span>Download Template</span>
+                    </button>
+                    <button mat-menu-item (click)="onBulkUpload()">
+                        <mat-icon>upload</mat-icon>
+                        <span>Bulk Upload</span>
+                    </button>
+                </mat-menu>
+            </ng-container>
         </app-reusable-table>
     </div>
-
 </div>

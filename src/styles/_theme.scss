@@ -1,17 +1,17 @@
 @use '@angular/material' as mat;
 
-// Define the custom primary color palette
+// Define the custom primary color palette (Design system: primary #008080, hover #006666)
 $custom-primary-palette: (
-  50: #e0f7f5,
-  100: #b3ebe8,
-  200: #80ded9,
-  300: #4dd1ca,
-  400: #26c7be,
-  500: #0D9488, // Main primary color
-  600: #0b857a,
-  700: #09736c,
-  800: #07615e,
-  900: #044a47,
+  50: #e6f7f7,
+  100: #b3e6e6,
+  200: #80d4d4,
+  300: #4dc2c2,
+  400: #26b0b0,
+  500: #008080, // Main primary color
+  600: #006666, // Hover
+  700: #005252,
+  800: #003d3d,
+  900: #002929,
   A100: #a7ffeb,
   A200: #64ffda,
   A400: #1de9b6,
@@ -51,3 +51,6 @@ $custom-theme: mat.m2-define-light-theme((
 
 // Include the theme styles
 @include mat.all-component-themes($custom-theme);
+
+// Form field outline border-radius 12px (Design system). Overrides default 4px.
+@include mat.form-field-overrides((outlined-container-shape: 12px));

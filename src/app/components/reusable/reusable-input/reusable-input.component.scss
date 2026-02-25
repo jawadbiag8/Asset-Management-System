@@ -11,15 +11,17 @@
     margin-left: 2px;
 }
 
-// Material Form Field Customization
+// Material Form Field Customization (border-radius 12px via global styles)
 ::ng-deep {
     .mat-mdc-form-field {
         .mat-mdc-text-field-wrapper {
             background-color: var(--color-bg-primary);
+            border-radius: 12px;
         }
 
         &.mat-focused .mat-mdc-text-field-wrapper {
             background-color: var(--color-bg-primary);
+            border-radius: 12px;
         }
 
         .mat-mdc-form-field-subscript-wrapper {
@@ -33,10 +35,20 @@
     .mat-mdc-form-field-appearance-outline {
         .mat-mdc-form-field-outline {
             color: var(--color-border);
+            border-radius: 12px;
+        }
+        .mat-mdc-form-field-outline-start,
+        .mat-mdc-form-field-outline-end,
+        .mat-mdc-form-field-outline-gap,
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+            border-radius: 12px;
         }
 
         &.mat-focused .mat-mdc-form-field-outline-thick {
             color: var(--color-primary);
+            border-radius: 12px;
         }
 
         .mat-mdc-form-field-label {

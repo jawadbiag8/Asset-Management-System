@@ -1,43 +1,22 @@
 <header class="header">
-  <!-- LEFT -->
+  <!-- LEFT: Logo (design: icon | divider | Gov OS + CX Dashboards, dotted line behind) -->
   <div class="left">
     <div class="logo pointer" routerLink="/dashboard">
-      <img
-        src="Images/Dashboard/PDA-logo-icon.svg"
-        alt="PDA logo"
-        class="logo-img"
-      />
+      <img src="/assets/logo.svg" alt="Gov OS" class="logo-img" />
+      <span class="logo-title"><span class="logo-title-main">Gov</span><span class="logo-title-alt">OS</span></span>
       <span class="logo-divider" aria-hidden="true"></span>
-      <div class="logo-text">
-        <span class="logo-title">Citizen Experience Dashboard</span>
-        <span class="logo-subtitle">Pakistan Digital Authority</span>
-      </div>
+      <span class="logo-subtitle">CX Dashboards</span>
     </div>
+  </div>
 
+  <!-- RIGHT: Menu (nav) + Executive Dashboard + Profile -->
+  <div class="right">
     <nav class="nav" [class.open]="menuOpen">
-      <a
-        routerLink="/dashboard"
-        [class.active]="isDashboardActive()"
-        (click)="menuOpen = false"
-      >
-      Dashboard
-      </a>
-      <a
-        routerLink="/ministries"
-        [class.active]="isAssetsActive()"
-        (click)="menuOpen = false"
-      >
-        Ministries
-      </a>
-      <a
-        routerLink="/incidents"
-        [class.active]="isIncidentsActive()"
-        (click)="menuOpen = false"
-      >
-        Incidents
-      </a>
+      <a routerLink="/dashboard" [class.active]="isDashboardActive()" (click)="menuOpen = false">Dashboards</a>
+      <a routerLink="/ministries" [class.active]="isAssetsActive()" (click)="menuOpen = false">Assets</a>
+      <a routerLink="/ministries" [class.active]="isAssetsActive()" (click)="menuOpen = false">Ministries</a>
+      <a routerLink="/incidents" [class.active]="isIncidentsActive()" (click)="menuOpen = false">Incidents</a>
 
-      <!-- MOBILE EXECUTIVE DASHBOARD (PMO Executive only) -->
       <a
         *ngIf="isPmoExecutive() && !isPmDashboardActive()"
         routerLink="/pm-dashboard"
@@ -45,71 +24,47 @@
         (click)="menuOpen = false"
         class="mobile-executive-dashboard"
       >
-        <img src="Images/Dashboard/windows.svg" alt="pm icon" class="nav-icon" />
+        <img src="/Images/Dashboard/windows.svg" alt="pm icon" class="nav-icon" />
         Executive Dashboard
       </a>
 
-      <!-- MOBILE LOGOUT BUTTON -->
       <button class="action-btn mobile-logout" (click)="logout()">
-        <img src="Images/Dashboard/log-out.svg" alt="logout icon" />
+        <img src="/Images/Dashboard/log-out.svg" alt="logout icon" />
         Logout
       </button>
     </nav>
-  </div>
 
-  <!-- RIGHT -->
-  <div class="right">
     <button
       class="pm-btn"
       *ngIf="isPmoExecutive() && !isPmDashboardActive()"
       (click)="navigateToPmDashboard()"
     >
-      <!-- PROFILE SVG NEXT TO PM DASHBOARD -->
-      <img src="Images/Dashboard/windows.svg" alt="pm icon" class="pm-icon" />
+      <img src="/Images/Dashboard/windows.svg" alt="pm icon" class="pm-icon" />
       Executive Dashboard
     </button>
 
-    <!-- PROFILE DROPDOWN -->
     <div class="profile-dropdown" #profileDropdown>
       <div class="profile-trigger" (click)="toggleProfileDropdown()">
         <div class="profile-icon">
-          <img
-            src="Images/Dashboard/profile.svg"
-            alt="user icon"
-            class="user-icon-img"
-          />
+          <span class="profile-initials" aria-hidden="true">{{ getInitials() }}</span>
         </div>
         <div class="profile-info">
           <span class="username">{{ user().name }}</span>
           <span class="user-role">{{ user().role }}</span>
         </div>
-        <svg
-          class="dropdown-arrow"
-          [class.open]="profileDropdownOpen"
-          width="12"
-          height="8"
-          viewBox="0 0 12 8"
-          fill="none"
-        >
-          <path
-            d="M1 1L6 6L11 1"
-            stroke="#008080"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
+        <svg class="dropdown-arrow" [class.open]="profileDropdownOpen" width="12" height="8" viewBox="0 0 12 8" fill="none">
+          <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </div>
 
       <div class="dropdown-menu" [class.open]="profileDropdownOpen">
         <button class="dropdown-item logout-item" (click)="logout()">
-          <img src="Images/Dashboard/log-out.svg" alt="logout icon" />
+          <img src="/Images/Dashboard/log-out.svg" alt="logout icon" />
           <span>Logout</span>
         </button>
       </div>
     </div>
 
-    <!-- MOBILE MENU ICON -->
     <button class="menu-btn" (click)="menuOpen = !menuOpen">☰</button>
   </div>
 </header>

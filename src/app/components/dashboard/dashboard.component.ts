@@ -1,10 +1,10 @@
-import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import {
   TableConfig,
   TableColumn,
   FilterPill,
 } from '../reusable/reusable-table/reusable-table.component';
-import { ApiResponse, ApiService } from '../../services/api.service';
+import { ApiResponse, ApiService, BulkUploadErrorData } from '../../services/api.service';
 import { FilterOptionsService } from '../../services/filter-options.service';
 import { HttpParams } from '@angular/common/http';
 import {
@@ -14,8 +14,7 @@ import {
 import { UtilsService } from '../../services/utils.service';
 import { DashboardReturnStateService } from '../../services/dashboard-return-state.service';
 import { formatDateOrPassThrough } from '../../utils/date-format.util';
-import { filter } from 'rxjs/operators';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { SignalRService, TOPICS } from '../../services/signalr.service';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -63,6 +62,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   tableFilters = signal<FilterPill[]>([]);
+
+  /** Overall performance bar: % Offline | % Non Compliant | % Compliant (derived from summary). */
+  performanceBar = signal<{ offlinePct: number; nonCompliantPct: number; compliantPct: number }>({
+    offlinePct: 0,
+    nonCompliantPct: 100,
+    compliantPct: 0,
+  });
+
+  /** All 8 KPI cards in order: Total, Assets Online, Health, Performance, Compliance, High Risk, Open Incidents, Critical Incidents. */
+  dashboardKpisDisplay = computed<DashboardKpiItem[]>(() => {
+    const data = this.dashboardKpis().data;
+    const order = [1, 2, 3, 4, 5, 6, 7, 8];
+    return order.map((id) => data.find((c) => c.id === id)).filter(Boolean) as DashboardKpiItem[];
+  });
+
+  @ViewChild('bulkUploadInput') bulkUploadInput!: ElementRef<HTMLInputElement>;
 
   tableConfig = signal<TableConfig>({
     minWidth: '1150px',
@@ -638,6 +653,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
             data.criticalSeverityOpenIncidentsPercentage ?? 0,
         };
 
+        // Overall performance bar: offline % | non-compliant % | compliant %
+        const total = summary.totalAssets || 1;
+        const offlinePct = Math.round(((total - summary.assetsOnline) / total) * 100);
+        const compliantPct = Math.round(Number(summary.complianceIndex) || 0);
+        const nonCompliantPct = Math.max(0, 100 - offlinePct - compliantPct);
+        this.performanceBar.set({
+          offlinePct: Math.max(0, offlinePct),
+          nonCompliantPct,
+          compliantPct: Math.min(100, compliantPct),
+        });
+
         const toPercent = (value: number): string =>
           `${(value ?? 0).toString()}%`;
 
@@ -889,6 +915,68 @@ export class DashboardComponent implements OnInit, OnDestroy {
       ...kpis,
       isVisible: !kpis.isVisible,
     }));
+  }
+
+  onDownloadTemplate(): void {
+    this.apiService.getBulkUploadTemplate().subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'bulk-upload-template.csv';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+        this.utils.showToast('Template downloaded successfully.', 'Import Assets', 'success');
+      },
+      error: () => {
+        this.utils.showToast('Failed to download template. Please try again.', 'Import Assets', 'error');
+      },
+    });
+  }
+
+  onBulkUpload(): void {
+    this.bulkUploadInput?.nativeElement?.click();
+  }
+
+  onBulkUploadFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.apiService.bulkUpload(file).subscribe({
+      next: (res) => {
+        if (res.isSuccessful) {
+          this.utils.showToast(
+            res.message ?? 'Bulk upload completed successfully.',
+            'Import Assets',
+            'success',
+          );
+          this.loadDashboardSummary();
+          this.loadAssets(this.lastSearchParams);
+        } else {
+          const data = res.data as BulkUploadErrorData | undefined;
+          if (data?.errors?.length) {
+            this.utils.showToast(
+              (res.message ?? 'Bulk upload failed.') + ' Error report has been downloaded.',
+              'Import Assets',
+              'error',
+            );
+          } else {
+            this.utils.showToast(res.message ?? 'Bulk upload failed.', 'Import Assets', 'error');
+          }
+        }
+        input.value = '';
+      },
+      error: (err: any) => {
+        const body = err?.error;
+        const data = body?.data as BulkUploadErrorData | undefined;
+        if (data?.errors?.length) {
+          this.utils.showToast('Bulk upload failed. Error report has been downloaded.', 'Import Assets', 'error');
+        } else {
+          this.utils.showToast(err?.message ?? 'Bulk upload failed.', 'Import Assets', 'error');
+        }
+        input.value = '';
+      },
+    });
   }
 
   onActionClick(event: { row: any; columnKey: string }) {

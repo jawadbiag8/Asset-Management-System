@@ -1,11 +1,381 @@
-.digitalAssetsTitle {
-    font-weight: 700;
-    font-style: Bold;
-    font-size: 32px;
-    line-height: 100%;
-    letter-spacing: 0px;
+/* ================= Digital Assets Dashboard – dark theme (design) ================= */
+.dashboard-page {
+  background: #0d1117;
+  min-height: 100vh;
+  padding: 24px 32px 32px;
 }
 
-.grid-icon {
-    cursor: pointer;
+/* Page Header: Title (left) | Grid toggle + Add Digital Assets (right) */
+.dashboard-header {
+  margin-bottom: 24px;
+}
+
+.dashboard-page-title {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #ffffff;
+  margin: 0;
+}
+
+.grid-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+}
+
+.btn-add-assets {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: #22c55e;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: #16a34a;
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+}
+
+/* Digital Assets Overall Performance – design: dark card, pill bar, coloured legend */
+.performance-section {
+  margin-bottom: 24px;
+}
+
+.performance-card {
+  background: #10151b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  width: 100%;
+}
+
+.performance-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.performance-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.performance-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #5fad33;
+}
+
+.performance-bar {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 7px;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.performance-segment {
+  flex-shrink: 0;
+  min-width: 0;
+  transition: width 0.3s ease;
+}
+
+.performance-offline {
+  background: #ff4444;
+}
+
+.performance-non-compliant {
+  background: #ffc800;
+}
+
+.performance-compliant {
+  background: #5fad33;
+}
+
+.performance-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 28px;
+}
+
+.performance-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.performance-legend-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.performance-legend-label {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.performance-legend-offline .performance-legend-bullet {
+  background-color: #ff4444;
+}
+
+.performance-legend-offline .performance-legend-label {
+  color: #ff4444;
+}
+
+.performance-legend-non-compliant .performance-legend-bullet {
+  background-color: #ffc800;
+}
+
+.performance-legend-non-compliant .performance-legend-label {
+  color: #ffc800;
+}
+
+.performance-legend-compliant .performance-legend-bullet {
+  background-color: #5fad33;
+}
+
+.performance-legend-compliant .performance-legend-label {
+  color: #5fad33;
+}
+
+/* KPI grid: 2 rows x 4 columns (4 tiles per row) */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Table section: light card + force light theme for table via CSS variables */
+.dashboard-table-section {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  overflow: hidden;
+  /* So reusable-table (and Material) use light theme inside */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #1f2937;
+  --color-text-primary: #374151;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-bg-hover: #f3f4f6;
+}
+
+.btn-import-assets {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #6b7280;
+  }
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+}
+
+/* Import menu: dark dropdown */
+::ng-deep .import-assets-menu {
+  .mat-mdc-menu-content {
+    background: #161b22;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+  }
+
+  .mat-mdc-menu-item {
+    color: #e6edf3;
+  }
+
+  .mat-mdc-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .mat-icon {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Table section: filter bar + search + table (light theme for table block) */
+.dashboard-table-section ::ng-deep {
+  .filter-add-btn {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+
+    &:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+
+    .mat-icon {
+      color: #374151;
+    }
+  }
+
+  .filter-pill-selected {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+
+    .filter-close-icon {
+      color: #6b7280;
+    }
+  }
+
+  .search-container .search-input {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #111827;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    &:focus {
+      border-color: #008080;
+    }
+  }
+
+  .search-container .search-icon {
+    color: #6b7280;
+  }
+
+  /* Table + pagination overrides are in styles.scss under .dashboard-page .dashboard-table-section */
+}
+
+/* KPI cards dark theme (overrides from dashboard parent) */
+.kpi-grid ::ng-deep .kpi-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .kpi-value {
+    color: #ffffff;
+  }
+
+  .kpi-title {
+    color: #ffffff;
+  }
+
+  .kpi-subtitle {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .kpi-divider {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .kpi-link,
+  .kpi-chevron {
+    color: #00cfcf;
+  }
+
+  .kpi-badge-percentage.kpi-badge-success,
+  .kpi-badge-text.kpi-badge-healthy,
+  .kpi-badge-text.kpi-badge-success {
+    background: rgba(34, 197, 94, 0.25);
+    color: #4ade80;
+  }
+
+  .kpi-badge-percentage.kpi-badge-danger,
+  .kpi-badge-text.kpi-badge-low,
+  .kpi-badge-text.kpi-badge-danger {
+    background: rgba(239, 68, 68, 0.25);
+    color: #f87171;
+  }
+
+  .kpi-badge-text.kpi-badge-average {
+    background: rgba(245, 158, 11, 0.25);
+    color: #fbbf24;
+  }
+
+  .kpi-badge-text.kpi-badge-medium {
+    background: rgba(59, 130, 246, 0.25);
+    color: #60a5fa;
+  }
 }

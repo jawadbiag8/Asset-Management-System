@@ -2,14 +2,15 @@
 
 /* Color Variables */
 :root {
-  /* Primary Colors */
-  --color-primary: #006666;
-  --color-primary-hover: #005252;
+  /* Primary Colors (Design system) */
+  --color-primary: #008080;
+  --color-primary-hover: #006666;
 
   --color-light-green: #66B3B340;
   --color-light-lightgrey2: #9E9E9E;
 
-  /* Background Colors */
+  /* Background Colors (Design system: gradient black → teal) */
+  --color-bg-gradient: linear-gradient(180deg, #000000 0%, #008080 200.27%);
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #F8F8F8;
   --color-bg-tertiary: #F9FAFB;
@@ -17,12 +18,13 @@
   --color-bg-hover: #F9FAFB;
 
 
-  /* Text Colors */
-  --color-text-primary: #111827;
-  --color-text-secondary: #374151;
-  --color-text-tertiary: #6B7280;
-  --color-text-quaternary: #9CA3AF;
+  /* Text Colors (Design system: primary #ffffff on dark) */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #E5E7EB;
+  --color-text-tertiary: #9CA3AF;
+  --color-text-quaternary: #6B7280;
   --color-text-white: #FFFFFF;
+  --color-text-on-light: #111827;
 
 
   /* Border Colors */
@@ -43,17 +45,27 @@
   --color-blue-light: #E0F2FE;
   --color-blue-light-hover: #BAE6FD;
   --color-blue-dark: #0284C7;
-  --color-link: #006666;
+  --color-link: #008080;
 
   /* Filter Pill Colors */
-  --color-filter-selected-bg: #0D9488;
+  --color-filter-selected-bg: #008080;
   --color-filter-dropdown-bg: #F3F4F6;
   --color-filter-dropdown-bg-hover: #E5E7EB;
 
   /* Search Input Colors */
   --color-search-border: #E5E7EB;
-  --color-search-border-focus: #0D9488;
+  --color-search-border-focus: #008080;
   --color-search-placeholder: #9CA3AF;
+
+  /* Design system: Cards & layout (dialogs 24px radius) */
+  --card-border-radius: 24px;
+  --card-padding: 20px;
+  --card-gap: 10px;
+  --border-opacity: 1;
+  --dialog-border-radius: 24px;
+  --form-field-border-radius: 12px;
+  /* Material outlined text field: 12px radius (overrides theme default 4px) */
+  --mdc-outlined-text-field-container-shape: 12px;
 
   --color-red: #EF4444;
   --color-red-light: #FEE2E2;
@@ -87,17 +99,18 @@
   --severity-na-text: #FFFFFF;
   --severity-na-border: #8C8C8C;
 
-  /* Font Families */
+  /* Font Families (Design system: SF Pro Display) */
+  --font-primary: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --font-rubik: 'Rubik', sans-serif;
 }
 
-/* Apply Inter globally */
+/* Apply SF Pro Display globally */
 * {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-primary);
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-primary);
   background-color: var(--color-bg-secondary);
 }
 
@@ -184,13 +197,13 @@ body {
   letter-spacing: 0px;
 }
 
-// All modals/dialogs: 8px border radius
+// All modals/dialogs: 24px border radius (Design system)
 ::ng-deep .mat-mdc-dialog-container {
-  border-radius: 8px;
+  border-radius: var(--dialog-border-radius, 24px);
 }
 
 ::ng-deep .mat-mdc-dialog-surface {
-  border-radius: 8px;
+  border-radius: var(--dialog-border-radius, 24px);
 }
 
 // Responsive modal styles
@@ -251,7 +264,7 @@ body {
 }
 
 .rounded {
-  border-radius: 8px !important;
+  border-radius: var(--card-border-radius) !important;
   border: 1px solid var(--color-border) !important;
 }
 
@@ -259,14 +272,162 @@ body {
 .filter-options-dialog .mat-mdc-dialog-container {
   padding: 0;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--dialog-border-radius, 24px);
 }
 
-/* Table headers – uppercase throughout the application */
+/* Form fields – 12px border radius (Design system). Material uses 4px by default. */
+::ng-deep .mat-mdc-form-field-appearance-outline {
+  $r: var(--form-field-border-radius, 12px);
+  .mat-mdc-text-field-wrapper {
+    border-radius: $r;
+  }
+  .mat-mdc-form-field-outline-start,
+  .mat-mdc-form-field-outline-end,
+  .mat-mdc-form-field-outline-gap,
+  .mat-mdc-form-field-outline-thick,
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-top-left-radius: $r !important;
+    border-top-right-radius: $r !important;
+    border-bottom-left-radius: $r !important;
+    border-bottom-right-radius: $r !important;
+  }
+}
+
+/* Table headers – capitalize (Design system) */
 table th,
 .assets-table th,
 .mat-mdc-header-cell {
-  text-transform: uppercase;
+  text-transform: capitalize;
+}
+
+/* Dashboard page: table design – dark header, light rows, blue links, green Analyze */
+.dashboard-page .dashboard-table-section {
+  .table-wrapper {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0 !important;
+  }
+
+  .assets-table {
+    background: #ffffff !important;
+  }
+
+  .assets-table .mat-mdc-header-row,
+  .assets-table th {
+    background: #1f2937 !important;
+    color: #9ca3af !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .assets-table th:last-child {
+    border-right: none !important;
+  }
+
+  .assets-table .mat-mdc-row,
+  .assets-table tr.mat-mdc-row {
+    background: #ffffff !important;
+  }
+
+  .assets-table .mat-mdc-row:nth-child(even),
+  .assets-table tr.mat-mdc-row:nth-child(even) {
+    background: #f9fafb !important;
+  }
+
+  .assets-table .mat-mdc-cell,
+  .assets-table td {
+    color: #374151 !important;
+    background-color: inherit !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-right: 1px solid #e5e7eb !important;
+  }
+
+  .assets-table .mat-mdc-row:nth-child(even) .mat-mdc-cell,
+  .assets-table tr.mat-mdc-row:nth-child(even) td {
+    background: #f9fafb !important;
+  }
+
+  .assets-table .mat-mdc-cell:last-child,
+  .assets-table td:last-child {
+    border-right: none !important;
+  }
+
+  .assets-table tr.mat-mdc-row:hover .mat-mdc-cell,
+  .assets-table tr.mat-mdc-row:hover td {
+    background: #f3f4f6 !important;
+  }
+
+  .assets-table .sort-icon,
+  .assets-table .sortable-header .mat-icon {
+    color: #9ca3af !important;
+  }
+
+  .assets-table .line-link,
+  .assets-table .line-primary.line-link,
+  .assets-table a.line-link,
+  .assets-table .link-text {
+    color: #2563eb !important;
+    text-decoration: underline;
+  }
+
+  .assets-table .line-link:hover,
+  .assets-table .link-text:hover {
+    color: #1d4ed8 !important;
+  }
+
+  .assets-table .line-secondary {
+    color: #6b7280 !important;
+  }
+
+  .assets-table .trailing-btn-outline {
+    background: #ffffff !important;
+    border: 1px solid #22c55e !important;
+    color: #16a34a !important;
+    border-radius: 6px;
+  }
+
+  .assets-table .trailing-btn-outline:hover {
+    background: #f0fdf4 !important;
+  }
+
+  .pagination-container {
+    border-top: 1px solid #e5e7eb !important;
+    background: #ffffff !important;
+    color: #374151 !important;
+  }
+
+  .rows-per-page-label,
+  .row-count-text {
+    color: #6b7280 !important;
+  }
+
+  .rows-per-page-select {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+  }
+
+  .empty-state-text {
+    color: #6b7280 !important;
+  }
+
+  .assets-table .text-success .line-primary,
+  .assets-table .text-success {
+    color: #059669 !important;
+  }
+  .assets-table .text-danger .line-primary,
+  .assets-table .text-danger {
+    color: #dc2626 !important;
+  }
+  .assets-table .text-warning .line-primary,
+  .assets-table .text-warning {
+    color: #d97706 !important;
+  }
+  .assets-table .text-default .line-primary {
+    color: #6b7280 !important;
+  }
 }
 
 /* Dropdown options – uppercase everywhere (mat-select + native select) */

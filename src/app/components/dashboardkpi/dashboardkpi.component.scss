@@ -3,9 +3,9 @@
 }
 
 .kpi-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
+    background: #161b22;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     padding: 24px;
     height: 100%;
     display: flex;
@@ -17,8 +17,8 @@
     }
 
     &:hover {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-color: #D1D5DB;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.2);
     }
 }
 
@@ -35,7 +35,7 @@
     font-size: 32px;
     line-height: 100%;
     letter-spacing: 0px;
-    color: #111827;
+    color: #ffffff;
     margin: 0;
     flex: 1;
 }
@@ -85,8 +85,8 @@
     }
 
     &.kpi-badge-medium {
-        background-color: #FEF3C7;
-        color: #B45309;
+        background-color: rgba(59, 130, 246, 0.25);
+        color: #93c5fd;
     }
 
     &.kpi-badge-success {
@@ -109,28 +109,26 @@
 
 .kpi-title {
     font-weight: 600;
-    font-style: normal;
     font-size: 16px;
-    line-height: 100%;
-    letter-spacing: 0px;
-    color: #111827;
+    line-height: 1.25;
+    letter-spacing: 0;
+    color: #e6edf3;
     margin: 0 0 8px 0;
 }
 
 .kpi-subtitle {
     font-weight: 400;
-    font-style: normal;
     font-size: 14px;
-    line-height: 100%;
-    letter-spacing: 0px;
-    color: #6B7280;
+    line-height: 1.4;
+    letter-spacing: 0;
+    color: rgba(255, 255, 255, 0.65);
     margin: 0 0 16px 0;
     flex: 1;
 }
 
 .kpi-divider {
     height: 1px;
-    background-color: #E5E7EB;
+    background-color: rgba(255, 255, 255, 0.1);
     margin: 16px 0;
     width: 100%;
 }
@@ -145,28 +143,26 @@
 }
 
 .kpi-link {
-    font-weight: 400;
+    font-weight: 500;
     font-size: 12px;
-    letter-spacing: 0px;
-    color: var(--color-link);
+    letter-spacing: 0;
+    color: #00CFCF;
     text-decoration: none;
 
-
     &:hover {
-        color: var(--color-link);
+        color: #49F0BC;
         text-decoration: underline;
     }
 }
 
 .kpi-link-text {
     font-weight: 400;
-    font-style: normal;
     font-size: 12px;
-    line-height: 100%;
-    letter-spacing: 0px;
-    color: #6B7280;
+    line-height: 1.2;
+    letter-spacing: 0;
+    color: rgba(255, 255, 255, 0.65);
 }
 
 .kpi-chevron {
-    color: var(--color-link);
+    color: #00CFCF;
 }
