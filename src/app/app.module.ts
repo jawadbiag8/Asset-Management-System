@@ -40,6 +40,7 @@ import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-
 import { ConfirmationDialogComponent } from './components/reusable/confirmation-dialog/confirmation-dialog.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { AssetControlPanelComponent } from './components/assets/asset-control-panel/asset-control-panel.component';
+import { AssetsComponent } from './components/assets/assets.component';
 import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
 import { MinistryDashboardComponent } from './components/ministry-dashboard/ministry-dashboard.component';
 
@@ -63,6 +64,7 @@ import { MinistryDashboardComponent } from './components/ministry-dashboard/mini
     ConfirmationDialogComponent,
     LoaderComponent,
     AssetControlPanelComponent,
+    AssetsComponent,
     PmDashboardComponent,
     MinistryDashboardComponent,
   ],

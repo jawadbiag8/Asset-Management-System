@@ -63,29 +63,26 @@ export class DashboardkpiComponent {
     }
   }
 
+  /** Returns global status badge class (from styles.scss) so all badges use same color scheme & 24px radius. */
   getBadgeClass(): string {
-    if (!this.item.subValue) return '';
+    if (!this.item.subValue) return 'badge-status-unknown';
 
     const isPercentage = this.isPercentageBadge();
     if (isPercentage) {
       return this.item.subValueColor === 'success'
-        ? 'kpi-badge-percentage kpi-badge-success'
-        : 'kpi-badge-percentage kpi-badge-danger';
-    } else {
-      // Text badges like HEALTHY, AVERAGE, LOW, MEDIUM
-      const badgeText = this.item.subValue.toUpperCase();
-      if (badgeText === 'HEALTHY') {
-        return 'kpi-badge-text kpi-badge-healthy';
-      } else if (badgeText === 'AVERAGE') {
-        return 'kpi-badge-text kpi-badge-average';
-      } else if (badgeText === 'LOW') {
-        return 'kpi-badge-text kpi-badge-low';
-      } else if (badgeText === 'MEDIUM') {
-        return 'kpi-badge-text kpi-badge-medium';
-      }
-      return this.item.subValueColor === 'success'
-        ? 'kpi-badge-text kpi-badge-success'
-        : 'kpi-badge-text kpi-badge-danger';
+        ? 'badge-status-success'
+        : 'badge-status-danger';
     }
+    // Text badges: HEALTHY, AVERAGE, LOW, MEDIUM, HIGH, FAIR, etc.
+    const badgeText = this.item.subValue.toUpperCase();
+    if (badgeText === 'HEALTHY' || badgeText === 'FAIR') return 'badge-status-success';
+    if (badgeText === 'AVERAGE') return 'badge-status-warning';
+    if (badgeText === 'LOW' || badgeText === 'HIGH') return 'badge-status-danger';
+    if (badgeText === 'MEDIUM') return 'badge-status-info';
+    return this.item.subValueColor === 'success'
+      ? 'badge-status-success'
+      : this.item.subValueColor === 'danger'
+        ? 'badge-status-danger'
+        : 'badge-status-unknown';
   }
 }

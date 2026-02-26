@@ -6,7 +6,7 @@
         <div class="kpi-header">
             <h1 class="kpi-value">{{ item.value }}</h1>
             @if(item.subValue) {
-            <span [ngClass]="getBadgeClass()" class="kpi-badge">
+            <span class="kpi-badge" [ngClass]="getBadgeClass()">
                 {{ item.subValue }}
             </span>
             }

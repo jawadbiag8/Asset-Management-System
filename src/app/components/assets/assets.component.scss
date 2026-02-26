@@ -1,0 +1,190 @@
+.assets-page {
+  padding: 24px 32px 32px;
+}
+
+/* Page Header: Title (left) | Search + Add Digital Assets (right) – dark theme */
+.assets-header {
+  margin-bottom: 24px;
+}
+
+.assets-page-title {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #ffffff;
+  margin: 0;
+}
+
+.assets-search-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 220px;
+
+  .assets-search-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+  }
+
+  .assets-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 42px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    &:focus {
+      border-color: #14b8a6;
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+}
+
+.btn-add-digital-assets {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: #14b8a6;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: #0d9488;
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+}
+
+/* Table section: light card + force light theme for table via CSS variables (same as dashboard) */
+.dashboard-table-section {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  overflow: hidden;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #1f2937;
+  --color-text-primary: #374151;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-bg-hover: #f3f4f6;
+}
+
+.btn-import-assets {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #6b7280;
+  }
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+  }
+}
+
+::ng-deep .import-assets-menu {
+  .mat-mdc-menu-content {
+    background: #161b22;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+  }
+
+  .mat-mdc-menu-item {
+    color: #e6edf3;
+  }
+
+  .mat-mdc-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .mat-icon {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.dashboard-table-section ::ng-deep {
+  .filter-add-btn {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+
+    &:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+
+    .mat-icon {
+      color: #374151;
+    }
+  }
+
+  .filter-pill-selected {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+
+    .filter-close-icon {
+      color: #6b7280;
+    }
+  }
+
+  .search-container .search-input {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #111827;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    &:focus {
+      border-color: #008080;
+    }
+  }
+
+  .search-container .search-icon {
+    color: #6b7280;
+  }
+}

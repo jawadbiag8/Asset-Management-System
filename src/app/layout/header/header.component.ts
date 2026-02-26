@@ -67,7 +67,7 @@ export class HeaderComponent {
   isAssetsActive(): boolean {
     const route = this.currentRoute();
     return (
-      route.includes('/ministries') ||
+      route.includes('/assets') ||
       route.includes('/ministries') ||
       route.includes('/ministry-detail') ||
       route.includes('/view-assets-detail') ||

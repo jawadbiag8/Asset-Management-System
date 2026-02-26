@@ -99,6 +99,19 @@
   --severity-na-text: #FFFFFF;
   --severity-na-border: #8C8C8C;
 
+  /* Status badge colors (danger, warning, info, success, unknown) – use with .badge-status-* */
+  --status-badge-radius: 24px;
+  --status-badge-success-bg: rgba(44, 204, 0, 0.29);
+  --status-badge-success-text: #ffffff;
+  --status-badge-info-bg: rgba(76, 151, 255, 0.7);
+  --status-badge-info-text: #ffffff;
+  --status-badge-danger-bg: rgba(255, 0, 0, 0.49);
+  --status-badge-danger-text: #ffffff;
+  --status-badge-warning-bg: rgba(255, 200, 0, 0.7);
+  --status-badge-warning-text: #1a1a1a;
+  --status-badge-unknown-bg: rgba(255, 255, 255, 1);
+  --status-badge-unknown-text: #1a1a1a;
+
   /* Font Families (Design system: SF Pro Display) */
   --font-primary: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --font-rubik: 'Rubik', sans-serif;
@@ -109,9 +122,113 @@
   font-family: var(--font-primary);
 }
 
+/* Same gradient + bg.svg as login; fixed to viewport so no "seam" when scrolling to end */
+html {
+  min-height: 100%;
+}
+
 body {
   font-family: var(--font-primary);
-  background-color: var(--color-bg-secondary);
+  min-height: 100%;
+  background: linear-gradient(180deg, #000000 0%, #003D3D 100%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/assets/bg.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.4;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.app-shell {
+  background: transparent;
+}
+
+/* ========== Status badges (danger, warning, info, success, unknown) – use everywhere ========== */
+.badge-status-success,
+.badge-status-info,
+.badge-status-danger,
+.badge-status-warning,
+.badge-status-unknown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 80px;
+  height: 27px;
+  padding: 4px 8px 4px 8px;
+  border-radius: var(--status-badge-radius, 24px);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  opacity: 1;
+  /* Glass effect: subtle border + top highlight + depth */
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.badge-status-success {
+  background: var(--status-badge-success-bg);
+  color: var(--status-badge-success-text);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.15) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.badge-status-info {
+  background: var(--status-badge-info-bg);
+  color: var(--status-badge-info-text);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.badge-status-danger {
+  background: var(--status-badge-danger-bg);
+  color: var(--status-badge-danger-text);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.1) inset,
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.badge-status-warning {
+  background: var(--status-badge-warning-bg);
+  color: var(--status-badge-warning-text);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.badge-status-unknown {
+  background: var(--status-badge-unknown-bg);
+  color: var(--status-badge-unknown-text);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .btn {

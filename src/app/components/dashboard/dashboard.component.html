@@ -1,11 +1,8 @@
 <div class="dashboard-page container-fluid p-4">
-    <!-- Page Header: Title (left) | Grid icon + Add Digital Assets (right) -->
+    <!-- Page Header: Title (left) | Add Digital Assets (right) -->
     <div class="dashboard-header row align-items-center">
         <h1 class="dashboard-page-title col">Digital Assets Monitoring Dashboard</h1>
         <div class="col-auto d-flex align-items-center gap-2">
-            <button type="button" class="grid-toggle-btn" (click)="onGridIconClick()" aria-label="Toggle KPI cards">
-                <mat-icon>{{ dashboardKpis().isVisible ? 'dashboard' : 'view_module' }}</mat-icon>
-            </button>
             <a routerLink="/add-digital-assets" class="btn-add-assets">
                 <mat-icon>add</mat-icon>
                 Add Digital Assets
@@ -50,33 +47,4 @@
             }
         </div>
     }
-
-    <!-- Table: Add Filters + filter chips + Import Assets + Search -->
-    <div id="assets-table" class="dashboard-table-section">
-        <app-reusable-table
-            [config]="tableConfigWithData()"
-            [filters]="tableFilters()"
-            (searchQuery)="onSearchQuery($event)"
-            [totalItems]="totalItems()"
-            (actionClick)="onActionClick($event)"
-            >
-            <ng-container headerActions>
-                <input #bulkUploadInput type="file" accept=".csv" class="d-none" (change)="onBulkUploadFile($event)">
-                <button type="button" class="btn-import-assets" [matMenuTriggerFor]="importAssetsMenu" aria-label="Import Assets">
-                    <mat-icon>upload</mat-icon>
-                    Import Assets
-                </button>
-                <mat-menu #importAssetsMenu="matMenu" class="import-assets-menu">
-                    <button mat-menu-item (click)="onDownloadTemplate()">
-                        <mat-icon>download</mat-icon>
-                        <span>Download Template</span>
-                    </button>
-                    <button mat-menu-item (click)="onBulkUpload()">
-                        <mat-icon>upload</mat-icon>
-                        <span>Bulk Upload</span>
-                    </button>
-                </mat-menu>
-            </ng-container>
-        </app-reusable-table>
-    </div>
 </div>

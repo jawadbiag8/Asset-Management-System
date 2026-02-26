@@ -10,6 +10,7 @@ import { LoginGuard } from './guards/login.guard';
 import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
 import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 import { AssetControlPanelComponent } from './components/assets/asset-control-panel/asset-control-panel.component';
+import { AssetsComponent } from './components/assets/assets.component';
 import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
 import { MinistryDashboardComponent } from './components/ministry-dashboard/ministry-dashboard.component';
 
@@ -22,6 +23,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   // { path: 'dashboard', redirectTo: 'assets', pathMatch: 'full' },
+  {
+    path: 'assets',
+    component: AssetsComponent,
+    canActivate: [AuthGuard],
+  },
   {
     path: 'ministries',
     component: MinistryDashboardComponent,

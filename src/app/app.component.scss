@@ -1,0 +1,11 @@
+/* Background is on body in styles.scss (same as login). Shell is transparent so it shows through. */
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+
+  app-header,
+  router-outlet {
+    position: relative;
+    z-index: 1;
+  }
+}
