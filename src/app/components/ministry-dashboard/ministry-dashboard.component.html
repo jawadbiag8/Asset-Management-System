@@ -1,10 +1,4 @@
 <div class="ministry-dashboard">
-  <app-reusable-breadcrum
-    [breadcrumbs]="[
-      { label: 'Ministries' },
-    ]"
-  ></app-reusable-breadcrum>
-
   <div class="page-header">
     <div class="header-left">
       <h1 class="page-title">Ministries</h1>
@@ -20,7 +14,7 @@
           class="search-input"
           [value]="searchTerm()"
           (input)="onSearchChange(($any($event.target)).value)"
-          placeholder="Search ministries..."
+          placeholder="Search"
         />
       </div>
     </div>
@@ -122,20 +116,33 @@
                 <span class="stat-value">{{ m.openIncidents }}</span>
               </div>
             </div>
-            <button
-              type="button"
-              class="btn-report"
-              (click)="$event.stopPropagation(); generateReport(m.ministryId, $event)"
-              aria-label="Generate PDF report"
-            >
-              <svg class="btn-report-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M8.66667 1.3335V4.00016C8.66667 5.47292 9.86057 6.66683 11.3333 6.66683L14 6.66683M2 4.00016L2 12.0002C2 13.4729 3.19391 14.6668 4.66667 14.6668H11.3333C12.8061 14.6668 14 13.4729 14 12.0002V7.7714C14 7.06416 13.719 6.38588 13.219 5.88578L9.44771 2.11454C8.94762 1.61445 8.26934 1.3335 7.5621 1.3335L4.66667 1.3335C3.19391 1.3335 2 2.5274 2 4.00016Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                <path d="M4.29102 12V9.13672H5.21875C5.57031 9.13672 5.79948 9.15104 5.90625 9.17969C6.07031 9.22266 6.20768 9.31641 6.31836 9.46094C6.42904 9.60417 6.48438 9.78971 6.48438 10.0176C6.48438 10.1934 6.45247 10.3411 6.38867 10.4609C6.32487 10.5807 6.24349 10.6751 6.14453 10.7441C6.04688 10.8118 5.94727 10.8568 5.8457 10.8789C5.70768 10.9063 5.50781 10.9199 5.24609 10.9199H4.86914V12H4.29102ZM4.86914 9.62109V10.4336H5.18555C5.41341 10.4336 5.56576 10.4186 5.64258 10.3887C5.7194 10.3587 5.7793 10.3118 5.82227 10.248C5.86654 10.1842 5.88867 10.11 5.88867 10.0254C5.88867 9.92122 5.85807 9.83529 5.79688 9.76758C5.73568 9.69987 5.6582 9.65755 5.56445 9.64063C5.49544 9.6276 5.35677 9.62109 5.14844 9.62109H4.86914Z" fill="currentColor"/>
-                <path d="M6.95703 9.13672H8.01367C8.25195 9.13672 8.43359 9.15495 8.55859 9.19141C8.72656 9.24089 8.87044 9.32878 8.99023 9.45508C9.11003 9.58138 9.20117 9.73633 9.26367 9.91992C9.32617 10.1022 9.35742 10.3275 9.35742 10.5957C9.35742 10.8314 9.32813 11.0345 9.26953 11.2051C9.19792 11.4134 9.0957 11.582 8.96289 11.7109C8.86263 11.8086 8.72721 11.8848 8.55664 11.9395C8.42904 11.9798 8.25846 12 8.04492 12H6.95703V9.13672ZM7.53516 9.62109V11.5176H7.9668C8.12826 11.5176 8.24479 11.5085 8.31641 11.4902C8.41016 11.4668 8.48763 11.4271 8.54883 11.3711C8.61133 11.3151 8.66211 11.2233 8.70117 11.0957C8.74023 10.9668 8.75977 10.7917 8.75977 10.5703C8.75977 10.349 8.74023 10.179 8.70117 10.0605C8.66211 9.94206 8.60742 9.84961 8.53711 9.7832C8.4668 9.7168 8.3776 9.67188 8.26953 9.64844C8.1888 9.63021 8.0306 9.62109 7.79492 9.62109H7.53516Z" fill="currentColor"/>
-                <path d="M9.85352 12V9.13672H11.8164V9.62109H10.4316V10.2988H11.627V10.7832H10.4316V12H9.85352Z" fill="currentColor"/>
-              </svg>
-              <span>Generate Report</span>
-            </button>
+            <div class="header-actions">
+              <button
+                type="button"
+                class="btn-action btn-correspondence"
+                (click)="$event.stopPropagation(); onCorrespondence(m.ministryId, $event)"
+                aria-label="Correspondence"
+              >
+                Correspondence
+              </button>
+              <button
+                type="button"
+                class="btn-action btn-pdf"
+                (click)="$event.stopPropagation(); generateReport(m.ministryId, $event)"
+                aria-label="PDF"
+              >
+                PDF
+              </button>
+              <a
+                class="btn-action btn-view"
+                [routerLink]="['/ministry-detail']"
+                [queryParams]="{ ministryId: m.ministryId }"
+                (click)="$event.stopPropagation()"
+                aria-label="View"
+              >
+                View
+              </a>
+            </div>
             <button
               type="button"
               class="accordion-toggle"
@@ -169,7 +176,7 @@
                       <span class="tile-url" [title]="asset.assetName || asset.assetUrl">{{ asset.assetName || asset.assetUrl || '—' }}</span>
                       <div class="tile-row2">
                         <span class="tile-value" [ngClass]="valueColorClass(asset.currentStatus)">{{ formatTileValue(asset.tileValue) }}</span>
-                        <span class="tile-status" [ngClass]="statusBadgeClass(asset.currentStatus)">
+                        <span class="tile-status-badge" [ngClass]="getDashboardStatusBadgeClass(asset.currentStatus)">
                           {{ asset.currentStatus || 'UNKNOWN' }}
                         </span>
                       </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
-import { BreadcrumbItem } from '../../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, ApiResponse } from '../../../services/api.service';
+import { BreadcrumbService } from '../../../services/breadcrumb.service';
 import { UtilsService } from '../../../services/utils.service';
 import { formatDateOrPassThrough } from '../../../utils/date-format.util';
 import {
@@ -199,13 +199,6 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     return category ? category.kpis.length : 0;
   }
 
-  breadcrumbs = signal<BreadcrumbItem[]>([
-    { label: 'Ministries', path: '/ministries' },
-    { label: 'Ministry', path: '/ministry-detail' },
-    { label: 'Ministry Website', path: '/view-assets-detail' },
-    { label: 'Compliance Report' },
-  ]);
-
   constructor(
     private route: Router,
     private activatedRoute: ActivatedRoute,
@@ -213,6 +206,7 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     private utils: UtilsService,
     private dialog: MatDialog,
     private signalR: SignalRService,
+    private breadcrumbService: BreadcrumbService,
   ) {}
 
   ngOnInit(): void {
@@ -243,6 +237,7 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.breadcrumbService.setCurrentLabel(null);
     this.destroy$.next();
     this.destroy$.complete();
     const assetId = this.previousPageMetadata().assetId;
@@ -257,23 +252,10 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     this.api.getAssetControlPanelData(this.previousPageMetadata().assetId).subscribe({
       next: (response: ApiResponse<AssetControlPanelData>) => {
         if (response.isSuccessful) {
-          this.breadcrumbs.set([
-            { label: 'Ministries', path: '/ministries' },
-            {
-              label: response.data?.header?.ministry ?? '',
-              path: '/ministry-detail',
-              queryParams: { ministryId: response.data?.header?.ministryId ?? '' },
-            },
-            {
-              label: response.data?.header?.assetName ?? '',
-              path: '/view-assets-detail',
-              queryParams: { id: this.previousPageMetadata().assetId,ministryId: response.data?.header?.ministryId ?? '' },
-            },
-            { label: 'Compliance Report' },
-          ]);
-
           this.tableConfigCache.clear();
           this.assetControlPanelData.set(response.data as AssetControlPanelData);
+          const name = (response.data as AssetControlPanelData)?.header?.assetName;
+          if (name) this.breadcrumbService.setCurrentLabel(name);
         } else {
           this.utils.showToast(response.message || 'Failed to load asset data', 'Error', 'error');
         }

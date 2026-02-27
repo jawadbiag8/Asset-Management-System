@@ -412,6 +412,7 @@ export type CellType =
   | 'badge-with-subtext'
   | 'text-with-color'
   | 'health-status'
+  | 'metric-with-trend'
   | 'actions'
   | 'progress-bar';
 
@@ -439,6 +440,8 @@ export interface TableColumn {
   subtextField?: string; // Field name for subtext (badge-with-subtext only)
   /** When true, subtext is shown only in tooltip (set tooltip to a function returning subtext) and not below the badge. */
   subtextAsTooltip?: boolean;
+  /** When set, badge uses global .badge-status-* classes (dashboard style: glass, 24px radius). No inline badgeColor/badgeTextColor. */
+  badgeStatus?: (row: any) => 'success' | 'danger' | 'warning' | 'info' | 'unknown';
 
   // For 'icon' cells
   iconName?: string; // Material icon name
@@ -456,6 +459,11 @@ export interface TableColumn {
   trailingButtonLabel?: string;
   trailingButtonClick?: (row: any) => void;
 
+  /** For 'two-line' cells: optional CSS class for the primary line based on row (e.g. highlight when value > 0). */
+  primaryLineClassFn?: (row: any) => string;
+  /** For 'two-line' cells: optional CSS class for the secondary line based on row (e.g. highlight Critical Severity when > 0). */
+  secondaryLineClassFn?: (row: any) => string;
+
   // For 'text-with-color' cells
   textColor?: string | ((row: any) => string); // Color class name (e.g., 'success', 'warning', 'danger') or function that returns color class
 
@@ -467,6 +475,10 @@ export interface TableColumn {
   healthStatusField?: string; // Field name for health status (e.g., 'currentHealthStatus')
   healthIconField?: string; // Field name for icon name (e.g., 'currentHealthIcon')
   healthPercentageField?: string; // Field name for health percentage (e.g., 'currentHealthPercentage')
+
+  // For 'metric-with-trend' cells (e.g. Performance, Compliance)
+  /** Trend icon: up (arrow_upward), down (arrow_downward), right (arrow_forward), unknown (help_outline) */
+  trendIcon?: (row: any) => 'up' | 'down' | 'right' | 'unknown';
 
   // For 'progress-bar' cells
   progressValueField?: string; // Field name for progress percentage value (e.g., 'percentage')
@@ -815,7 +827,8 @@ export class ReusableTableComponent
         if (
           column.cellType === 'text' ||
           column.cellType === 'two-line' ||
-          column.cellType === 'text-with-color'
+          column.cellType === 'text-with-color' ||
+          column.cellType === 'metric-with-trend'
         ) {
           const primary = this.getNestedValue(
             row,
@@ -1147,6 +1160,41 @@ export class ReusableTableComponent
     return `badge-${badgeColor}`;
   }
 
+  /** Returns global badge-status-* class when column.badgeStatus is set (dashboard-style badges). */
+  getBadgeStatusClass(row: any, column: TableColumn): string {
+    if (!column.badgeStatus) return '';
+    const status = column.badgeStatus(row);
+    if (!status) return 'badge-status-unknown';
+    return `badge-status-${status}`;
+  }
+
+  /** For two-line cells: combined classes for primary line (cellClass + primaryLineClassFn). */
+  getTwoLinePrimaryClasses(column: TableColumn, row: any): string[] {
+    const classes: string[] = [];
+    if (column.cellClass) classes.push(column.cellClass);
+    if (column.primaryLineClassFn) {
+      const fnClass = column.primaryLineClassFn(row);
+      if (fnClass) classes.push(fnClass);
+    }
+    return classes;
+  }
+
+  /** For two-line cells: combined classes for secondary line when it is a link. */
+  getTwoLineLinkSecondaryClasses(column: TableColumn, row: any): string[] {
+    const classes: string[] = [];
+    if (column.cellClass) classes.push(column.cellClass);
+    if (column.secondaryLineClassFn) {
+      const fnClass = column.secondaryLineClassFn(row);
+      if (fnClass) classes.push(fnClass);
+    }
+    return classes;
+  }
+
+  /** For two-line cells: class for secondary line (secondaryLineClassFn only). */
+  getTwoLineSecondaryClasses(column: TableColumn, row: any): string {
+    return column.secondaryLineClassFn ? column.secondaryLineClassFn(row) || '' : '';
+  }
+
   getTextColorClass(row: any, column: TableColumn): string {
     if (!column.textColor) return '';
     const textColor =
@@ -1201,6 +1249,30 @@ export class ReusableTableComponent
     } else {
       return 'health-icon-unknown';
     }
+  }
+
+  /** Returns CSS color for health SVG path fill (bypasses encapsulation issues). */
+  getHealthIconFillColor(iconField?: string): string {
+    const cls = this.getHealthIconClass(iconField);
+    const colorMap: { [key: string]: string } = {
+      'health-icon-healthy': 'var(--color-green, #10b981)',
+      'health-icon-warning': 'var(--color-orange, #f59e0b)',
+      'health-icon-critical': 'var(--color-red, #dc2626)',
+      'health-icon-unknown': 'var(--color-text-tertiary, #9ca3af)',
+    };
+    return colorMap[cls] || colorMap['health-icon-unknown'];
+  }
+
+  getTrendIconName(row: any, column: TableColumn): string {
+    if (!column.trendIcon) return 'help_outline';
+    const trend = column.trendIcon(row);
+    const map: { [key: string]: string } = {
+      up: 'arrow_upward',
+      down: 'arrow_downward',
+      right: 'arrow_forward',
+      unknown: 'help_outline',
+    };
+    return map[trend] || 'help_outline';
   }
 
   // Pagination methods

@@ -64,6 +64,16 @@ export class AssetsComponent implements OnInit {
     defaultPageSize: 10,
     columns: [
       {
+        key: 'websiteApplication',
+        header: 'Assets',
+        cellType: 'two-line',
+        primaryField: 'websiteApplication',
+        secondaryField: 'assetUrl',
+        linkField: 'assetUrl',
+        sortable: true,
+        width: '140px',
+      },
+      {
         key: 'ministryDepartment',
         header: 'Ministry/Department',
         cellType: 'two-line',
@@ -82,36 +92,16 @@ export class AssetsComponent implements OnInit {
           }),
       },
       {
-        key: 'websiteApplication',
-        header: 'Asset',
-        cellType: 'two-line',
-        primaryField: 'websiteApplication',
-        secondaryField: 'assetUrl',
-        linkField: 'assetUrl',
-        sortable: true,
-        width: '140px',
-      },
-      {
         key: 'currentStatus',
         header: 'Status',
         cellType: 'badge-with-subtext',
         badgeField: 'currentStatus',
         subtextField: 'lastCheckedFormatted',
-        badgeColor: (row: any) => {
+        badgeStatus: (row: any) => {
           const status = row.currentStatus?.toLowerCase();
-          if (status === 'up' || status === 'online')
-            return 'var(--color-green-light)';
-          if (status === 'down' || status === 'offline')
-            return 'var(--color-red-light)';
-          return 'var(--color-bg-quaternary)';
-        },
-        badgeTextColor: (row: any) => {
-          const status = row.currentStatus?.toLowerCase();
-          if (status === 'up' || status === 'online')
-            return 'var(--color-green-dark)';
-          if (status === 'down' || status === 'offline')
-            return 'var(--color-red-dark)';
-          return 'var(--color-text-tertiary)';
+          if (status === 'up' || status === 'online') return 'success';
+          if (status === 'down' || status === 'offline') return 'danger';
+          return 'unknown';
         },
         sortable: true,
         width: '95px',
@@ -120,18 +110,18 @@ export class AssetsComponent implements OnInit {
         key: 'healthstatus',
         header: 'Health',
         cellType: 'health-status',
-        healthStatusField: 'healthStatus',
+        healthStatusField: 'healthStatusDisplay',
         healthIconField: 'healthIcon',
         healthPercentageField: 'healthPercentage',
         sortable: true,
         sortByKey: 'healthindex',
-        width: '85px',
+        width: '95px',
       },
       {
         key: 'performanceStatus',
         header: 'Performance',
-        cellType: 'text-with-color',
-        primaryField: 'performanceStatus',
+        cellType: 'metric-with-trend',
+        primaryField: 'performanceStatusDisplay',
         secondaryField: 'performancePercentage',
         sortable: true,
         width: '100px',
@@ -144,15 +134,29 @@ export class AssetsComponent implements OnInit {
           )
             return 'success';
           if (status.includes('average')) return 'warning';
-          if (status.includes('poor')) return 'danger';
-          return '';
+          if (status.includes('poor') || status.includes('bad'))
+            return 'danger';
+          return 'unknown';
+        },
+        trendIcon: (row: any) => {
+          const status = (row.performanceStatus || '').toLowerCase();
+          if (
+            status.includes('performing well') ||
+            status.includes('well') ||
+            status.includes('good')
+          )
+            return 'up';
+          if (status.includes('average')) return 'right';
+          if (status.includes('poor') || status.includes('bad'))
+            return 'down';
+          return 'unknown';
         },
       },
       {
         key: 'complianceStatus',
         header: 'Compliance',
-        cellType: 'text-with-color',
-        primaryField: 'complianceStatus',
+        cellType: 'metric-with-trend',
+        primaryField: 'complianceStatusDisplay',
         secondaryField: 'compliancePercentage',
         sortable: true,
         width: '100px',
@@ -161,29 +165,33 @@ export class AssetsComponent implements OnInit {
           if (status.includes('high compliance') || status.includes('high'))
             return 'success';
           if (status.includes('medium compliance') || status.includes('medium'))
-            return 'warning';
+            return 'info';
           if (status.includes('low compliance') || status.includes('low'))
             return 'danger';
-          return '';
+          return 'unknown';
+        },
+        trendIcon: (row: any) => {
+          const status = (row.complianceStatus || '').toLowerCase();
+          if (status.includes('high compliance') || status.includes('high'))
+            return 'up';
+          if (status.includes('medium compliance') || status.includes('medium'))
+            return 'right';
+          if (status.includes('low compliance') || status.includes('low'))
+            return 'down';
+          return 'unknown';
         },
       },
       {
         key: 'riskExposureIndex',
         header: 'Risk',
-        cellType: 'text-with-color',
-        primaryField: 'riskExposureDisplay',
-        textColor: (row: any) => {
+        cellType: 'badge',
+        badgeField: 'riskExposureDisplay',
+        badgeStatus: (row: any) => {
           const risk = (row.riskExposureIndex || '').toUpperCase();
-          if (risk === 'LOW RISK' || risk.includes('LOW')) {
-            return 'success';
-          } else if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) {
-            return 'warning';
-          } else if (risk === 'HIGH RISK' || risk.includes('HIGH')) {
-            return 'danger';
-          } else if (risk === 'UNKNOWN' || risk === 'N/A') {
-            return 'default';
-          }
-          return 'default';
+          if (risk === 'LOW RISK' || risk.includes('LOW')) return 'success';
+          if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) return 'warning';
+          if (risk === 'HIGH RISK' || risk.includes('HIGH')) return 'danger';
+          return 'unknown';
         },
         sortable: true,
         width: '65px',
@@ -197,19 +205,12 @@ export class AssetsComponent implements OnInit {
         subtextAsTooltip: true,
         tooltip: (row: any) => row.citizenImpactLevelSubtext ?? '',
         tooltipPosition: 'above',
-        badgeColor: (row: any) => {
+        badgeStatus: (row: any) => {
           const impact = row.citizenImpactLevel?.toUpperCase();
-          if (impact?.includes('LOW')) return 'var(--color-green-light)';
-          if (impact?.includes('MEDIUM')) return 'var(--color-yellow-light)';
-          if (impact?.includes('HIGH')) return 'var(--color-red-light)';
-          return 'var(--color-bg-quaternary)';
-        },
-        badgeTextColor: (row: any) => {
-          const impact = row.citizenImpactLevel?.toUpperCase();
-          if (impact?.includes('LOW')) return 'var(--color-green-dark)';
-          if (impact?.includes('MEDIUM')) return 'var(--color-yellow)';
-          if (impact?.includes('HIGH')) return 'var(--color-red-dark)';
-          return 'var(--color-text-tertiary)';
+          if (impact?.includes('LOW')) return 'success';
+          if (impact?.includes('MEDIUM')) return 'warning';
+          if (impact?.includes('HIGH')) return 'danger';
+          return 'unknown';
         },
         sortable: true,
         width: '105px',
@@ -218,11 +219,16 @@ export class AssetsComponent implements OnInit {
         key: 'openIncidents',
         header: 'Open Incidents',
         cellType: 'two-line',
-        primaryField: 'openIncidents',
+        primaryField: 'openIncidentsDisplay',
         secondaryField: 'highSeverityText',
         sortable: true,
         width: '110px',
         onClick: (row: any) => this.navigateToIncidentsWithFilters(row),
+        // Only lower line (Critical Severity) in red when > 0; upper line stays default
+        secondaryLineClassFn: (row: any) =>
+          (row.highSeverityIncidents ?? 0) > 0
+            ? 'open-incidents-value-red'
+            : '',
       },
     ],
     data: [],
@@ -234,7 +240,7 @@ export class AssetsComponent implements OnInit {
   tableConfigWithData = computed<TableConfig>(() => {
     const processedData = this.digitalAssets().map((asset) => {
       const getHealthIcon = (status: string): string => {
-        const statusLower = status.toLowerCase();
+        const statusLower = (status || '').toLowerCase();
         if (statusLower === 'healthy' || statusLower === 'up')
           return 'check_circle';
         if (
@@ -243,7 +249,11 @@ export class AssetsComponent implements OnInit {
           statusLower === 'poor'
         )
           return 'error';
-        if (statusLower === 'average' || statusLower === 'warning')
+        if (
+          statusLower === 'average' ||
+          statusLower === 'warning' ||
+          statusLower === 'fair'
+        )
           return 'warning';
         return 'help_outline';
       };
@@ -301,22 +311,59 @@ export class AssetsComponent implements OnInit {
       };
 
       const formatHighSeverityText = (highSeverity: number): string => {
-        if (highSeverity === 0) return 'Critical Severity: N/A';
-        return `Critical Severity: ${highSeverity}`;
+        const n = highSeverity ?? 0;
+        return `Critical Severity: ${n}`;
       };
+
+      const openIncidentsDisplay = ((): number => {
+        const v = asset.openIncidents as number | string | null | undefined;
+        if (v == null || (typeof v === 'string' && v.trim() === '')) return 0;
+        if (typeof v === 'string' && v.toUpperCase() === 'N/Q') return 0;
+        const n = Number(v);
+        return Number.isNaN(n) ? 0 : n;
+      })();
+
+      const performanceStatusDisplay = ((): string => {
+        const s = (asset.performanceStatus || '').toLowerCase();
+        if (s.includes('well') || s.includes('good')) return 'Good';
+        if (s.includes('average')) return 'Average';
+        if (s.includes('poor') || s.includes('bad')) return 'Bad';
+        return 'Unknown';
+      })();
+      const complianceStatusDisplay = ((): string => {
+        const s = (asset.complianceStatus || '').toLowerCase();
+        if (s.includes('high')) return 'High';
+        if (s.includes('medium')) return 'Medium';
+        if (s.includes('low')) return 'Low';
+        return 'Unknown';
+      })();
+
+      const healthStatusDisplay = ((): string => {
+        const s = (asset.healthStatus || '').toLowerCase();
+        if (s.includes('healthy') || s.includes('up')) return 'Healthy';
+        if (s.includes('average') || s.includes('warning') || s.includes('fair'))
+          return 'Fair';
+        if (s.includes('critical') || s.includes('poor') || s.includes('down'))
+          return 'Poor';
+        return 'Unknown';
+      })();
 
       return {
         ...asset,
+        healthStatusDisplay,
         healthIcon: getHealthIcon(asset.healthStatus),
         healthPercentage: formatHealthPercentage(
           asset.healthStatus,
           asset.healthIndex,
         ),
+        performanceStatusDisplay,
         performancePercentage: formatPerformancePercentage(asset.performanceIndex),
+        complianceStatusDisplay,
         compliancePercentage: formatCompliancePercentage(asset.complianceIndex),
         lastCheckedFormatted: formatLastChecked(asset.lastChecked),
         lastOutageFormatted: formatLastOutageDisplay(asset.lastOutage),
         riskExposureDisplay: formatRiskDisplay(asset.riskExposureIndex),
+        openIncidentsDisplay,
         highSeverityText: formatHighSeverityText(asset.highSeverityIncidents),
         citizenImpactLevel: asset.citizenImpactLevel.split('-')[0],
         citizenImpactLevelSubtext: asset.citizenImpactLevel.split('-')[1],

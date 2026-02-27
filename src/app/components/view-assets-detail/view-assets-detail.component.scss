@@ -262,7 +262,7 @@ a.link {
 
   .kpi-card {
     background-color: #ffffff;
-    border-radius: 8px;
+    border-radius: var(--card-border-radius);
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
@@ -295,7 +295,7 @@ a.link {
 // Standards Compliance Overview
 .standards-section {
   background-color: #ffffff;
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   padding: 24px;
   margin-bottom: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -316,7 +316,7 @@ a.link {
 
     .standard-card {
       background-color: #ffffff;
-      border-radius: 8px;
+      border-radius: var(--card-border-radius);
       padding: 20px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       border: 1px solid #e5e7eb;
@@ -364,7 +364,7 @@ a.link {
 // Incidents Section
 .incidents-section {
   background-color: #ffffff;
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   padding: 24px;
   margin-bottom: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -387,7 +387,7 @@ a.link {
 // Ownership & Accountability Section
 .ownership-section {
   background-color: #ffffff;
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   padding: 24px;
   margin-bottom: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -408,7 +408,7 @@ a.link {
 
     .ownership-card {
       background-color: #f3f4f6;
-      border-radius: 8px;
+      border-radius: var(--card-border-radius);
       padding: 20px;
 
       .ownership-label {

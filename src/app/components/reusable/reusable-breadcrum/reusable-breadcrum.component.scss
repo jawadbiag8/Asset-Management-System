@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 12px;
   margin-bottom: 24px;
+  margin-top: 24px;
 }
 
 /* Breadcrumb Navigation */
@@ -31,7 +32,7 @@
 }
 
 .breadcrumb-current {
-  color: #1f2937;
+  color: #fff;
   font-size: 14px;
   font-weight: 400;
 }

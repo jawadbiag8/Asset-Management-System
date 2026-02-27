@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { ApiService, ApiResponse } from '../../services/api.service';
+import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { formatDateOrPassThrough } from '../../utils/date-format.util';
 
 @Component({
@@ -9,7 +10,7 @@ import { formatDateOrPassThrough } from '../../utils/date-format.util';
   templateUrl: './view-assets-detail.component.html',
   styleUrl: './view-assets-detail.component.scss',
 })
-export class ViewAssetsDetailComponent implements OnInit {
+export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
   assetId: number | null = null;
   ministryId: number | null = null;
 
@@ -17,6 +18,7 @@ export class ViewAssetsDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private apiService: ApiService,
+    private breadcrumbService: BreadcrumbService,
   ) {}
 
   ngOnInit() {
@@ -31,6 +33,10 @@ export class ViewAssetsDetailComponent implements OnInit {
       if (ministryId) this.ministryId = +ministryId;
       if (idChanged && this.assetId) this.loadAssetDashboard();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.breadcrumbService.setCurrentLabel(null);
   }
 
   /** Current route query params so incident filters can be initialised and stay in URL */
@@ -117,6 +123,7 @@ export class ViewAssetsDetailComponent implements OnInit {
             currentHealth: d.currentHealth ?? '',
             riskExposureIndex: d.riskExposureIndex ?? '',
           };
+          this.breadcrumbService.setCurrentLabel(this.assetDetails.assetName || 'Asset Detail');
 
           // Map API response to summary KPIs
           this.summaryKpis = {

@@ -389,6 +389,24 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
     return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
   }
 
+  /** Returns class for KPI tile icon background: positive (green), negative (red), warning (yellow). */
+  getKpiIconBgClass(cardKey: string, value: number): string {
+    switch (cardKey) {
+      case 'totalAssets':
+        return value === 0 ? 'kpi-icon-bg-warning' : 'kpi-icon-bg-positive';
+      case 'offline':
+        return value === 0 ? 'kpi-icon-bg-positive' : 'kpi-icon-bg-negative';
+      case 'compliance':
+        return value === 0 ? 'kpi-icon-bg-negative' : 'kpi-icon-bg-positive';
+      case 'incidents':
+        return value === 0 ? 'kpi-icon-bg-positive' : 'kpi-icon-bg-negative';
+      case 'vulnerable':
+        return value === 0 ? 'kpi-icon-bg-positive' : 'kpi-icon-bg-negative';
+      default:
+        return 'kpi-icon-bg-positive';
+    }
+  }
+
   private applyDashboardData(data: any): void {
     if (data?.header) this.applyHeaderData(data.header);
     if (data?.indices) this.applyIndicesData(data.indices);

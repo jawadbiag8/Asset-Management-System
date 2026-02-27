@@ -3,7 +3,7 @@
 /* Color Variables */
 :root {
   /* Primary Colors (Design system) */
-  --color-primary: #008080;
+  --color-primary: #00CFCF;
   --color-primary-hover: #006666;
 
   --color-light-green: #66B3B340;
@@ -57,8 +57,16 @@
   --color-search-border-focus: #008080;
   --color-search-placeholder: #9CA3AF;
 
-  /* Design system: Cards & layout (dialogs 24px radius) */
+  /* Table cells: translucent + glass effect (th / td everywhere) */
+  --table-header-bg: rgba(0, 0, 0, 0.05);
+  --table-cell-bg: rgba(0, 0, 0, 0.02);
+  --table-cell-bg-even: rgba(0, 0, 0, 0.03);
+  --table-cell-bg-hover: rgba(0, 0, 0, 0.06);
+  --table-backdrop-blur: 12px;
+
+  /* Design system: Cards, tiles & layout (24px radius everywhere) */
   --card-border-radius: 24px;
+  --tile-border-radius: 24px;
   --card-padding: 20px;
   --card-gap: 10px;
   --border-opacity: 1;
@@ -109,7 +117,7 @@
   --status-badge-danger-text: #ffffff;
   --status-badge-warning-bg: rgba(255, 200, 0, 0.7);
   --status-badge-warning-text: #1a1a1a;
-  --status-badge-unknown-bg: rgba(255, 255, 255, 1);
+  --status-badge-unknown-bg: #FFFFFF33;
   --status-badge-unknown-text: #1a1a1a;
 
   /* Font Families (Design system: SF Pro Display) */
@@ -150,6 +158,24 @@ body::before {
 
 .app-shell {
   background: transparent;
+}
+
+/* Dynamic breadcrumb bar (below header) – dark theme */
+.app-breadcrumb-wrap {
+  .breadcrumb-container {
+    margin-bottom: 12px;
+  }
+  .breadcrumb,
+  .breadcrumb-current,
+  .breadcrumb-separator {
+    color: rgba(255, 255, 255, 0.75);
+  }
+  .breadcrumb-link a {
+    color: #14b8a6;
+    &:hover {
+      color: #2dd4bf;
+    }
+  }
 }
 
 /* ========== Status badges (danger, warning, info, success, unknown) – use everywhere ========== */
@@ -231,39 +257,120 @@ body::before {
     0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
+/* ========== KPI badge (pm-dashboard, same design system: 80x27, padding, glass effect) ========== */
+.kpi-badge-change {
+  box-sizing: border-box;
+  min-width: 80px;
+  height: 27px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  opacity: 1;
+  flex-shrink: 0;
+  /* Glass effect: top-left highlight + bottom-right shadow + outer glow */
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.15) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.kpi-badge-positive {
+  color: var(--color-green);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+.kpi-badge-negative {
+  color: var(--color-red);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* ========== Primary button (design system – centralized) ========== */
 .btn {
   white-space: nowrap;
+}
 
-  // Mobile screens - make it btn-sm size
+/* Primary button: 213px width, 50px height, 12px radius, padding 16px 20px, gap 8px, #008080, glass effect */
+.btn-primary,
+a.btn-primary {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 163.8px;
+  width: 213px;
+  height: 50px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  opacity: 1;
+  background: #008080;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  /* Glass effect: top highlight + bottom shadow + outer glow */
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.12) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  mat-icon,
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: #006666;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.3) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.15) inset,
+      0 0 0 1px rgba(255, 255, 255, 0.12);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
   @media (max-width: 767px) {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-
-    mat-icon {
+    min-width: 140px;
+    width: auto;
+    height: 44px;
+    padding: 12px 16px;
+    font-size: 13px;
+    mat-icon, .mat-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
-      line-height: 18px;
     }
   }
 }
 
+/* Bootstrap variable overrides for .btn-primary when used with Bootstrap */
 .btn-primary {
   --bs-btn-color: var(--color-text-white);
-  --bs-btn-bg: var(--color-primary);
-  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-bg: #008080;
+  --bs-btn-border-color: #008080;
   --bs-btn-hover-color: var(--color-text-white);
-  --bs-btn-hover-bg: var(--color-primary);
-  --bs-btn-hover-border-color: var(--color-primary);
-  --bs-btn-focus-shadow-rgb: 49, 132, 253;
+  --bs-btn-hover-bg: #006666;
+  --bs-btn-hover-border-color: #006666;
   --bs-btn-active-color: var(--color-text-white);
-  --bs-btn-active-bg: var(--color-primary);
-  --bs-btn-active-border-color: var(--color-primary);
-  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-active-bg: #006666;
+  --bs-btn-active-border-color: #006666;
   --bs-btn-disabled-color: var(--color-text-white);
-  --bs-btn-disabled-bg: var(--color-primary);
-  --bs-btn-disabled-border-color: var(--color-primary);
+  --bs-btn-disabled-bg: #008080;
+  --bs-btn-disabled-border-color: #008080;
 }
 
 .badge-success {
@@ -419,21 +526,29 @@ table th,
   text-transform: capitalize;
 }
 
-/* Dashboard page: table design – dark header, light rows, blue links, green Analyze */
+/* Dashboard page: table design – translucent + glass (header/cells) */
 .dashboard-page .dashboard-table-section {
+  --table-header-bg: rgba(31, 41, 55, 0.92);
+  --table-cell-bg: rgba(255, 255, 255, 0.6);
+  --table-cell-bg-even: rgba(249, 250, 251, 0.85);
+  --table-cell-bg-hover: rgba(243, 244, 246, 0.9);
+  --table-backdrop-blur: 12px;
+
   .table-wrapper {
-    background: #ffffff !important;
+    background: rgba(255, 255, 255, 0.5) !important;
     border: 1px solid #e5e7eb !important;
     border-radius: 0 !important;
   }
 
   .assets-table {
-    background: #ffffff !important;
+    background: transparent !important;
   }
 
   .assets-table .mat-mdc-header-row,
   .assets-table th {
-    background: #1f2937 !important;
+    background: var(--table-header-bg) !important;
+    backdrop-filter: blur(var(--table-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--table-backdrop-blur));
     color: #9ca3af !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -445,25 +560,22 @@ table th,
 
   .assets-table .mat-mdc-row,
   .assets-table tr.mat-mdc-row {
-    background: #ffffff !important;
-  }
-
-  .assets-table .mat-mdc-row:nth-child(even),
-  .assets-table tr.mat-mdc-row:nth-child(even) {
-    background: #f9fafb !important;
+    background: transparent !important;
   }
 
   .assets-table .mat-mdc-cell,
   .assets-table td {
     color: #374151 !important;
-    background-color: inherit !important;
+    background: var(--table-cell-bg) !important;
+    backdrop-filter: blur(var(--table-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--table-backdrop-blur));
     border-bottom: 1px solid #e5e7eb !important;
     border-right: 1px solid #e5e7eb !important;
   }
 
   .assets-table .mat-mdc-row:nth-child(even) .mat-mdc-cell,
   .assets-table tr.mat-mdc-row:nth-child(even) td {
-    background: #f9fafb !important;
+    background: var(--table-cell-bg-even) !important;
   }
 
   .assets-table .mat-mdc-cell:last-child,
@@ -473,7 +585,7 @@ table th,
 
   .assets-table tr.mat-mdc-row:hover .mat-mdc-cell,
   .assets-table tr.mat-mdc-row:hover td {
-    background: #f3f4f6 !important;
+    background: var(--table-cell-bg-hover) !important;
   }
 
   .assets-table .sort-icon,
@@ -544,6 +656,156 @@ table th,
   }
   .assets-table .text-default .line-primary {
     color: #6b7280 !important;
+  }
+}
+
+/* Open Incidents column: Critical Severity line in red when > 0; must override .line-secondary */
+.assets-page .dashboard-table-section .assets-table .line-secondary.open-incidents-value-red {
+  color: var(--color-red, #dc2626) !important;
+}
+
+/* Assets page: table design – same as pm-dashboard (th #0D1D1D, td transparent, hover 0.06) */
+.assets-page .dashboard-table-section {
+  --table-header-bg: #0D1D1D;
+  --table-cell-bg: transparent;
+  --table-cell-bg-even: transparent;
+  --table-cell-bg-hover: rgba(255, 255, 255, 0.06);
+
+  .table-wrapper {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: var(--card-border-radius, 24px) !important;
+  }
+
+  .assets-table {
+    background: transparent !important;
+  }
+
+  /* Header: solid #0D1D1D, no blur (like pm-dashboard), rounded corners */
+  .assets-table .mat-mdc-header-row,
+  .assets-table th {
+    background: var(--table-header-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: hidden !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .assets-table th:first-child {
+    border-top-left-radius: var(--card-border-radius, 24px) !important;
+  }
+
+  .assets-table th:last-child {
+    border-top-right-radius: var(--card-border-radius, 24px) !important;
+    border-right: none !important;
+  }
+
+  .assets-table .mat-mdc-row,
+  .assets-table tr.mat-mdc-row {
+    background: transparent !important;
+  }
+
+  /* Cells: transparent bg, no blur, hover like pm-dashboard */
+  .assets-table .mat-mdc-cell,
+  .assets-table td {
+    color: #e6edf3 !important;
+    background: var(--table-cell-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .assets-table .mat-mdc-row:nth-child(even) .mat-mdc-cell,
+  .assets-table tr.mat-mdc-row:nth-child(even) td {
+    background: var(--table-cell-bg-even) !important;
+  }
+
+  .assets-table .mat-mdc-cell:last-child,
+  .assets-table td:last-child {
+    border-right: none !important;
+  }
+
+  .assets-table tr.mat-mdc-row:hover .mat-mdc-cell,
+  .assets-table tr.mat-mdc-row:hover td {
+    background: var(--table-cell-bg-hover) !important;
+  }
+
+  .assets-table .sort-icon,
+  .assets-table .sortable-header .mat-icon {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .assets-table .line-link,
+  .assets-table .line-primary.line-link,
+  .assets-table a.line-link,
+  .assets-table .link-text {
+    color: #14b8a6 !important;
+    text-decoration: underline;
+  }
+
+  .assets-table .line-link:hover,
+  .assets-table .link-text:hover {
+    color: #2dd4bf !important;
+  }
+
+  .assets-table .line-secondary {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  .assets-table .trailing-btn-outline {
+    background: transparent !important;
+    border: 1px solid #14b8a6 !important;
+    color: #14b8a6 !important;
+    border-radius: 6px;
+  }
+
+  .assets-table .trailing-btn-outline:hover {
+    background: rgba(20, 184, 166, 0.15) !important;
+  }
+
+  .pagination-container {
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #e6edf3 !important;
+  }
+
+  .rows-per-page-label,
+  .row-count-text {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .rows-per-page-select {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #e6edf3 !important;
+  }
+
+  .empty-state-text {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .assets-table .text-success .line-primary,
+  .assets-table .text-success {
+    color: #34d399 !important;
+  }
+  .assets-table .text-danger .line-primary,
+  .assets-table .text-danger {
+    color: #f87171 !important;
+  }
+  .assets-table .text-warning .line-primary,
+  .assets-table .text-warning {
+    color: #fbbf24 !important;
+  }
+  .assets-table .text-default .line-primary {
+    color: rgba(255, 255, 255, 0.65) !important;
   }
 }
 

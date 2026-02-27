@@ -1,5 +1,6 @@
-import { Component, signal, computed, OnInit } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { HttpParams } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -38,7 +39,7 @@ export interface AssetDetail {
   templateUrl: './ministry-detail.component.html',
   styleUrl: './ministry-detail.component.scss',
 })
-export class MinistryDetailComponent implements OnInit {
+export class MinistryDetailComponent implements OnInit, OnDestroy {
   tableFilters = signal<FilterPill[]>([
     {
       id: 'status',
@@ -140,6 +141,7 @@ export class MinistryDetailComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private apiService: ApiService,
+    private breadcrumbService: BreadcrumbService,
   ) {}
 
   tableConfig = signal<TableConfig>({
@@ -362,6 +364,10 @@ export class MinistryDetailComponent implements OnInit {
         // The table component will emit searchQuery on init, which will call loadAssets
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.breadcrumbService.setCurrentLabel(null);
   }
 
   initializeFilters(): void {
@@ -617,6 +623,7 @@ export class MinistryDetailComponent implements OnInit {
             response.data.data?.[0]?.ministryDepartment ??
             'Ministry of Health';
           this.ministryName.set(name);
+          this.breadcrumbService.setCurrentLabel(name);
 
           // Map API response to AssetDetail format
           const assets: AssetDetail[] = this.mapApiResponseToAssetDetails(

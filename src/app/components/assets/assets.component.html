@@ -14,22 +14,23 @@
           (keyup.enter)="onHeaderSearchSubmit()"
         />
       </div>
-      <a routerLink="/add-digital-assets" class="btn-add-digital-assets">
+      <a routerLink="/add-digital-assets" class="btn btn-primary">
         <mat-icon>add</mat-icon>
         Add Digital Assets
       </a>
     </div>
   </header>
 
-  <!-- Table: Add Filters + filter chips + Import Assets + Search -->
+  <!-- Table: same structure as dashboard – glass card + design tokens from styles.scss -->
   <div id="assets-table" class="dashboard-table-section">
-    <app-reusable-table
-      [config]="tableConfigWithData()"
-      [filters]="tableFilters()"
-      (searchQuery)="onSearchQuery($event)"
-      [totalItems]="totalItems()"
-      (actionClick)="onActionClick($event)"
-    >
+    <div class="table-section-card">
+      <app-reusable-table
+        [config]="tableConfigWithData()"
+        [filters]="tableFilters()"
+        (searchQuery)="onSearchQuery($event)"
+        [totalItems]="totalItems()"
+        (actionClick)="onActionClick($event)"
+      >
       <ng-container headerActions>
         <input
           #bulkUploadInput
@@ -58,6 +59,7 @@
           </button>
         </mat-menu>
       </ng-container>
-    </app-reusable-table>
+      </app-reusable-table>
+    </div>
   </div>
 </div>

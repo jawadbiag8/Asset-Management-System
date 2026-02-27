@@ -1,11 +1,4 @@
 <div class="container-fluid p-4">
-  <app-reusable-breadcrum
-    [breadcrumbs]="[
-      { label: 'Ministry', path: '/ministries' },
-      { label: ministryName() },
-    ]"
-  ></app-reusable-breadcrum>
-
   <div class="page-header">
     <h1 class="digitalAssetsTitle">{{ ministryName() }}</h1>
     <button class="btn-add-asset" (click)="onAddAsset()">

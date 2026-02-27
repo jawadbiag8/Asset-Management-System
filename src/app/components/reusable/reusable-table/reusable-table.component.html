@@ -65,6 +65,7 @@
 
   <!-- Table + Scrollable Area -->
   <div class="table-wrapper">
+    <div class="table-clip">
     @if (sortedData.length === 0) {
       <div class="empty-state">
         <p class="empty-state-text">
@@ -156,13 +157,16 @@
                             [routerLink]="column.routerLinkFn(row).commands"
                             [queryParams]="column.routerLinkFn(row).queryParams || null"
                             class="line-primary line-link"
-                            [ngClass]="column.cellClass"
+                            [ngClass]="getTwoLinePrimaryClasses(column, row)"
                             (click)="$event.stopPropagation()"
                           >
                             {{ getCellValue(row, column.primaryField || "") }}
                           </a>
                         } @else {
-                          <div class="line-primary" [ngClass]="column.cellClass">
+                          <div
+                            class="line-primary"
+                            [ngClass]="getTwoLinePrimaryClasses(column, row)"
+                          >
                             {{ getCellValue(row, column.primaryField || "") }}
                           </div>
                         }
@@ -170,14 +174,17 @@
                           <a
                             [href]="getCellValue(row, column.linkField || '')"
                             target="_blank"
-                            class="line-primary line-link"
-                            [ngClass]="column.cellClass"
+                            class="line-primary line-link line-secondary-link"
+                            [ngClass]="getTwoLineLinkSecondaryClasses(column, row)"
                             (click)="$event.stopPropagation()"
                           >
                             {{ getCellValue(row, column.secondaryField || "") }}
                           </a>
                         } @else {
-                          <div class="line-secondary">
+                          <div
+                            class="line-secondary"
+                            [ngClass]="getTwoLineSecondaryClasses(column, row)"
+                          >
                             {{ getCellValue(row, column.secondaryField || "") }}
                           </div>
                         }
@@ -225,9 +232,9 @@
                     <div class="badge-wrapper">
                       <span
                         class="badge"
-                        [ngClass]="getBadgeClass(getBadgeColor(row, column))"
-                        [style.background-color]="getBadgeColor(row, column)"
-                        [style.color]="getBadgeTextColor(row, column)"
+                        [ngClass]="column.badgeStatus ? getBadgeStatusClass(row, column) : getBadgeClass(getBadgeColor(row, column))"
+                        [style.background-color]="!column.badgeStatus ? getBadgeColor(row, column) : null"
+                        [style.color]="!column.badgeStatus ? getBadgeTextColor(row, column) : null"
                       >
                         {{ getCellValue(row, column.badgeField || "") }}
                       </span>
@@ -237,9 +244,9 @@
                     <div class="badge-cell">
                       <span
                         class="badge"
-                        [ngClass]="getBadgeClass(getBadgeColor(row, column))"
-                        [style.background-color]="getBadgeColor(row, column)"
-                        [style.color]="getBadgeTextColor(row, column)"
+                        [ngClass]="column.badgeStatus ? getBadgeStatusClass(row, column) : getBadgeClass(getBadgeColor(row, column))"
+                        [style.background-color]="!column.badgeStatus ? getBadgeColor(row, column) : null"
+                        [style.color]="!column.badgeStatus ? getBadgeTextColor(row, column) : null"
                         [matTooltip]="column.subtextAsTooltip && hasTooltip(column) ? getTooltipText(row, column) : ''"
                         [matTooltipPosition]="column.tooltipPosition || 'above'"
                         [matTooltipDisabled]="!column.subtextAsTooltip || !hasTooltip(column) || !getTooltipText(row, column)"
@@ -269,35 +276,43 @@
                       </div>
                     </div>
                   }
+                  @case ("metric-with-trend") {
+                    <div class="metric-with-trend-cell">
+                      <div
+                        class="metric-trend-line"
+                        [ngClass]="getTextColorClass(row, column)"
+                      >
+                        <span class="metric-trend-text">{{
+                          getCellValue(row, column.primaryField || "")
+                        }}</span>
+                        <mat-icon class="metric-trend-icon">{{
+                          getTrendIconName(row, column)
+                        }}</mat-icon>
+                      </div>
+                      <div class="metric-trend-percentage">
+                        {{ getCellValue(row, column.secondaryField || "") }}
+                      </div>
+                    </div>
+                  }
                   @case ("health-status") {
-                    <div class="health-status-cell">
-                      <div class="health-icon-wrapper">
-                        <div
-                          class="health-tooltip"
-                          [attr.data-status]="
-                            getCellValue(row, column.healthStatusField || '')
-                          "
-                        >
-                          {{
-                            getCellValue(row, column.healthStatusField || "")
-                          }}
-                        </div>
-                        <img
-                          [src]="
-                            getHealthIconPath(
-                              getCellValue(row, column.healthIconField || '')
-                            )
-                          "
-                          [alt]="
-                            getCellValue(row, column.healthStatusField || '')
-                          "
-                          class="health-icon"
-                          [ngClass]="
-                            getHealthIconClass(
-                              getCellValue(row, column.healthIconField || '')
-                            )
-                          "
-                        />
+                    <div
+                      class="health-status-cell"
+                      [ngClass]="
+                        getHealthIconClass(
+                          getCellValue(row, column.healthIconField || '')
+                        )
+                      "
+                    >
+                      <div class="health-status-line">
+                        <span class="health-status-text">{{
+                          getCellValue(row, column.healthStatusField || "")
+                        }}</span>
+                        <svg class="health-bar-icon" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path
+                            d="M10.5 2V14H13.5V2H10.5ZM6.5 5.5V14H9.5V5.5H6.5ZM2.5 9V14H5.5V9H2.5Z"
+                            [attr.fill]="getHealthIconFillColor(getCellValue(row, column.healthIconField || ''))"
+                          />
+                        </svg>
                       </div>
                       <div class="health-percentage">
                         {{
@@ -457,5 +472,6 @@
         </div>
       }
     }
+    </div>
   </div>
 </div>

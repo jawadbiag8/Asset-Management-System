@@ -1,17 +1,4 @@
 <div class="container-fluid p-4 view-assets-detail-page">
-  <!-- Breadcrumb Navigation -->
-  <app-reusable-breadcrum
-    [breadcrumbs]="[
-      { label: 'Ministry', path: '/ministries' },
-      {
-        label: assetDetails.ministry || 'Ministry',
-        path: '/ministry-detail',
-        queryParams: ministryId != null ? { ministryId } : undefined,
-      },
-      { label: assetDetails.assetName || 'Health Dashboard' },
-    ]"
-  ></app-reusable-breadcrum>
-
   <!-- Health Dashboard Card -->
   <div class="card shadow-sm mt-4 header-card">
     <!-- Page Title -->

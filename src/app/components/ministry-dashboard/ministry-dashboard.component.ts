@@ -83,7 +83,7 @@ export class MinistryDashboardComponent implements OnInit {
     this.loadMinistryDetails();
     const firstId = this.menuFilters[0]?.id ?? 'status';
     this.currentFilterId.set(firstId);
-    this.filterButtonTitle.set(this.getFilterDisplayLabel(this.menuFilters[0]?.id ?? '') || 'Status');
+    this.filterButtonTitle.set(this.getFilterDisplayLabel(this.menuFilters[0]?.id ?? '') || 'Current Status');
   }
 
   /** Toggle filter menu (dropdown); right-aligned. */
@@ -114,9 +114,10 @@ export class MinistryDashboardComponent implements OnInit {
     if (label) this.filterButtonTitle.set(label);
   }
 
-  /** Display label for filter (e.g. "Digital Experience" for citizenImpact). */
+  /** Display label for filter (e.g. "Current Status" for status, "Digital Experience" for citizenImpact). */
   private getFilterDisplayLabel(filterId: string): string {
     const f = this.menuFilters.find((m) => m.id === filterId);
+    if (f?.id === 'status') return 'Current Status';
     if (f?.id === 'citizenImpact') return 'Digital Experience';
     return f?.label ?? '';
   }
@@ -402,6 +403,15 @@ export class MinistryDashboardComponent implements OnInit {
     return 'status-unknown';
   }
 
+  /** Dashboard-style global badge class for asset tile status (badge-status-success, etc.). */
+  getDashboardStatusBadgeClass(status: string): string {
+    const s = (status || 'UNKNOWN').toUpperCase();
+    if (s === 'UP' || s === 'ONLINE') return 'badge-status-success';
+    if (s === 'DOWN' || s === 'OFFLINE') return 'badge-status-danger';
+    if (s === 'WARNING' || s === 'PARTIAL' || s === 'DEGRADED') return 'badge-status-warning';
+    return 'badge-status-unknown';
+  }
+
   /** Tile background class by status (for whole-tile tint) */
   tileBgClass(status: string): string {
     const s = (status || 'UNKNOWN').toUpperCase();
@@ -440,6 +450,13 @@ export class MinistryDashboardComponent implements OnInit {
     this.pageSize.set(value);
     this.pageIndex.set(0);
     this.loadMinistryDetails();
+  }
+
+  /** Placeholder for Correspondence action; can be wired to a separate API later. */
+  onCorrespondence(ministryId: string, event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.generateReport(ministryId, event);
   }
 
   generateReport(ministryId: string, event: Event): void {

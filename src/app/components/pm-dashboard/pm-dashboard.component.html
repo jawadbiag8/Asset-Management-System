@@ -4,7 +4,11 @@
     <div class="dashboard-header">
       <h1 class="dashboard-title">Executive Dashboard</h1>
     </div>
-
+  </div>
+</div>
+<div class="pm-dashboard-container">
+  <!-- Left: title + main content (is side pe header se gap rahega) -->
+  <div class="dashboard-left">
     <div class="dashboard-content">
       <!-- Main Content Area -->
       <div class="main-content">
@@ -20,7 +24,7 @@
                 <span class="kpi-badge-change" [ngClass]="
                     getDigitalScoreBadgeValue() >= 0
                       ? 'kpi-badge-positive'
-                      : 'kpi-badge-negative'
+                      : 'kpi-badge badge-status-danger'
                   ">
                   {{ getDigitalScoreBadgeValue() >= 0 ? "+" : ""
                   }}{{ getDigitalScoreBadgeValue() | number: "1.0-2" }}%
@@ -40,14 +44,10 @@
           <!-- Card 2: Total Assets Being Monitored -->
           <div class="kpi-card">
             <div class="kpi-card-content">
-              <img src="/Images/PM-Dashboard/arrow-tr.svg" alt="" class="kpi-card-corner-icon" />
-              <h1 class="kpi-value" [style.color]="
-                  totalAssetsBeingMonitored === 0
-                    ? 'var(--color-red)'
-                    : 'var(--color-green-teal)'
-                ">
-                {{ totalAssetsBeingMonitored }}
-              </h1>
+              <div class="kpi-card-icon-wrap" [ngClass]="getKpiIconBgClass('totalAssets', totalAssetsBeingMonitored)">
+                <img src="/Images/PM-Dashboard/arrow-tr.svg" alt="" class="kpi-card-corner-icon" />
+              </div>
+              <h1 class="kpi-value">{{ totalAssetsBeingMonitored }}</h1>
               <h5 class="kpi-title">Total Assets Being Monitored</h5>
               <p class="kpi-subtitle">
                 Across {{ totalMinistries }} Ministries
@@ -62,18 +62,14 @@
           <!-- Card 3: Digital Assets Are Offline -->
           <div class="kpi-card">
             <div class="kpi-card-content">
-              <img [src]="
-                  digitalAssetsOffline === 0
-                    ? '/Images/PM-Dashboard/Variant3.svg'
-                    : '/Images/PM-Dashboard/Offline Digital Assets.svg'
-                " alt="" class="kpi-card-corner-icon" />
-              <h1 class="kpi-value" [style.color]="
-                  digitalAssetsOffline === 0
-                    ? 'var(--color-green-teal)'
-                    : 'var(--color-red)'
-                ">
-                {{ digitalAssetsOffline }}
-              </h1>
+              <div class="kpi-card-icon-wrap" [ngClass]="getKpiIconBgClass('offline', digitalAssetsOffline)">
+                <img [src]="
+                    digitalAssetsOffline === 0
+                      ? '/Images/PM-Dashboard/Variant3.svg'
+                      : '/Images/PM-Dashboard/Offline Digital Assets.svg'
+                  " alt="" class="kpi-card-corner-icon" />
+              </div>
+              <h1 class="kpi-value">{{ digitalAssetsOffline }}</h1>
               <h5 class="kpi-title">Digital Assets Are Offline</h5>
               <p class="kpi-subtitle">
                 Last Checked: {{ getLastCheckedText() }}
@@ -89,14 +85,11 @@
           <!-- Card 4: Ministries meet Compliance standards -->
           <div class="kpi-card">
             <div class="kpi-card-content">
-              <img src="/Images/PM-Dashboard/carbon_security.svg" alt="" class="kpi-card-corner-icon" />
-              <h1 class="kpi-value" [style.color]="
-                  ministriesMeetComplianceStandards === 0
-                    ? 'var(--color-red)'
-                    : 'var(--color-green-teal)'
-                ">
-                {{ ministriesMeetComplianceStandards }}
-              </h1>
+              <div class="kpi-card-icon-wrap"
+                [ngClass]="getKpiIconBgClass('compliance', ministriesMeetComplianceStandards)">
+                <img src="/Images/PM-Dashboard/carbon_security.svg" alt="" class="kpi-card-corner-icon" />
+              </div>
+              <h1 class="kpi-value">{{ ministriesMeetComplianceStandards }}</h1>
               <h5 class="kpi-title">Ministries Meet Compliance Standards</h5>
               <p class="kpi-subtitle">
                 Ministries With Compliance Score &gt; {{ complianceThreshold }}%
@@ -111,18 +104,14 @@
           <!-- Card 5: Active Incidents -->
           <div class="kpi-card">
             <div class="kpi-card-content">
-              <img [src]="
-                  activeIncidents === 0
-                    ? '/Images/PM-Dashboard/Variant3.svg'
-                    : '/Images/PM-Dashboard/siren.svg'
-                " alt="" class="kpi-card-corner-icon" />
-              <h1 class="kpi-value" [style.color]="
-                  activeIncidents === 0
-                    ? 'var(--color-green-teal)'
-                    : 'var(--color-red)'
-                ">
-                {{ activeIncidents }}
-              </h1>
+              <div class="kpi-card-icon-wrap kpi-icon-bg-incidents">
+                <img [src]="
+                    activeIncidents === 0
+                      ? '/Images/PM-Dashboard/Variant3.svg'
+                      : '/Images/PM-Dashboard/siren.svg'
+                  " alt="" class="kpi-card-corner-icon" />
+              </div>
+              <h1 class="kpi-value">{{ activeIncidents }}</h1>
               <h5 class="kpi-title">Active Incidents</h5>
               <p class="kpi-subtitle">Currently Unresolved Incidents</p>
               <div class="kpi-divider"></div>
@@ -136,18 +125,14 @@
           <!-- Card 6: Assets are vulnerable -->
           <div class="kpi-card">
             <div class="kpi-card-content">
-              <img [src]="
-                  assetsAreVulnerable === 0
-                    ? '/Images/PM-Dashboard/Variant3.svg'
-                    : '/Images/PM-Dashboard/error.svg'
-                " alt="" class="kpi-card-corner-icon" />
-              <h1 class="kpi-value" [style.color]="
-                  assetsAreVulnerable === 0
-                    ? 'var(--color-green-teal)'
-                    : 'var(--color-red)'
-                ">
-                {{ assetsAreVulnerable }}
-              </h1>
+              <div class="kpi-card-icon-wrap" [ngClass]="getKpiIconBgClass('vulnerable', assetsAreVulnerable)">
+                <img [src]="
+                    assetsAreVulnerable === 0
+                      ? '/Images/PM-Dashboard/Variant3.svg'
+                      : '/Images/PM-Dashboard/error.svg'
+                  " alt="" class="kpi-card-corner-icon" />
+              </div>
+              <h1 class="kpi-value">{{ assetsAreVulnerable }}</h1>
               <h5 class="kpi-title">Assets Are Vulnerable</h5>
               <p class="kpi-subtitle">
                 Assets With Security Index &lt;{{ securityThreshold }}
@@ -181,10 +166,10 @@
     </div>
   </div>
 
-  <!-- Right Sidebar - header se bilkul neeche, koi gap nahi -->
+  <!-- Right Sidebar - tiles same as left (glass, 24px radius) -->
   <div class="sidebar">
-    <!-- Section: Total Assets Monitored -->
-    <div class="sidebar-section">
+    <!-- Tile: Total Assets Monitored -->
+    <div class="sidebar-tile">
       <h3 class="section-title">Total Assets Monitored</h3>
       <div class="performance-indices">
         <div class="index-item" *ngFor="let index of performanceIndices">
@@ -198,10 +183,9 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Section: Traffic Overview -->
-    <!-- <div class="sidebar-section">
+      <!-- Tile: Insights -->
+      <!-- <div class="sidebar-section">
       <h3 class="section-title">Traffic Overview</h3>
       <div class="traffic-overview">
         <div class="traffic-item">
@@ -218,33 +202,36 @@
         </div>
       </div>
     </div> -->
-
-    <!-- Section: Insights (Figma-aligned: card, circular nav, dots) -->
-    <div class="sidebar-section sidebar-section-last" (mouseenter)="onInsightsMouseEnter()"
-      (mouseleave)="onInsightsMouseLeave()">
-      <div class="insights-header">
-        <h3 class="section-title">Insights</h3>
-        <div class="insights-navigation">
-          <button class="nav-button" type="button" (click)="previousInsight()" [disabled]="currentInsightIndex() === 0"
-            aria-label="Previous insight">
-            <mat-icon>keyboard_arrow_left</mat-icon>
-          </button>
-          <button class="nav-button" type="button" (click)="nextInsight()"
-            [disabled]="currentInsightIndex() === insights.length - 1" aria-label="Next insight">
-            <mat-icon>keyboard_arrow_right</mat-icon>
-          </button>
+      <br>
+      <br>
+      <br>
+      <div class="sidebar-tile sidebar-tile-last" (mouseenter)="onInsightsMouseEnter()"
+        (mouseleave)="onInsightsMouseLeave()">
+        <div class="insights-header">
+          <h3 class="section-title">Insights</h3>
+          <div class="insights-navigation">
+            <button class="nav-button" type="button" (click)="previousInsight()"
+              [disabled]="currentInsightIndex() === 0" aria-label="Previous insight">
+              <mat-icon>keyboard_arrow_left</mat-icon>
+            </button>
+            <button class="nav-button" type="button" (click)="nextInsight()"
+              [disabled]="currentInsightIndex() === insights.length - 1" aria-label="Next insight">
+              <mat-icon>keyboard_arrow_right</mat-icon>
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="insights-card">
-        <div class="insights-content">
-          <div class="insight-value">{{ currentInsight().value }}</div>
-          <div class="insight-subtitle">{{ currentInsight().subtitle }}</div>
-          <p class="insight-description">{{ currentInsight().description }}</p>
-        </div>
-        <div class="insights-dots">
-          <span *ngFor="let insight of insights; let i = index" class="dot" [class.active]="i === currentInsightIndex()"
-            (click)="goToInsight(i)" [attr.aria-label]="'Insight ' + (i + 1) + ' of ' + insights.length">
-          </span>
+        <div class="insights-card">
+          <div class="insights-content">
+            <div class="insight-value">{{ currentInsight().value }}</div>
+            <div class="insight-subtitle">{{ currentInsight().subtitle }}</div>
+            <p class="insight-description">{{ currentInsight().description }}</p>
+          </div>
+          <div class="insights-dots">
+            <span *ngFor="let insight of insights; let i = index" class="dot"
+              [class.active]="i === currentInsightIndex()" (click)="goToInsight(i)"
+              [attr.aria-label]="'Insight ' + (i + 1) + ' of ' + insights.length">
+            </span>
+          </div>
         </div>
       </div>
     </div>

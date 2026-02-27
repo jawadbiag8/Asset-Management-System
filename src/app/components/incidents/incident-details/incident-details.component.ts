@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiResponse, ApiService } from '../../../services/api.service';
+import { BreadcrumbService } from '../../../services/breadcrumb.service';
 import { UtilsService } from '../../../services/utils.service';
 import { formatDateOnly, formatDateTime } from '../../../utils/date-format.util';
 import { ActiveIncident } from '../active-incidents/active-incidents.component';
@@ -73,6 +74,7 @@ export class IncidentDetailsComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private utils: UtilsService,
     private signalR: SignalRService,
+    private breadcrumbService: BreadcrumbService,
   ) {}
 
   ngOnInit(): void {
@@ -97,6 +99,7 @@ export class IncidentDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.breadcrumbService.setCurrentLabel(null);
     this.destroy$.next();
     this.destroy$.complete();
     if (this.incidentId) {
@@ -128,7 +131,11 @@ export class IncidentDetailsComponent implements OnInit, OnDestroy {
           [];
 
         if (isSuccess && data) {
-          this.incident.set(this.processIncidentData(data));
+          const processed = this.processIncidentData(data);
+          this.incident.set(processed);
+          this.breadcrumbService.setCurrentLabel(
+            (processed as any)?.ministryName || 'Incident Details'
+          );
           this.showIncidentReasonSection.set(kpiDetails != null);
           this.kpiName.set(kpiDetails?.kpiName ?? data?.kpiName ?? data?.kpiDescription ?? '');
           this.buildIncidentReasonMetrics(kpiDetails, history);

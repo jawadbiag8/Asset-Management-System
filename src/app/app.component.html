@@ -1,5 +1,8 @@
 <div class="app-shell">
   <app-header *ngIf="showHeader"></app-header>
+  <div class="app-breadcrumb-wrap" *ngIf="showHeader && breadcrumbService.currentBreadcrumbs().length > 1">
+    <app-reusable-breadcrum [breadcrumbs]="breadcrumbService.currentBreadcrumbs()"></app-reusable-breadcrum>
+  </div>
   <router-outlet></router-outlet>
 </div>
 <app-loader></app-loader>

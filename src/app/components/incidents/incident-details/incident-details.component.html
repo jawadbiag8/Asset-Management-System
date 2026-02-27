@@ -1,10 +1,4 @@
 <div class="incident-detail-page">
-  <app-reusable-breadcrum [breadcrumbs]="[
-      { label: 'Dashboard', path: '/pm-dashboard' },
-      { label: 'Incidents', path: '/incidents' },
-      { label: incident()?.ministryName || 'Incident Details' }
-    ]"></app-reusable-breadcrum>
-
   @if (loading()) {
   <div class="loading-state">
     <p>Loading incident details...</p>

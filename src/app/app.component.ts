@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { BreadcrumbService } from './services/breadcrumb.service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private router: Router,
-  ) { }
+    public breadcrumbService: BreadcrumbService,
+  ) {}
 
   ngOnInit() {
     // Initial check for current URL

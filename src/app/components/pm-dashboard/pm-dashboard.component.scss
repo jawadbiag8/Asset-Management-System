@@ -1,7 +1,8 @@
+/* Executive Dashboard – dark theme (body gradient + translucent cards) */
 .pm-dashboard-container {
   padding: 0 0 0 24px;
-  background-color: #F9FAFB;
-  min-height: calc(100vh - 82px);
+  background: transparent;
+  // min-height: calc(100vh - 82px);
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
@@ -9,7 +10,7 @@
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: 24px; // Sidebar ke left 24px gap (main content aur sidebar ke beech)
+  gap: 24px;
 }
 
 // Left column: title + main content (is side pe header se gap rahega)
@@ -32,7 +33,7 @@
   font-size: 32px;
   line-height: 100%;
   letter-spacing: 0px;
-  color: #111827;
+  color: #ffffff;
   margin: 0;
 }
 
@@ -72,26 +73,30 @@
 }
 
 .kpi-card {
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--card-border-radius);
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   transition: all 0.2s ease;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  overflow: hidden; // Prevent content overflow
+  overflow: hidden;
 
   &:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-color: #D1D5DB;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 }
 
 .kpi-card-highlighted {
-  background: var(--color-green-teal); // #008080
-  border-color: var(--color-green-teal);
+  background: rgba(0, 128, 128, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 207, 207, 0.5);
 }
 
 .kpi-card-content {
@@ -101,7 +106,45 @@
   position: relative;
 }
 
-// Top-right corner icon on white KPI cards (arrow up-right)
+// Icon wrapper: 12px radius, background by status, icon white
+.kpi-card-icon-wrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .kpi-card-corner-icon {
+    position: static;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); // force icon white
+  }
+}
+
+.kpi-icon-bg-positive {
+  background-color: var(--color-green-teal, #008080);
+}
+
+.kpi-icon-bg-negative {
+  background-color: var(--color-red, #dc2626);
+}
+
+.kpi-icon-bg-warning {
+  background-color: var(--color-orange, #f59e0b);
+}
+
+.kpi-icon-bg-incidents {
+  background-color: #FFC800;
+}
+
+// Standalone corner icon (when no wrapper): keep for backwards compatibility
 .kpi-card-corner-icon {
   position: absolute;
   top: 0;
@@ -128,23 +171,7 @@
   }
 }
 
-.kpi-badge-change {
-  flex-shrink: 0;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 1.2;
-  background-color: #FFFFFF; // Badge background neutral (white)
-}
-
-.kpi-badge-positive {
-  color: var(--color-green); // #10B981 - positive value text
-}
-
-.kpi-badge-negative {
-  color: var(--color-red); // #EF4444 - negative value text
-}
+/* kpi-badge-change, kpi-badge-positive, kpi-badge-negative: design system in styles.scss (80x27, padding, glass effect) */
 
 .kpi-divider-white {
   height: 1px;
@@ -158,8 +185,9 @@
   font-size: 32px;
   line-height: 100%;
   letter-spacing: 0px;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 16px 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 .kpi-value-white {
@@ -176,7 +204,7 @@
   font-size: 16px;
   line-height: 100%;
   letter-spacing: 0px;
-  color: #111827;
+  color: #e6edf3;
   margin: 0 0 8px 0;
 }
 
@@ -194,7 +222,7 @@
   font-size: 14px;
   line-height: 140%;
   letter-spacing: 0px;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.65);
   margin: 0 0 16px 0;
   flex: 1;
 }
@@ -212,7 +240,7 @@
 
 .kpi-divider {
   height: 1px;
-  background-color: #E5E7EB;
+  background-color: rgba(255, 255, 255, 0.12);
   margin: 16px 0;
   width: 100%;
 }
@@ -233,7 +261,7 @@
 .kpi-link {
   font-weight: 400;
   font-size: 12px;
-  color: var(--color-green-teal);
+  color: #14b8a6;
   text-decoration: none;
   transition: opacity 0.2s;
   word-wrap: break-word;
@@ -275,23 +303,19 @@
 }
 
 .table-wrapper-custom {
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  overflow-x: auto; // Allow horizontal scroll if needed
+  overflow: hidden; /* clip content to rounded corners – no background leaking out */
+  isolation: isolate; /* stacking context so blur/glass stays inside */
 
   ::ng-deep .search-container,
   ::ng-deep .filter-pill {
-    display: none; // Hide search and filters for these tables
+    display: none;
   }
 
   ::ng-deep .pagination-container {
-    display: none; // Hide pagination for these tables
+    display: none;
   }
 
   ::ng-deep .table-wrapper {
@@ -304,22 +328,54 @@
     max-width: 100%;
   }
 
-  // Table styling to match Figma
   ::ng-deep .assets-table {
     min-width: auto !important;
+    background: transparent !important;
+  }
+
+  ::ng-deep .mat-mdc-header-row,
+  ::ng-deep thead tr {
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* Header: solid bg so corners clip cleanly */
+  ::ng-deep .assets-table th {
+    background: #0D1D1D !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: hidden !important;
+  }
+  ::ng-deep .assets-table th:first-child {
+    border-top-left-radius: var(--card-border-radius, 24px) !important;
+  }
+  ::ng-deep .assets-table th:last-child {
+    border-top-right-radius: var(--card-border-radius, 24px) !important;
+  }
+
+  ::ng-deep .mat-mdc-row,
+  ::ng-deep tbody tr {
+    background: transparent !important;
+  }
+
+  ::ng-deep .mat-mdc-row:hover .mat-mdc-cell,
+  ::ng-deep tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.06) !important;
   }
 
   ::ng-deep th {
     font-weight: 600;
     font-size: 12px;
-    color: #6B7280;
+    color: rgba(255, 255, 255, 0.8);
     text-transform: uppercase;
     padding: 12px 16px;
+    border-color: rgba(255, 255, 255, 0.1) !important;
   }
 
   ::ng-deep td {
     padding: 12px 16px;
     font-size: 14px;
+    color: #e6edf3 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
   }
 }
 
@@ -328,13 +384,13 @@
   font-size: 18px;
   line-height: 100%;
   letter-spacing: 0px;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 16px 0;
 }
 
 ::ng-deep .text-cell-with-icon.has-icon {
   .ministry-link {
-    color: var(--color-green-teal);
+    color: #14b8a6;
     cursor: pointer;
     text-decoration: underline;
     transition: opacity 0.2s;
@@ -345,47 +401,58 @@
   }
 
   .text-cell-icon {
-    color: var(--color-green-teal) !important;
+    color: #14b8a6 !important;
     font-size: 16px;
     width: 16px;
     height: 16px;
   }
 }
 
-// Sidebar - header se bilkul neeche (sirf sidebar ke liye top gap nahi), right/bottom mila hua
 .sidebar {
   width: 482px;
   min-width: 482px;
   max-width: 100%;
   flex-shrink: 0;
   box-sizing: border-box;
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-right: none;
-  border-radius: 0; // Bilkul attach - koi round corner nahi
+  // background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  // border: 1px solid rgba(255, 255, 255, 0.12);
+  // border-right: none;
+  // border-radius: 0;
   padding: 24px;
   padding-right: 24px;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.06);
+  // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   align-self: stretch;
   margin-top: 0;
   padding-top: 24px;
 }
 
-.sidebar-section {
-  padding: 0;
-  background: none;
-  border: none;
-  box-shadow: none;
+// Right sidebar tiles: same glass style as left KPI cards (24px radius)
+.sidebar-tile {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--card-border-radius);
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   margin-bottom: 24px;
+  transition: all 0.2s ease;
 
-  &:not(.sidebar-section-last) {
-    border-bottom: 1px solid #E5E7EB;
-    padding-bottom: 24px;
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
-  &.sidebar-section-last {
+  &.sidebar-tile-last {
     margin-bottom: 0;
   }
+}
+
+// Legacy class alias
+.sidebar-section {
+  @extend .sidebar-tile;
 }
 
 .section-title {
@@ -393,7 +460,7 @@
   font-size: 18px;
   line-height: 100%;
   letter-spacing: 0px;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 20px 0;
 }
 
@@ -402,7 +469,7 @@
   font-size: 18px;
   line-height: 100%;
   letter-spacing: 0px;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 20px 0;
 }
 
@@ -428,17 +495,17 @@
 .index-label {
   font-weight: 400;
   font-size: 14px;
-  color: #111827;
+  color: #e6edf3;
   word-wrap: break-word;
   overflow-wrap: break-word;
   flex: 1;
-  min-width: 0; // Allow text to shrink
+  min-width: 0;
 }
 
 .index-value {
   font-weight: 500;
   font-size: 14px;
-  color: #111827;
+  color: #e6edf3;
 }
 
 .index-progress-container {
@@ -471,13 +538,13 @@
 .traffic-label {
   font-weight: 400;
   font-size: 14px;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .traffic-value {
   font-weight: 500;
   font-size: 14px;
-  color: #111827;
+  color: #e6edf3;
 }
 
 // Insights section (Figma-aligned: white card, circular nav, same-size dots)
@@ -505,17 +572,17 @@
   min-height: 32px;
   padding: 0;
   border-radius: 50%;
-  background-color: #F3F4F6;
-  border: 1px solid #E5E7EB;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition: background 0.2s, border-color 0.2s;
 
   &:hover:not(:disabled) {
-    background-color: #E5E7EB;
-    border-color: #D1D5DB;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.35);
   }
 
   &:disabled {
@@ -527,16 +594,15 @@
     font-size: 20px;
     width: 20px;
     height: 20px;
-    color: #374151;
+    color: rgba(255, 255, 255, 0.8);
   }
 }
 
 .insights-card {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  padding: 20px;
-  border: 1px solid #E5E7EB;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  padding: 0;
 }
 
 .insights-content {
@@ -548,7 +614,7 @@
   font-size: 32px;
   line-height: 100%;
   letter-spacing: 0px;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 8px 0;
 }
 
@@ -557,7 +623,7 @@
   font-size: 16px;
   line-height: 100%;
   letter-spacing: 0px;
-  color: #111827;
+  color: #e6edf3;
   margin: 0 0 12px 0;
 }
 
@@ -566,7 +632,7 @@
   font-size: 14px;
   line-height: 140%;
   letter-spacing: 0px;
-  color: #6B7280;
+  color: rgba(255, 255, 255, 0.65);
   margin: 0;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -584,16 +650,16 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #D1D5DB;
+  background-color: rgba(255, 255, 255, 0.3);
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #9CA3AF;
+    background-color: rgba(255, 255, 255, 0.5);
   }
 
   &.active {
-    background-color: var(--color-green-teal);
+    background-color: #14b8a6;
   }
 }
 
@@ -639,9 +705,8 @@
     width: 300px;
     min-width: 280px;
     max-width: 100%;
-    border-right: 1px solid #E5E7EB;
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.06);
   }
 
   .kpi-cards-grid {
@@ -690,11 +755,10 @@
     width: 100%;
     min-width: 100%;
     max-width: 100%;
-    border-right: 1px solid #E5E7EB;
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: 16px;
-    order: 2; // Cards/tables ke baad sidebar
+    order: 2;
   }
 
   .kpi-cards-grid {

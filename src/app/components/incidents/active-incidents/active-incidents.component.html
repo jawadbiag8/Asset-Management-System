@@ -1,10 +1,4 @@
-<div class="container-fluid" [class.p-4]="showBreadcrumb || showHeader">
-  @if (showBreadcrumb) {
-    <app-reusable-breadcrum
-      [breadcrumbs]="breadcrumbs"
-    ></app-reusable-breadcrum>
-  }
-
+<div class="container-fluid" [class.p-4]="showHeader">
   @if (showHeader) {
     <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
       <h1 class="pageTitle">All Incidents</h1>
