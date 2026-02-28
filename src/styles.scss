@@ -90,19 +90,19 @@
 
   --color-black: #011B1B;
 
-  /* Severity badge (incident details) — light bg + darker text */
-  --severity-critical-bg: #FFDCDC;
-  --severity-critical-text: #CC0000;
-  --severity-critical-border: #FFB3B3;
-  --severity-high-bg: #FFFFCC;
-  --severity-high-text: #FF8000;
-  --severity-high-border: #FFCC66;
-  --severity-medium-bg: #FFE0BD;
-  --severity-medium-text: #A85800;
-  --severity-medium-border: #E8C9A0;
-  --severity-low-bg: #CCFFCC;
-  --severity-low-text: #009900;
-  --severity-low-border: #99CC99;
+  /* Severity badge (P1–P4 oval style) — background + white text */
+  --severity-critical-bg: #FF00007D;
+  --severity-critical-text: #ffffff;
+  --severity-critical-border: rgba(255, 255, 255, 0.35);
+  --severity-high-bg: #4C97FFB2;
+  --severity-high-text: #ffffff;
+  --severity-high-border: rgba(255, 255, 255, 0.35);
+  --severity-medium-bg: #2CCC004A;
+  --severity-medium-text: #ffffff;
+  --severity-medium-border: rgba(255, 255, 255, 0.35);
+  --severity-low-bg: #F08901BD;
+  --severity-low-text: #ffffff;
+  --severity-low-border: rgba(255, 255, 255, 0.35);
   --severity-na-bg: #A9A9A9;
   --severity-na-text: #FFFFFF;
   --severity-na-border: #8C8C8C;
@@ -209,7 +209,7 @@ body::before {
 
 .badge-status-success {
   background: var(--status-badge-success-bg);
-  color: var(--status-badge-success-text);
+  color: var(--color-text-secondary);
   border-color: rgba(255, 255, 255, 0.28);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.15) inset,
@@ -219,7 +219,7 @@ body::before {
 
 .badge-status-info {
   background: var(--status-badge-info-bg);
-  color: var(--status-badge-info-text);
+  color: var(--color-text-secondary);
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.12) inset,
@@ -229,7 +229,7 @@ body::before {
 
 .badge-status-danger {
   background: var(--status-badge-danger-bg);
-  color: var(--status-badge-danger-text);
+  color: var(--color-text-secondary);
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.1) inset,
@@ -239,7 +239,7 @@ body::before {
 
 .badge-status-warning {
   background: var(--status-badge-warning-bg);
-  color: var(--status-badge-warning-text);
+  color: var(--color-text-secondary);
   border-color: rgba(255, 255, 255, 0.22);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.12) inset,
@@ -249,7 +249,7 @@ body::before {
 
 .badge-status-unknown {
   background: var(--status-badge-unknown-bg);
-  color: var(--status-badge-unknown-text);
+  color: var(--color-text-secondary);
   border-color: rgba(0, 0, 0, 0.08);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.5) inset,
@@ -664,6 +664,16 @@ table th,
   color: var(--color-red, #dc2626) !important;
 }
 
+/* Health/Performance/Compliance: Poor/Critical state – force red text and icon (override td color) */
+.assets-page .dashboard-table-section .assets-table .health-status-cell.health-icon-critical .health-status-line,
+.ministry-detail-page .dashboard-table-section .assets-table .health-status-cell.health-icon-critical .health-status-line {
+  color: var(--color-red, #dc2626) !important;
+}
+.assets-page .dashboard-table-section .assets-table .health-status-cell.health-icon-critical .health-bar-icon path,
+.ministry-detail-page .dashboard-table-section .assets-table .health-status-cell.health-icon-critical .health-bar-icon path {
+  fill: var(--color-red, #dc2626) !important;
+}
+
 /* Assets page: table design – same as pm-dashboard (th #0D1D1D, td transparent, hover 0.06) */
 .assets-page .dashboard-table-section {
   --table-header-bg: #0D1D1D;
@@ -809,6 +819,299 @@ table th,
   }
 }
 
+/* Incidents page (All Incidents): same dark table design as assets page */
+.incidents-page .dashboard-table-section {
+  --table-header-bg: #0D1D1D;
+  --table-cell-bg: transparent;
+  --table-cell-bg-even: transparent;
+  --table-cell-bg-hover: rgba(255, 255, 255, 0.06);
+
+  .table-wrapper {
+    background: transparent !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: var(--card-border-radius, 24px) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .assets-table {
+    background: transparent !important;
+  }
+
+  .assets-table .mat-mdc-header-row,
+  .assets-table th {
+    background: var(--table-header-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: hidden !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .assets-table th:first-child {
+    border-top-left-radius: var(--card-border-radius, 24px) !important;
+  }
+
+  .assets-table th:last-child {
+    border-top-right-radius: var(--card-border-radius, 24px) !important;
+    border-right: none !important;
+  }
+
+  .assets-table .mat-mdc-row,
+  .assets-table tr.mat-mdc-row {
+    background: transparent !important;
+  }
+
+  .assets-table .mat-mdc-cell,
+  .assets-table td {
+    color: #e6edf3 !important;
+    background: var(--table-cell-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .assets-table .mat-mdc-row:nth-child(even) .mat-mdc-cell,
+  .assets-table tr.mat-mdc-row:nth-child(even) td {
+    background: var(--table-cell-bg-even) !important;
+  }
+
+  .assets-table .mat-mdc-cell:last-child,
+  .assets-table td:last-child {
+    border-right: none !important;
+  }
+
+  .assets-table tr.mat-mdc-row:hover .mat-mdc-cell,
+  .assets-table tr.mat-mdc-row:hover td {
+    background: var(--table-cell-bg-hover) !important;
+  }
+
+  .assets-table .sort-icon,
+  .assets-table .sortable-header .mat-icon {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .assets-table .line-link,
+  .assets-table .line-primary.line-link,
+  .assets-table a.line-link,
+  .assets-table .link-text {
+    color: #14b8a6 !important;
+    text-decoration: underline;
+  }
+
+  .assets-table .line-link:hover,
+  .assets-table .link-text:hover {
+    color: #2dd4bf !important;
+  }
+
+  .assets-table .line-secondary {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  .assets-table .trailing-btn-outline {
+    background: transparent !important;
+    border: 1px solid #14b8a6 !important;
+    color: #14b8a6 !important;
+    border-radius: 6px;
+  }
+
+  .assets-table .trailing-btn-outline:hover {
+    background: rgba(20, 184, 166, 0.15) !important;
+  }
+
+  .pagination-container {
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #e6edf3 !important;
+  }
+
+  .rows-per-page-label,
+  .row-count-text {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .rows-per-page-select {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #e6edf3 !important;
+  }
+
+  .empty-state-text {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .assets-table .text-success .line-primary,
+  .assets-table .text-success {
+    color: #34d399 !important;
+  }
+  .assets-table .text-danger .line-primary,
+  .assets-table .text-danger {
+    color: #f87171 !important;
+  }
+  .assets-table .text-warning .line-primary,
+  .assets-table .text-warning {
+    color: #fbbf24 !important;
+  }
+  .assets-table .text-default .line-primary {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+}
+
+/* Ministry detail page: table design exactly like assets page (.assets-page .dashboard-table-section) */
+.ministry-detail-page .dashboard-table-section {
+  --table-header-bg: #0D1D1D;
+  --table-cell-bg: transparent;
+  --table-cell-bg-even: transparent;
+  --table-cell-bg-hover: rgba(255, 255, 255, 0.06);
+
+  .table-wrapper {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: var(--card-border-radius, 24px) !important;
+  }
+
+  .assets-table {
+    background: transparent !important;
+  }
+
+  .assets-table .mat-mdc-header-row,
+  .assets-table th {
+    background: var(--table-header-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: hidden !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .assets-table th:first-child {
+    border-top-left-radius: var(--card-border-radius, 24px) !important;
+  }
+
+  .assets-table th:last-child {
+    border-top-right-radius: var(--card-border-radius, 24px) !important;
+    border-right: none !important;
+  }
+
+  .assets-table .mat-mdc-row,
+  .assets-table tr.mat-mdc-row {
+    background: transparent !important;
+  }
+
+  .assets-table .mat-mdc-cell,
+  .assets-table td {
+    color: #e6edf3 !important;
+    background: var(--table-cell-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .assets-table .mat-mdc-row:nth-child(even) .mat-mdc-cell,
+  .assets-table tr.mat-mdc-row:nth-child(even) td {
+    background: var(--table-cell-bg-even) !important;
+  }
+
+  .assets-table .mat-mdc-cell:last-child,
+  .assets-table td:last-child {
+    border-right: none !important;
+  }
+
+  .assets-table tr.mat-mdc-row:hover .mat-mdc-cell,
+  .assets-table tr.mat-mdc-row:hover td {
+    background: var(--table-cell-bg-hover) !important;
+  }
+
+  .assets-table .sort-icon,
+  .assets-table .sortable-header .mat-icon {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .assets-table .line-link,
+  .assets-table .line-primary.line-link,
+  .assets-table a.line-link,
+  .assets-table .link-text {
+    color: #14b8a6 !important;
+    text-decoration: underline;
+  }
+
+  .assets-table .line-link:hover,
+  .assets-table .link-text:hover {
+    color: #2dd4bf !important;
+  }
+
+  .assets-table .line-secondary {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  .assets-table .trailing-btn-outline {
+    background: transparent !important;
+    border: 1px solid #14b8a6 !important;
+    color: #14b8a6 !important;
+    border-radius: 6px;
+  }
+
+  .assets-table .trailing-btn-outline:hover {
+    background: rgba(20, 184, 166, 0.15) !important;
+  }
+
+  .pagination-container {
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #e6edf3 !important;
+  }
+
+  .rows-per-page-label,
+  .row-count-text {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .rows-per-page-select {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #e6edf3 !important;
+  }
+
+  .empty-state-text {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .assets-table .text-success .line-primary,
+  .assets-table .text-success {
+    color: #34d399 !important;
+  }
+  .assets-table .text-danger .line-primary,
+  .assets-table .text-danger {
+    color: #f87171 !important;
+  }
+  .assets-table .text-warning .line-primary,
+  .assets-table .text-warning {
+    color: #fbbf24 !important;
+  }
+  .assets-table .text-default .line-primary {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+}
+
+.ministry-detail-page .dashboard-table-section .assets-table .line-secondary.open-incidents-value-red {
+  color: var(--color-red, #dc2626) !important;
+}
+
 /* Dropdown options – uppercase everywhere (mat-select + native select) */
 .mat-mdc-select-panel .mat-mdc-option,
 .mat-mdc-option {
@@ -839,4 +1142,70 @@ select option {
   padding-top: 10px;
   padding-bottom: 10px;
   line-height: 1.4;
+}
+
+/* Filter modal – dropdown panel dark theme (background #0D1D1D, text #fff) */
+.filter-modal-select-panel.mat-mdc-select-panel {
+  background: #0D1D1D !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+
+  .mat-mdc-option {
+    color: #fff !important;
+
+    .mdc-list-item__primary-text {
+      color: #fff !important;
+    }
+
+    &.mdc-list-item--selected .mdc-list-item__primary-text {
+      color: #14b8a6 !important;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+
+  .mat-mdc-option-active {
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* Search input inside dropdown (ngx-mat-select-search) */
+  .mat-select-search-inner {
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .mat-select-search-input {
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  input,
+  .mat-mdc-input-element,
+  .mat-mdc-form-field {
+    color: #fff !important;
+    caret-color: #fff;
+  }
+
+  input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .mat-mdc-form-field .mat-mdc-text-field-wrapper,
+  .mat-mdc-form-field .mdc-notched-outline .mdc-notched-outline__leading,
+  .mat-mdc-form-field .mdc-notched-outline .mdc-notched-outline__notch,
+  .mat-mdc-form-field .mdc-notched-outline .mdc-notched-outline__trailing {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .mat-mdc-form-field .mat-mdc-floating-label {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after {
+    border-color: #14b8a6 !important;
+  }
+
+  .mat-icon {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
 }

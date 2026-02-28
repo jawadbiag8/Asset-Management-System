@@ -72,10 +72,14 @@ export class AssetsComponent implements OnInit {
         linkField: 'assetUrl',
         sortable: true,
         width: '140px',
+        routerLinkFn: (row) => ({
+          commands: ['/view-assets-detail'],
+          queryParams: { id: row.id, ministryId: row.ministryId ?? '' },
+        }),
       },
       {
         key: 'ministryDepartment',
-        header: 'Ministry/Department',
+        header: 'Department',
         cellType: 'two-line',
         primaryField: 'ministryDepartment',
         secondaryField: 'department',

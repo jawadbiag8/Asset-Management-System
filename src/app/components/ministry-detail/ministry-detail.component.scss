@@ -15,9 +15,12 @@
     margin-bottom: 32px;
 
     .summary-card {
-        background-color: #ffffff;
         border-radius: var(--card-border-radius);
         padding: 24px;
+        background-color: #00000033;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid #008080;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         position: relative;
         transition: box-shadow 0.2s;
@@ -34,7 +37,7 @@
         .card-value {
             font-size: 36px;
             font-weight: 700;
-            color: #1f2937;
+            color: #fff;
             margin: 0 0 12px 0;
             line-height: 1;
         }
@@ -42,20 +45,20 @@
         .card-title {
             font-size: 16px;
             font-weight: 600;
-            color: #1f2937;
+            color: #fff;
             margin: 0 0 8px 0;
         }
 
         .card-subtitle {
             font-size: 14px;
-            color: #6b7280;
+            color: #fff;
             margin: 0 0 16px 0;
             line-height: 1.5;
         }
 
         .card-separator {
             height: 1px;
-            background-color: #e5e7eb;
+            background-color: #008080;
             margin: 0 0 16px 0;
             width: 100%;
         }
@@ -142,100 +145,126 @@
     cursor: pointer;
 }
 
-// Table Styles
+// Table section: exactly like assets page (glass card + same design tokens)
+.dashboard-table-section {
+    overflow: hidden;
+
+    .table-section-card {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        overflow: hidden;
+        isolation: isolate;
+        padding: 20px 24px;
+    }
+
+    // Dark theme for filters/search (reusable-table)
+    --color-bg-primary: rgba(255, 255, 255, 0.06);
+    --color-bg-secondary: rgba(255, 255, 255, 0.04);
+    --color-bg-tertiary: #1f2937;
+    --color-text-primary: #e6edf3;
+    --color-text-secondary: rgba(255, 255, 255, 0.75);
+    --color-text-tertiary: rgba(255, 255, 255, 0.55);
+    --color-border: rgba(255, 255, 255, 0.12);
+    --color-bg-hover: rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-table-section ::ng-deep {
+    .filter-add-btn {
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .mat-icon {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    }
+
+    .filter-pill-selected {
+        background: rgba(255, 255, 255, 0.12);
+        color: #e6edf3;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .filter-close-icon {
+            color: rgba(255, 255, 255, 0.6);
+        }
+    }
+
+    .search-container .search-input {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        &:focus {
+            border-color: #14b8a6;
+        }
+    }
+
+    .search-container .search-icon {
+        color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+// Table column/cell styles (badge, two-line, etc.)
 ::ng-deep .assets-table {
 
-    // Style for CURRENT STATUS column (4th column)
-    td[mat-cell]:nth-child(4) {
+    // Style for Status column (3rd)
+    td[mat-cell]:nth-child(3) {
         .badge-cell {
             .badge {
                 font-size: 12px;
                 font-weight: 500;
                 padding: 4px 10px;
-                border-radius: 4px;
+                border-radius: 24px;
             }
         }
     }
 
-    // Style for CURRENT HEALTH column (6th column)
-    td[mat-cell]:nth-child(6) {
-        .two-line-cell {
-            .line-primary {
-                font-weight: 500;
-            }
+    // Column 4: Health (health-status with icon – styled by reusable-table)
+    // Column 5: Performance (metric-with-trend with icon – styled by reusable-table)
+    // Column 6: Compliance (metric-with-trend with icon – styled by reusable-table)
 
-            .line-secondary {
-                font-size: 12px;
-                color: var(--color-text-secondary);
-            }
-        }
-    }
-
-    // Style for PERFORMANCE STATUS column (7th column)
+    // Style for Risk column (7th) – badge (cellType: 'badge' uses .badge-wrapper)
     td[mat-cell]:nth-child(7) {
-        .two-line-cell {
-            .line-primary {
-                font-weight: 500;
-            }
-
-            .line-secondary {
-                font-size: 12px;
-                color: var(--color-text-secondary);
-            }
+        .badge-wrapper .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 24px;
+            text-transform: uppercase;
         }
     }
 
-    // Style for COMPLIANCE STATUS column (8th column)
+    // Style for Citizen Impact column (8th)
     td[mat-cell]:nth-child(8) {
+        .badge-cell {
+            .badge {
+                font-size: 12px;
+                font-weight: 500;
+                padding: 4px 10px;
+                border-radius: 24px;
+            }
+        }
+    }
+
+    // Style for Open Incidents column (9th)
+    td[mat-cell]:nth-child(9) {
         .two-line-cell {
             .line-primary {
-                font-weight: 500;
+                font-weight: 600;
             }
 
             .line-secondary {
                 font-size: 12px;
                 color: var(--color-text-secondary);
-            }
-        }
-    }
-
-    // Style for RISK EXPOSURE INDEX column (9th column)
-    td[mat-cell]:nth-child(9) {
-        .badge-cell {
-            .badge {
-                font-size: 11px;
-                font-weight: 600;
-                padding: 4px 10px;
-                border-radius: 4px;
-                text-transform: uppercase;
-            }
-        }
-    }
-
-    // Style for CITIZEN IMPACT LEVEL column (10th column)
-    td[mat-cell]:nth-child(10) {
-        .badge-cell {
-            .badge {
-                font-size: 12px;
-                font-weight: 500;
-                padding: 4px 10px;
-                border-radius: 4px;
-            }
-        }
-    }
-
-    // Style for OPEN INCIDENTS column (11th column)
-    td[mat-cell]:nth-child(11) {
-        .badge-cell {
-            .badge {
-                font-size: 14px;
-                font-weight: 600;
-            }
-
-            .subtext {
-                font-size: 12px;
-                color: var(--color-text-secondary);
-                margin-top: 4px;
             }
         }
     }

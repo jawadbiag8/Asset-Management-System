@@ -629,21 +629,21 @@ export class ActiveIncidentsComponent implements OnInit {
   getSeverityBadgeColor(severity: string): string {
     if (!severity) return '#F3F4F6';
     const level = severity.toString().toUpperCase();
-    // Handle P1, P2, P3, P4 format or numeric 1, 2, 3, 4
+    // P1=red, P2=blue, P3=green, P4=orange (oval severity badges)
     if (
       level === 'P1' ||
       level === '1' ||
       level === 'P1 CRITICAL' ||
       level === 'CRITICAL'
     ) {
-      return 'var(--color-red-light)';
+      return '#FF00007D';
     } else if (
       level === 'P2' ||
       level === '2' ||
       level === 'P2 HIGH' ||
       level === 'HIGH'
     ) {
-      return 'var(--color-orange-light)';
+      return '#4C97FFB2';
     } else if (
       level === 'P3' ||
       level === '3' ||
@@ -651,7 +651,7 @@ export class ActiveIncidentsComponent implements OnInit {
       level === 'MEDIUM' ||
       level === 'MODERATE'
     ) {
-      return 'var(--color-yellow-light)';
+      return '#2CCC004A';
     } else if (
       level === 'P4' ||
       level === '4' ||
@@ -659,7 +659,7 @@ export class ActiveIncidentsComponent implements OnInit {
       level === 'LOW' ||
       level === 'INFO'
     ) {
-      return 'var(--color-green-light)';
+      return '#F08901BD';
     }
     return '#F3F4F6';
   }
@@ -667,36 +667,28 @@ export class ActiveIncidentsComponent implements OnInit {
   getSeverityBadgeTextColor(severity: string): string {
     if (!severity) return '#6B7280';
     const level = severity.toString().toUpperCase();
+    // White text on all severity badges for contrast
     if (
       level === 'P1' ||
       level === '1' ||
       level === 'P1 CRITICAL' ||
-      level === 'CRITICAL'
-    ) {
-      return 'var(--color-red)';
-    } else if (
+      level === 'CRITICAL' ||
       level === 'P2' ||
       level === '2' ||
       level === 'P2 HIGH' ||
-      level === 'HIGH'
-    ) {
-      return 'var(--color-orange)';
-    } else if (
+      level === 'HIGH' ||
       level === 'P3' ||
       level === '3' ||
       level === 'P3 MEDIUM' ||
       level === 'MEDIUM' ||
-      level === 'MODERATE'
-    ) {
-      return 'var(--color-yellow)';
-    } else if (
+      level === 'MODERATE' ||
       level === 'P4' ||
       level === '4' ||
       level === 'P4 LOW' ||
       level === 'LOW' ||
       level === 'INFO'
     ) {
-      return 'var(--color-green-dark)';
+      return '#ffffff';
     }
     return '#6B7280';
   }

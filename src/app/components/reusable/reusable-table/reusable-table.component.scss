@@ -415,8 +415,10 @@
         }
     }
 
-    // URL in secondary line: wrap long URLs, keep original casing
+    // URL in secondary line: wrap long URLs, keep original casing, always on next line
     .line-secondary-link {
+        display: block;
+        margin-top: 2px;
         text-transform: none;
         word-break: break-all;
         overflow-wrap: break-word;

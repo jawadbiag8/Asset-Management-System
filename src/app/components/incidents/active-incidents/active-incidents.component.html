@@ -1,31 +1,36 @@
-<div class="container-fluid" [class.p-4]="showHeader">
+<div class="container-fluid" [class.incidents-page]="showHeader" [class.p-4]="showHeader">
   @if (showHeader) {
-    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
-      <h1 class="pageTitle">All Incidents</h1>
-      <div class="d-flex align-items-center gap-2">
-        @if (showAddButton) {
-          <button
-            class="btn btn-primary d-flex align-items-center gap-2"
-            (click)="onAddIncident()"
-          >
-            <mat-icon>add</mat-icon>
-            Add Incident
-          </button>
-        }
-      </div>
-    </div>
+    <header class="incidents-header d-flex justify-content-between align-items-center">
+      <h1 class="incidents-page-title">All Incidents</h1>
+
+    </header>
   }
 
   <div [class.mt-5]="showHeader">
     @if (!hasRouteQueryParams || filtersReady()) {
-      <app-reusable-table
-        [config]="tableConfigWithData()"
-        [filters]="displayFilters()"
-        (searchQuery)="loadIncidents($event)"
-        [totalItems]="totalItems()"
-        (actionClick)="onViewDetailsClick($event)"
-      >
-      </app-reusable-table>
+      @if (showHeader) {
+        <div id="incidents-table" class="dashboard-table-section">
+          <div class="table-section-card">
+            <app-reusable-table
+              [config]="tableConfigWithData()"
+              [filters]="displayFilters()"
+              (searchQuery)="loadIncidents($event)"
+              [totalItems]="totalItems()"
+              (actionClick)="onViewDetailsClick($event)"
+            >
+            </app-reusable-table>
+          </div>
+        </div>
+      } @else {
+        <app-reusable-table
+          [config]="tableConfigWithData()"
+          [filters]="displayFilters()"
+          (searchQuery)="loadIncidents($event)"
+          [totalItems]="totalItems()"
+          (actionClick)="onViewDetailsClick($event)"
+        >
+        </app-reusable-table>
+      }
     }
   </div>
 </div>

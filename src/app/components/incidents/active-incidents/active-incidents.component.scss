@@ -1,0 +1,167 @@
+/* All Incidents page – dark theme (aligned with assets page) */
+$incidents-card-radius: 8px;
+$incidents-pill-radius: 999px;
+
+.incidents-page {
+  background: transparent;
+  min-height: 100vh;
+  padding: 24px 32px 32px;
+}
+
+.incidents-header {
+  margin-bottom: 24px;
+}
+
+.incidents-page-title {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Add Incident: primary teal button (uses .btn-primary from global when present) */
+.incidents-page .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #14b8a6;
+  border: 1px solid rgba(20, 184, 166, 0.5);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+
+  mat-icon {
+    color: #ffffff;
+  }
+
+  &:hover {
+    background: #0d9488;
+    border-color: #14b8a6;
+  }
+}
+
+/* Table section: glass card + design tokens (same as assets) */
+.dashboard-table-section {
+  overflow: hidden;
+
+  .table-section-card {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+    isolation: isolate;
+    padding: 20px 24px;
+  }
+
+  --color-bg-primary: rgba(255, 255, 255, 0.06);
+  --color-bg-secondary: rgba(255, 255, 255, 0.04);
+  --color-bg-tertiary: #1f2937;
+  --color-text-primary: #e6edf3;
+  --color-text-secondary: rgba(255, 255, 255, 0.75);
+  --color-text-tertiary: rgba(255, 255, 255, 0.55);
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-bg-hover: rgba(255, 255, 255, 0.1);
+}
+
+/* Filter bar + search – dark theme */
+.dashboard-table-section ::ng-deep {
+  .filter-add-btn {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .mat-icon {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+  .filter-pill-selected {
+    background: rgba(255, 255, 255, 0.12);
+    color: #e6edf3;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    .filter-close-icon {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .search-container .search-input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    &:focus {
+      border-color: #14b8a6;
+    }
+  }
+
+  .search-container .search-icon {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Table badges – pill + glass effect (severity/status) */
+.dashboard-table-section ::ng-deep .assets-table .badge {
+  border-radius: $incidents-pill-radius !important;
+  padding: 6px 14px !important;
+  font-weight: 600 !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  min-width: 60px !important;
+  height: auto !important;
+}
+
+.dashboard-table-section ::ng-deep .assets-table .badge.badge-status-success,
+.dashboard-table-section ::ng-deep .assets-table .badge.badge-success {
+  background-color: var(--color-green, #10b981) !important;
+  color: #ffffff !important;
+}
+
+.dashboard-table-section ::ng-deep .assets-table .badge.badge-status-danger,
+.dashboard-table-section ::ng-deep .assets-table .badge.badge-danger {
+  background-color: var(--color-red, #ef4444) !important;
+  color: #ffffff !important;
+}
+
+.dashboard-table-section ::ng-deep .assets-table .badge.badge-status-warning,
+.dashboard-table-section ::ng-deep .assets-table .badge.badge-warning {
+  background-color: var(--color-orange, #f59e0b) !important;
+  color: #1a1a1a !important;
+}
+
+.dashboard-table-section ::ng-deep .assets-table .badge.badge-status-info {
+  background-color: var(--color-primary, #00cfcf) !important;
+  color: #ffffff !important;
+}
+
+.dashboard-table-section ::ng-deep .assets-table .badge.badge-status-unknown {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Pagination controls – teal accent */
+.dashboard-table-section ::ng-deep .pagination-button {
+  color: #14b8a6 !important;
+
+  mat-icon {
+    color: #14b8a6 !important;
+  }
+}
+
+.dashboard-table-section ::ng-deep .page-indicator .current-page {
+  color: #14b8a6 !important;
+}

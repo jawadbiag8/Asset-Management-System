@@ -8,8 +8,6 @@ import {
   TableConfig,
   TableColumn,
 } from '../../reusable/reusable-table/reusable-table.component';
-import { ManageIncidentsComponent } from '../../incidents/manage-incidents/manage-incidents.component';
-import { MatDialog } from '@angular/material/dialog';
 import { SignalRService, TOPICS } from '../../../services/signalr.service';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -111,8 +109,7 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
         header: 'SLA STATUS',
         cellType: 'badge',
         badgeField: 'slaStatus',
-        badgeColor: (row: any) => this.getSlaBadgeColor(row.slaStatus),
-        badgeTextColor: (row: any) => this.getSlaBadgeTextColor(row.slaStatus),
+        badgeStatus: (row: any) => this.getSlaBadgeStatus(row.slaStatus),
         sortable: false,
         width: '150px',
       },
@@ -137,19 +134,13 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
         header: 'ACTIONS',
         cellType: 'actions',
         sortable: false,
-        width: '200px',
+        width: '100px',
         actionLinks: [
           {
             label: 'Check',
             color: 'var(--color-primary)',
             display: 'text',
             disabled: (row: any) => String(row?.dataSource || '').toLowerCase() === 'manual',
-          },
-          {
-            label: 'Add Incident',
-            display: 'text',
-            color: 'var(--color-red)',
-            disabled: (row: any) => false,
           },
         ],
       },
@@ -204,7 +195,6 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private api: ApiService,
     private utils: UtilsService,
-    private dialog: MatDialog,
     private signalR: SignalRService,
     private breadcrumbService: BreadcrumbService,
   ) {}
@@ -405,8 +395,44 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     return 'badge-success';
   }
 
+  /** Dashboard-style badge class for header badges (pill + glass, same as dashboard). */
+  getHeaderBadgeStatusClass(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk'): string {
+    if (!value) return 'badge-status-unknown';
+    const upperValue = String(value).toUpperCase();
+
+    if (type === 'citizenImpact') {
+      if (upperValue.includes('LOW')) return 'badge-status-success';
+      if (upperValue.includes('MEDIUM')) return 'badge-status-warning';
+      if (upperValue.includes('HIGH')) return 'badge-status-danger';
+      return 'badge-status-unknown';
+    }
+    if (type === 'health') {
+      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT')) return 'badge-status-success';
+      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR')) return 'badge-status-warning';
+      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL')) return 'badge-status-danger';
+      return 'badge-status-unknown';
+    }
+    if (type === 'risk') {
+      if (upperValue.includes('LOW')) return 'badge-status-success';
+      if (upperValue.includes('MEDIUM')) return 'badge-status-warning';
+      if (upperValue.includes('HIGH')) return 'badge-status-danger';
+      return 'badge-status-unknown';
+    }
+    return 'badge-status-unknown';
+  }
+
+  /** Dashboard-style badge class for CURRENT STATUS (UP/ONLINE = success, DOWN/OFFLINE = danger, etc.). */
+  getCurrentStatusBadgeClass(status: string | undefined | null): string {
+    if (!status) return 'badge-status-unknown';
+    const s = String(status).toUpperCase();
+    if (s.includes('UP') || s.includes('ONLINE')) return 'badge-status-success';
+    if (s.includes('DOWN') || s.includes('OFFLINE')) return 'badge-status-danger';
+    if (s.includes('WARNING') || s.includes('PARTIAL') || s.includes('DEGRADED')) return 'badge-status-warning';
+    return 'badge-status-unknown';
+  }
+
   getStatusBoxClass(status: string | undefined | null): string {
-    if (!status) return 'bg-light border border-secondary';
+    if (!status) return 'bg-transparent border border-secondary';
 
     const upperStatus = status.toUpperCase();
     if (upperStatus.includes('DOWN') || upperStatus.includes('OFFLINE')) {
@@ -415,7 +441,7 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     if (upperStatus.includes('UP') || upperStatus.includes('ONLINE')) {
       return 'bg-success-subtle border border-success';
     }
-    return 'bg-light border border-secondary';
+    return 'bg-transparent border border-secondary';
   }
 
   getStatusTextClass(status: string | undefined | null): string {
@@ -431,50 +457,14 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     return 'text-secondary';
   }
 
-  getSlaBadgeColor(slaStatus: string | undefined | null): string {
-    if (!slaStatus) return 'var(--color-bg-quaternary)';
-
+  /** Dashboard-style badge status for SLA column (pill + glass). */
+  getSlaBadgeStatus(slaStatus: string | undefined | null): 'success' | 'danger' | 'warning' | 'info' | 'unknown' {
+    if (!slaStatus) return 'unknown';
     const upperStatus = slaStatus.toUpperCase().trim();
-    // Check NON-COMPLIANT first (so it doesn't match COMPLIANT)
-    if (
-      upperStatus.includes('NON-COMPLIANT') ||
-      upperStatus.includes('NON-COMPLIANT')
-    ) {
-      return 'var(--color-red-light)';
-    }
-    if (
-      upperStatus.includes('COMPLIANT') ||
-      upperStatus.includes('COMPLIANT')
-    ) {
-      return 'var(--color-green-light)';
-    }
-    if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) {
-      return 'var(--color-bg-quaternary)';
-    }
-    return 'var(--color-bg-quaternary)';
-  }
-
-  getSlaBadgeTextColor(slaStatus: string | undefined | null): string {
-    if (!slaStatus) return 'var(--color-text-tertiary)';
-
-    const upperStatus = slaStatus.toUpperCase().trim();
-    // Check NON-COMPLIANT first (so it doesn't match COMPLIANT)
-    if (
-      upperStatus.includes('NON-COMPLIANT') ||
-      upperStatus.includes('NON-COMPLIANT')
-    ) {
-      return 'var(--color-red)';
-    }
-    if (
-      upperStatus.includes('COMPLIANT') ||
-      upperStatus.includes('COMPLIANT')
-    ) {
-      return 'var(--color-green-dark)';
-    }
-    if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) {
-      return 'var(--color-text-tertiary)';
-    }
-    return 'var(--color-text-tertiary)';
+    if (upperStatus.includes('NON-COMPLIANT')) return 'danger';
+    if (upperStatus.includes('COMPLIANT')) return 'success';
+    if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) return 'unknown';
+    return 'unknown';
   }
 
   onCheckClick(row: any): void {
@@ -504,30 +494,10 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     });
   }
 
-  onAddIncidentClick(row: any): void {
-    const dialogRef = this.dialog.open(ManageIncidentsComponent, {
-      width: '90%',
-      maxWidth: '700px',
-      data: {
-        assetId: this.previousPageMetadata().assetId.toString(),
-        kpiId: row.kpiId.toString(),
-      },
-      panelClass: 'responsive-modal',
-    });
-
-    dialogRef.afterClosed().subscribe((result: boolean) => {
-      if (result) {
-        this.loadAssetData();
-      }
-    });
-  }
-
   onActionClick(event: { row: any; columnKey: string }): void {
     const { row, columnKey } = event;
     if (columnKey === 'Check') {
       this.onCheckClick(row);
-    } else if (columnKey === 'Add Incident') {
-      this.onAddIncidentClick(row);
     }
   }
 }

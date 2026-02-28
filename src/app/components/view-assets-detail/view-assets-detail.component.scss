@@ -1,23 +1,43 @@
+// Dark theme card/section colors (Health Dashboard design)
+$detail-card-bg: rgba(0, 0, 0, 0.25);
+$detail-card-border: rgba(0, 207, 207, 0.25);
+$detail-text-primary: #ffffff;
+$detail-text-secondary: #e5e7eb;
+$detail-text-muted: #9ca3af;
+$detail-separator: rgba(255, 255, 255, 0.08);
+$detail-pill-radius: 9999px;
+$detail-card-radius: 8px;
+
 .container-fluid.view-assets-detail-page {
-  background-color: var(--color-bg-secondary);
   min-height: 100vh;
   overflow-x: hidden;
+  color: var(--color-text-primary);
 }
 
 // Header card - prevent overlap/overflow at tablet (768px)
 .header-card {
   max-width: 100%;
   overflow: hidden;
+  background-color: $detail-card-bg !important;
+  border: 1px solid $detail-card-border !important;
+  border-radius: $detail-card-radius !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 
 .header-card-body {
   max-width: 100%;
   overflow-x: hidden;
+  color: $detail-text-primary;
 }
 
 .header-row {
   > [class^='col-'] {
     min-width: 0; // Allow columns to shrink and prevent overflow
+  }
+
+  // Dark theme: divider between metric columns
+  .border-end {
+    border-color: $detail-separator !important;
   }
 
   // Extra gap between left column and metrics box so DEPARTMENT doesn't overlap
@@ -42,12 +62,45 @@
   }
 }
 
+// Left section text - dark theme
+.left-section {
+  color: $detail-text-primary;
+
+  h1 {
+    color: $detail-text-primary;
+  }
+
+  .info-item label {
+    color: $detail-text-muted !important;
+  }
+
+  .info-item span {
+    color: $detail-text-secondary;
+  }
+}
+
 // Long text wrap (ministry, badges) - prevent truncation/overlap
 .left-section .info-item span,
 .left-section .info-item a {
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
+}
+
+// Metrics box - dark card
+.metrics-box {
+  background-color: $detail-card-bg !important;
+  border: 1px solid $detail-card-border !important;
+  border-radius: $detail-card-radius;
+  color: $detail-text-primary;
+
+  label {
+    color: $detail-text-muted !important;
+  }
+
+  .fw-semibold {
+    color: $detail-text-secondary;
+  }
 }
 
 .metrics-box .badge {
@@ -125,9 +178,52 @@
   }
 }
 
-// Status box wrapper - max-width on desktop, full width on mobile
+// Status box wrapper - max-width on desktop, full width on mobile (dark theme)
 .status-box-wrapper {
   max-width: 220px;
+
+  label {
+    color: $detail-text-muted !important;
+  }
+
+  .rounded.p-3 {
+    background-color: $detail-card-bg !important;
+    border: 1px solid $detail-card-border !important;
+    border-radius: $detail-card-radius;
+    padding: 12px 16px !important;
+
+    // CURRENT STATUS value as pill badge (Down / Healthy / etc.)
+    .fw-semibold {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: $detail-pill-radius;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    // Down / Offline – red pill
+    &.bg-danger-subtle .fw-semibold {
+      background-color: var(--color-red, #ef4444) !important;
+      color: #ffffff !important;
+    }
+
+    // Up / Online / Healthy – green pill
+    &.bg-success-subtle .fw-semibold {
+      background-color: var(--color-green, #10b981) !important;
+      color: #ffffff !important;
+    }
+
+    // Unknown / other – muted pill
+    &.bg-light .fw-semibold {
+      background-color: rgba(255, 255, 255, 0.12);
+      color: $detail-text-secondary;
+    }
+  }
+
+  .status-last-outage-row span {
+    color: $detail-text-secondary;
+  }
 }
 
 // Right section: LAST OUTAGE - label left, value right (2nd SS alignment)
@@ -138,16 +234,33 @@
   gap: 8px;
 }
 
-// Badge styles - using same approach as reusable-table
+// Badge styles - pill-shaped status indicators (dark theme)
 .badge {
   text-align: center;
   min-width: 50px;
-  padding: 4px 12px;
-  border-radius: 4px;
+  padding: 6px 14px;
+  border-radius: $detail-pill-radius;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   display: inline-block;
   white-space: nowrap;
+  border: none;
+
+  // Dark theme solid colors + white text for header metrics
+  &.badge-success {
+    background-color: var(--color-green, #10b981) !important;
+    color: #ffffff !important;
+  }
+
+  &.badge-danger {
+    background-color: var(--color-red, #ef4444) !important;
+    color: #ffffff !important;
+  }
+
+  &.badge-warning {
+    background-color: var(--color-orange, #f59e0b) !important;
+    color: #1a1a1a !important;
+  }
 }
 
 // CITIZEN IMPACT LEVEL, CURRENT HEALTH, RISK EXPOSURE INDEX - same baseline (labels & badges aligned)
@@ -195,33 +308,34 @@
   }
 }
 
-// Ensure link styling matches the image
+// URL link - teal, underlined (matches Health Dashboard image)
 a.link {
-  color: var(--color-link);
+  color: var(--color-primary, #00cfcf) !important;
   text-decoration: underline;
 
   &:hover {
-    color: var(--color-link);
-    opacity: 0.8;
+    color: var(--color-primary, #00cfcf) !important;
+    opacity: 0.85;
   }
 }
 
-// Analyze button styling
+// Analyze button - teal primary (dark theme)
 .btn-analyze {
-  background-color: var(--color-green-teal, #008080);
+  background-color: var(--color-primary, #00cfcf);
   color: #ffffff;
   border: none;
-  border-radius: 8px;
+  border-radius: $detail-card-radius;
   padding: 10px 20px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s;
   white-space: nowrap;
 
   &:hover {
-    background-color: #006666;
+    background-color: var(--color-primary-hover, #006666);
     color: #ffffff;
+    opacity: 0.95;
   }
 
   &:active {
@@ -229,11 +343,12 @@ a.link {
   }
 }
 
+// Edit button - outline style for dark theme
 .btn-edit {
-  background-color: #fff;
-  color: var(--color-primary, #0d9488);
-  border: 1px solid var(--color-primary, #0d9488);
-  border-radius: 8px;
+  background-color: transparent;
+  color: var(--color-primary, #00cfcf);
+  border: 1px solid var(--color-primary, #00cfcf);
+  border-radius: $detail-card-radius;
   padding: 10px 20px;
   font-size: 16px;
   font-weight: 600;
@@ -242,9 +357,9 @@ a.link {
   white-space: nowrap;
 
   &:hover {
-    background-color: rgba(13, 148, 136, 0.06);
-    color: var(--color-primary, #0d9488);
-    border-color: var(--color-primary, #0d9488);
+    background-color: rgba(0, 207, 207, 0.12);
+    color: var(--color-primary, #00cfcf);
+    border-color: var(--color-primary, #00cfcf);
   }
 
   &:active {
@@ -252,25 +367,25 @@ a.link {
   }
 }
 
-// Summary KPI Cards
+// Summary KPI Cards - dark theme (Health Dashboard style)
 .kpi-cards-section {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin-top: 32px; // gap between header card and KPIs
+  margin-top: 32px;
   margin-bottom: 32px;
 
   .kpi-card {
-    background-color: #ffffff;
-    border-radius: var(--card-border-radius);
+    background-color: $detail-card-bg;
+    border-radius: $detail-card-radius;
     padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    border: 1px solid $detail-card-border;
 
     .kpi-value {
       font-size: 32px;
       font-weight: 700;
-      color: #1f2937;
+      color: $detail-text-primary;
       margin-bottom: 8px;
       line-height: 1.2;
     }
@@ -278,33 +393,33 @@ a.link {
     .kpi-label {
       font-size: 14px;
       font-weight: 400;
-      color: #6b7280;
+      color: $detail-text-muted;
       line-height: 1.4;
     }
   }
 }
 
-// Shared Section Separator
+// Shared Section Separator - dark theme
 .section-separator {
   height: 1px;
-  background-color: #e5e7eb;
+  background-color: $detail-separator;
   margin-bottom: 15px;
   width: 100%;
 }
 
-// Standards Compliance Overview
+// Standards Compliance Overview - dark theme
 .standards-section {
-  background-color: #ffffff;
-  border-radius: var(--card-border-radius);
+  background-color: $detail-card-bg;
+  border-radius: $detail-card-radius;
   padding: 24px;
   margin-bottom: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 1px solid $detail-card-border;
 
   .section-title {
     font-size: 20px;
     font-weight: 700;
-    color: #1f2937;
+    color: $detail-text-primary;
     margin-bottom: 16px;
     margin-top: 0;
   }
@@ -315,11 +430,10 @@ a.link {
     gap: 16px;
 
     .standard-card {
-      background-color: #ffffff;
-      border-radius: var(--card-border-radius);
+      background-color: rgba(0, 0, 0, 0.15);
+      border-radius: $detail-card-radius;
       padding: 20px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border: 1px solid #e5e7eb;
+      border: 1px solid $detail-card-border;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -327,76 +441,336 @@ a.link {
       .standard-name {
         font-size: 14px;
         font-weight: 600;
-        color: #1f2937;
+        color: $detail-text-secondary;
         line-height: 1.4;
         margin: 0;
       }
 
       .status-badge {
-        padding: 4px 12px;
-        border-radius: 4px;
+        padding: 6px 14px;
+        border-radius: $detail-pill-radius;
         font-size: 12px;
         font-weight: 600;
         white-space: nowrap;
         width: fit-content;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        border: none;
+        display: inline-block;
 
         &.status-badge-high {
-          background-color: var(--color-red-light, #FEE2E2);
-          color: var(--color-red, #EF4444);
+          background-color: var(--color-red, #ef4444) !important;
+          color: #ffffff !important;
         }
 
         &.status-badge-medium {
-          background-color: var(--color-orange-light, #FEF3C7);
-          color: var(--color-orange-dark, #FF7F50);
+          background-color: var(--color-orange, #f59e0b) !important;
+          color: #1a1a1a !important;
         }
 
         &.status-badge-low {
-          background-color: var(--color-green-light, #D1FAE5);
-          color: var(--color-green, #10B981);
+          background-color: var(--color-green, #10b981) !important;
+          color: #ffffff !important;
         }
       }
     }
   }
 }
 
-// Incidents Section
+// Incidents Section (Availability & Reliability style) - dark theme + table (same as assets/ministry-detail)
 .incidents-section {
-  background-color: #ffffff;
-  border-radius: var(--card-border-radius);
+  background-color: $detail-card-bg;
+  border-radius: $detail-card-radius;
   padding: 24px;
   margin-bottom: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 1px solid $detail-card-border;
 
   .section-title {
     font-size: 20px;
     font-weight: 700;
-    color: #1f2937;
+    color: $detail-text-primary;
     margin-bottom: 16px;
     margin-top: 0;
   }
 
-  // Ensure table is responsive inside
   ::ng-deep app-reusable-table {
     overflow-x: auto;
   }
+
+  // Dark theme CSS variables for table/filters (same as assets.component.scss .dashboard-table-section)
+  ::ng-deep {
+    --table-header-bg: #0d1d1d;
+    --table-cell-bg: transparent;
+    --table-cell-bg-even: transparent;
+    --table-cell-bg-hover: rgba(255, 255, 255, 0.06);
+    --color-bg-primary: rgba(255, 255, 255, 0.06);
+    --color-bg-secondary: rgba(255, 255, 255, 0.04);
+    --color-text-primary: #e6edf3;
+    --color-text-secondary: rgba(255, 255, 255, 0.75);
+    --color-text-tertiary: rgba(255, 255, 255, 0.55);
+    --color-border: rgba(255, 255, 255, 0.12);
+    --color-bg-hover: rgba(255, 255, 255, 0.1);
+    --color-green-teal: var(--color-primary, #00cfcf);
+  }
+
+  // Table wrapper – glass card (like assets page)
+  ::ng-deep .table-wrapper {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: $detail-card-radius !important;
+  }
+
+  ::ng-deep .assets-table {
+    background: transparent !important;
+  }
+
+  // Table header
+  ::ng-deep .assets-table .mat-mdc-header-row,
+  ::ng-deep .assets-table th {
+    background: var(--table-header-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: hidden !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  ::ng-deep .assets-table th:first-child {
+    border-top-left-radius: $detail-card-radius !important;
+  }
+
+  ::ng-deep .assets-table th:last-child {
+    border-top-right-radius: $detail-card-radius !important;
+    border-right: none !important;
+  }
+
+  ::ng-deep .assets-table .mat-mdc-row,
+  ::ng-deep .assets-table tr.mat-mdc-row {
+    background: transparent !important;
+  }
+
+  // Table cells
+  ::ng-deep .assets-table .mat-mdc-cell,
+  ::ng-deep .assets-table td {
+    color: #e6edf3 !important;
+    background: var(--table-cell-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  ::ng-deep .assets-table .mat-mdc-row:nth-child(even) .mat-mdc-cell,
+  ::ng-deep .assets-table tr.mat-mdc-row:nth-child(even) td {
+    background: var(--table-cell-bg-even) !important;
+  }
+
+  ::ng-deep .assets-table .mat-mdc-cell:last-child,
+  ::ng-deep .assets-table td:last-child {
+    border-right: none !important;
+  }
+
+  ::ng-deep .assets-table tr.mat-mdc-row:hover .mat-mdc-cell,
+  ::ng-deep .assets-table tr.mat-mdc-row:hover td {
+    background: var(--table-cell-bg-hover) !important;
+  }
+
+  ::ng-deep .assets-table .sort-icon,
+  ::ng-deep .assets-table .sortable-header .mat-icon {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  ::ng-deep .assets-table .line-link,
+  ::ng-deep .assets-table .line-primary.line-link,
+  ::ng-deep .assets-table a.line-link,
+  ::ng-deep .assets-table .link-text {
+    color: var(--color-primary, #00cfcf) !important;
+    text-decoration: underline;
+  }
+
+  ::ng-deep .assets-table .line-link:hover,
+  ::ng-deep .assets-table .link-text:hover {
+    color: #2dd4bf !important;
+  }
+
+  ::ng-deep .assets-table .line-secondary {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  ::ng-deep .assets-table .trailing-btn-outline {
+    background: transparent !important;
+    border: 1px solid var(--color-primary, #00cfcf) !important;
+    color: var(--color-primary, #00cfcf) !important;
+    border-radius: 6px;
+  }
+
+  ::ng-deep .assets-table .trailing-btn-outline:hover {
+    background: rgba(0, 207, 207, 0.15) !important;
+  }
+
+  // Pagination
+  ::ng-deep .pagination-container {
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #e6edf3 !important;
+  }
+
+  ::ng-deep .rows-per-page-label,
+  ::ng-deep .row-count-text {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  ::ng-deep .rows-per-page-select {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #e6edf3 !important;
+  }
+
+  ::ng-deep .empty-state-text {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  // Status/severity text colors in table
+  ::ng-deep .assets-table .text-success .line-primary,
+  ::ng-deep .assets-table .text-success {
+    color: #34d399 !important;
+  }
+  ::ng-deep .assets-table .text-danger .line-primary,
+  ::ng-deep .assets-table .text-danger {
+    color: #f87171 !important;
+  }
+  ::ng-deep .assets-table .text-warning .line-primary,
+  ::ng-deep .assets-table .text-warning {
+    color: #fbbf24 !important;
+  }
+  ::ng-deep .assets-table .text-default .line-primary {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  ::ng-deep .assets-table .line-secondary.open-incidents-value-red {
+    color: var(--color-red, #ef4444) !important;
+  }
+
+  // Table badges – pill shape, solid colors (dark theme, same as header badges)
+  ::ng-deep .assets-table .badge {
+    border-radius: $detail-pill-radius !important;
+    padding: 6px 14px !important;
+    font-weight: 600 !important;
+    /* Glass effect for severity/status badges */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    min-width: 60px !important;
+    height: auto !important;
+  }
+
+  ::ng-deep .assets-table .badge.badge-status-success,
+  ::ng-deep .assets-table .badge.badge-success {
+    background-color: var(--color-green, #10b981) !important;
+    color: #ffffff !important;
+  }
+
+  ::ng-deep .assets-table .badge.badge-status-danger,
+  ::ng-deep .assets-table .badge.badge-danger {
+    background-color: var(--color-red, #ef4444) !important;
+    color: #ffffff !important;
+  }
+
+  ::ng-deep .assets-table .badge.badge-status-warning,
+  ::ng-deep .assets-table .badge.badge-warning {
+    background-color: var(--color-orange, #f59e0b) !important;
+    color: #1a1a1a !important;
+  }
+
+  ::ng-deep .assets-table .badge.badge-status-info {
+    background-color: var(--color-primary, #00cfcf) !important;
+    color: #ffffff !important;
+  }
+
+  ::ng-deep .assets-table .badge.badge-status-unknown {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  // Pagination buttons (use teal so they match dark theme)
+  ::ng-deep .pagination-button {
+    color: var(--color-primary, #00cfcf) !important;
+
+    mat-icon {
+      color: var(--color-primary, #00cfcf) !important;
+    }
+  }
+
+  ::ng-deep .page-indicator .current-page {
+    color: var(--color-primary, #00cfcf) !important;
+  }
+
+  // Filter bar + search (same as assets.component.scss)
+  ::ng-deep .filter-add-btn {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .mat-icon {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+  ::ng-deep .filter-pill-selected {
+    background: rgba(255, 255, 255, 0.12);
+    color: #e6edf3;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    .filter-close-icon {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  ::ng-deep .search-container .search-input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    &:focus {
+      border-color: var(--color-primary, #00cfcf);
+    }
+  }
+
+  ::ng-deep .search-container .search-icon {
+    color: rgba(255, 255, 255, 0.5);
+  }
 }
 
-// Ownership & Accountability Section
+// Ownership & Accountability Section - dark theme
 .ownership-section {
-  background-color: #ffffff;
-  border-radius: var(--card-border-radius);
+  background-color: $detail-card-bg;
+  border-radius: $detail-card-radius;
   padding: 24px;
   margin-bottom: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 1px solid $detail-card-border;
 
   .section-title {
     font-size: 20px;
     font-weight: 700;
-    color: #1f2937;
+    color: $detail-text-primary;
     margin-bottom: 16px;
     margin-top: 0;
   }
@@ -407,14 +781,15 @@ a.link {
     gap: 16px;
 
     .ownership-card {
-      background-color: #f3f4f6;
-      border-radius: var(--card-border-radius);
+      background-color: rgba(0, 0, 0, 0.15);
+      border-radius: $detail-card-radius;
       padding: 20px;
+      border: 1px solid $detail-card-border;
 
       .ownership-label {
         font-size: 11px;
         font-weight: 600;
-        color: #6b7280;
+        color: $detail-text-muted;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 12px;
@@ -424,11 +799,11 @@ a.link {
       .ownership-value {
         font-size: 14px;
         font-weight: 400;
-        color: #1f2937;
+        color: $detail-text-secondary;
         line-height: 1.5;
 
         &.not-assigned {
-          color: #DC2626;
+          color: var(--color-red, #EF4444);
         }
       }
     }
@@ -509,8 +884,10 @@ a.link {
     }
   }
 
-  .border.rounded.p-4 {
+  .border.rounded.p-4,
+  .metrics-box {
     padding: 16px !important;
+    border-color: $detail-card-border !important;
   }
 
   // Status box - full width on tablet
@@ -625,11 +1002,11 @@ a.link {
     }
   }
 
-  // Metrics - single column, border between items
+  // Metrics - single column, border between items (dark theme)
   .metrics-row {
     .col-12.col-sm-4 {
-      border-end: none !important;
-      border-bottom: 1px solid var(--color-border, #e5e7eb);
+      border-inline-end: none !important;
+      border-bottom: 1px solid $detail-separator !important;
       padding-bottom: 16px !important;
       margin-bottom: 0;
       padding-top: 12px;
@@ -651,7 +1028,13 @@ a.link {
 
     .badge {
       font-size: 11px;
-      padding: 4px 10px;
+      padding: 5px 12px;
+      border-radius: $detail-pill-radius;
+    }
+
+    .status-box-wrapper .rounded.p-3 .fw-semibold {
+      font-size: 11px;
+      padding: 5px 12px;
     }
   }
 
