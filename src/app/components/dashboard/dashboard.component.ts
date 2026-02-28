@@ -387,8 +387,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: '',
         subValueText: 'View All ',
-        subValueLink: '/ministries',
-        scrollToId: 'assets-table',
+        subValueLink: '/assets',
       },
       {
         id: 2,
@@ -398,9 +397,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'success',
         subValueText: 'View Online Assets ',
-        subValueLink: '/ministries?status=Online',
-        scrollToId: 'assets-table',
-        filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
+        subValueLink: '/assets?currentStatus=Up',
       },
       {
         id: 3,
@@ -410,9 +407,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'success',
         subValueText: 'View Assets With Poor Health ',
-        subValueLink: '/ministries?health=critical',
-        scrollToId: 'assets-table',
-        filterOnClick: { paramKey: 'health', value: 'Poor' },
+        subValueLink: '/assets?health=Poor',
       },
       {
         id: 4,
@@ -422,9 +417,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'danger',
         subValueText: 'View Assets With Poor Performance ',
-        subValueLink: '/ministries?performance=critical',
-        scrollToId: 'assets-table',
-        filterOnClick: { paramKey: 'performance', value: 'BELOW AVERAGE' },
+        subValueLink: '/assets?performance=BELOW AVERAGE',
       },
       {
         id: 5,
@@ -434,9 +427,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'danger',
         subValueText: 'View Assets With Poor Compliance ',
-        subValueLink: '/ministries?compliance=critical',
-        scrollToId: 'assets-table',
-        filterOnClick: { paramKey: 'compliance', value: 'LOW' },
+        subValueLink: '/assets?compliance=LOW',
       },
       {
         id: 6,
@@ -446,9 +437,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'danger',
         subValueText: 'View Assets With High Risk ',
-        subValueLink: '/ministries?riskRating=Red',
-        scrollToId: 'assets-table',
-        filterOnClick: { paramKey: 'riskIndex', value: 'HIGH RISK' },
+        subValueLink: '/assets?riskIndex=HIGH RISK',
       },
       {
         id: 7,
@@ -678,8 +667,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               subValue: '',
               subValueColor: '',
               subValueText: 'View All ',
-              subValueLink: '/ministries',
-              scrollToId: 'assets-table',
+              subValueLink: '/assets',
             },
             {
               id: 2,
@@ -693,9 +681,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   : '',
               subValueColor: 'success',
               subValueText: 'View Online Assets ',
-              subValueLink: '/ministries?status=Online',
-              scrollToId: 'assets-table',
-              filterOnClick: { paramKey: 'currentStatus', value: 'Up' },
+              subValueLink: '/assets?currentStatus=Up',
             },
             {
               id: 3,
@@ -708,9 +694,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   ? 'success'
                   : 'danger',
               subValueText: 'View Assets With Poor Health ',
-              subValueLink: '/ministries?health=critical',
-              scrollToId: 'assets-table',
-              filterOnClick: { paramKey: 'health', value: 'Poor' },
+              subValueLink: '/assets?health=Poor',
             },
             {
               id: 4,
@@ -723,12 +707,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   ? 'danger'
                   : 'success',
               subValueText: 'View Assets With Poor Performance ',
-              subValueLink: '/ministries?performance=critical',
-              scrollToId: 'assets-table',
-              filterOnClick: {
-                paramKey: 'performance',
-                value: 'BELOW AVERAGE',
-              },
+              subValueLink: '/assets?performance=BELOW AVERAGE',
             },
             {
               id: 5,
@@ -741,9 +720,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   ? 'success'
                   : 'danger',
               subValueText: 'View Assets With Poor Compliance ',
-              subValueLink: '/ministries?compliance=critical',
-              scrollToId: 'assets-table',
-              filterOnClick: { paramKey: 'compliance', value: 'LOW' },
+              subValueLink: '/assets?compliance=LOW',
             },
             {
               id: 6,
@@ -753,9 +730,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               subValue: summary.highRiskAssetsStatus,
               subValueColor: 'danger',
               subValueText: 'View Assets With High Risk ',
-              subValueLink: '/ministries?riskRating=Red',
-              scrollToId: 'assets-table',
-              filterOnClick: { paramKey: 'riskIndex', value: 'HIGH RISK' },
+              subValueLink: '/assets?riskIndex=HIGH RISK',
             },
             {
               id: 7,
