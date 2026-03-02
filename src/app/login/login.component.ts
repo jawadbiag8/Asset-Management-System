@@ -47,6 +47,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.utilsService.setLoggingOut(false);
     // Reset so error toasts work again after next login
     this.utilsService.setSessionExpiredHandled(false);
   }

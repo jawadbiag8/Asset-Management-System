@@ -122,104 +122,35 @@
     }
   }
 
+  /* Login input fields: same as manage-digital-assets – primary labels, placeholder 30% white */
   ::ng-deep {
-    .mat-mdc-form-field {
-      .mat-mdc-text-field-wrapper {
-        background: #00000033 !important;
-        border-radius: 12px !important;
-        border-top-left-radius: 12px !important;
-        border-top-right-radius: 12px !important;
-        border-bottom-left-radius: 12px !important;
-        border-bottom-right-radius: 12px !important;
-        box-shadow: 0px 12px 24px 0px #00000033;
-      }
-
-      &.mat-focused .mat-mdc-text-field-wrapper {
-        background: #00000033 !important;
-        border-radius: 12px !important;
-        box-shadow: 0px 12px 24px 0px #00000033;
-      }
-
-      &.mat-form-field-invalid .mat-mdc-text-field-wrapper {
-        box-shadow: 0px 12px 24px 0px #00000033;
-      }
-
-      .mat-mdc-form-field-subscript-wrapper {
-        margin-top: 4px;
-      }
+    .mat-mdc-form-field-subscript-wrapper {
+      margin-top: 4px;
     }
 
-    /* Force 12px radius: Material uses container-shape (default 4px) on each corner */
-    .mat-mdc-form-field-appearance-outline {
-      --mat-mdc-outlined-text-field-container-shape: 12px;
-
-      .mat-mdc-text-field-wrapper,
-      .mat-mdc-text-field-wrapper .mdc-text-field__input {
-        border-radius: 12px !important;
-      }
-      .mat-mdc-form-field-outline {
-        color: rgba(255, 255, 255, 0.45) !important;
-      }
-
-      .mat-mdc-form-field-outline-start,
-      .mat-mdc-form-field-outline-end,
-      .mat-mdc-form-field-outline-gap,
-      .mat-mdc-form-field-outline-thick {
-        border-top-left-radius: 12px !important;
-        border-top-right-radius: 12px !important;
-        border-bottom-left-radius: 12px !important;
-        border-bottom-right-radius: 12px !important;
-      }
-
-      &.mat-focused .mat-mdc-form-field-outline-thick {
-        color: var(--color-primary) !important;
-      }
-
-      .mat-mdc-form-field-invalid .mat-mdc-form-field-outline-thick {
-        color: #EF4444 !important;
-      }
-
-      .mdc-notched-outline__leading,
-      .mdc-notched-outline__notch,
-      .mdc-notched-outline__trailing {
-        border-top-left-radius: 12px !important;
-        border-top-right-radius: 12px !important;
-        border-bottom-left-radius: 12px !important;
-        border-bottom-right-radius: 12px !important;
-      }
+    /* Label: always primary (focused + unfocused + floated) – no revert to black on blur */
+    .mat-mdc-form-field-appearance-outline .mat-mdc-form-field-label,
+    .mat-mdc-form-field-appearance-outline .mat-mdc-floating-label,
+    .mat-mdc-form-field-appearance-outline .mdc-floating-label,
+    .mat-mdc-form-field-appearance-outline .mdc-floating-label--float-above,
+    .mat-mdc-form-field .mat-mdc-floating-label,
+    .mat-mdc-form-field .mat-mdc-form-field-label,
+    .mat-mdc-form-field .mdc-floating-label,
+    .mat-mdc-form-field .mdc-floating-label--float-above {
+      color: var(--color-primary, #00CFCF) !important;
     }
 
-    .mat-mdc-form-field-label,
-    .mdc-floating-label {
-      color: var(--color-text-primary) !important;
+    /* Placeholder: #fff 30% opacity */
+    .mat-mdc-input-element::placeholder,
+    input.mat-mdc-input-element::placeholder {
+      color: rgba(255, 255, 255, 0.3) !important;
     }
 
-    .mat-mdc-form-field.mat-focused .mat-mdc-form-field-label {
-      color: var(--color-primary);
-    }
-
-    .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-label {
-      color: #EF4444;
-    }
-
-    .mat-mdc-input-element {
-      color: var(--color-text-primary) !important;
-      // border-radius: 12px;
-      caret-color: var(--color-primary);
-
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.55);
-      }
-    }
-
-    .mat-mdc-form-field .mdc-text-field--outlined .mdc-notched-outline--notched .mdc-floating-label {
-      color: var(--color-text-primary);
-    }
-
-    .mat-mdc-form-field-icon-prefix,
-    .mat-mdc-form-field-icon-suffix,
-    .mdc-text-field__icon {
-      color: rgba(255, 255, 255, 0.85) !important;
+    /* Typed text: light color (not black) on dark background */
+    .mat-mdc-input-element,
+    input.mat-mdc-input-element {
+      color: #e6edf3 !important;
+      caret-color: var(--color-primary, #00CFCF);
     }
 
     .mat-mdc-form-field-icon-suffix {
@@ -238,9 +169,9 @@
       }
     }
 
-    .mat-mdc-form-field-error {
-      color: #EF4444;
-      font-size: 12px;
+    .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-floating-label,
+    .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-label {
+      color: #EF4444 !important;
     }
   }
 

@@ -22,6 +22,8 @@ export class UtilsService {
   private tableComponentRef: ReusableTableComponent | null = null;
   /** When true, error toasts are skipped (used after showing single "Session expired" for 401). */
   private sessionExpiredHandled = false;
+  /** When true, user is logging out – CanDeactivateGuard should allow navigation without prompting. */
+  private loggingOut = false;
   /** Cached config from assets/config.json */
   private configCache: AppConfig | null = null;
 
@@ -36,6 +38,14 @@ export class UtilsService {
 
   getSessionExpiredHandled(): boolean {
     return this.sessionExpiredHandled;
+  }
+
+  setLoggingOut(value: boolean): void {
+    this.loggingOut = value;
+  }
+
+  isLoggingOut(): boolean {
+    return this.loggingOut;
   }
 
   getEnvironmentVariable(key: keyof AppConfig): any {

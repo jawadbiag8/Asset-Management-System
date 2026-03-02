@@ -28,7 +28,7 @@ $incidents-pill-radius: 999px;
   gap: 8px;
   padding: 8px 16px;
   border-radius: 8px;
-  background: #14b8a6;
+  background: #008080;
   border: 1px solid rgba(20, 184, 166, 0.5);
   color: #ffffff;
   font-size: 14px;
@@ -40,7 +40,7 @@ $incidents-pill-radius: 999px;
 
   &:hover {
     background: #0d9488;
-    border-color: #14b8a6;
+    border-color: #008080;
   }
 }
 
@@ -103,7 +103,7 @@ $incidents-pill-radius: 999px;
     }
 
     &:focus {
-      border-color: #14b8a6;
+      border-color: #008080;
     }
   }
 
@@ -155,13 +155,13 @@ $incidents-pill-radius: 999px;
 
 /* Pagination controls – teal accent */
 .dashboard-table-section ::ng-deep .pagination-button {
-  color: #14b8a6 !important;
+  color: #008080 !important;
 
   mat-icon {
-    color: #14b8a6 !important;
+    color: #008080 !important;
   }
 }
 
 .dashboard-table-section ::ng-deep .page-indicator .current-page {
-  color: #14b8a6 !important;
+  color: #008080 !important;
 }

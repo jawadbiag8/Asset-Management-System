@@ -64,16 +64,23 @@ export class HeaderComponent {
     this.currentRoute.set(this.router.url);
   }
 
+  /** Active when on /assets or asset-related routes (add/edit/view), not on ministries. */
   isAssetsActive(): boolean {
-    const route = this.currentRoute();
+    const path = this.currentRoute().split('?')[0];
+    if (path.includes('/ministries') || path.includes('/ministry-detail')) return false;
     return (
-      route.includes('/assets') ||
-      route.includes('/ministries') ||
-      route.includes('/ministry-detail') ||
-      route.includes('/view-assets-detail') ||
-      route.includes('/add-digital-assets') ||
-      route.includes('/edit-digital-asset')
+      path === '/assets' ||
+      path.startsWith('/assets/') ||
+      path.includes('/view-assets-detail') ||
+      path.includes('/add-digital-assets') ||
+      path.includes('/edit-digital-asset')
     );
+  }
+
+  /** Active when on /ministries or ministry-detail only. */
+  isMinistriesActive(): boolean {
+    const path = this.currentRoute().split('?')[0];
+    return path === '/ministries' || path.startsWith('/ministries/') || path.includes('/ministry-detail');
   }
 
   isDashboardActive(): boolean {
@@ -130,9 +137,11 @@ export class HeaderComponent {
   }
 
   logout() {
-    // Close profile dropdown
     this.closeProfileDropdown();
+    // Signal logout so CanDeactivateGuard allows navigation (e.g. from add/edit asset)
+    this.utilsService.setLoggingOut(true);
     this.utilsService.clearStorage();
-    this.router.navigate(['/login']);
+    // Use navigateByUrl + replaceUrl so navigation is not blocked (e.g. by guards or history)
+    this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }

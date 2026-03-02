@@ -3,7 +3,12 @@
   min-height: 100vh;
   position: relative;
 
-  app-header,
+  /* Header and breadcrumb above main content so Logout and nav stay clickable on every page */
+  app-header {
+    position: relative;
+    z-index: 500;
+  }
+
   router-outlet {
     position: relative;
     z-index: 1;
@@ -13,5 +18,5 @@
 .app-breadcrumb-wrap {
   padding: 12px 32px 0;
   position: relative;
-  z-index: 1;
+  z-index: 400;
 }

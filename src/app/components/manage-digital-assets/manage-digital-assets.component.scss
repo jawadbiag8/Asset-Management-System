@@ -262,7 +262,7 @@ $manage-radius: 8px;
   font-weight: 600;
   font-size: 18px;
   color: #ffffff;
-  background: $manage-teal;
+  // background: $manage-teal;
   margin: 0 -32px 24px -32px;
   padding: 12px 24px;
   border-radius: 0;
@@ -382,15 +382,36 @@ $manage-radius: 8px;
       color: $manage-teal !important;
     }
 
+    // Label: always primary (focused + unfocused + floated) – higher specificity so it doesn't revert to black on blur
     .mat-mdc-form-field-label,
-    .mat-mdc-floating-label {
-      color: $manage-text-muted !important;
+    .mat-mdc-floating-label,
+    .mdc-floating-label,
+    .mdc-floating-label--float-above,
+    .mat-mdc-form-field.mat-mdc-form-field .mat-mdc-floating-label,
+    .mat-mdc-form-field .mdc-floating-label--float-above {
+      color: #ffffffab !important;
     }
 
     &.mat-focused .mat-mdc-form-field-label,
-    &.mat-focused .mat-mdc-floating-label {
-      color: $manage-teal !important;
+    &.mat-focused .mat-mdc-floating-label,
+    &.mat-focused .mdc-floating-label,
+    &.mat-focused .mdc-floating-label--float-above {
+      color: #ffffffab !important;
     }
+  }
+
+  // Force label primary in all states (unfocused / blurred) – override global form field styles
+  .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label--float-above,
+  .mat-mdc-form-field .mat-mdc-form-field-label,
+  .mat-mdc-form-field .mdc-floating-label {
+    color: #ffffffab !important;
+  }
+
+  // Placeholder: #fff with 30% opacity
+  .mat-mdc-input-element::placeholder,
+  input.mat-mdc-input-element::placeholder,
+  textarea.mat-mdc-input-element::placeholder {
+    color: #ffffffab !important;
   }
 
   .mat-mdc-input-element,

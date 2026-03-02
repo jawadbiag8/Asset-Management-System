@@ -115,7 +115,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background-color: var(--color-primary, #14b8a6);
+    background-color: var(--color-primary, #008080);
     color: var(--color-text-white, #ffffff);
     border: none;
     border-radius: 8px;
@@ -204,7 +204,7 @@
         }
 
         &:focus {
-            border-color: #14b8a6;
+            border-color: #008080;
         }
     }
 

@@ -3,7 +3,7 @@
 /* Color Variables */
 :root {
   /* Primary Colors (Design system) */
-  --color-primary: #00CFCF;
+  --color-primary: #008080;
   --color-primary-hover: #006666;
 
   --color-light-green: #66B3B340;
@@ -171,7 +171,7 @@ body::before {
     color: rgba(255, 255, 255, 0.75);
   }
   .breadcrumb-link a {
-    color: #14b8a6;
+    color: #008080;
     &:hover {
       color: #2dd4bf;
     }
@@ -499,12 +499,29 @@ body {
   border-radius: var(--dialog-border-radius, 24px);
 }
 
-/* Form fields – 12px border radius (Design system). Material uses 4px by default. */
+/* Form fields – filter-module style everywhere: dark glass input, teal focus, 12px radius */
+$input-bg-dark: rgba(255, 255, 255, 0.06);
+$input-border-default: rgba(255, 255, 255, 0.2);
+$input-border-focus: #008080;
+$input-label-color: rgba(255, 255, 255, 0.65);
+$input-text-color: #e6edf3;
+
 ::ng-deep .mat-mdc-form-field-appearance-outline {
   $r: var(--form-field-border-radius, 12px);
+
+  .mat-mdc-form-field-focus-overlay {
+    background-color: transparent;
+  }
+
   .mat-mdc-text-field-wrapper {
     border-radius: $r;
+    background: $input-bg-dark !important;
   }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    background: $input-bg-dark !important;
+  }
+
   .mat-mdc-form-field-outline-start,
   .mat-mdc-form-field-outline-end,
   .mat-mdc-form-field-outline-gap,
@@ -516,7 +533,100 @@ body {
     border-top-right-radius: $r !important;
     border-bottom-left-radius: $r !important;
     border-bottom-right-radius: $r !important;
+    border-color: $input-border-default !important;
   }
+
+  .mdc-notched-outline .mdc-notched-outline__leading {
+    border-right: none !important;
+  }
+  .mdc-notched-outline .mdc-notched-outline__notch {
+    border-left: none !important;
+    border-right: none !important;
+  }
+  .mdc-notched-outline .mdc-notched-outline__trailing {
+    border-left: none !important;
+  }
+
+  &:hover .mdc-notched-outline .mdc-notched-outline__leading,
+  &:hover .mdc-notched-outline .mdc-notched-outline__notch,
+  &:hover .mdc-notched-outline .mdc-notched-outline__trailing,
+  &.mat-focused .mdc-notched-outline .mdc-notched-outline__leading,
+  &.mat-focused .mdc-notched-outline .mdc-notched-outline__notch,
+  &.mat-focused .mdc-notched-outline .mdc-notched-outline__trailing {
+    border-color: $input-border-focus !important;
+    border-width: 1px !important;
+  }
+
+  .mat-mdc-floating-label,
+  .mat-mdc-form-field-label {
+    color: $input-label-color !important;
+  }
+
+  &.mat-focused .mat-mdc-floating-label,
+  &.mat-focused .mat-mdc-form-field-label {
+    color: $input-border-focus !important;
+  }
+
+  .mat-mdc-input-element,
+  input.mat-mdc-input-element,
+  textarea.mat-mdc-input-element {
+    color: $input-text-color !important;
+    caret-color: $input-border-focus;
+  }
+
+  .mat-mdc-input-element::placeholder {
+    color: $input-label-color !important;
+  }
+
+  .mat-mdc-select-value,
+  .mat-mdc-select-value-text {
+    color: $input-text-color !important;
+  }
+
+  .mat-mdc-select-arrow,
+  .mat-mdc-form-field-icon-prefix,
+  .mat-mdc-form-field-icon-suffix {
+    color: $input-label-color !important;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 4px;
+    min-height: 3em;
+    display: block;
+  }
+
+  .mat-mdc-form-field-hint {
+    color: $input-label-color !important;
+    font-size: 12px;
+  }
+
+  .mat-mdc-form-field-error {
+    color: var(--color-red) !important;
+    font-size: 12px;
+  }
+}
+
+/* Manage Digital Assets page: labels always primary (focused + unfocused) so they don't revert on blur */
+.manage-assets-page .mat-mdc-form-field-appearance-outline .mat-mdc-floating-label,
+.manage-assets-page .mat-mdc-form-field-appearance-outline .mat-mdc-form-field-label,
+.manage-assets-page .mat-mdc-form-field .mdc-floating-label,
+.manage-assets-page .mat-mdc-form-field .mdc-floating-label--float-above {
+  color: var(--color-primary, #00CFCF) !important;
+}
+
+/* Login page: labels always primary (focused + unfocused) so they don't revert on blur */
+.login-container .mat-mdc-form-field-appearance-outline .mat-mdc-floating-label,
+.login-container .mat-mdc-form-field-appearance-outline .mat-mdc-form-field-label,
+.login-container .mat-mdc-form-field .mdc-floating-label,
+.login-container .mat-mdc-form-field .mdc-floating-label--float-above {
+  color: var(--color-primary, #00CFCF) !important;
+}
+
+/* Login page: typed input text light (not black) on dark background */
+.login-container .mat-mdc-input-element,
+.login-container input.mat-mdc-input-element {
+  color: #e6edf3 !important;
+  caret-color: var(--color-primary, #00CFCF);
 }
 
 /* Table headers – capitalize (Design system) */
@@ -757,7 +867,7 @@ table th,
   .assets-table .line-primary.line-link,
   .assets-table a.line-link,
   .assets-table .link-text {
-    color: #14b8a6 !important;
+    color: #008080 !important;
     text-decoration: underline;
   }
 
@@ -772,8 +882,8 @@ table th,
 
   .assets-table .trailing-btn-outline {
     background: transparent !important;
-    border: 1px solid #14b8a6 !important;
-    color: #14b8a6 !important;
+    border: 1px solid #008080 !important;
+    color: #008080 !important;
     border-radius: 6px;
   }
 
@@ -903,7 +1013,7 @@ table th,
   .assets-table .line-primary.line-link,
   .assets-table a.line-link,
   .assets-table .link-text {
-    color: #14b8a6 !important;
+    color: #008080 !important;
     text-decoration: underline;
   }
 
@@ -918,8 +1028,8 @@ table th,
 
   .assets-table .trailing-btn-outline {
     background: transparent !important;
-    border: 1px solid #14b8a6 !important;
-    color: #14b8a6 !important;
+    border: 1px solid #008080 !important;
+    color: #008080 !important;
     border-radius: 6px;
   }
 
@@ -1046,7 +1156,7 @@ table th,
   .assets-table .line-primary.line-link,
   .assets-table a.line-link,
   .assets-table .link-text {
-    color: #14b8a6 !important;
+    color: #008080 !important;
     text-decoration: underline;
   }
 
@@ -1061,8 +1171,8 @@ table th,
 
   .assets-table .trailing-btn-outline {
     background: transparent !important;
-    border: 1px solid #14b8a6 !important;
-    color: #14b8a6 !important;
+    border: 1px solid #008080 !important;
+    color: #008080 !important;
     border-radius: 6px;
   }
 
@@ -1136,12 +1246,50 @@ select option {
   text-transform: uppercase;
 }
 
-/* Add Assets page – dropdown list line spacing (reusable-input select) */
-.reusable-input-select-panel.mat-mdc-select-panel .mat-mdc-option {
-  min-height: 44px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  line-height: 1.4;
+/* Add Assets page – dropdown list line spacing + dark theme (reusable-input select) */
+.reusable-input-select-panel.mat-mdc-select-panel {
+  background: #0D1D1D !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+
+  .mat-mdc-option {
+    min-height: 44px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 1.4;
+    color: #fff !important;
+    background: transparent;
+
+    .mdc-list-item__primary-text {
+      color: #fff !important;
+    }
+
+    &.mdc-list-item--selected .mdc-list-item__primary-text {
+      color: #008080 !important;
+    }
+
+    &:hover,
+    &.mat-mdc-option-active {
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+
+  /* Searchable dropdown – search box (ngx-mat-select-search) */
+  .mat-select-search-inner {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .mat-select-search-input {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #e6edf3 !important;
+    caret-color: #008080;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.3) !important;
+    }
+  }
 }
 
 /* Filter modal – dropdown panel dark theme (background #0D1D1D, text #fff) */
@@ -1158,7 +1306,7 @@ select option {
     }
 
     &.mdc-list-item--selected .mdc-list-item__primary-text {
-      color: #14b8a6 !important;
+      color: #008080 !important;
     }
 
     &:hover {
@@ -1202,7 +1350,7 @@ select option {
   }
 
   .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after {
-    border-color: #14b8a6 !important;
+    border-color: #008080 !important;
   }
 
   .mat-icon {
