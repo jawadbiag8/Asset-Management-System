@@ -16,7 +16,6 @@
               [filters]="displayFilters()"
               (searchQuery)="loadIncidents($event)"
               [totalItems]="totalItems()"
-              (actionClick)="onViewDetailsClick($event)"
             >
             </app-reusable-table>
           </div>
@@ -27,7 +26,6 @@
           [filters]="displayFilters()"
           (searchQuery)="loadIncidents($event)"
           [totalItems]="totalItems()"
-          (actionClick)="onViewDetailsClick($event)"
         >
         </app-reusable-table>
       }

@@ -1,0 +1,57 @@
+<div class="upload-dialog">
+  <div class="dialog-header">
+    <h2 class="dialog-title">Upload Document with Reference Number</h2>
+    <button type="button" class="close-btn" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="dialog-body">
+    <!-- Reference Number -->
+    <div class="field">
+      <label for="refNumber">Reference Number <span class="required">*</span></label>
+      <input
+        id="refNumber"
+        type="text"
+        formControlName="referenceNumber"
+        placeholder="Enter reference number e.g. REF-2025-001"
+        class="input-text"
+      />
+      @if (referenceNumber?.invalid && referenceNumber?.touched) {
+        <span class="error-msg">Reference number is required</span>
+      }
+    </div>
+
+    <!-- Attach File -->
+    <div class="field">
+      <label for="fileInput">Attach File <span class="required">*</span></label>
+      <input
+        id="fileInput"
+        type="file"
+        [accept]="acceptedTypes"
+        (change)="onFileChange($event)"
+        class="input-file"
+      />
+      <p class="hint">Accepted: {{ acceptedTypesLabel }}</p>
+      @if (selectedFileName) {
+        <p class="file-name">Selected: {{ selectedFileName }}</p>
+      }
+      @if (file?.invalid && (file?.touched || file?.dirty)) {
+        <span class="error-msg">Please select a file</span>
+      }
+      @if (file?.errors?.['invalidType']) {
+        <span class="error-msg">Please select an accepted file type</span>
+      }
+      @if (imagePreview) {
+        <div class="image-preview">
+          <img [src]="imagePreview" alt="Preview" />
+        </div>
+      }
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
+</div>

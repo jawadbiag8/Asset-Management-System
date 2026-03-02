@@ -381,6 +381,25 @@ $incident-card-radius: 8px;
 
     .comment-textarea-field {
       width: 100%;
+
+      /* Match login page: label primary, placeholder 30% white, input text light */
+      ::ng-deep {
+        .mat-mdc-form-field-label,
+        .mat-mdc-floating-label,
+        .mdc-floating-label,
+        .mdc-floating-label--float-above {
+          color: var(--color-primary, #00cfcf) !important;
+        }
+        .mat-mdc-input-element::placeholder,
+        textarea.mat-mdc-input-element::placeholder {
+          color: rgba(255, 255, 255, 0.3) !important;
+        }
+        .mat-mdc-input-element,
+        textarea.mat-mdc-input-element {
+          color: #e6edf3 !important;
+          caret-color: var(--color-primary, #00cfcf);
+        }
+      }
     }
 
     .comment-char-count {

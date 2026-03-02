@@ -119,6 +119,18 @@
                                 </app-reusable-input>
                             </div>
                         </div>
+                        @if (pageInfo().pageState === 'edit') {
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-12">
+                                <app-reusable-input label="Asset Status" type="select"
+                                    [options]="assetStatusOptions" placeholder="Select asset status"
+                                    hint="Current status of this asset (edit only)"
+                                    [errorMessages]="assetStatusErrorMessages"
+                                    [control]="getControl('assetStatusId')">
+                                </app-reusable-input>
+                            </div>
+                        </div>
+                        }
                     </div>
 
                     <!-- Section Compliance Configuration -->
@@ -211,8 +223,13 @@
                     <!-- Form Actions -->
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" routerLink="/dashboard">Cancel</button>
-                        <button type="submit" class="btn btn-primary"> {{pageInfo().pageState === 'add' ? 'Add Digital
-                            Asset' : 'Update Digital Asset'}}</button>
+                        @if (pageInfo().pageState === 'edit') {
+                        <button type="button" class="btn btn-primary" (click)="openUploadDocumentDialog()">
+                            Update Digital Asset
+                        </button>
+                        } @else {
+                        <button type="submit" class="btn btn-primary">Add Digital Asset</button>
+                        }
                     </div>
                 </form>
             </div>

@@ -21,8 +21,9 @@ const BREADCRUMB_CONFIG: { path: string; config: BreadcrumbConfig }[] = [
   { path: '/view-assets-detail', config: { label: 'Asset Detail', parentPath: '/assets' } },
   { path: '/add-digital-assets', config: { label: 'Add Digital Asset', parentPath: '/assets' } },
   { path: '/edit-digital-asset', config: { label: 'Edit Digital Asset', parentPath: '/assets' } },
-  { path: '/incidents', config: { label: 'Incidents', parentPath: '/dashboard' } },
+  // Incident detail (e.g. /incidents/5074) – must be before /incidents so prefix match picks this first
   { path: '/incidents/', config: { label: 'Incident Details', parentPath: '/incidents' } },
+  { path: '/incidents', config: { label: 'Incidents', parentPath: '/dashboard' } },
   { path: '/pm-dashboard', config: { label: 'Executive Dashboard', parentPath: '/dashboard' } },
 ];
 
@@ -97,7 +98,10 @@ export class BreadcrumbService {
     const normalized = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
     const exact = BREADCRUMB_CONFIG.find((c) => c.path === normalized);
     if (exact) return exact.config;
-    const prefix = BREADCRUMB_CONFIG.find((c) => normalized.startsWith(c.path + '/'));
+    // Prefix match: for config paths ending with / use startsWith(path), else startsWith(path + '/')
+    const prefix = BREADCRUMB_CONFIG.find((c) =>
+      c.path.endsWith('/') ? normalized.startsWith(c.path) : normalized.startsWith(c.path + '/'),
+    );
     return prefix?.config;
   }
 }

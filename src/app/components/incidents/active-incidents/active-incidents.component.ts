@@ -89,16 +89,6 @@ export class ActiveIncidentsComponent implements OnInit {
     serverSideSearch: true,
     columns: [
       {
-        key: 'viewDetails',
-        header: 'VIEW DETAILS',
-        cellType: 'icon',
-        iconUrl: '/assets/info-icon.svg',
-        iconColor: 'var(--color-primary)',
-        iconBgColor: 'var(--color-primary-light)',
-        sortable: false,
-        width: '100px',
-      },
-      {
         key: 'incident',
         header: 'INCIDENT',
         cellType: 'text',
@@ -106,6 +96,7 @@ export class ActiveIncidentsComponent implements OnInit {
         cellClass: 'fw-bold',
         sortable: false,
         width: '300px',
+        routerLinkFn: (row: any) => ({ commands: ['/incidents', row?.id] }),
       },
       {
         key: 'severity',
@@ -774,9 +765,4 @@ export class ActiveIncidentsComponent implements OnInit {
     });
   }
 
-  onViewDetailsClick(event: { row: any; columnKey: string }): void {
-    if (event.row && event.row.id) {
-      this.router.navigate(['/incidents', event.row.id]);
-    }
-  }
 }

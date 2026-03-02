@@ -652,6 +652,18 @@
     color: #6B7280;
   }
 
+  // Text cell as router link (e.g. incident name → incident detail)
+  .text-cell-link {
+    color: var(--color-green-teal);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
   // Ministry link: teal color for text + icon (e.g. PM Dashboard tables)
   .ministry-link {
     color: var(--color-green-teal);

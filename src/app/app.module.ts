@@ -38,6 +38,7 @@ import { ApiInterceptor } from './interceptors/api.interceptor';
 import { UtilsService } from './services/utils.service';
 import { ViewAssetsDetailComponent } from './components/view-assets-detail/view-assets-detail.component';
 import { ConfirmationDialogComponent } from './components/reusable/confirmation-dialog/confirmation-dialog.component';
+import { UploadDocumentDialogComponent } from './components/reusable/upload-document-dialog/upload-document-dialog.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { AssetControlPanelComponent } from './components/assets/asset-control-panel/asset-control-panel.component';
 import { AssetsComponent } from './components/assets/assets.component';
@@ -62,6 +63,7 @@ import { MinistryDashboardComponent } from './components/ministry-dashboard/mini
     MinistryDetailComponent,
     ViewAssetsDetailComponent,
     ConfirmationDialogComponent,
+    UploadDocumentDialogComponent,
     LoaderComponent,
     AssetControlPanelComponent,
     AssetsComponent,

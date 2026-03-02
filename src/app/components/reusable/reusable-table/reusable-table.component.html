@@ -385,30 +385,42 @@
                       [class.has-icon]="
                         column.showIcon && (column.iconName || column.iconUrl)
                       "
-                      [class.clickable]="column.onClick"
-                      [class.pointer]="column.onClick"
-                      (click)="onTextCellClick($event, column, row)"
+                      [class.clickable]="column.onClick || column.routerLinkFn"
+                      [class.pointer]="column.onClick || column.routerLinkFn"
+                      (click)="!column.routerLinkFn && onTextCellClick($event, column, row)"
                     >
-                      <span [ngClass]="column.cellClass">
-                        {{
-                          getCellValue(row, column.primaryField || column.key)
-                        }}
-                        @if (column.showIcon && column.iconUrl) {
-                          <img
-                            [src]="column.iconUrl"
-                            alt=""
-                            class="text-cell-icon text-cell-icon-img"
-                            aria-hidden="true"
-                          />
-                        }
-                        @if (
-                          column.showIcon && column.iconName && !column.iconUrl
-                        ) {
-                          <mat-icon class="text-cell-icon" aria-hidden="true">{{
-                            column.iconName
-                          }}</mat-icon>
-                        }
-                      </span>
+                      @if (column.routerLinkFn && column.routerLinkFn(row).commands.length) {
+                        <a
+                          [routerLink]="column.routerLinkFn(row).commands"
+                          [queryParams]="column.routerLinkFn(row).queryParams || null"
+                          class="text-cell-link"
+                          [ngClass]="column.cellClass"
+                          (click)="$event.stopPropagation()"
+                        >
+                          {{ getCellValue(row, column.primaryField || column.key) }}
+                        </a>
+                      } @else {
+                        <span [ngClass]="column.cellClass">
+                          {{
+                            getCellValue(row, column.primaryField || column.key)
+                          }}
+                          @if (column.showIcon && column.iconUrl) {
+                            <img
+                              [src]="column.iconUrl"
+                              alt=""
+                              class="text-cell-icon text-cell-icon-img"
+                              aria-hidden="true"
+                            />
+                          }
+                          @if (
+                            column.showIcon && column.iconName && !column.iconUrl
+                          ) {
+                            <mat-icon class="text-cell-icon" aria-hidden="true">{{
+                              column.iconName
+                            }}</mat-icon>
+                          }
+                        </span>
+                      }
                     </div>
                   }
                 }

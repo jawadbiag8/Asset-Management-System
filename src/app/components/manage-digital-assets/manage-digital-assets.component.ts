@@ -7,10 +7,12 @@ import { ApiResponse, ApiService, BulkUploadErrorRow, BulkUploadErrorData } from
 import { UtilsService } from '../../services/utils.service';
 import { DashboardReturnStateService } from '../../services/dashboard-return-state.service';
 import { CanComponentDeactivate } from '../../guards/can-deactivate.guard';
+import { MatDialog } from '@angular/material/dialog';
+import { UploadDocumentDialogComponent } from '../reusable/upload-document-dialog/upload-document-dialog.component';
 
 export interface DigitalAssetRequest {
   ministryId: number;
-  departmentId: number;
+  departmentId?: number;
   assetName: string;
   assetUrl: string;
   description: string;
@@ -21,6 +23,8 @@ export interface DigitalAssetRequest {
   technicalContactName: string;
   technicalContactEmail: string;
   technicalContactPhone: string;
+  /** Set when editing asset; from CommonLookup/type/AssetStatus */
+  assetStatusId?: number;
 }
 
 @Component({
@@ -52,6 +56,8 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
   ministryOptions: { label: string, value: number }[] = [];
   departments: { label: string, value: number }[] = [];
   citizenImpactLevelOptions: { label: string, value: number }[] = [];
+  /** Options for Asset Status dropdown (edit mode only); from API CommonLookup/type/AssetStatus */
+  assetStatusOptions: { label: string, value: number }[] = [];
 
 
   // Error messages
@@ -73,6 +79,10 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     min: 'Please enter a value greater than 0'
   };
 
+  assetStatusErrorMessages = {
+    required: 'Asset Status is required'
+  };
+
   @ViewChild('bulkUploadInput') bulkUploadInput!: ElementRef<HTMLInputElement>;
   bulkUploadErrors = signal<BulkUploadErrorRow[] | null>(null);
 
@@ -84,6 +94,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     private utils: UtilsService,
     private location: Location,
     private dashboardReturnState: DashboardReturnStateService,
+    private dialog: MatDialog,
   ) { }
 
   ngOnInit() {
@@ -110,7 +121,10 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
         { label: 'Edit Digital Assets' }
       ];
 
+      this.getAssetStatusOptions();
       this.getAssetById(this.pageInfo().assetId);
+      // Asset Status is required only in edit mode
+      this.digitalAssetForm.get('assetStatusId')?.setValidators(Validators.required);
     }
 
 
@@ -143,6 +157,8 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
       technicalContactEmail: ['', [Validators.email]],
       technicalContactPhone: [''],
 
+      // Edit only: Asset Status (from CommonLookup/type/AssetStatus)
+      assetStatusId: [null as number | null],
     });
   }
   getMinistryOptions() {
@@ -190,6 +206,22 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     });
   }
 
+  /** Load Asset Status options for edit mode (CommonLookup/type/AssetStatus). */
+  getAssetStatusOptions() {
+    this.api.getLovByType('AssetStatus').subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful && Array.isArray(res.data)) {
+          this.assetStatusOptions = res.data.map((item: { id: number; name: string }) => ({ label: item.name, value: item.id }));
+        } else {
+          this.utils.showToast(res.message ?? 'Failed to load asset status', 'Asset Status', 'error');
+        }
+      },
+      error: (err: any) => {
+        this.utils.showToast(err?.message ?? err, 'Error fetching asset status', 'error');
+      }
+    });
+  }
+
   getAssetById(assetId: number | null) {
     if (!assetId) {
       return;
@@ -198,7 +230,11 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     this.api.getAssetById(assetId).subscribe({
       next: (res: ApiResponse) => {
         if (res.isSuccessful) {
-          this.digitalAssetForm.patchValue(res.data);
+          const data = res.data as Record<string, unknown>;
+          this.digitalAssetForm.patchValue({
+            ...data,
+            assetStatusId: data['statusId'] ?? data['assetStatusId'],
+          });
           this.digitalAssetForm.markAsPristine();
           this.digitalAssetForm.markAsUntouched();
         } else {
@@ -220,12 +256,26 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
       return;
     }
 
-    const payload = {
-      ...this.digitalAssetForm.value,
+    const raw = this.digitalAssetForm.value as Record<string, unknown>;
+    const payload: DigitalAssetRequest = {
+      ...raw,
+      ministryId: raw['ministryId'] as number,
+      assetName: raw['assetName'] as string,
+      assetUrl: raw['assetUrl'] as string,
+      description: raw['description'] as string,
+      citizenImpactLevelId: raw['citizenImpactLevelId'] as number,
+      primaryContactName: raw['primaryContactName'] as string,
+      primaryContactEmail: raw['primaryContactEmail'] as string,
+      primaryContactPhone: raw['primaryContactPhone'] as string,
+      technicalContactName: raw['technicalContactName'] as string,
+      technicalContactEmail: raw['technicalContactEmail'] as string,
+      technicalContactPhone: raw['technicalContactPhone'] as string,
+    };
+    if (raw['departmentId'] != null && raw['departmentId'] !== '') {
+      payload.departmentId = raw['departmentId'] as number;
     }
-
-    if (!payload.departmentId) {
-      delete payload.departmentId;
+    if (this.pageInfo().pageState === 'edit' && raw['assetStatusId'] != null && raw['assetStatusId'] !== '') {
+      payload.assetStatusId = raw['assetStatusId'] as number;
     }
 
     if (this.pageInfo().pageState === 'edit') {
@@ -383,6 +433,73 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     }
     // Form is clean, allow navigation
     return true;
+  }
+
+  /** Opens upload document dialog; on submit, receives referenceNumber + file and auto-submits edit form. */
+  openUploadDocumentDialog(): void {
+    const dialogRef = this.dialog.open(UploadDocumentDialogComponent, {
+      width: '520px',
+      disableClose: false,
+    });
+
+    dialogRef.afterClosed().subscribe((result: { referenceNumber: string; file: File } | undefined) => {
+      if (!result?.referenceNumber || !result?.file) {
+        return; // Cancel or invalid
+      }
+      const file = result.file;
+      console.log({
+        referenceNumber: result.referenceNumber,
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+      });
+      this.submitEditFormWithDocument(result.referenceNumber, file);
+    });
+  }
+
+  /** Submits the edit form with document (reference number + file). Uses FormData if file is provided. */
+  private submitEditFormWithDocument(referenceNumber: string, file: File): void {
+    if (this.digitalAssetForm.invalid) {
+      this.digitalAssetForm.markAllAsTouched();
+      return;
+    }
+
+    const raw = this.digitalAssetForm.value as Record<string, unknown>;
+    const payload: DigitalAssetRequest = {
+      ...raw,
+      ministryId: raw['ministryId'] as number,
+      assetName: raw['assetName'] as string,
+      assetUrl: raw['assetUrl'] as string,
+      description: raw['description'] as string,
+      citizenImpactLevelId: raw['citizenImpactLevelId'] as number,
+      primaryContactName: raw['primaryContactName'] as string,
+      primaryContactEmail: raw['primaryContactEmail'] as string,
+      primaryContactPhone: raw['primaryContactPhone'] as string,
+      technicalContactName: raw['technicalContactName'] as string,
+      technicalContactEmail: raw['technicalContactEmail'] as string,
+      technicalContactPhone: raw['technicalContactPhone'] as string,
+    };
+    if (raw['departmentId'] != null && raw['departmentId'] !== '') {
+      payload.departmentId = raw['departmentId'] as number;
+    }
+    if (raw['assetStatusId'] != null && raw['assetStatusId'] !== '') {
+      payload.assetStatusId = raw['assetStatusId'] as number;
+    }
+
+    this.api.updateAssetWithDocument(this.pageInfo().assetId, payload, referenceNumber, file).subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful) {
+          this.utils.showToast(res.message, 'Asset updated successfully', 'success');
+          this.digitalAssetForm.markAsPristine();
+          this.navigateToAssets();
+        } else {
+          this.utils.showToast(res.message, 'Error updating asset', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error updating asset', 'error');
+      },
+    });
   }
 
 }

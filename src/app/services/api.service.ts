@@ -107,7 +107,8 @@ export class ApiService {
       | 'HealthStatus'
       | 'PerformanceStatus'
       | 'ComplianceStatus'
-      | 'RiskExposureIndex',
+      | 'RiskExposureIndex'
+      | 'AssetStatus',
   ): Observable<ApiResponse> {
     if (lovType === 'HealthStatus') {
       return of({
@@ -247,6 +248,28 @@ export class ApiService {
   ): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset/${assetId}`;
     return this.http.put<ApiResponse<any>>(url, asset);
+  }
+
+  /**
+   * Update asset with document (reference number + file). Sends FormData for multipart support.
+   * Backend may use the same PUT Asset/{id} with multipart or a dedicated endpoint.
+   */
+  updateAssetWithDocument(
+    assetId: number | null,
+    asset: DigitalAssetRequest,
+    referenceNumber: string,
+    file: File,
+  ): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/Asset/${assetId}`;
+    const formData = new FormData();
+    Object.entries(asset).forEach(([key, value]) => {
+      if (value != null && value !== '') {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append('referenceNumber', referenceNumber);
+    formData.append('file', file, file.name);
+    return this.http.put<ApiResponse<any>>(url, formData);
   }
 
   getAssetControlPanelData(
