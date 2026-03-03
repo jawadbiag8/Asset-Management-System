@@ -34,6 +34,13 @@
                         </mat-menu>
                     </div>
                     }
+                    @if (pageInfo().pageState === 'edit') {
+                    <a [routerLink]="['/asset-audit-log']" [queryParams]="pageInfo().assetId ? { assetId: pageInfo().assetId } : {}"
+                        class="btn-audit-log" aria-label="Audit Log">
+                        <mat-icon class="audit-log-icon">history</mat-icon>
+                        Audit Log
+                    </a>
+                    }
                 </div>
             </div>
 

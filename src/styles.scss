@@ -1342,13 +1342,19 @@ select option {
   }
 }
 
-/* Filter modal – dropdown panel dark theme (background #0D1D1D, text #fff) */
+/* Filter modal – dropdown panel dark theme (no white on hover/focus) */
 .filter-modal-select-panel.mat-mdc-select-panel {
   background: #0D1D1D !important;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
 
-  .mat-mdc-option {
+  /* Override Material’s default light hover/focus so options stay dark */
+  --mat-option-hover-state-layer-color: rgba(255, 255, 255, 0.08);
+  --mat-option-focus-state-layer-color: rgba(255, 255, 255, 0.06);
+  --mat-option-selected-state-layer-color: rgba(255, 255, 255, 0.06);
+
+  .mat-mdc-option,
+  .mdc-list-item {
     color: #fff !important;
 
     .mdc-list-item__primary-text {
@@ -1359,13 +1365,34 @@ select option {
       color: #008080 !important;
     }
 
-    &:hover {
+    &:hover,
+    &:focus,
+    &.mat-mdc-option-active,
+    &.mdc-list-item--selected:hover {
       background: rgba(255, 255, 255, 0.08) !important;
+      color: #fff !important;
+
+      .mdc-list-item__primary-text {
+        color: #fff !important;
+      }
     }
+
   }
 
-  .mat-mdc-option-active {
-    background: rgba(255, 255, 255, 0.06) !important;
+  .mat-mdc-option.mat-mdc-option-active {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Prevent Material state-layer / pseudo from showing white on hover */
+  .mat-mdc-option::before,
+  .mdc-list-item::before {
+    background: transparent !important;
+  }
+  .mat-mdc-option:hover::before,
+  .mat-mdc-option.mat-mdc-option-active::before,
+  .mdc-list-item:hover::before {
+    background: rgba(255, 255, 255, 0.08) !important;
+    opacity: 1 !important;
   }
 
   /* Search input inside dropdown (ngx-mat-select-search) */

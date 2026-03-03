@@ -20,6 +20,13 @@
     </div>
   </div>
 
+  @if (errorMessage()) {
+    <div class="error-state">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">Loading audit log...</div>
+  } @else if (!loading() && !errorMessage()) {
   <div class="accordion-list">
     @for (log of filteredLogs(); track log.id) {
       <div class="accordion-item" [class.expanded]="isExpanded(log.id)">
@@ -35,17 +42,26 @@
             <span class="date-time">{{ log.dateTime }}</span>
           </div>
           <div class="header-meta">
-            <span class="meta-item">Edited By: {{ log.editedBy }}</span>
-            <span class="meta-item">Reference#: {{ log.referenceNumber }}</span>
-            <button
-              type="button"
-              class="btn-ref-document"
-              (click)="onRefDocument(log, $event)"
-              aria-label="Reference Document"
-            >
-              <mat-icon class="doc-icon" aria-hidden="true">description</mat-icon>
-              Ref. Document
-            </button>
+            <div class="meta-block">
+              <span class="meta-label">Edited By</span>
+              <span class="meta-value">{{ log.editedBy }}</span>
+            </div>
+            <div class="meta-block">
+              <span class="meta-label">Reference#</span>
+              <span class="meta-value">{{ log.referenceNumber }}</span>
+            </div>
+            @if (log.documentPath) {
+              <button
+                type="button"
+                class="btn-ref-document"
+                (click)="onRefDocument(log, $event)"
+                aria-label="Reference Document"
+              >
+                <mat-icon class="doc-icon" aria-hidden="true">description</mat-icon>
+                <span>Ref. Document</span>
+                <mat-icon class="chevron-icon" aria-hidden="true">expand_less</mat-icon>
+              </button>
+            }
           </div>
           <button
             type="button"
@@ -68,21 +84,29 @@
 
         @if (isExpanded(log.id)) {
           <div class="accordion-body">
-            <div class="body-row">
-              <span class="body-label">Asset Status Changed:</span>
-              <span class="body-value body-status">{{ log.assetStatusChanged }}</span>
-            </div>
-            <div class="body-row body-description-row">
-              <span class="body-label">Description:</span>
-              <div class="body-description">{{ log.description }}</div>
-            </div>
+            @for (change of log.changesList; track change.label + change.value) {
+              <div class="body-row" [class.body-description-row]="change.label === 'Description' && change.value.length > 80">
+                <span class="body-label">{{ change.label }}:</span>
+                @if (change.label === 'Description' && change.value.length > 80) {
+                  <div class="body-value body-description">{{ change.value }}</div>
+                } @else {
+                  <span class="body-value">{{ change.value }}</span>
+                }
+              </div>
+            }
+            @if (log.changesList.length === 0) {
+              <div class="body-row">
+                <span class="body-value body-muted">No change details</span>
+              </div>
+            }
           </div>
         }
       </div>
     }
   </div>
 
-  @if (filteredLogs().length === 0) {
+  @if (!loading() && !errorMessage() && filteredLogs().length === 0) {
     <div class="no-data-state">No audit log entries found</div>
+  }
   }
 </div>

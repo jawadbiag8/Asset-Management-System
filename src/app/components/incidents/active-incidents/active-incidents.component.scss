@@ -10,6 +10,7 @@ $incidents-pill-radius: 999px;
 
 .incidents-header {
   margin-bottom: 24px;
+  padding-left: 24px; /* align with .table-section-card inner content */
 }
 
 .incidents-page-title {
@@ -19,6 +20,7 @@ $incidents-pill-radius: 999px;
   letter-spacing: 0;
   color: #ffffff;
   margin: 0;
+  text-align: left;
 }
 
 /* Add Incident: primary teal button (uses .btn-primary from global when present) */

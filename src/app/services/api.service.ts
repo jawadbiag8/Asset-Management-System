@@ -35,6 +35,17 @@ export interface LoginData {
   roles: string[];
 }
 
+/** Single item from GET Asset/{assetId}/history */
+export interface AssetHistoryItem {
+  id: number;
+  userName: string;
+  createdAt: string;
+  createdBy: string;
+  refId: string;
+  path: string;
+  changes: Record<string, unknown>;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -277,6 +288,21 @@ export class ApiService {
   ): Observable<ApiResponse<AssetControlPanelData>> {
     let url = `${this.baseUrl}/Asset/${assetId}/controlpanel`;
     return this.http.get<ApiResponse<AssetControlPanelData>>(url);
+  }
+
+  /** Asset history / audit log – GET Asset/{assetId}/history */
+  getAssetHistory(assetId: number): Observable<ApiResponse<AssetHistoryItem[]>> {
+    const url = `${this.baseUrl}/Asset/${assetId}/history`;
+    return this.http.get<ApiResponse<AssetHistoryItem[]>>(url);
+  }
+
+  /**
+   * Download reference document for an asset history entry.
+   * GET Asset/history/{historyId}/download
+   */
+  downloadAssetHistoryDocument(historyId: number): Observable<Blob> {
+    const url = `${this.baseUrl}/Asset/history/${historyId}/download`;
+    return this.http.get(url, { responseType: 'blob' });
   }
 
   // Incidents

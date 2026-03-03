@@ -4,9 +4,13 @@
   padding: 24px 32px 32px;
 }
 
-/* Page Header: Title (left) | Search + Add Digital Assets (right) – dark theme */
+/* Page Header: Title aligned with table card content (Bootstrap row has -12px margin) */
 .assets-header {
   margin-bottom: 24px;
+
+  .col:first-child {
+    padding-left: 36px; /* align "Assets" title with first column of table (card padding 24px) */
+  }
 }
 
 .assets-page-title {
@@ -16,6 +20,7 @@
   letter-spacing: 0;
   color: #ffffff;
   margin: 0;
+  text-align: left;
 }
 
 .assets-search-wrap {
@@ -58,17 +63,54 @@
 
 /* Add Digital Assets: primary button from styles.scss (.btn.btn-primary) */
 
-/* Table section: same design tokens as dashboard – th/td styles from styles.scss (.assets-page .dashboard-table-section) */
+/* Table section: same design tokens as dashboard – th/td styles; heading aligned with content */
 .dashboard-table-section {
   overflow: hidden;
 
-  /* Glass card wrapper (aligned with dashboard table-wrapper-custom; padding here = single spacing) */
+  /* Glass card wrapper; padding aligns with .assets-header title */
   .table-section-card {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
     isolation: isolate;
     padding: 20px 24px;
+  }
+
+  /* All column headers left-aligned; content left or center per design */
+  ::ng-deep .assets-table {
+    th {
+      text-align: left;
+
+      .sortable-header {
+        justify-content: flex-start;
+      }
+    }
+    /* Left-aligned: ASSETS, DEPARTMENT, HEALTH, PERFORMANCE, COMPLIANCE, OPEN INCIDENT */
+    th[data-column="websiteApplication"],
+    th[data-column="ministryDepartment"],
+    th[data-column="healthstatus"],
+    th[data-column="performanceStatus"],
+    th[data-column="complianceStatus"],
+    th[data-column="openIncidents"],
+    td[data-column="websiteApplication"],
+    td[data-column="ministryDepartment"],
+    td[data-column="healthstatus"],
+    td[data-column="performanceStatus"],
+    td[data-column="complianceStatus"],
+    td[data-column="openIncidents"] {
+      text-align: left;
+    }
+    /* Center-aligned content: STATUS, RISK, CITIZEN IMPACT (pills) */
+    td[data-column="currentStatus"],
+    td[data-column="riskExposureIndex"],
+    td[data-column="citizenImpactLevel"] {
+      text-align: center;
+    }
+    th[data-column="currentStatus"],
+    th[data-column="riskExposureIndex"],
+    th[data-column="citizenImpactLevel"] {
+      text-align: left;
+    }
   }
 
   /* Dark theme for filters/search inside (reusable-table uses these) */

@@ -35,6 +35,35 @@ $manage-radius: 8px;
   margin-bottom: 0;
 }
 
+.btn-audit-log {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #0d9488;
+  border: 1px solid rgba(20, 184, 166, 0.5);
+  color: #ffffff;
+  border-radius: $manage-radius;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+
+  .audit-log-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+  }
+
+  &:hover {
+    background: #0f766e;
+    border-color: $manage-teal;
+    color: #ffffff;
+  }
+}
+
 .import-assets-wrapper {
   display: flex;
   align-items: center;

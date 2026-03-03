@@ -8,6 +8,10 @@
 /* Page Header: Title (left) | Grid toggle + Add Digital Assets (right) */
 .dashboard-header {
   margin-bottom: 24px;
+
+  .col:first-child {
+    padding-left: 24px; /* align title with content cards */
+  }
 }
 
 .dashboard-page-title {
@@ -17,6 +21,7 @@
   letter-spacing: 0;
   color: #ffffff;
   margin: 0;
+  text-align: left;
 }
 
 .grid-toggle-btn {
