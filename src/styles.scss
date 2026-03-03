@@ -16,6 +16,7 @@
   --color-bg-tertiary: #F9FAFB;
   --color-bg-quaternary: #F3F4F6;
   --color-bg-hover: #F9FAFB;
+  --color-bg-dark: #0D1D1D;
 
 
   /* Text Colors (Design system: primary #ffffff on dark) */
@@ -426,6 +427,55 @@ body {
   border-radius: var(--dialog-border-radius, 24px);
 }
 
+// Unsaved changes / confirmation dialog: dark theme, no white corners
+$dialog-radius: 24px;
+$dialog-bg: #0d1117; // solid dark to avoid any white bleed
+
+.cdk-overlay-pane.app-confirmation-dialog-dark {
+  background: $dialog-bg !important;
+  border-radius: $dialog-radius !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  // Clip everything to rounded rect so no white can peek at corners
+  clip-path: inset(0 round $dialog-radius);
+}
+
+.app-confirmation-dialog-dark {
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+    background: $dialog-bg !important;
+    background-color: $dialog-bg !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: none !important;
+    border-radius: $dialog-radius !important;
+    overflow: hidden !important;
+    outline: none !important;
+    clip-path: inset(0 round $dialog-radius);
+  }
+
+  .mat-mdc-dialog-surface {
+    padding: 0 !important;
+    background: $dialog-bg !important;
+    background-color: $dialog-bg !important;
+    color: var(--color-text-primary);
+    border-radius: $dialog-radius !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+    outline: none !important;
+    clip-path: inset(0 round $dialog-radius);
+  }
+
+  // Force every possible inner layer to dark (MDC / theme can inject white)
+  .mat-mdc-dialog-surface .mdc-dialog__surface,
+  .mat-mdc-dialog-container .mat-mdc-dialog-surface,
+  [class*='mdc-dialog'],
+  [class*='mat-mdc-dialog'] {
+    background: $dialog-bg !important;
+    background-color: $dialog-bg !important;
+    border-radius: $dialog-radius !important;
+  }
+}
+
 ::ng-deep .mat-mdc-dialog-surface {
   border-radius: var(--dialog-border-radius, 24px);
 }
@@ -743,9 +793,9 @@ table th,
   }
 
   .rows-per-page-select {
-    background: #ffffff !important;
-    border: 1px solid #d1d5db !important;
-    color: #374151 !important;
+    background: var(--color-bg-dark, #0d1117) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
   }
 
   .empty-state-text {
@@ -903,9 +953,9 @@ table th,
   }
 
   .rows-per-page-select {
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: var(--color-bg-dark, #0d1117) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: #e6edf3 !important;
+    color: #fff !important;
   }
 
   .empty-state-text {
@@ -1049,9 +1099,9 @@ table th,
   }
 
   .rows-per-page-select {
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: var(--color-bg-dark, #0d1117) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: #e6edf3 !important;
+    color: #fff !important;
   }
 
   .empty-state-text {
@@ -1192,9 +1242,9 @@ table th,
   }
 
   .rows-per-page-select {
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: var(--color-bg-dark, #0d1117) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: #e6edf3 !important;
+    color: #fff !important;
   }
 
   .empty-state-text {

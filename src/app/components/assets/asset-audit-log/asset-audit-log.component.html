@@ -1,0 +1,88 @@
+<div class="asset-audit-log">
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Audit Logs</h1>
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </span>
+        <input
+          type="text"
+          class="search-input"
+          [value]="searchTerm()"
+          (input)="onSearchChange(($any($event.target)).value)"
+          placeholder="Search Assets"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-list">
+    @for (log of filteredLogs(); track log.id) {
+      <div class="accordion-item" [class.expanded]="isExpanded(log.id)">
+        <div
+          class="accordion-header"
+          (click)="toggleAccordion(log.id, $event)"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="toggleAccordion(log.id, $event)"
+          (keydown.space)="toggleAccordion(log.id, $event)"
+        >
+          <div class="header-date">
+            <span class="date-time">{{ log.dateTime }}</span>
+          </div>
+          <div class="header-meta">
+            <span class="meta-item">Edited By: {{ log.editedBy }}</span>
+            <span class="meta-item">Reference#: {{ log.referenceNumber }}</span>
+            <button
+              type="button"
+              class="btn-ref-document"
+              (click)="onRefDocument(log, $event)"
+              aria-label="Reference Document"
+            >
+              <mat-icon class="doc-icon" aria-hidden="true">description</mat-icon>
+              Ref. Document
+            </button>
+          </div>
+          <button
+            type="button"
+            class="accordion-toggle"
+            (click)="toggleAccordion(log.id, $event)"
+            [attr.aria-expanded]="isExpanded(log.id)"
+            aria-label="Expand or collapse log entry"
+          >
+            @if (isExpanded(log.id)) {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            } @else {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            }
+          </button>
+        </div>
+
+        @if (isExpanded(log.id)) {
+          <div class="accordion-body">
+            <div class="body-row">
+              <span class="body-label">Asset Status Changed:</span>
+              <span class="body-value body-status">{{ log.assetStatusChanged }}</span>
+            </div>
+            <div class="body-row body-description-row">
+              <span class="body-label">Description:</span>
+              <div class="body-description">{{ log.description }}</div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (filteredLogs().length === 0) {
+    <div class="no-data-state">No audit log entries found</div>
+  }
+</div>

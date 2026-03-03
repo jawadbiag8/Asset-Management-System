@@ -1,4 +1,6 @@
-<div class="confirmation-dialog">
+<div class="confirmation-dialog-wrapper">
+  <div class="confirmation-dialog-bg" aria-hidden="true"></div>
+  <div class="confirmation-dialog">
   <h2 class="dialog-title">{{ data.title }}</h2>
   <p class="dialog-message">{{ data.message }}</p>
 
@@ -9,5 +11,6 @@
     <button class="btn btn-primary" (click)="onConfirm()">
       {{ data.confirmButtonText }}
     </button>
+  </div>
   </div>
 </div>

@@ -41,6 +41,7 @@ import { ConfirmationDialogComponent } from './components/reusable/confirmation-
 import { UploadDocumentDialogComponent } from './components/reusable/upload-document-dialog/upload-document-dialog.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { AssetControlPanelComponent } from './components/assets/asset-control-panel/asset-control-panel.component';
+import { AssetAuditLogComponent } from './components/assets/asset-audit-log/asset-audit-log.component';
 import { AssetsComponent } from './components/assets/assets.component';
 import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
 import { MinistryDashboardComponent } from './components/ministry-dashboard/ministry-dashboard.component';
@@ -66,6 +67,7 @@ import { MinistryDashboardComponent } from './components/ministry-dashboard/mini
     UploadDocumentDialogComponent,
     LoaderComponent,
     AssetControlPanelComponent,
+    AssetAuditLogComponent,
     AssetsComponent,
     PmDashboardComponent,
     MinistryDashboardComponent,

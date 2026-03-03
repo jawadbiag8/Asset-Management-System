@@ -628,9 +628,9 @@ a.link {
   }
 
   ::ng-deep .rows-per-page-select {
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: var(--color-bg-dark, #0d1117) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: #e6edf3 !important;
+    color: #fff !important;
   }
 
   ::ng-deep .empty-state-text {

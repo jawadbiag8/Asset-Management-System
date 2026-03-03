@@ -55,7 +55,8 @@ export class CanDeactivateGuard implements CanDeactivate<CanComponentDeactivate>
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '500px',
       data: dialogData,
-      disableClose: true
+      disableClose: true,
+      panelClass: 'app-confirmation-dialog-dark'
     });
 
     return dialogRef.afterClosed();
