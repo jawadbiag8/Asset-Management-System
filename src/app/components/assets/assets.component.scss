@@ -78,6 +78,13 @@
 
   /* All column headers left-aligned; content left or center per design */
   ::ng-deep .assets-table {
+    .two-line-cell {
+      display: flex;
+      flex-direction: row;
+      gap: 4px;
+      min-width: 0;
+      justify-content: space-between;
+    }
     th {
       text-align: left;
 
@@ -85,31 +92,53 @@
         justify-content: flex-start;
       }
     }
-    /* Left-aligned: ASSETS, DEPARTMENT, HEALTH, PERFORMANCE, COMPLIANCE, OPEN INCIDENT */
+    /* Left-aligned: all columns (icon + text style, no badges) */
     th[data-column="websiteApplication"],
     th[data-column="ministryDepartment"],
+    th[data-column="currentStatus"],
     th[data-column="healthstatus"],
     th[data-column="performanceStatus"],
     th[data-column="complianceStatus"],
+    th[data-column="riskExposureIndex"],
+    th[data-column="citizenImpactLevel"],
     th[data-column="openIncidents"],
     td[data-column="websiteApplication"],
     td[data-column="ministryDepartment"],
+    td[data-column="currentStatus"],
     td[data-column="healthstatus"],
     td[data-column="performanceStatus"],
     td[data-column="complianceStatus"],
+    td[data-column="riskExposureIndex"],
+    td[data-column="citizenImpactLevel"],
     td[data-column="openIncidents"] {
       text-align: left;
     }
-    /* Center-aligned content: STATUS, RISK, CITIZEN IMPACT (pills) */
-    td[data-column="currentStatus"],
-    td[data-column="riskExposureIndex"],
-    td[data-column="citizenImpactLevel"] {
-      text-align: center;
-    }
-    th[data-column="currentStatus"],
-    th[data-column="riskExposureIndex"],
-    th[data-column="citizenImpactLevel"] {
-      text-align: left;
+
+    /* Assets column: title teal, URL light gray (match design image) */
+    td[data-column="websiteApplication"] {
+      .two-line-cell-text .line-primary.line-link:not(.line-secondary-link) {
+        color: #00BFB2;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .two-line-cell-text .line-secondary-link {
+        color: #AAAAAA;
+        font-size: 12px;
+        font-weight: 400;
+      }
+      .trailing-block-heart-analyze .leading-icon-btn-above .leading-icon {
+        color: #AAAAAA;
+      }
+      .trailing-block-heart-analyze .leading-icon-btn-above:hover .leading-icon {
+        color: #cccccc;
+      }
+      .trailing-block-heart-analyze .leading-icon-btn-above.leading-icon-filled .leading-icon {
+        color: #00BFB2;
+      }
+      .trailing-btn-analyze-capsule {
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        color: #ffffff;
+      }
     }
   }
 

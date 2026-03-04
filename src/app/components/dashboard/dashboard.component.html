@@ -47,4 +47,75 @@
             }
         </div>
     }
+
+    <!-- Favorite Assets & Correspondence (two columns) -->
+    <div class="dashboard-bottom-row row g-4 mt-2">
+        <!-- Favorite Assets -->
+        <div class="col-12 col-lg-6">
+            <section class="dashboard-panel favorite-assets-panel" aria-label="Favorite Assets">
+                <h2 class="panel-title">Favorite Assets</h2>
+                <p class="panel-subtitle">List of all assets marked as favorite</p>
+                <div class="panel-divider"></div>
+                <div class="panel-list-wrap">
+                    @if (favoriteAssetsLoading()) {
+                        <p class="panel-muted">Loading...</p>
+                    } @else if (favoriteAssets().length === 0) {
+                        <p class="panel-muted">No favorite assets yet. Add from an asset detail page.</p>
+                    } @else {
+                        <ul class="panel-list">
+                            @for (fav of favoriteAssets(); track fav.id) {
+                                <li class="panel-list-item">
+                                    <button type="button" class="btn-remove-favorite btn-remove-favorite-circle" (click)="removeFromFavorites(fav.id); $event.preventDefault(); $event.stopPropagation()" [attr.aria-label]="'Remove from favorites'">
+                                        <mat-icon class="icon-remove-favorite-minus">remove</mat-icon>
+                                    </button>
+                                    <a [routerLink]="['/view-assets-detail']" [queryParams]="{ id: fav.id, ministryId: fav.ministryId ?? '' }" class="panel-list-label">{{ fav.assetName || fav.websiteApplication || 'Asset' }}{{ fav.ministryName ? ' - ' + fav.ministryName : '' }}</a>
+                                    <span class="panel-list-badge" [class.badge-up]="isStatusUp(fav.currentStatus)" [class.badge-down]="!isStatusUp(fav.currentStatus)">{{ (fav.currentStatus || 'Unknown').toUpperCase() }}</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </section>
+        </div>
+        <!-- Correspondence -->
+        <div class="col-12 col-lg-6">
+            <section class="dashboard-panel correspondence-panel" aria-label="Correspondence">
+                <div class="panel-head-row">
+                    <div>
+                        <h2 class="panel-title">Correspondence</h2>
+                        <p class="panel-subtitle">Recent Ministries with Uploaded Reports in eOffice</p>
+                    </div>
+                    <select class="panel-dropdown" [(ngModel)]="correspondencePeriod" (ngModelChange)="onCorrespondencePeriodChange()" aria-label="Period">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+                <div class="panel-divider"></div>
+
+                <div class="panel-list-wrap">
+                    @if (correspondenceItems().length === 0) {
+                        <p class="panel-muted">No correspondence data available.</p>
+                    } @else {
+                        <ol class="panel-list panel-list-numbered">
+                            @for (item of correspondenceItems(); track item.id) {
+                                <li class="panel-list-item">
+                                    <span class="panel-list-num">{{ item.number }}.</span>
+                                    <span class="panel-list-label">{{ item.ministryName }}</span>
+                                    <span class="panel-list-meta">{{ item.time }}</span>
+                                    <span class="panel-list-badge" [class.badge-dispatched]="item.status === 'Dispatched'" [class.badge-draft]="item.status === 'Draft'">{{ item.status }}</span>
+                                    @if (item.status === 'Draft') {
+                                        <mat-icon class="panel-list-doc-icon" aria-hidden="true">description</mat-icon>
+                                    }
+                                </li>
+                            }
+                        </ol>
+                    }
+                </div>
+                <div class="panel-footer">
+                    <button type="button" class="btn-correspondence-history" (click)="onCorrespondenceHistory()">Correspondence History</button>
+                </div>
+            </section>
+        </div>
+    </div>
 </div>

@@ -146,12 +146,26 @@
                   @case ("two-line") {
                     <div
                       class="two-line-cell"
-                      [class.two-line-cell-with-trailing]="column.trailingButtonLabel && column.trailingButtonClick"
+                      [class.two-line-cell-with-trailing]="column.trailingButtonLabel && column.trailingButtonClick && !column.leadingIconName"
+                      [class.two-line-cell-with-leading]="column.leadingIconName && !column.trailingButtonLabel"
+                      [class.two-line-cell-heart-above-analyze]="column.leadingIconName && column.trailingButtonLabel && column.trailingButtonClick"
                       [class.clickable]="column.onClick || column.routerLinkFn"
                       [class.pointer]="column.onClick || column.routerLinkFn"
                       (click)="column.onClick && !column.routerLinkFn ? column.onClick(row) : null"
                     >
-                      <div class="two-line-cell-text" [class.flex-1]="column.trailingButtonLabel && column.trailingButtonClick">
+                      @if (column.leadingIconName && !(column.trailingButtonLabel && column.trailingButtonClick)) {
+                        <button
+                          type="button"
+                          class="leading-icon-btn"
+                          (click)="$event.stopPropagation(); column.leadingIconClick && column.leadingIconClick(row)"
+                          [attr.aria-label]="column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'Remove from favorites' : 'Add to favorites'"
+                        >
+                          <mat-icon class="leading-icon">{{
+                            column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'favorite' : 'favorite_border'
+                          }}</mat-icon>
+                        </button>
+                      }
+                      <div class="two-line-cell-text" [class.flex-1]="column.trailingButtonLabel && column.trailingButtonClick || column.leadingIconName">
                         @if (column.routerLinkFn && (column.routerLinkFn(row).commands.length)) {
                           <a
                             [routerLink]="column.routerLinkFn(row).commands"
@@ -189,7 +203,28 @@
                           </div>
                         }
                       </div>
-                      @if (column.trailingButtonLabel && column.trailingButtonClick) {
+                      @if (column.leadingIconName && column.trailingButtonLabel && column.trailingButtonClick) {
+                        <div class="trailing-block-heart-analyze">
+                          <button
+                            type="button"
+                            class="leading-icon-btn leading-icon-btn-above"
+                            [class.leading-icon-filled]="column.leadingIconFilledFn && column.leadingIconFilledFn(row)"
+                            (click)="$event.stopPropagation(); column.leadingIconClick && column.leadingIconClick(row)"
+                            [attr.aria-label]="column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'Remove from favorites' : 'Add to favorites'"
+                          >
+                            <mat-icon class="leading-icon">{{
+                              column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'favorite' : 'favorite_border'
+                            }}</mat-icon>
+                          </button>
+                          <button
+                            type="button"
+                            class="trailing-btn-outline trailing-btn-analyze-capsule"
+                            (click)="$event.stopPropagation(); column.trailingButtonClick(row)"
+                          >
+                            {{ column.trailingButtonLabel }}
+                          </button>
+                        </div>
+                      } @else if (column.trailingButtonLabel && column.trailingButtonClick) {
                         <button
                           type="button"
                           class="trailing-btn-outline"
@@ -238,6 +273,15 @@
                       >
                         {{ getCellValue(row, column.badgeField || "") }}
                       </span>
+                    </div>
+                  }
+                  @case ("status-dot-subtext") {
+                    <div class="status-dot-subtext-cell" [ngClass]="getStatusDotClass(row, column)">
+                      <div class="status-dot-line">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        <span class="status-dot-text">{{ getCellValue(row, column.primaryField || "") }}</span>
+                      </div>
+                      <div class="status-dot-subtext">{{ getCellValue(row, column.subtextField || "") }}</div>
                     </div>
                   }
                   @case ("badge-with-subtext") {

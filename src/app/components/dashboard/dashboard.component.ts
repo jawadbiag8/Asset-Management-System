@@ -41,6 +41,25 @@ export interface DigitalAsset {
   highSeverityIncidents: number;
 }
 
+/** Favorite asset item for dashboard panel */
+export interface FavoriteAssetItem {
+  id: number;
+  ministryId?: number;
+  assetName?: string;
+  websiteApplication?: string;
+  ministryName?: string;
+  currentStatus?: string;
+}
+
+/** Correspondence list item for dashboard panel */
+export interface CorrespondenceItem {
+  id: number;
+  number: number;
+  ministryName: string;
+  time: string;
+  status: 'Dispatched' | 'Draft';
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -254,6 +273,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   totalItems = signal<number>(0);
 
+  /** Favorite assets for dashboard panel */
+  favoriteAssets = signal<FavoriteAssetItem[]>([]);
+  favoriteAssetsLoading = signal<boolean>(false);
+
+  /** Correspondence list (placeholder until API available) */
+  correspondencePeriod = 'today';
+  correspondenceItems = signal<CorrespondenceItem[]>([
+    { id: 1, number: 10, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Dispatched' },
+    { id: 2, number: 9, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Dispatched' },
+    { id: 3, number: 8, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
+    { id: 4, number: 7, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
+    { id: 5, number: 6, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
+    { id: 6, number: 5, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
+    { id: 7, number: 4, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
+    { id: 8, number: 3, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
+    { id: 9, number: 2, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
+    { id: 10, number: 1, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
+  ]);
+
   // Computed signal to keep table config in sync with data
   tableConfigWithData = computed<TableConfig>(() => {
     const processedData = this.digitalAssets().map((asset) => {
@@ -466,6 +504,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.initializeFilters();
     this.applyInitialQueryParams();
     this.loadDashboardSummary();
+    this.loadFavoriteAssets();
 
     this.signalR.joinTopic(this.summaryTopic).catch(() => {});
     this.signalR.onDataUpdated.pipe(takeUntil(this.destroy$)).subscribe((topic) => {
@@ -775,6 +814,65 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
       })),
     }));
+  }
+
+  /** Load favorite assets for dashboard panel */
+  loadFavoriteAssets(): void {
+    this.favoriteAssetsLoading.set(true);
+    this.apiService.getFavoriteAssets().subscribe({
+      next: (res) => {
+        this.favoriteAssetsLoading.set(false);
+        if (res?.isSuccessful && Array.isArray(res.data)) {
+          const items: FavoriteAssetItem[] = (res.data as any[]).map((row: any, idx: number) => ({
+            id: row.id ?? row.assetId ?? idx,
+            ministryId: row.ministryId,
+            assetName: row.assetName ?? row.name,
+            websiteApplication: row.websiteApplication ?? row.assetName ?? row.name,
+            ministryName: row.ministryName ?? row.ministryDepartment,
+            currentStatus: row.currentStatus ?? row.status ?? 'Unknown',
+          }));
+          this.favoriteAssets.set(items);
+        } else {
+          this.favoriteAssets.set([]);
+        }
+      },
+      error: () => {
+        this.favoriteAssetsLoading.set(false);
+        this.favoriteAssets.set([]);
+      },
+    });
+  }
+
+  /** Treat status as "Up" for green pill (Up/Down display) */
+  isStatusUp(status: string | undefined): boolean {
+    if (!status) return false;
+    const u = (status || '').toLowerCase();
+    return u === 'up' || u === 'online' || u === 'healthy' || u === 'compliant';
+  }
+
+  /** Remove asset from favorites and refresh list */
+  removeFromFavorites(assetId: number): void {
+    this.apiService.removeAssetFromFavorites(assetId).subscribe({
+      next: (res) => {
+        if (res?.isSuccessful) {
+          this.utils.showToast('Asset removed from favorites.', 'Favorites', 'success');
+          this.loadFavoriteAssets();
+        } else {
+          this.utils.showToast(res?.message ?? 'Could not remove from favorites.', 'Favorites', 'error');
+        }
+      },
+      error: (err) => {
+        this.utils.showToast(err?.message ?? 'Could not remove from favorites.', 'Favorites', 'error');
+      },
+    });
+  }
+
+  onCorrespondencePeriodChange(): void {
+    // Placeholder: when API is available, reload correspondence by period
+  }
+
+  onCorrespondenceHistory(): void {
+    // Placeholder: navigate to correspondence history or open modal
   }
 
   updateFilterOptions(

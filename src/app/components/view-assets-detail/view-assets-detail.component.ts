@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { ApiService, ApiResponse } from '../../services/api.service';
 import { BreadcrumbService } from '../../services/breadcrumb.service';
+import { UtilsService } from '../../services/utils.service';
 import { formatDateOrPassThrough } from '../../utils/date-format.util';
 
 @Component({
@@ -19,6 +20,7 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private apiService: ApiService,
     private breadcrumbService: BreadcrumbService,
+    private utils: UtilsService,
   ) {}
 
   ngOnInit() {
@@ -352,4 +354,23 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
       queryParams: { assetId: this.assetId },
     });
   }
+
+  // onAddToFavorite(): void {
+  //   if (this.assetId == null) {
+  //     this.utils.showToast('Asset ID is missing.', 'Add to Favorite', 'warning');
+  //     return;
+  //   }
+  //   this.apiService.addAssetToFavorites(this.assetId).subscribe({
+  //     next: (res: ApiResponse<any>) => {
+  //       if (res?.isSuccessful) {
+  //         this.utils.showToast(res.message ?? 'Added to favorites.', 'Add to Favorite', 'success');
+  //       } else {
+  //         this.utils.showToast(res?.message ?? 'Could not add to favorites.', 'Add to Favorite', 'error');
+  //       }
+  //     },
+  //     error: (err) => {
+  //       this.utils.showToast(err, 'Failed to add to favorites.', 'error');
+  //     },
+  //   });
+  // }
 }

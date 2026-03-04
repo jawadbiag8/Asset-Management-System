@@ -12,16 +12,16 @@
   <!-- RIGHT: Menu (nav) + Executive Dashboard + Profile -->
   <div class="right">
     <nav class="nav" [class.open]="menuOpen">
-      <a routerLink="/dashboard" [class.active]="isDashboardActive()" (click)="menuOpen = false">Dashboards</a>
-      <a routerLink="/assets" [class.active]="isAssetsActive()" (click)="menuOpen = false">Assets</a>
-      <a routerLink="/ministries" [class.active]="isMinistriesActive()" (click)="menuOpen = false">Ministries</a>
-      <a routerLink="/incidents" [class.active]="isIncidentsActive()" (click)="menuOpen = false">Incidents</a>
+      <a href="/dashboard" (click)="onHeaderNav('/dashboard'); $event.preventDefault()" [class.active]="isDashboardActive()">Dashboards</a>
+      <a href="/assets" (click)="onHeaderNav('/assets'); $event.preventDefault()" [class.active]="isAssetsActive()">Assets</a>
+      <a href="/ministries" (click)="onHeaderNav('/ministries'); $event.preventDefault()" [class.active]="isMinistriesActive()">Ministries</a>
+      <a href="/incidents" (click)="onHeaderNav('/incidents'); $event.preventDefault()" [class.active]="isIncidentsActive()">Incidents</a>
 
       <a
         *ngIf="isPmoExecutive() && !isPmDashboardActive()"
-        routerLink="/pm-dashboard"
+        href="/pm-dashboard"
+        (click)="onHeaderNav('/pm-dashboard'); $event.preventDefault()"
         [class.active]="isPmDashboardActive()"
-        (click)="menuOpen = false"
         class="mobile-executive-dashboard"
       >
         <img src="/Images/Dashboard/windows.svg" alt="pm icon" class="nav-icon" />

@@ -426,7 +426,8 @@
     }
 }
 
-.two-line-cell-with-trailing {
+.two-line-cell-with-trailing,
+.two-line-cell-with-leading {
     flex-direction: row;
     align-items: center;
     gap: 8px;
@@ -434,6 +435,174 @@
     .two-line-cell-text.flex-1 {
         flex: 1;
         min-width: 0;
+    }
+}
+
+.two-line-cell-with-leading .leading-icon-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    .leading-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: var(--color-green-teal, #0d9488);
+    }
+    &:hover .leading-icon {
+        opacity: 0.85;
+    }
+}
+
+// Heart above Analyze: vertical stack (image layout)
+.two-line-cell-heart-analyze {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
+
+    .two-line-cell-text.flex-1 {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.trailing-block-heart-analyze {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    .leading-icon-btn-above {
+        padding: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        .leading-icon {
+            font-size: 22px;
+            width: 22px;
+            height: 22px;
+            color: #AAAAAA;
+        }
+        &:hover .leading-icon {
+            color: #cccccc;
+        }
+        &.leading-icon-filled .leading-icon {
+            color: var(--color-green-teal, #00BFB2);
+        }
+    }
+
+    .trailing-btn-analyze-capsule {
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 500;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        color: #ffffff;
+        border-radius: 9999px;
+        cursor: pointer;
+        white-space: nowrap;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+    }
+}
+
+// Status dot + text (no badge): dot icon + colored text + subtext
+.status-dot-subtext-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+    min-width: 0;
+
+    .status-dot-line {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .status-dot-text {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .status-dot-subtext {
+        font-size: 12px;
+        color: var(--color-text-secondary, #6b7280);
+        font-weight: 400;
+    }
+
+    &.status-dot-success .status-dot,
+    &.status-dot-success .status-dot-text {
+        color: var(--color-green, #10b981);
+    }
+    &.status-dot-success .status-dot {
+        background: var(--color-green, #10b981);
+    }
+
+    &.status-dot-danger .status-dot,
+    &.status-dot-danger .status-dot-text {
+        color: var(--color-red, #dc2626);
+    }
+    &.status-dot-danger .status-dot {
+        background: var(--color-red, #dc2626);
+    }
+
+    &.status-dot-warning .status-dot,
+    &.status-dot-warning .status-dot-text {
+        color: var(--color-orange, #f59e0b);
+    }
+    &.status-dot-warning .status-dot {
+        background: var(--color-orange, #f59e0b);
+    }
+
+    &.status-dot-unknown .status-dot,
+    &.status-dot-unknown .status-dot-text {
+        color: var(--color-text-tertiary, #9ca3af);
+    }
+    &.status-dot-unknown .status-dot {
+        background: var(--color-text-tertiary, #9ca3af);
+    }
+}
+
+// Metric trend line: text + icon color by status (no badge)
+.metric-with-trend-cell .metric-trend-line {
+    &.text-success .metric-trend-text,
+    &.text-success .metric-trend-icon {
+        color: var(--color-green, #10b981);
+    }
+    &.text-danger .metric-trend-text,
+    &.text-danger .metric-trend-icon {
+        color: var(--color-red, #dc2626);
+    }
+    &.text-warning .metric-trend-text,
+    &.text-warning .metric-trend-icon {
+        color: var(--color-orange, #f59e0b);
+    }
+    &.text-unknown .metric-trend-text,
+    &.text-unknown .metric-trend-icon {
+        color: var(--color-text-tertiary, #9ca3af);
+    }
+    &.text-info .metric-trend-text,
+    &.text-info .metric-trend-icon {
+        color: var(--color-blue, #3b82f6);
     }
 }
 

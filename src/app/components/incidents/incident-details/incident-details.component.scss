@@ -379,24 +379,50 @@ $incident-card-radius: 8px;
       display: none;
     }
 
+    /* Comments textarea – border & label match Add Digital Asset form */
     .comment-textarea-field {
       width: 100%;
 
-      /* Match login page: label primary, placeholder 30% white, input text light */
       ::ng-deep {
+        .mat-mdc-text-field-wrapper {
+          background-color: rgba(255, 255, 255, 0.06) !important;
+          border-radius: $incident-card-radius;
+        }
+        .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+          background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        .mat-mdc-form-field-appearance-outline .mat-mdc-form-field-outline,
+        .mat-mdc-form-field-appearance-outline .mdc-notched-outline__leading,
+        .mat-mdc-form-field-appearance-outline .mdc-notched-outline__notch,
+        .mat-mdc-form-field-appearance-outline .mdc-notched-outline__trailing {
+          color: rgba(255, 255, 255, 0.25) !important;
+          border-radius: $incident-card-radius;
+        }
+        .mat-mdc-form-field.mat-focused .mat-mdc-form-field-outline-thick,
+        .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__leading,
+        .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__notch,
+        .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__trailing {
+          border-color: var(--color-primary, #00cfcf) !important;
+          color: var(--color-primary, #00cfcf) !important;
+        }
         .mat-mdc-form-field-label,
         .mat-mdc-floating-label,
         .mdc-floating-label,
         .mdc-floating-label--float-above {
+          color: #ffffffab !important;
+        }
+        .mat-mdc-form-field.mat-focused .mat-mdc-form-field-label,
+        .mat-mdc-form-field.mat-focused .mat-mdc-floating-label,
+        .mat-mdc-form-field.mat-focused .mdc-floating-label--float-above {
           color: var(--color-primary, #00cfcf) !important;
         }
         .mat-mdc-input-element::placeholder,
         textarea.mat-mdc-input-element::placeholder {
-          color: rgba(255, 255, 255, 0.3) !important;
+          color: #ffffffab !important;
         }
         .mat-mdc-input-element,
         textarea.mat-mdc-input-element {
-          color: #e6edf3 !important;
+          color: $incident-text-primary !important;
           caret-color: var(--color-primary, #00cfcf);
         }
       }

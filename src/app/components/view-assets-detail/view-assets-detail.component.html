@@ -1,4 +1,15 @@
 <div class="container-fluid p-4 view-assets-detail-page">
+  <!-- Below breadcrumb: title left, Add to Favorite right -->
+  <!-- <div class="detail-page-top row align-items-center mt-2 mb-0">
+    <div class="col"></div>
+    <div class="col-auto">
+      <button type="button" class="btn btn-add-to-favorite" (click)="onAddToFavorite()" aria-label="Add to Favorite">
+        <mat-icon class="favorite-icon">favorite_border</mat-icon>
+        Add to Favorite
+      </button>
+    </div>
+  </div> -->
+
   <!-- Health Dashboard Card -->
   <div class="card shadow-sm mt-4 header-card">
     <!-- Page Title -->
@@ -24,15 +35,6 @@
                 >
                   {{ assetDetails.url }}
                 </a>
-              </div>
-              <div class="info-item">
-                <label
-                  class="text-uppercase text-muted small fw-medium mb-1 d-block"
-                  >MINISTRY</label
-                >
-                <span class="d-block fw-semibold text-break">{{
-                  assetDetails.ministry
-                }}</span>
               </div>
               <div class="info-item">
                 <label

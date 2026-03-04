@@ -413,6 +413,7 @@ export type CellType =
   | 'text-with-color'
   | 'health-status'
   | 'metric-with-trend'
+  | 'status-dot-subtext'
   | 'actions'
   | 'progress-bar';
 
@@ -458,6 +459,12 @@ export interface TableColumn {
   /** For 'two-line' cells: optional button shown to the right of the text. */
   trailingButtonLabel?: string;
   trailingButtonClick?: (row: any) => void;
+
+  /** For 'two-line' cells: optional leading icon (e.g. favorite). When set, icon is shown before the text. */
+  leadingIconName?: string;
+  /** When true, icon is filled (e.g. favorite); when false, outline (e.g. favorite_border). */
+  leadingIconFilledFn?: (row: any) => boolean;
+  leadingIconClick?: (row: any) => void;
 
   /** For 'two-line' cells: optional CSS class for the primary line based on row (e.g. highlight when value > 0). */
   primaryLineClassFn?: (row: any) => string;
@@ -839,6 +846,10 @@ export class ReusableTableComponent
             column.secondaryField || '',
           );
           cellValue = `${primary || ''} ${secondary || ''}`.trim();
+        } else if (column.cellType === 'status-dot-subtext') {
+          const primary = this.getNestedValue(row, column.primaryField || column.key);
+          const subtext = this.getNestedValue(row, column.subtextField || '');
+          cellValue = `${primary || ''} ${subtext || ''}`.trim();
         } else if (
           column.cellType === 'badge' ||
           column.cellType === 'badge-with-subtext'
@@ -1166,6 +1177,14 @@ export class ReusableTableComponent
     const status = column.badgeStatus(row);
     if (!status) return 'badge-status-unknown';
     return `badge-status-${status}`;
+  }
+
+  /** For status-dot-subtext: class for dot + text color from badgeStatus (e.g. status-dot-success). */
+  getStatusDotClass(row: any, column: TableColumn): string {
+    if (!column.badgeStatus) return 'status-dot-unknown';
+    const status = column.badgeStatus(row);
+    if (!status) return 'status-dot-unknown';
+    return `status-dot-${status}`;
   }
 
   /** For two-line cells: combined classes for primary line (cellClass + primaryLineClassFn). */

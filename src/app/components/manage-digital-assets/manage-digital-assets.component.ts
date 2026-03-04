@@ -1,8 +1,9 @@
-import { Component, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
+import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { ApiResponse, ApiService, BulkUploadErrorRow, BulkUploadErrorData } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
 import { DashboardReturnStateService } from '../../services/dashboard-return-state.service';
@@ -33,7 +34,7 @@ export interface DigitalAssetRequest {
   styleUrl: './manage-digital-assets.component.scss',
   standalone: false,
 })
-export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactivate {
+export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanComponentDeactivate {
 
   pageInfo = signal<{
     pageState: 'add' | 'edit' | null;
@@ -95,7 +96,12 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     private location: Location,
     private dashboardReturnState: DashboardReturnStateService,
     private dialog: MatDialog,
+    private breadcrumbService: BreadcrumbService,
   ) { }
+
+  ngOnDestroy(): void {
+    this.breadcrumbService.setCurrentLabel(null);
+  }
 
   ngOnInit() {
     this.createForm();
@@ -231,6 +237,8 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
       next: (res: ApiResponse) => {
         if (res.isSuccessful) {
           const data = res.data as Record<string, unknown>;
+          const name = (data['websiteApplication'] ?? data['assetName'] ?? 'Edit Digital Asset') as string;
+          this.breadcrumbService.setCurrentLabel(name);
           this.digitalAssetForm.patchValue({
             ...data,
             assetStatusId: data['statusId'] ?? data['assetStatusId'],
@@ -440,6 +448,7 @@ export class ManageDigitalAssetsComponent implements OnInit, CanComponentDeactiv
     const dialogRef = this.dialog.open(UploadDocumentDialogComponent, {
       width: '520px',
       disableClose: false,
+      panelClass: 'upload-document-dialog-dark',
     });
 
     dialogRef.afterClosed().subscribe((result: { referenceNumber: string; file: File } | undefined) => {

@@ -6,7 +6,7 @@ $detail-text-secondary: #e5e7eb;
 $detail-text-muted: #9ca3af;
 $detail-separator: rgba(255, 255, 255, 0.08);
 $detail-pill-radius: 9999px;
-$detail-card-radius: 8px;
+$detail-card-radius: 24px;
 
 .container-fluid.view-assets-detail-page {
   min-height: 100vh;
@@ -28,6 +28,40 @@ $detail-card-radius: 8px;
   max-width: 100%;
   overflow-x: hidden;
   color: $detail-text-primary;
+}
+
+// Below breadcrumb: Add to Favorite on the right
+.detail-page-top {
+  min-height: 0;
+}
+
+.btn-add-to-favorite {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #0d9488;
+  border: 1px solid rgba(20, 184, 166, 0.5);
+  color: #ffffff;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+
+  .favorite-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+  }
+
+  &:hover {
+    background: #0f766e;
+    border-color: rgba(20, 184, 166, 0.7);
+    color: #ffffff;
+  }
 }
 
 .header-row {
@@ -324,7 +358,7 @@ a.link {
   background-color: var(--color-primary, #00cfcf);
   color: #ffffff;
   border: none;
-  border-radius: $detail-card-radius;
+  border-radius: 12px;
   padding: 10px 20px;
   font-size: 16px;
   font-weight: 600;
@@ -348,7 +382,7 @@ a.link {
   background-color: transparent;
   color: var(--color-primary, #00cfcf);
   border: 1px solid var(--color-primary, #00cfcf);
-  border-radius: $detail-card-radius;
+  border-radius: 12px;
   padding: 10px 20px;
   font-size: 16px;
   font-weight: 600;

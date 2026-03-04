@@ -55,6 +55,9 @@ export class AssetsComponent implements OnInit {
   /** Header search (design: search bar in top-right). Synced with table search. */
   headerSearchValue = signal('');
 
+  /** Set of asset IDs that are in the user's favorites (for heart icon state). */
+  favoriteAssetIds = signal<Set<number>>(new Set());
+
   @ViewChild('bulkUploadInput') bulkUploadInput!: ElementRef<HTMLInputElement>;
 
   tableConfig = signal<TableConfig>({
@@ -71,11 +74,19 @@ export class AssetsComponent implements OnInit {
         secondaryField: 'assetUrl',
         linkField: 'assetUrl',
         sortable: true,
-        width: '140px',
+        width: '240px',
         routerLinkFn: (row) => ({
           commands: ['/view-assets-detail'],
           queryParams: { id: row.id, ministryId: row.ministryId ?? '' },
         }),
+        trailingButtonLabel: 'Analyze',
+        trailingButtonClick: (row) =>
+          this.router.navigate(['/asset-control-panel'], {
+            queryParams: { assetId: row.id },
+          }),
+        leadingIconName: 'favorite',
+        leadingIconFilledFn: (row) => this.favoriteAssetIds().has(row.id),
+        leadingIconClick: (row) => this.toggleFavorite(row),
       },
       {
         key: 'ministryDepartment',
@@ -89,17 +100,12 @@ export class AssetsComponent implements OnInit {
           commands: ['/ministry-detail'],
           queryParams: { ministryId: row.ministryId ?? '' },
         }),
-        trailingButtonLabel: 'Analyze',
-        trailingButtonClick: (row) =>
-          this.router.navigate(['/asset-control-panel'], {
-            queryParams: { assetId: row.id },
-          }),
       },
       {
         key: 'currentStatus',
         header: 'Status',
-        cellType: 'badge-with-subtext',
-        badgeField: 'currentStatus',
+        cellType: 'status-dot-subtext',
+        primaryField: 'currentStatusDisplay',
         subtextField: 'lastCheckedFormatted',
         badgeStatus: (row: any) => {
           const status = row.currentStatus?.toLowerCase();
@@ -188,36 +194,48 @@ export class AssetsComponent implements OnInit {
       {
         key: 'riskExposureIndex',
         header: 'Risk',
-        cellType: 'badge',
-        badgeField: 'riskExposureDisplay',
-        badgeStatus: (row: any) => {
+        cellType: 'metric-with-trend',
+        primaryField: 'riskExposureDisplay',
+        secondaryField: '',
+        sortable: true,
+        width: '65px',
+        textColor: (row: any) => {
           const risk = (row.riskExposureIndex || '').toUpperCase();
           if (risk === 'LOW RISK' || risk.includes('LOW')) return 'success';
           if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) return 'warning';
           if (risk === 'HIGH RISK' || risk.includes('HIGH')) return 'danger';
           return 'unknown';
         },
-        sortable: true,
-        width: '65px',
+        trendIcon: (row: any) => {
+          const risk = (row.riskExposureIndex || '').toUpperCase();
+          if (risk === 'LOW RISK' || risk.includes('LOW')) return 'down';
+          if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) return 'right';
+          if (risk === 'HIGH RISK' || risk.includes('HIGH')) return 'up';
+          return 'unknown';
+        },
       },
       {
         key: 'citizenImpactLevel',
         header: 'Citizen Impact',
-        cellType: 'badge-with-subtext',
-        badgeField: 'citizenImpactLevel',
-        subtextField: 'citizenImpactLevelSubtext',
-        subtextAsTooltip: true,
-        tooltip: (row: any) => row.citizenImpactLevelSubtext ?? '',
-        tooltipPosition: 'above',
-        badgeStatus: (row: any) => {
+        cellType: 'metric-with-trend',
+        primaryField: 'citizenImpactLevel',
+        secondaryField: '',
+        sortable: true,
+        width: '105px',
+        textColor: (row: any) => {
           const impact = row.citizenImpactLevel?.toUpperCase();
           if (impact?.includes('LOW')) return 'success';
           if (impact?.includes('MEDIUM')) return 'warning';
           if (impact?.includes('HIGH')) return 'danger';
           return 'unknown';
         },
-        sortable: true,
-        width: '105px',
+        trendIcon: (row: any) => {
+          const impact = row.citizenImpactLevel?.toUpperCase();
+          if (impact?.includes('LOW')) return 'down';
+          if (impact?.includes('MEDIUM')) return 'right';
+          if (impact?.includes('HIGH')) return 'up';
+          return 'unknown';
+        },
       },
       {
         key: 'openIncidents',
@@ -352,8 +370,16 @@ export class AssetsComponent implements OnInit {
         return 'Unknown';
       })();
 
+      const currentStatusDisplay = ((): string => {
+        const s = (asset.currentStatus || '').toLowerCase();
+        if (s === 'up' || s === 'online') return 'Online';
+        if (s === 'down' || s === 'offline') return 'Offline';
+        return 'Unknown';
+      })();
+
       return {
         ...asset,
+        currentStatusDisplay,
         healthStatusDisplay,
         healthIcon: getHealthIcon(asset.healthStatus),
         healthPercentage: formatHealthPercentage(
@@ -369,8 +395,8 @@ export class AssetsComponent implements OnInit {
         riskExposureDisplay: formatRiskDisplay(asset.riskExposureIndex),
         openIncidentsDisplay,
         highSeverityText: formatHighSeverityText(asset.highSeverityIncidents),
-        citizenImpactLevel: asset.citizenImpactLevel.split('-')[0],
-        citizenImpactLevelSubtext: asset.citizenImpactLevel.split('-')[1],
+        citizenImpactLevel: (asset.citizenImpactLevel || '').split('-')[0]?.trim() || 'Unknown',
+        citizenImpactLevelSubtext: (asset.citizenImpactLevel || '').split('-')[1]?.trim() || '',
       };
     });
 
@@ -387,6 +413,53 @@ export class AssetsComponent implements OnInit {
   ngOnInit(): void {
     this.initializeFilters();
     this.applyInitialQueryParams();
+    this.loadFavoriteAssets();
+  }
+
+  loadFavoriteAssets(): void {
+    this.apiService.getFavoriteAssets().subscribe({
+      next: (res) => {
+        if (res?.isSuccessful && Array.isArray(res.data)) {
+          const ids = new Set<number>((res.data as any[]).map((item: any) => item.id ?? item.assetId).filter((id): id is number => id != null));
+          this.favoriteAssetIds.set(ids);
+        }
+      },
+      error: () => {},
+    });
+  }
+
+  toggleFavorite(row: { id: number }): void {
+    const id = row.id;
+    const current = this.favoriteAssetIds();
+    if (current.has(id)) {
+      this.apiService.removeAssetFromFavorites(id).subscribe({
+        next: (r) => {
+          if (r?.isSuccessful) {
+            const next = new Set(current);
+            next.delete(id);
+            this.favoriteAssetIds.set(next);
+            this.utils.showToast('Removed from favorites.', 'Favorites', 'success');
+          } else {
+            this.utils.showToast(r?.message ?? 'Could not remove from favorites.', 'Favorites', 'error');
+          }
+        },
+        error: (err) => this.utils.showToast(err?.message ?? 'Could not remove from favorites.', 'Favorites', 'error'),
+      });
+    } else {
+      this.apiService.addAssetToFavorites(id).subscribe({
+        next: (r) => {
+          if (r?.isSuccessful) {
+            const next = new Set(current);
+            next.add(id);
+            this.favoriteAssetIds.set(next);
+            this.utils.showToast('Added to favorites.', 'Favorites', 'success');
+          } else {
+            this.utils.showToast(r?.message ?? 'Could not add to favorites.', 'Favorites', 'error');
+          }
+        },
+        error: (err) => this.utils.showToast(err?.message ?? 'Could not add to favorites.', 'Favorites', 'error'),
+      });
+    }
   }
 
   private applyInitialQueryParams(): void {

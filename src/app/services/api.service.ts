@@ -305,6 +305,33 @@ export class ApiService {
     return this.http.get(url, { responseType: 'blob' });
   }
 
+  /**
+   * Add asset to favorites.
+   * POST FavoriteAssets/{assetId}
+   */
+  addAssetToFavorites(assetId: number): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/FavoriteAssets/${assetId}`;
+    return this.http.post<ApiResponse<any>>(url, {});
+  }
+
+  /**
+   * Get list of favorite assets for the current user.
+   * GET FavoriteAssets
+   */
+  getFavoriteAssets(): Observable<ApiResponse<any[]>> {
+    const url = `${this.baseUrl}/FavoriteAssets`;
+    return this.http.get<ApiResponse<any[]>>(url);
+  }
+
+  /**
+   * Remove asset from favorites.
+   * DELETE FavoriteAssets/{assetId}
+   */
+  removeAssetFromFavorites(assetId: number): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/FavoriteAssets/${assetId}`;
+    return this.http.delete<ApiResponse<any>>(url);
+  }
+
   // Incidents
 
   getIncidents(

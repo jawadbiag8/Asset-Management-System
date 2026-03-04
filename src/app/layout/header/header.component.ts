@@ -9,6 +9,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
+import { BreadcrumbService } from '../../services/breadcrumb.service';
 
 @Component({
   selector: 'app-header',
@@ -43,6 +44,7 @@ export class HeaderComponent {
     private apiService: ApiService,
     private router: Router,
     private utilsService: UtilsService,
+    private breadcrumbService: BreadcrumbService,
   ) {
     // Track current route
     this.router.events
@@ -114,7 +116,15 @@ export class HeaderComponent {
   }
 
   navigateToPmDashboard(): void {
+    this.breadcrumbService.navigateFromHeader();
     this.router.navigate(['/pm-dashboard']);
+  }
+
+  /** Navigate from header nav – breadcrumb will hide and stay hidden on reload. */
+  onHeaderNav(path: string): void {
+    this.breadcrumbService.navigateFromHeader();
+    this.menuOpen = false;
+    this.router.navigateByUrl(path);
   }
 
   toggleProfileDropdown() {

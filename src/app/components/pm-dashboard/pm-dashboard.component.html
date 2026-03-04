@@ -205,10 +205,11 @@
       <br>
       <br>
       <br>
+      <h3 class="section-title">Insights</h3>
       <div class="sidebar-tile sidebar-tile-last" (mouseenter)="onInsightsMouseEnter()"
         (mouseleave)="onInsightsMouseLeave()">
         <div class="insights-header">
-          <h3 class="section-title">Insights</h3>
+          <div class="insight-value">{{ currentInsight().value }}</div>
           <div class="insights-navigation">
             <button class="nav-button" type="button" (click)="previousInsight()"
               [disabled]="currentInsightIndex() === 0" aria-label="Previous insight">
@@ -222,7 +223,6 @@
         </div>
         <div class="insights-card">
           <div class="insights-content">
-            <div class="insight-value">{{ currentInsight().value }}</div>
             <div class="insight-subtitle">{{ currentInsight().subtitle }}</div>
             <p class="insight-description">{{ currentInsight().description }}</p>
           </div>

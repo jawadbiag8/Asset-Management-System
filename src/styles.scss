@@ -460,12 +460,8 @@ $dialog-bg: #0d1117; // solid dark to avoid any white bleed
     color: var(--color-text-primary);
     border-radius: $dialog-radius !important;
     overflow: hidden !important;
-    box-shadow: none !important;
-    outline: none !important;
-    clip-path: inset(0 round $dialog-radius);
   }
 
-  // Force every possible inner layer to dark (MDC / theme can inject white)
   .mat-mdc-dialog-surface .mdc-dialog__surface,
   .mat-mdc-dialog-container .mat-mdc-dialog-surface,
   [class*='mdc-dialog'],
@@ -473,6 +469,52 @@ $dialog-bg: #0d1117; // solid dark to avoid any white bleed
     background: $dialog-bg !important;
     background-color: $dialog-bg !important;
     border-radius: $dialog-radius !important;
+  }
+}
+
+// Upload Document dialog: dark theme, no white corners
+$upload-dialog-radius: 12px;
+$upload-dialog-bg: #0d1d1d;
+
+.cdk-overlay-pane.upload-document-dialog-dark {
+  background: $upload-dialog-bg !important;
+  overflow: hidden !important;
+  border-radius: $upload-dialog-radius !important;
+  clip-path: inset(0 round $upload-dialog-radius);
+}
+
+.upload-document-dialog-dark {
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+    background: $upload-dialog-bg !important;
+    background-color: $upload-dialog-bg !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: none !important;
+    border-radius: $upload-dialog-radius !important;
+    overflow: hidden !important;
+    outline: none !important;
+    clip-path: inset(0 round $upload-dialog-radius);
+  }
+
+  .mat-mdc-dialog-surface {
+    padding: 0 !important;
+    background: $upload-dialog-bg !important;
+    background-color: $upload-dialog-bg !important;
+    color: var(--color-text-primary);
+    border-radius: $upload-dialog-radius !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+    outline: none !important;
+    clip-path: inset(0 round $upload-dialog-radius);
+  }
+
+  .mat-mdc-dialog-surface .mdc-dialog__surface,
+  .mat-mdc-dialog-container .mat-mdc-dialog-surface,
+  [class*='mdc-dialog'],
+  [class*='mat-mdc-dialog'] {
+    background: $upload-dialog-bg !important;
+    background-color: $upload-dialog-bg !important;
+    border-radius: $upload-dialog-radius !important;
   }
 }
 
@@ -1433,4 +1475,26 @@ select option {
   .mat-icon {
     color: rgba(255, 255, 255, 0.8) !important;
   }
+}
+
+/* Material menu overlay: dark panel, no white corners, white icons */
+.cdk-overlay-container .cdk-overlay-pane:has(.mat-mdc-menu-panel) {
+  overflow: hidden !important;
+  border-radius: 12px !important;
+}
+.cdk-overlay-container .mat-mdc-menu-panel {
+  background-color: #161b22 !important;
+  background: #161b22 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.cdk-overlay-container .mat-mdc-menu-panel .mat-mdc-menu-content {
+  background: #161b22 !important;
+  border-radius: 12px;
+}
+.cdk-overlay-container .mat-mdc-menu-panel .mat-icon,
+.cdk-overlay-container .mat-mdc-menu-panel .mat-mdc-menu-item .mat-icon {
+  color: #fff !important;
 }

@@ -3,6 +3,8 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { BreadcrumbItem } from '../components/reusable/reusable-breadcrum/reusable-breadcrum.component';
 
+const BREADCRUMB_HIDDEN_KEY = 'breadcrumb-hidden-path';
+
 export interface BreadcrumbConfig {
   label: string;
   parentPath?: string;
@@ -22,7 +24,6 @@ const BREADCRUMB_CONFIG: { path: string; config: BreadcrumbConfig }[] = [
   { path: '/view-assets-detail', config: { label: 'Asset Detail', parentPath: '/assets' } },
   { path: '/add-digital-assets', config: { label: 'Add Digital Asset', parentPath: '/assets' } },
   { path: '/edit-digital-asset', config: { label: 'Edit Digital Asset', parentPath: '/assets' } },
-  // Incident detail (e.g. /incidents/5074) – must be before /incidents so prefix match picks this first
   { path: '/incidents/', config: { label: 'Incident Details', parentPath: '/incidents' } },
   { path: '/incidents', config: { label: 'Incidents', parentPath: '/dashboard' } },
   { path: '/pm-dashboard', config: { label: 'Executive Dashboard', parentPath: '/dashboard' } },
@@ -31,6 +32,7 @@ const BREADCRUMB_CONFIG: { path: string; config: BreadcrumbConfig }[] = [
 @Injectable({ providedIn: 'root' })
 export class BreadcrumbService {
   private readonly breadcrumbs = signal<BreadcrumbItem[]>([]);
+  private navigatingFromHeader = false;
 
   /** Dynamic breadcrumbs for the current route; use in template with async or signal. */
   readonly currentBreadcrumbs = computed(() => this.breadcrumbs());
@@ -42,17 +44,54 @@ export class BreadcrumbService {
     this.buildBreadcrumbs(this.router.url);
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event) => this.buildBreadcrumbs(event.urlAfterRedirects));
+      .subscribe((event) => this.onNavigationEnd(event.urlAfterRedirects));
   }
 
-  /** Set a custom label for the current page (e.g. "Ministry Name", "Incident #123"). */
+  /** Call before navigating from header (Dashboard, Assets, Ministries, Incidents). Breadcrumb will hide and stay hidden on reload. */
+  navigateFromHeader(): void {
+    this.navigatingFromHeader = true;
+  }
+
+  private onNavigationEnd(url: string): void {
+    const path = url.split('?')[0];
+    if (this.navigatingFromHeader) {
+      this.navigatingFromHeader = false;
+      try {
+        sessionStorage.setItem(BREADCRUMB_HIDDEN_KEY, path);
+      } catch {}
+      this.breadcrumbs.set([]);
+      return;
+    }
+    this.buildBreadcrumbs(url);
+  }
+
+  /** Set a custom label for the current page (e.g. "Ministry Name", "Asset Name"). */
   setCurrentLabel(label: string | null): void {
     this.lastLabelOverride.set(label);
     this.buildBreadcrumbs(this.router.url);
   }
 
+  /** Routes where breadcrumb is never shown (e.g. Executive Dashboard). */
+  private static readonly BREADCRUMB_HIDDEN_ROUTES = ['/pm-dashboard'];
+
   private buildBreadcrumbs(url: string): void {
     const path = url.split('?')[0];
+    const normalizedPath = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
+
+    if (BreadcrumbService.BREADCRUMB_HIDDEN_ROUTES.some((r) => normalizedPath === r || normalizedPath.startsWith(r + '/'))) {
+      this.breadcrumbs.set([]);
+      return;
+    }
+
+    try {
+      const hiddenPath = sessionStorage.getItem(BREADCRUMB_HIDDEN_KEY);
+      if (hiddenPath === normalizedPath || hiddenPath === path) {
+        this.breadcrumbs.set([]);
+        return;
+      }
+      sessionStorage.removeItem(BREADCRUMB_HIDDEN_KEY);
+    } catch {}
+
     const trail: BreadcrumbItem[] = [];
     const override = this.lastLabelOverride();
 
