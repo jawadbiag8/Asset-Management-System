@@ -26,18 +26,18 @@
         <div class="info-two-cols">
           <div class="info-col">
             <div class="info-item">
-              <span class="info-label">STATUS</span>
+              <span class="info-label">Status</span>
               <span class="status-badge" [style.background-color]="getStatusBadgeColor(incident()?.status || '')"
                 [style.color]="getStatusBadgeTextColor(incident()?.status || '')">
-                {{ (incident()?.status || 'N/A') | uppercase }}
+                {{ (incident()?.status || 'N/A') | titlecase }}
               </span>
             </div>
             <div class="info-item">
-              <span class="info-label">ASSIGNED TO</span>
+              <span class="info-label">Assigned To</span>
               <span class="info-value">{{ incident()?.updatedBy ?? '—' }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">ASSET</span>
+              <span class="info-label">Asset</span>
               <span class="info-value">
                 @if (incident()?.assetUrl) {
                 <a [href]="incident()!.assetUrl" target="_blank" rel="noopener noreferrer" class="asset-link">
@@ -49,38 +49,38 @@
               </span>
             </div>
             <div class="info-item">
-              <span class="info-label">MINISTRY</span>
+              <span class="info-label">Ministry</span>
               <span class="info-value">{{ incident()?.ministryName ?? '—' }}</span>
             </div>
           </div>
           <div class="info-col">
             <div class="info-item">
-              <span class="info-label">CREATED ON</span>
+              <span class="info-label">Created On</span>
               <span class="info-value">{{ formatDateShort(incident()?.createdAt) }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">KPI</span>
+              <span class="info-label">Kpi</span>
               <span class="info-value">{{ incident()?.kpiDescription ?? '—' }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">CREATED BY</span>
+              <span class="info-label">Created By</span>
               <span class="info-value">{{ incident()?.createdBy ?? '—' }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">DEPARTMENT</span>
+              <span class="info-label">Department</span>
               <span class="info-value">{{ getDepartmentName() || '—' }}</span>
             </div>
           </div>
         </div>
         <div class="description-block">
-          <span class="description-label">DESCRIPTION</span>
+          <span class="description-label">Description</span>
           <p class="description-text">{{ incident()?.description || 'No description available' }}</p>
         </div>
 
         <!-- Card 2: Incident Reason (KPI-style card) -->
         @if (showIncidentReasonSection()) {
         <div class="incident-reason-block">
-          <h2 class="incident-reason-section-label">INCIDENT REASON</h2>
+          <h2 class="incident-reason-section-label">Incident Reason</h2>
           <div class="card card-incident-reason">
             @for (metric of incidentReasonMetrics(); track $index) {
             <div class="kpi-metric-block">
@@ -126,7 +126,7 @@
               <p class="timeline-text">{{ event.description }}</p>
               <span class="timeline-status-badge" [style.background-color]="getStatusBadgeColor(event.status)"
                 [style.color]="getStatusBadgeTextColor(event.status)">
-                {{ event.status | uppercase }}
+                {{ event.status | titlecase }}
               </span>
             </div>
           </div>

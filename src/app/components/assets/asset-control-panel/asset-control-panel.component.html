@@ -7,23 +7,33 @@
 
       <!-- Asset Details and Status Section -->
       <div class="row g-4">
-        <!-- Left: Asset Details -->
-        <div class="col-12 col-md-5">
-          <div class="d-flex flex-column flex-md-row justify-content-md-around gap-3">
-            <div>
-              <label class="text-uppercase text-muted small fw-medium mb-1 d-block">URL</label>
+        <!-- Left: Asset Details (title, URL, Ministry, Department, Check All KPIs button – left-aligned) -->
+        <div class="col-12 col-md-5 asset-details-col">
+          <div class="asset-details-row">
+            <div class="asset-detail-block">
+              <label class="text-muted small fw-medium mb-1 d-block">Url</label>
               <a [href]="'https://' + assetControlPanelData()!.header.assetUrl" target="_blank" class="link">
                 {{ assetControlPanelData()!.header.assetUrl }}
               </a>
             </div>
-            <div>
-              <label class="text-uppercase text-muted small fw-medium mb-1 d-block">MINISTRY</label>
+            <div class="asset-detail-block">
+              <label class="text-muted small fw-medium mb-1 d-block">Ministry</label>
               <span class="d-block fw-semibold">{{ assetControlPanelData()!.header.ministry }}</span>
             </div>
-            <div>
-              <label class="text-uppercase text-muted small fw-medium mb-1 d-block">DEPARTMENT</label>
+            <div class="asset-detail-block">
+              <label class="text-muted small fw-medium mb-1 d-block">Department</label>
               <span class="d-block fw-semibold">{{ assetControlPanelData()!.header.department || 'N/A' }}</span>
             </div>
+          </div>
+          <div class="asset-details-actions mt-3">
+            <button type="button" class="btn btn-check-all-kpis" (click)="onCheckAllKpis()" [disabled]="checkAllKpisLoading()">
+              @if (checkAllKpisLoading()) {
+                <mat-icon class="btn-check-all-icon">hourglass_empty</mat-icon>
+                Checking...
+              } @else {
+                Check All Performance KPI's
+              }
+            </button>
           </div>
         </div>
 
@@ -32,24 +42,24 @@
           <div class="border rounded p-4">
             <div class="row g-3 status-badges-row">
               <div class="col-12 col-sm-4 border-end border-sm-end-0 pb-3 pb-sm-0 pe-sm-3 status-badge-col">
-                <label class="text-uppercase text-muted small fw-medium mb-2">CITIZEN IMPACT LEVEL</label>
+                <label class="text-muted small fw-medium mb-2">Citizen Impact Level</label>
                 <span class="badge"
                   [ngClass]="getHeaderBadgeStatusClass(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact')">
-                  {{ assetControlPanelData()!.header.citizenImpactLevel.split('-')[0] || 'UNKNOWN' }}
+                  {{ assetControlPanelData()!.header.citizenImpactLevel.split('-')[0] || 'Unknown' }}
                 </span>
               </div>
               <div class="col-12 col-sm-4 border-end border-sm-end-0 pb-3 pb-sm-0 pe-sm-3 status-badge-col">
-                <label class="text-uppercase text-muted small fw-medium mb-2">CURRENT HEALTH</label>
+                <label class="text-muted small fw-medium mb-2">Current Health</label>
                 <span class="badge"
                   [ngClass]="getHeaderBadgeStatusClass(assetControlPanelData()!.header.currentHealth, 'health')">
-                  {{ assetControlPanelData()!.header.currentHealth || 'UNKNOWN' }}
+                  {{ assetControlPanelData()!.header.currentHealth || 'Unknown' }}
                 </span>
               </div>
               <div class="col-12 col-sm-4 status-badge-col">
-                <label class="text-uppercase text-muted small fw-medium mb-2">RISK EXPOSURE INDEX</label>
+                <label class="text-muted small fw-medium mb-2">Risk Exposure Index</label>
                 <span class="badge"
                   [ngClass]="getHeaderBadgeStatusClass(assetControlPanelData()!.header.riskExposureIndex, 'risk')">
-                  {{ assetControlPanelData()!.header.riskExposureIndex || 'UNKNOWN' }}
+                  {{ assetControlPanelData()!.header.riskExposureIndex || 'Unknown' }}
                 </span>
               </div>
             </div>
@@ -60,14 +70,14 @@
         <div class="col-12 col-md-2">
           <div class="d-flex flex-column gap-3 ms-auto" style="max-width: 220px;">
             <div class="rounded p-3 current-status-box" [ngClass]="getStatusBoxClass(assetControlPanelData()!.header.currentStatus)">
-              <label class="text-uppercase text-muted small fw-medium mb-2">CURRENT STATUS</label>
+              <label class="text-muted small fw-medium mb-2">Current Status</label>
               <span class="badge current-status-badge"
                 [ngClass]="getCurrentStatusBadgeClass(assetControlPanelData()!.header.currentStatus)">
                 {{ assetControlPanelData()!.header.currentStatus || 'Unknown' }}
               </span>
             </div>
             <div class="d-flex justify-content-between gap-2">
-              <label class="text-uppercase text-muted small fw-medium mb-1 ">LAST OUTAGE</label>
+              <label class="text-muted small fw-medium mb-1 ">Last Outage</label>
               <span class="last-outage-value">{{ formatLastOutage(assetControlPanelData()!.header.lastOutage) }}</span>
             </div>
           </div>

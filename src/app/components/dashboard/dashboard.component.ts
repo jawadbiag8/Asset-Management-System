@@ -17,6 +17,8 @@ import { formatDateOrPassThrough } from '../../utils/date-format.util';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SignalRService, TOPICS } from '../../services/signalr.service';
 import { Subject, takeUntil } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { UploadDocumentDialogComponent, UploadDocumentDialogData } from '../reusable/upload-document-dialog/upload-document-dialog.component';
 
 export interface DigitalAsset {
   id: number;
@@ -55,9 +57,26 @@ export interface FavoriteAssetItem {
 export interface CorrespondenceItem {
   id: number;
   number: number;
+  ministryId?: number;
   ministryName: string;
   time: string;
   status: 'Dispatched' | 'Draft';
+}
+
+function formatCorrespondenceTime(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso);
+    const h = d.getHours();
+    const m = d.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    const min = String(m).padStart(2, '0');
+    return `${h12}:${min} ${ampm}`;
+  } catch {
+    return String(iso);
+  }
 }
 
 @Component({
@@ -78,6 +97,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private dashboardReturnState: DashboardReturnStateService,
     private signalR: SignalRService,
+    private dialog: MatDialog,
   ) {}
 
   tableFilters = signal<FilterPill[]>([]);
@@ -277,20 +297,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   favoriteAssets = signal<FavoriteAssetItem[]>([]);
   favoriteAssetsLoading = signal<boolean>(false);
 
-  /** Correspondence list (placeholder until API available) */
+  /** Correspondence list from API Ministry/correspondence/getAll */
   correspondencePeriod = 'today';
-  correspondenceItems = signal<CorrespondenceItem[]>([
-    { id: 1, number: 10, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Dispatched' },
-    { id: 2, number: 9, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Dispatched' },
-    { id: 3, number: 8, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
-    { id: 4, number: 7, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
-    { id: 5, number: 6, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
-    { id: 6, number: 5, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
-    { id: 7, number: 4, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
-    { id: 8, number: 3, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
-    { id: 9, number: 2, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
-    { id: 10, number: 1, ministryName: 'Ministry of Agriculture and Land Affairs', time: '10:12 AM', status: 'Draft' },
-  ]);
+  correspondenceItems = signal<CorrespondenceItem[]>([]);
+  correspondenceLoading = signal<boolean>(false);
 
   // Computed signal to keep table config in sync with data
   tableConfigWithData = computed<TableConfig>(() => {
@@ -425,7 +435,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: '',
         subValueText: 'View All ',
-        subValueLink: '/assets',
+        subValueLink: '/asset',
       },
       {
         id: 2,
@@ -435,7 +445,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'success',
         subValueText: 'View Online Assets ',
-        subValueLink: '/assets?currentStatus=Up',
+        subValueLink: '/asset?currentStatus=Up',
       },
       {
         id: 3,
@@ -445,7 +455,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'success',
         subValueText: 'View Assets With Poor Health ',
-        subValueLink: '/assets?health=Poor',
+        subValueLink: '/asset?health=Poor',
       },
       {
         id: 4,
@@ -455,7 +465,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'danger',
         subValueText: 'View Assets With Poor Performance ',
-        subValueLink: '/assets?performance=BELOW AVERAGE',
+        subValueLink: '/asset?performance=BELOW AVERAGE',
       },
       {
         id: 5,
@@ -465,7 +475,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'danger',
         subValueText: 'View Assets With Poor Compliance ',
-        subValueLink: '/assets?compliance=LOW',
+        subValueLink: '/asset?compliance=LOW',
       },
       {
         id: 6,
@@ -475,7 +485,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'danger',
         subValueText: 'View Assets With High Risk ',
-        subValueLink: '/assets?riskIndex=HIGH RISK',
+        subValueLink: '/asset?riskIndex=HIGH RISK',
       },
       {
         id: 7,
@@ -505,6 +515,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.applyInitialQueryParams();
     this.loadDashboardSummary();
     this.loadFavoriteAssets();
+    this.loadCorrespondence();
 
     this.signalR.joinTopic(this.summaryTopic).catch(() => {});
     this.signalR.onDataUpdated.pipe(takeUntil(this.destroy$)).subscribe((topic) => {
@@ -706,7 +717,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               subValue: '',
               subValueColor: '',
               subValueText: 'View All ',
-              subValueLink: '/assets',
+              subValueLink: '/asset',
             },
             {
               id: 2,
@@ -720,7 +731,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   : '',
               subValueColor: 'success',
               subValueText: 'View Online Assets ',
-              subValueLink: '/assets?currentStatus=Up',
+              subValueLink: '/asset?currentStatus=Up',
             },
             {
               id: 3,
@@ -733,7 +744,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   ? 'success'
                   : 'danger',
               subValueText: 'View Assets With Poor Health ',
-              subValueLink: '/assets?health=Poor',
+              subValueLink: '/asset?health=Poor',
             },
             {
               id: 4,
@@ -746,7 +757,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   ? 'danger'
                   : 'success',
               subValueText: 'View Assets With Poor Performance ',
-              subValueLink: '/assets?performance=BELOW AVERAGE',
+              subValueLink: '/asset?performance=BELOW AVERAGE',
             },
             {
               id: 5,
@@ -759,7 +770,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   ? 'success'
                   : 'danger',
               subValueText: 'View Assets With Poor Compliance ',
-              subValueLink: '/assets?compliance=LOW',
+              subValueLink: '/asset?compliance=LOW',
             },
             {
               id: 6,
@@ -769,7 +780,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               subValue: summary.highRiskAssetsStatus,
               subValueColor: 'danger',
               subValueText: 'View Assets With High Risk ',
-              subValueLink: '/assets?riskIndex=HIGH RISK',
+              subValueLink: '/asset?riskIndex=HIGH RISK',
             },
             {
               id: 7,
@@ -867,8 +878,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadCorrespondence(): void {
+    this.correspondenceLoading.set(true);
+    this.apiService.getCorrespondenceAll(this.correspondencePeriod).subscribe({
+      next: (res) => {
+        this.correspondenceLoading.set(false);
+        const resData = res?.data as { data?: unknown[] } | unknown[] | undefined;
+        const rawList = resData && typeof resData === 'object' && !Array.isArray(resData) && Array.isArray((resData as { data?: unknown[] }).data)
+          ? (resData as { data: unknown[] }).data
+          : Array.isArray(resData)
+          ? resData
+          : null;
+        if (res?.isSuccessful && Array.isArray(rawList)) {
+          const items: CorrespondenceItem[] = rawList.map((row: any, index: number) => ({
+            id: row.id ?? index + 1,
+            number: index + 1,
+            ministryId: row.ministryId != null ? Number(row.ministryId) : undefined,
+            ministryName: row.ministryName ?? row.ministry ?? '—',
+            time: formatCorrespondenceTime(row.createdAt ?? row.updatedAt ?? row.time),
+            status: (row.status === 'Dispatched' || row.status === 'Draft' ? row.status : (String(row.status ?? '').toLowerCase() === 'dispatched' ? 'Dispatched' : 'Draft')) as 'Dispatched' | 'Draft',
+          }));
+          this.correspondenceItems.set(items);
+        } else {
+          this.correspondenceItems.set([]);
+        }
+      },
+      error: () => {
+        this.correspondenceLoading.set(false);
+        this.correspondenceItems.set([]);
+        this.utils.showToast('Failed to load correspondence.', 'Correspondence', 'error');
+      },
+    });
+  }
+
   onCorrespondencePeriodChange(): void {
-    // Placeholder: when API is available, reload correspondence by period
+    this.loadCorrespondence();
+  }
+
+  /** Open Upload Document with Reference Number dialog when user clicks Draft in correspondence list */
+  onDraftClick(item: CorrespondenceItem): void {
+    const data: UploadDocumentDialogData = {
+      mode: 'correspondence',
+      correspondenceId: item.id,
+    };
+    const dialogRef = this.dialog.open(UploadDocumentDialogComponent, {
+      width: '500px',
+      panelClass: 'upload-document-dialog-dark',
+      data,
+    });
+    dialogRef.afterClosed().subscribe((result: { referenceNumber: string; file: File; correspondenceId?: number } | undefined) => {
+      if (result?.referenceNumber && result?.file) {
+        this.utils.showToast('Reference document submitted.', 'Correspondence', 'success');
+        this.loadCorrespondence();
+      }
+    });
   }
 
   onCorrespondenceHistory(): void {

@@ -367,8 +367,8 @@
   }
 
   .kpi-badge-text.kpi-badge-medium {
-    background: rgba(59, 130, 246, 0.25);
-    color: #60a5fa;
+    background: rgba(245, 158, 11, 0.25);
+    color: #f59e0b;
   }
 }
 
@@ -512,39 +512,84 @@
   }
 }
 
-.favorite-assets-panel .panel-list-label {
+/* Watchlist panel: dark teal tint, star + label + Online/Offline (text + dot) */
+.watchlist-panel {
+  background: rgba(0, 191, 178, 0.06);
+  border-color: rgba(0, 207, 207, 0.2);
+}
+
+.watchlist-panel .panel-list-label {
   cursor: pointer;
 }
 
-/* Remove from favorites: bright red circle outline + red minus (flat, minimal) */
-.favorite-assets-panel .btn-remove-favorite.btn-remove-favorite-circle {
+.watchlist-panel .watchlist-star-btn {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 2px solid #FF3030;
+  padding: 0 20px 0 0 ;
+  border: none;
   background: transparent;
   cursor: pointer;
-  border-radius: 50%;
-  transition: background 0.2s, border-color 0.2s;
 
-  .icon-remove-favorite-minus {
-    color: #FF3030;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+  .watchlist-star-icon {
+    color: #00cfcf;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
   }
 
-  &:hover {
-    background: rgba(255, 48, 48, 0.15);
-    border-color: #FF3030;
+  &:hover .watchlist-star-icon {
+    color: #00e5e5;
   }
 }
 
+.watchlist-panel .watchlist-status {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+
+  .watchlist-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  &.status-online .watchlist-status-dot {
+    background: #52B467;
+  }
+  &.status-online .watchlist-status-text {
+    color: #7dd99d;
+  }
+
+  &.status-offline .watchlist-status-dot {
+    background: #D43F3F;
+  }
+  &.status-offline .watchlist-status-text {
+    color: #f87171;
+  }
+}
+
+
 .correspondence-panel {
+  .panel-list-draft-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    &:hover .panel-list-badge.badge-draft {
+      opacity: 0.9;
+    }
+  }
+
   .panel-head-row {
     display: flex;
     justify-content: space-between;

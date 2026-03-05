@@ -57,7 +57,7 @@
   vertical-align: middle;
 }
 
-/* Gov OS: after logo, before divider – Gov capitalized, OS uppercase, same size */
+/* Gov OS: after logo, before divider – both capitalized, same size */
 .logo-title {
   font-size: 18px;
   color: #ffffff;
@@ -75,7 +75,7 @@
 .logo-title-alt {
   font-size: 1em;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   margin-left: 2px;
 }
 
@@ -232,7 +232,7 @@
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.02em;
-  text-transform: uppercase;
+  text-transform: capitalize;
   user-select: none;
 }
 
@@ -247,7 +247,7 @@
     font-weight: 600;
     color: #ffffff;
     line-height: 1.2;
-    text-transform: uppercase;
+    text-transform: capitalize;
     letter-spacing: 0.02em;
   }
 

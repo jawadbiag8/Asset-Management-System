@@ -38,8 +38,11 @@ export interface KPI {
   kpiId: number;
   kpiName: string;
   target: string;
+  manual?: string;
+  averageValue: string;
   currentValue: string;
-  slaStatus: string;
+  currentSlaStatus: string;
+  averageSlaStatus: string;
   lastChecked: string;
   dataSource: string;
 }
@@ -69,6 +72,9 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
 
   assetControlPanelData = signal<AssetControlPanelData | null>(null);
 
+  /** Loading state for "Check All KPIs" button */
+  checkAllKpisLoading = signal<boolean>(false);
+
   /** Cache table configs per category so the same reference is passed to reusable-table (fixes action click bindings). */
   private tableConfigCache = new Map<string, TableConfig>();
 
@@ -82,56 +88,57 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     columns: [
       {
         key: 'kpiName',
-        header: 'KPI NAME',
+        header: 'KPI Name',
         cellType: 'text',
         primaryField: 'kpiName',
         sortable: false,
-        width: '200px',
+        width: '220px',
       },
       {
         key: 'target',
-        header: 'TARGET',
+        header: 'Target',
         cellType: 'text',
         primaryField: 'target',
         sortable: false,
-        width: '150px',
+        width: '100px',
       },
       {
         key: 'averageValue',
-        header: 'AVG CURRENT VALUE',
-        cellType: 'text',
+        header: 'Average Value',
+        cellType: 'text-with-color',
         primaryField: 'averageValue',
         sortable: false,
-        width: '150px',
+        width: '140px',
+        textColor: (row: any) => this.getSlaStatusTextColor(row.averageSlaStatus),
       },
       {
-        key: 'slaStatus',
-        header: 'SLA STATUS',
-        cellType: 'badge',
-        badgeField: 'slaStatus',
-        badgeStatus: (row: any) => this.getSlaBadgeStatus(row.slaStatus),
+        key: 'currentValue',
+        header: 'Current Value',
+        cellType: 'text-with-color',
+        primaryField: 'currentValue',
         sortable: false,
-        width: '150px',
+        width: '140px',
+        textColor: (row: any) => this.getSlaStatusTextColor(row.currentSlaStatus),
       },
       {
         key: 'lastChecked',
-        header: 'LAST CHECKED',
+        header: 'Last Checked',
         cellType: 'text',
         primaryField: 'lastChecked',
         sortable: false,
-        width: '150px',
+        width: '120px',
       },
       {
         key: 'dataSource',
-        header: 'DATA SOURCE',
+        header: 'Data Source',
         cellType: 'text',
         primaryField: 'dataSource',
         sortable: false,
-        width: '150px',
+        width: '120px',
       },
       {
         key: 'actions',
-        header: 'ACTIONS',
+        header: 'Action',
         cellType: 'actions',
         sortable: false,
         width: '100px',
@@ -140,6 +147,7 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
             label: 'Check',
             color: 'var(--color-primary)',
             display: 'text',
+            showTooltip: false,
             disabled: (row: any) => String(row?.dataSource || '').toLowerCase() === 'manual',
           },
         ],
@@ -465,6 +473,37 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
     if (upperStatus.includes('COMPLIANT')) return 'success';
     if (upperStatus.includes('UNKNOWN') || upperStatus.includes('N/A')) return 'unknown';
     return 'unknown';
+  }
+
+  /** Text color for Average Value / Current Value: COMPLIANT=green, NON-COMPLIANT=red, UNKNOWN=black. */
+  getSlaStatusTextColor(status: string | undefined | null): 'success' | 'danger' | 'unknown' {
+    if (!status) return 'unknown';
+    const upper = String(status).toUpperCase().trim();
+    if (upper.includes('COMPLIANT') && !upper.includes('NON-')) return 'success';
+    if (upper.includes('NON-COMPLIANT')) return 'danger';
+    return 'unknown';
+  }
+
+  onCheckAllKpis(): void {
+    const assetId = this.previousPageMetadata().assetId;
+    if (!assetId) {
+      this.utils.showToast('Asset ID is required.', 'Check All KPIs', 'error');
+      return;
+    }
+    this.checkAllKpisLoading.set(true);
+    this.api.checkAllKpisFromAsset(assetId).subscribe({
+      next: (res) => {
+        this.checkAllKpisLoading.set(false);
+        const msg = res?.message ?? res?.data?.message ?? 'All KPIs check completed successfully.';
+        this.utils.showToast(msg, 'Check All KPIs', res?.isSuccessful !== false ? 'success' : 'error');
+        this.loadAssetData();
+      },
+      error: (err) => {
+        this.checkAllKpisLoading.set(false);
+        const msg = err?.error?.message ?? err?.message ?? 'Check all KPIs failed.';
+        this.utils.showToast(msg, 'Check All KPIs', 'error');
+      },
+    });
   }
 
   onCheckClick(row: any): void {

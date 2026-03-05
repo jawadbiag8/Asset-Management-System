@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl, FormArray, AbstractControl } from '@angular/forms';
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { ApiResponse, ApiService, BulkUploadErrorRow, BulkUploadErrorData } from '../../services/api.service';
@@ -10,6 +10,14 @@ import { DashboardReturnStateService } from '../../services/dashboard-return-sta
 import { CanComponentDeactivate } from '../../guards/can-deactivate.guard';
 import { MatDialog } from '@angular/material/dialog';
 import { UploadDocumentDialogComponent } from '../reusable/upload-document-dialog/upload-document-dialog.component';
+
+/** Single technical owner contact (dynamic list). */
+export interface TechnicalOwnerItem {
+  name: string;
+  email: string;
+  phone: string;
+  contactTitle: string;
+}
 
 export interface DigitalAssetRequest {
   ministryId: number;
@@ -21,9 +29,8 @@ export interface DigitalAssetRequest {
   primaryContactName: string;
   primaryContactEmail: string;
   primaryContactPhone: string;
-  technicalContactName: string;
-  technicalContactEmail: string;
-  technicalContactPhone: string;
+  /** Dynamic list of technical owners (Name, Email, Phone, Contact Title). */
+  technicalOwners: TechnicalOwnerItem[];
   /** Set when editing asset; from CommonLookup/type/AssetStatus */
   assetStatusId?: number;
 }
@@ -84,6 +91,12 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     required: 'Asset Status is required'
   };
 
+  technicalOwnerErrorMessages = {
+    required: 'This field is required',
+    email: 'Enter a valid email address',
+    pattern: 'Enter a valid phone number (e.g. +92-300-1234567)',
+  };
+
   @ViewChild('bulkUploadInput') bulkUploadInput!: ElementRef<HTMLInputElement>;
   bulkUploadErrors = signal<BulkUploadErrorRow[] | null>(null);
 
@@ -138,10 +151,17 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       this.getDepartmentsByMinistry(value);
     });
 
+    this.technicalOwnersArray.valueChanges.subscribe(() => {
+      this.technicalOwnersArray.updateValueAndValidity();
+    });
+
     this.getMinistryOptions();
     this.getCitizenImpactLevelOptions();
   }
 
+
+  /** Phone pattern: optional; when provided allow digits, +, spaces, hyphens, parentheses (min 8 chars). */
+  private static readonly PHONE_PATTERN = /^$|^[\d\s+\-()]{8,}$/;
 
   createForm() {
     this.digitalAssetForm = this.fb.group({
@@ -159,13 +179,53 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       primaryContactName: [''],
       primaryContactEmail: ['', [Validators.email]],
       primaryContactPhone: [''],
-      technicalContactName: [''],
-      technicalContactEmail: ['', [Validators.email]],
-      technicalContactPhone: [''],
+
+      // Dynamic Technical Owners (Name, Email, Phone, Contact Title)
+      technicalOwners: this.fb.array([this.createTechnicalOwnerGroup()], [this.duplicateTechnicalOwnerEmailValidator()]),
 
       // Edit only: Asset Status (from CommonLookup/type/AssetStatus)
       assetStatusId: [null as number | null],
     });
+  }
+
+  createTechnicalOwnerGroup(): FormGroup {
+    return this.fb.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.pattern(ManageDigitalAssetsComponent.PHONE_PATTERN)]],
+      contactTitle: ['', Validators.required],
+    });
+  }
+
+  get technicalOwnersArray(): FormArray {
+    return this.digitalAssetForm.get('technicalOwners') as FormArray;
+  }
+
+  addTechnicalOwner(): void {
+    this.technicalOwnersArray.push(this.createTechnicalOwnerGroup());
+  }
+
+  /** Add a new technical owner row below the row at the given index. */
+  addTechnicalOwnerAfter(index: number): void {
+    this.technicalOwnersArray.insert(index + 1, this.createTechnicalOwnerGroup());
+  }
+
+  removeTechnicalOwner(index: number): void {
+    if (this.technicalOwnersArray.length <= 1) return;
+    this.technicalOwnersArray.removeAt(index);
+  }
+
+  /** Validator: duplicate email among technical owners prevents submission. */
+  private duplicateTechnicalOwnerEmailValidator() {
+    return (control: AbstractControl): { duplicateEmail: boolean } | null => {
+      const arr = control as FormArray;
+      const emails = arr.controls
+        .map((c) => (c.get('email')?.value as string)?.trim()?.toLowerCase())
+        .filter((e) => e);
+      const set = new Set(emails);
+      if (emails.length !== set.size) return { duplicateEmail: true };
+      return null;
+    };
   }
   getMinistryOptions() {
     this.api.getAllMinistries().subscribe({
@@ -239,8 +299,33 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
           const data = res.data as Record<string, unknown>;
           const name = (data['websiteApplication'] ?? data['assetName'] ?? 'Edit Digital Asset') as string;
           this.breadcrumbService.setCurrentLabel(name);
+
+          // Pre-populate technical owners (array from API or legacy single contact)
+          const rawOwners = data['technicalOwners'] ?? data['technicalContacts'];
+          this.technicalOwnersArray.clear();
+          if (Array.isArray(rawOwners) && rawOwners.length > 0) {
+            for (const o of rawOwners as Record<string, unknown>[]) {
+              this.technicalOwnersArray.push(this.fb.group({
+                name: [o['name'] ?? o['technicalContactName'] ?? '', Validators.required],
+                email: [o['email'] ?? o['technicalContactEmail'] ?? '', [Validators.required, Validators.email]],
+                phone: [o['phone'] ?? o['technicalContactPhone'] ?? '', [Validators.pattern(ManageDigitalAssetsComponent.PHONE_PATTERN)]],
+                contactTitle: [o['contactTitle'] ?? '', Validators.required],
+              }));
+            }
+          } else if (data['technicalContactName'] || data['technicalContactEmail']) {
+            this.technicalOwnersArray.push(this.fb.group({
+              name: [data['technicalContactName'] ?? '', Validators.required],
+              email: [data['technicalContactEmail'] ?? '', [Validators.required, Validators.email]],
+              phone: [data['technicalContactPhone'] ?? '', [Validators.pattern(ManageDigitalAssetsComponent.PHONE_PATTERN)]],
+              contactTitle: [data['technicalContactTitle'] ?? '', Validators.required],
+            }));
+          } else {
+            this.technicalOwnersArray.push(this.createTechnicalOwnerGroup());
+          }
+
+          const { technicalOwners: _to, technicalContacts: _tc, ...rest } = data;
           this.digitalAssetForm.patchValue({
-            ...data,
+            ...rest,
             assetStatusId: data['statusId'] ?? data['assetStatusId'],
           });
           this.digitalAssetForm.markAsPristine();
@@ -265,6 +350,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     }
 
     const raw = this.digitalAssetForm.value as Record<string, unknown>;
+    const technicalOwners = (raw['technicalOwners'] as TechnicalOwnerItem[]) ?? [];
     const payload: DigitalAssetRequest = {
       ...raw,
       ministryId: raw['ministryId'] as number,
@@ -275,9 +361,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       primaryContactName: raw['primaryContactName'] as string,
       primaryContactEmail: raw['primaryContactEmail'] as string,
       primaryContactPhone: raw['primaryContactPhone'] as string,
-      technicalContactName: raw['technicalContactName'] as string,
-      technicalContactEmail: raw['technicalContactEmail'] as string,
-      technicalContactPhone: raw['technicalContactPhone'] as string,
+      technicalOwners,
     };
     if (raw['departmentId'] != null && raw['departmentId'] !== '') {
       payload.departmentId = raw['departmentId'] as number;
@@ -422,15 +506,19 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
   private navigateToAssets(): void {
     const queryParams = this.dashboardReturnState.consumeReturnQueryParams();
     if (queryParams && Object.keys(queryParams).length > 0) {
-      this.route.navigate(['/dashboard'], { queryParams });
+      this.route.navigate(['/asset'], { queryParams });
     } else {
-      this.route.navigateByUrl('/dashboard');
+      this.route.navigateByUrl('/asset');
     }
   }
 
   // Helper method to get form control
   getControl(controlName: string): FormControl {
     return this.digitalAssetForm.get(controlName) as FormControl;
+  }
+
+  getTechnicalOwnerControl(index: number, field: string): FormControl {
+    return this.technicalOwnersArray.at(index).get(field) as FormControl;
   }
 
   // CanDeactivate implementation
@@ -474,6 +562,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     }
 
     const raw = this.digitalAssetForm.value as Record<string, unknown>;
+    const technicalOwners = (raw['technicalOwners'] as TechnicalOwnerItem[]) ?? [];
     const payload: DigitalAssetRequest = {
       ...raw,
       ministryId: raw['ministryId'] as number,
@@ -484,9 +573,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       primaryContactName: raw['primaryContactName'] as string,
       primaryContactEmail: raw['primaryContactEmail'] as string,
       primaryContactPhone: raw['primaryContactPhone'] as string,
-      technicalContactName: raw['technicalContactName'] as string,
-      technicalContactEmail: raw['technicalContactEmail'] as string,
-      technicalContactPhone: raw['technicalContactPhone'] as string,
+      technicalOwners,
     };
     if (raw['departmentId'] != null && raw['departmentId'] !== '') {
       payload.departmentId = raw['departmentId'] as number;

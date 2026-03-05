@@ -102,7 +102,7 @@ $incident-card-radius: 8px;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 700;
-    text-transform: uppercase;
+    text-transform: capitalize;
     letter-spacing: 0.025em;
     border: 1px solid rgba(255, 255, 255, 0.35);
     white-space: nowrap;
@@ -134,7 +134,7 @@ $incident-card-radius: 8px;
       font-size: 0.6875rem;
       font-weight: 600;
       color: $incident-text-muted;
-      text-transform: uppercase;
+      text-transform: capitalize;
       letter-spacing: 0.05em;
     }
 
@@ -159,7 +159,7 @@ $incident-card-radius: 8px;
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 700;
-      text-transform: uppercase;
+      text-transform: capitalize;
       width: fit-content;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
@@ -176,7 +176,7 @@ $incident-card-radius: 8px;
       font-size: 0.6875rem;
       font-weight: 600;
       color: $incident-text-muted;
-      text-transform: uppercase;
+      text-transform: capitalize;
       letter-spacing: 0.05em;
       margin-bottom: 8px;
     }
@@ -193,7 +193,7 @@ $incident-card-radius: 8px;
   font-size: 0.6875rem;
   font-weight: 600;
   color: $incident-text-muted;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.05em;
   margin: 0 0 1rem 0;
 }
@@ -208,7 +208,7 @@ $incident-card-radius: 8px;
   font-size: 0.6875rem;
   font-weight: 600;
   color: $incident-text-muted;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.05em;
   margin: 0 0 0.75rem 0;
 }
@@ -347,7 +347,7 @@ $incident-card-radius: 8px;
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 700;
-      text-transform: uppercase;
+      text-transform: capitalize;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.35);
@@ -440,13 +440,13 @@ $incident-card-radius: 8px;
 
       ::ng-deep .mat-mdc-select-value,
       ::ng-deep .mat-mdc-select-value-text {
-        text-transform: uppercase;
+        text-transform: capitalize;
       }
     }
 
     .submit-btn {
       align-self: flex-end;
-      text-transform: uppercase;
+      text-transform: capitalize;
       font-weight: 600;
       letter-spacing: 0.025em;
       background-color: var(--color-primary, #00cfcf) !important;

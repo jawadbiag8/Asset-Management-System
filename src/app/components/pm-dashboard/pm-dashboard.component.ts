@@ -122,7 +122,7 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
     columns: [
       {
         key: 'ministry',
-        header: 'MINISTRY',
+        header: 'Ministry',
         cellType: 'text',
         primaryField: 'ministry',
         sortable: false,
@@ -135,7 +135,7 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
       },
       {
         key: 'assets',
-        header: 'ASSETS',
+        header: 'Assets',
         cellType: 'text',
         primaryField: 'assets',
         sortable: false,
@@ -166,7 +166,7 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
     columns: [
       {
         key: 'ministry',
-        header: 'MINISTRY',
+        header: 'Ministry',
         cellType: 'text',
         primaryField: 'ministry',
         sortable: false,
@@ -179,7 +179,7 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
       },
       {
         key: 'assets',
-        header: 'ASSETS',
+        header: 'Assets',
         cellType: 'text',
         primaryField: 'assets',
         sortable: false,
@@ -187,7 +187,7 @@ export class PmDashboardComponent implements OnInit, OnDestroy {
       },
       {
         key: 'compliance',
-        header: 'COMPLIANCE INDEX',
+        header: 'Compliance index',
         cellType: 'progress-bar',
         progressValueField: 'percentage',
         // progressColor will use default logic (red < 30%, orange 30-70%, green >= 70%)

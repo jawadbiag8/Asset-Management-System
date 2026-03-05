@@ -23,9 +23,9 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [AuthGuard],
   },
-  // { path: 'dashboard', redirectTo: 'assets', pathMatch: 'full' },
+  // { path: 'dashboard', redirectTo: 'asset', pathMatch: 'full' },
   {
-    path: 'assets',
+    path: 'asset',
     component: AssetsComponent,
     canActivate: [AuthGuard],
   },
@@ -35,7 +35,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'assets/by-ministry',
+    path: 'asset/by-ministry',
     redirectTo: 'ministries',
     pathMatch: 'full',
   },

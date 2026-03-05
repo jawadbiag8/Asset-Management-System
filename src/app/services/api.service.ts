@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { DigitalAssetRequest } from '../components/manage-digital-assets/manage-digital-assets.component';
 import { ActiveIncident } from '../components/incidents/active-incidents/active-incidents.component';
@@ -103,6 +103,20 @@ export class ApiService {
     });
   }
 
+  /**
+   * Get all correspondence (recent ministries with uploaded reports).
+   * GET Ministry/correspondence/getAll
+   */
+  getCorrespondenceAll(period?: string): Observable<ApiResponse<any[]>> {
+    const options = period
+      ? { params: new HttpParams().set('period', period) }
+      : {};
+    return this.http.get<ApiResponse<any[]>>(
+      `${this.baseUrl}/Ministry/correspondence/getAll`,
+      options,
+    );
+  }
+
   getDepartmentsByMinistry(ministryId: number): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/Department/ministry/${ministryId}`,
@@ -204,6 +218,16 @@ export class ApiService {
     );
   }
 
+  /**
+   * Trigger manual check for all KPIs of an asset.
+   * GET KpisLov/manual-from-asset/{assetId}/check-all
+   */
+  checkAllKpisFromAsset(assetId: number): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(
+      `${this.baseUrl}/KpisLov/manual-from-asset/${assetId}/check-all`,
+    );
+  }
+
   getAllUsers(): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/User/dropdown`);
   }
@@ -274,7 +298,10 @@ export class ApiService {
     const url = `${this.baseUrl}/Asset/${assetId}`;
     const formData = new FormData();
     Object.entries(asset).forEach(([key, value]) => {
-      if (value != null && value !== '') {
+      if (value == null || value === '') return;
+      if (key === 'technicalOwners' && Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else {
         formData.append(key, String(value));
       }
     });
@@ -299,10 +326,11 @@ export class ApiService {
   /**
    * Download reference document for an asset history entry.
    * GET Asset/history/{historyId}/download
+   * Returns the full response so callers can read Content-Disposition (filename) and Content-Type (MIME) from headers.
    */
-  downloadAssetHistoryDocument(historyId: number): Observable<Blob> {
+  downloadAssetHistoryDocument(historyId: number): Observable<HttpResponse<Blob>> {
     const url = `${this.baseUrl}/Asset/history/${historyId}/download`;
-    return this.http.get(url, { responseType: 'blob' });
+    return this.http.get(url, { responseType: 'blob', observe: 'response' });
   }
 
   /**

@@ -34,13 +34,6 @@
                         </mat-menu>
                     </div>
                     }
-                    @if (pageInfo().pageState === 'edit') {
-                    <a [routerLink]="['/asset-audit-log']" [queryParams]="pageInfo().assetId ? { assetId: pageInfo().assetId } : {}"
-                        class="btn-audit-log" aria-label="Audit Log">
-                        <mat-icon class="audit-log-icon">history</mat-icon>
-                        Audit Log
-                    </a>
-                    }
                 </div>
             </div>
 
@@ -201,28 +194,60 @@
                                 </app-reusable-input>
                             </div>
 
-                            <div class="col-md-4">
-                                <!-- Technical Contact Name Field -->
-                                <app-reusable-input label="Technical Contact Name" type="text" placeholder="Name"
-                                    hint="Technical person responsible for this asset"
-                                    [control]="getControl('technicalContactName')">
-                                </app-reusable-input>
-                            </div>
+                            <!-- Dynamic Technical Owners -->
+                            <div class="col-12 mt-3">
+                                <h3 class="section-subtitle mb-1">Technical Owners</h3>
+                                <p class="technical-owners-desc small mb-3">Add all responsible technical contacts. Each row has a <strong>Delete</strong> below it; use <strong>Add row</strong> at the bottom to add another. Name, Email, and Contact Title are required; duplicate emails are not allowed.</p>
 
-                            <div class="col-md-4">
-                                <!-- Technical Contact Email Field -->
-                                <app-reusable-input label="Technical Contact Email" type="email" placeholder="Email"
-                                    hint="Email for technical notifications"
-                                    [control]="getControl('technicalContactEmail')">
-                                </app-reusable-input>
-                            </div>
-
-                            <div class="col-md-4">
-                                <!-- Technical Contact Phone Field -->
-                                <app-reusable-input label="Technical Contact Phone" type="text"
-                                    placeholder="e.g +92-300-123-4567" hint="Phone number for technical contact"
-                                    [control]="getControl('technicalContactPhone')">
-                                </app-reusable-input>
+                                <div formArrayName="technicalOwners" class="technical-owners-list">
+                                    @for (item of technicalOwnersArray.controls; track $index; let i = $index) {
+                                        <div [formGroupName]="i" class="technical-owner-card mb-3">
+                                            <div class="technical-owner-fields">
+                                                <div class="row g-2">
+                                                    <div class="col-12 col-md-6 col-lg-3">
+                                                        <app-reusable-input label="Name" type="text" placeholder="Full name"
+                                                            [control]="getTechnicalOwnerControl(i, 'name')"
+                                                            [errorMessages]="technicalOwnerErrorMessages">
+                                                        </app-reusable-input>
+                                                    </div>
+                                                    <div class="col-12 col-md-6 col-lg-3">
+                                                        <app-reusable-input label="Email" type="email" placeholder="email@example.gov"
+                                                            [control]="getTechnicalOwnerControl(i, 'email')"
+                                                            [errorMessages]="technicalOwnerErrorMessages">
+                                                        </app-reusable-input>
+                                                    </div>
+                                                    <div class="col-12 col-md-6 col-lg-3">
+                                                        <app-reusable-input label="Phone" type="text" placeholder="e.g +92-300-123-4567"
+                                                            [control]="getTechnicalOwnerControl(i, 'phone')"
+                                                            [errorMessages]="technicalOwnerErrorMessages">
+                                                        </app-reusable-input>
+                                                    </div>
+                                                    <div class="col-12 col-md-6 col-lg-3">
+                                                        <app-reusable-input label="Contact Title" type="text" placeholder="e.g. System Administrator"
+                                                            [control]="getTechnicalOwnerControl(i, 'contactTitle')"
+                                                            [errorMessages]="technicalOwnerErrorMessages">
+                                                        </app-reusable-input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="technical-owner-actions-below">
+                                                <button type="button" class="btn btn-delete-row" (click)="removeTechnicalOwner(i)" [disabled]="technicalOwnersArray.length <= 1" [attr.aria-label]="'Delete row ' + (i + 1)" title="Delete this row">
+                                                    <mat-icon>delete_outline</mat-icon>
+                                                    <span>Delete</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="technical-owner-add-bottom mt-2">
+                                    <button type="button" class="btn btn-add-row-bottom" (click)="addTechnicalOwner()">
+                                        <mat-icon class="icon-sm">add</mat-icon>
+                                        Add row
+                                    </button>
+                                </div>
+                                @if (digitalAssetForm.get('technicalOwners')?.errors?.['duplicateEmail']) {
+                                    <p class="text-danger small mt-2" role="alert">Two or more Technical Owners have the same email address. Each contact must have a unique email.</p>
+                                }
                             </div>
                         </div>
                     </div>

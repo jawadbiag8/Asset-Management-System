@@ -53,7 +53,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
     columns: [
       {
         key: 'viewDetails',
-        header: 'VIEW DETAILS',
+        header: 'View details',
         cellType: 'icon',
         iconUrl: '/assets/info-icon.svg',
         iconBgColor: 'transparent',
@@ -62,7 +62,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'ministry',
-        header: 'MINISTRY',
+        header: 'Ministry',
         cellType: 'text',
         primaryField: 'ministryName',
         sortable: true,
@@ -71,7 +71,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'departments',
-        header: '# OF DEPARTMENTS',
+        header: '# of departments',
         cellType: 'text',
         primaryField: 'departmentCount',
         sortable: true,
@@ -80,7 +80,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'assets',
-        header: '# OF ASSETS',
+        header: '# of assets',
         cellType: 'text',
         primaryField: 'assetCount',
         sortable: true,
@@ -89,7 +89,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'contact',
-        header: 'CONTACT',
+        header: 'Contact',
         cellType: 'two-line',
         primaryField: 'contactName',
         secondaryField: 'contactPhone',
@@ -98,7 +98,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'openIncidents',
-        header: 'OPEN INCIDENTS',
+        header: 'Open incidents',
         cellType: 'two-line',
         primaryField: 'openIncidents',
         secondaryField: 'highSeverityText',
@@ -119,7 +119,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
     columns: [
       {
         key: 'viewDetails',
-        header: 'VIEW DETAILS',
+        header: 'View details',
         cellType: 'icon',
         iconUrl: '/assets/info-icon.svg',
         iconBgColor: 'transparent',
@@ -128,7 +128,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'ministry',
-        header: 'MINISTRY',
+        header: 'Ministry',
         cellType: 'text',
         primaryField: 'ministryName',
         sortable: true,
@@ -137,7 +137,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'departments',
-        header: '# OF DEPARTMENTS',
+        header: '# of departments',
         cellType: 'text',
         primaryField: 'departmentCount',
         sortable: true,
@@ -146,7 +146,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'assets',
-        header: '# OF ASSETS',
+        header: '# of assets',
         cellType: 'text',
         primaryField: 'assetCount',
         sortable: true,
@@ -155,7 +155,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'contact',
-        header: 'CONTACT',
+        header: 'Contact',
         cellType: 'two-line',
         primaryField: 'contactName',
         secondaryField: 'contactPhone',
@@ -164,7 +164,7 @@ export class AssetsByMinistryComponent implements OnInit, AfterViewInit {
       },
       {
         key: 'openIncidents',
-        header: 'OPEN INCIDENTS',
+        header: 'Open incidents',
         cellType: 'two-line',
         primaryField: 'openIncidents',
         secondaryField: 'highSeverityText',

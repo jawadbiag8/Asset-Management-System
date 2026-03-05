@@ -50,26 +50,29 @@
 
     <!-- Favorite Assets & Correspondence (two columns) -->
     <div class="dashboard-bottom-row row g-4 mt-2">
-        <!-- Favorite Assets -->
+        <!-- Watchlist (Favorite Assets) -->
         <div class="col-12 col-lg-6">
-            <section class="dashboard-panel favorite-assets-panel" aria-label="Favorite Assets">
-                <h2 class="panel-title">Favorite Assets</h2>
+            <section class="dashboard-panel watchlist-panel" aria-label="Watchlist">
+                <h2 class="panel-title">Watch List</h2>
                 <p class="panel-subtitle">List of all assets marked as favorite</p>
                 <div class="panel-divider"></div>
                 <div class="panel-list-wrap">
                     @if (favoriteAssetsLoading()) {
                         <p class="panel-muted">Loading...</p>
                     } @else if (favoriteAssets().length === 0) {
-                        <p class="panel-muted">No favorite assets yet. Add from an asset detail page.</p>
+                        <p class="panel-muted">No assets in watchlist yet. Add from an asset detail page.</p>
                     } @else {
                         <ul class="panel-list">
                             @for (fav of favoriteAssets(); track fav.id) {
                                 <li class="panel-list-item">
-                                    <button type="button" class="btn-remove-favorite btn-remove-favorite-circle" (click)="removeFromFavorites(fav.id); $event.preventDefault(); $event.stopPropagation()" [attr.aria-label]="'Remove from favorites'">
-                                        <mat-icon class="icon-remove-favorite-minus">remove</mat-icon>
+                                    <button type="button" class="watchlist-star-btn" matTooltip="Remove from watch list" (click)="removeFromFavorites(fav.id); $event.preventDefault(); $event.stopPropagation()" [attr.aria-label]="'Remove from favorites'">
+                                        <mat-icon class="watchlist-star-icon">star</mat-icon>
                                     </button>
                                     <a [routerLink]="['/view-assets-detail']" [queryParams]="{ id: fav.id, ministryId: fav.ministryId ?? '' }" class="panel-list-label">{{ fav.assetName || fav.websiteApplication || 'Asset' }}{{ fav.ministryName ? ' - ' + fav.ministryName : '' }}</a>
-                                    <span class="panel-list-badge" [class.badge-up]="isStatusUp(fav.currentStatus)" [class.badge-down]="!isStatusUp(fav.currentStatus)">{{ (fav.currentStatus || 'Unknown').toUpperCase() }}</span>
+                                    <span class="watchlist-status" [class.status-online]="isStatusUp(fav.currentStatus)" [class.status-offline]="!isStatusUp(fav.currentStatus)">
+                                        <span class="watchlist-status-text">{{ isStatusUp(fav.currentStatus) ? 'Online' : 'Offline' }}</span>
+                                        <span class="watchlist-status-dot" aria-hidden="true"></span>
+                                    </span>
                                 </li>
                             }
                         </ul>
@@ -94,18 +97,28 @@
                 <div class="panel-divider"></div>
 
                 <div class="panel-list-wrap">
-                    @if (correspondenceItems().length === 0) {
+                    @if (correspondenceLoading()) {
+                        <p class="panel-muted">Loading...</p>
+                    } @else if (correspondenceItems().length === 0) {
                         <p class="panel-muted">No correspondence data available.</p>
                     } @else {
                         <ol class="panel-list panel-list-numbered">
                             @for (item of correspondenceItems(); track item.id) {
                                 <li class="panel-list-item">
                                     <span class="panel-list-num">{{ item.number }}.</span>
-                                    <span class="panel-list-label">{{ item.ministryName }}</span>
+                                    @if (item.ministryId != null) {
+                                        <a [routerLink]="['/ministry-detail']" [queryParams]="{ ministryId: item.ministryId }" class="panel-list-label panel-list-label-link">{{ item.ministryName }}</a>
+                                    } @else {
+                                        <span class="panel-list-label">{{ item.ministryName }}</span>
+                                    }
                                     <span class="panel-list-meta">{{ item.time }}</span>
-                                    <span class="panel-list-badge" [class.badge-dispatched]="item.status === 'Dispatched'" [class.badge-draft]="item.status === 'Draft'">{{ item.status }}</span>
                                     @if (item.status === 'Draft') {
-                                        <mat-icon class="panel-list-doc-icon" aria-hidden="true">description</mat-icon>
+                                        <button type="button" class="panel-list-draft-trigger" (click)="onDraftClick(item); $event.stopPropagation()" aria-label="Add reference document">
+                                            <span class="panel-list-badge badge-draft">{{ item.status }}</span>
+                                            <mat-icon class="panel-list-doc-icon" aria-hidden="true">description</mat-icon>
+                                        </button>
+                                    } @else {
+                                        <span class="panel-list-badge badge-dispatched">{{ item.status }}</span>
                                     }
                                 </li>
                             }

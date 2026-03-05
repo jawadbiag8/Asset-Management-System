@@ -80,7 +80,7 @@
   border: none;
   cursor: pointer;
   transition: background 0.15s;
-  text-transform: uppercase;
+  text-transform: capitalize;
 
   &:hover {
     background: rgba(0, 128, 128, 0.06);;
@@ -111,7 +111,7 @@
   cursor: pointer;
   text-decoration: none;
   transition: background 0.15s;
-  text-transform: uppercase;
+  text-transform: capitalize;
 
   &:hover {
     background: rgba(0, 128, 128, 0.06);
@@ -131,7 +131,7 @@
   padding: 0.4rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.02em;
   color: var(--color-text-secondary);
   background: transparent;
@@ -170,7 +170,7 @@
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  text-transform: uppercase;
+  text-transform: capitalize;
   color: var(--color-green-teal);
   background: transparent;
   border: 1px solid var(--color-green-teal);
@@ -202,7 +202,7 @@
   border-radius: 8px;
   font-size: 0.6875rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.02em;
   color: #fff;
   border: none;
@@ -584,7 +584,7 @@
 /* Asset tile status: dashboard-style badge (uses global .badge-status-* from styles.scss) */
 .tile-status-badge {
   flex-shrink: 0;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.02em;
   /* Slightly smaller in tiles so it fits; inherits colors/border/shadow from global badge */
   min-width: 56px;

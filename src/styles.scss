@@ -1314,28 +1314,28 @@ table th,
   color: var(--color-red, #dc2626) !important;
 }
 
-/* Dropdown options – uppercase everywhere (mat-select + native select) */
+/* Dropdown options – capitalize (mat-select + native select) */
 .mat-mdc-select-panel .mat-mdc-option,
 .mat-mdc-option {
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
-/* mat-select trigger: show selected value in uppercase */
+/* mat-select trigger: show selected value capitalized */
 .mat-mdc-select-value,
 .mat-mdc-select .mat-mdc-select-value-text {
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 /* Native select: options and displayed value */
 select,
 select option {
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
-/* Incident details – status dropdown: option text uppercase (display only, values unchanged) */
+/* Incident details – status dropdown: option text capitalized */
 .incident-status-select-panel .mat-mdc-option,
 .incident-status-select-panel .mdc-list-item__primary-text {
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 /* Add Assets page – dropdown list line spacing + dark theme (reusable-input select) */

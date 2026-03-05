@@ -84,7 +84,7 @@ export class AssetsComponent implements OnInit {
           this.router.navigate(['/asset-control-panel'], {
             queryParams: { assetId: row.id },
           }),
-        leadingIconName: 'favorite',
+        leadingIconName: 'star',
         leadingIconFilledFn: (row) => this.favoriteAssetIds().has(row.id),
         leadingIconClick: (row) => this.toggleFavorite(row),
       },
@@ -175,7 +175,7 @@ export class AssetsComponent implements OnInit {
           if (status.includes('high compliance') || status.includes('high'))
             return 'success';
           if (status.includes('medium compliance') || status.includes('medium'))
-            return 'info';
+            return 'warning';
           if (status.includes('low compliance') || status.includes('low'))
             return 'danger';
           return 'unknown';

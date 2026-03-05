@@ -36,12 +36,65 @@
   align-items: center;
   min-width: 80px;
   width: auto;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .last-outage-value {
   text-transform: none;
 }
+
+// Left column: asset details + Check All KPIs – left-aligned like Health Dashboard layout
+.asset-details-col {
+  text-align: left;
+}
+
+.asset-details-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 32px;
+  align-items: flex-start;
+}
+
+.asset-detail-block {
+  flex: 0 1 auto;
+}
+
+.asset-details-actions {
+  text-align: left;
+}
+
+// Check All Performance KPIs button (teal solid, white text, no play icon)
+.btn-check-all-kpis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary, #14b8a6);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+
+  .btn-check-all-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover:not(:disabled) {
+    background: #0d9488;
+  }
+
+  &:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+}
+
 .card {
   background-color: transparent !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -146,6 +199,47 @@
     .mat-mdc-text-field-wrapper,
     .mat-mdc-form-field-focus-overlay {
       background-color: rgba(255, 255, 255, 0.06) !important;
+    }
+  }
+
+  // KPI table: Average Value & Current Value color convention (COMPLIANT=green, NON-COMPLIANT=red, UNKNOWN=black)
+  ::ng-deep .assets-table td[data-column="averageValue"] .line-primary,
+  ::ng-deep .assets-table td[data-column="currentValue"] .line-primary {
+    font-weight: 500;
+  }
+  ::ng-deep .assets-table td[data-column="averageValue"] .text-success,
+  ::ng-deep .assets-table td[data-column="currentValue"] .text-success {
+    color: #52b467 !important;
+  }
+  ::ng-deep .assets-table td[data-column="averageValue"] .text-danger,
+  ::ng-deep .assets-table td[data-column="currentValue"] .text-danger {
+    color: #e5534b !important;
+  }
+  ::ng-deep .assets-table td[data-column="averageValue"] .text-unknown,
+  ::ng-deep .assets-table td[data-column="currentValue"] .text-unknown {
+    color: #e6edf3 !important;
+  }
+
+  // Action column: Check button — pill shape, thin light border, dark teal background
+  ::ng-deep .assets-table td[data-column="actions"] .actions-cell .action-link {
+    background: #0d2d2d !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border-radius: 9999px !important;
+    color: #e6edf3 !important;
+    padding: 8px 20px !important;
+    font-weight: 500;
+    text-decoration: none !important;
+
+    &:hover:not(:disabled) {
+      background: #0f3838 !important;
+      border-color: rgba(255, 255, 255, 0.7) !important;
+      opacity: 1;
+      text-decoration: none !important;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      border-color: rgba(255, 255, 255, 0.25) !important;
     }
   }
 }

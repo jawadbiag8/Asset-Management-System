@@ -505,6 +505,7 @@ export interface TableColumn {
     iconName?: string; // Material icon name (e.g. 'edit', 'visibility') when display is 'icon'
     color?: string; // CSS color for icon or text
     disabled?: boolean | ((row: any) => boolean); // When true or function returns true, button is disabled
+    showTooltip?: boolean; // When false, no tooltip on hover (default true)
   }>;
 }
 

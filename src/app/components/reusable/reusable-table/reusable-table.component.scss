@@ -237,7 +237,7 @@
         word-wrap: break-word; // Break long words if needed
         vertical-align: middle;
         line-height: 1.4; // Better line spacing for wrapped text
-        text-transform: uppercase;
+        text-transform: capitalize;
         overflow: hidden; // Clip backdrop-filter to border-radius (stops corner bleed)
     }
 
@@ -277,9 +277,9 @@
         text-transform: none;
     }
 
-    // Risk column: show values in uppercase (LOW, MEDIUM, HIGH)
+    // Risk column: show values capitalized (Low, Medium, High)
     td[data-column="riskExposureIndex"] {
-        text-transform: uppercase;
+        text-transform: capitalize;
     }
 
     tr:first-child td {

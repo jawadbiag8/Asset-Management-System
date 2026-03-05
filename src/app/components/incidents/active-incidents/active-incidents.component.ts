@@ -90,7 +90,7 @@ export class ActiveIncidentsComponent implements OnInit {
     columns: [
       {
         key: 'incident',
-        header: 'INCIDENT',
+        header: 'Incident',
         cellType: 'text',
         primaryField: 'incidentTitle',
         cellClass: 'fw-bold',
@@ -100,7 +100,7 @@ export class ActiveIncidentsComponent implements OnInit {
       },
       {
         key: 'severity',
-        header: 'SEVERITY',
+        header: 'Severity',
         cellType: 'badge-with-subtext',
         badgeField: 'severityCode',
         subtextField: 'severityDescription',
@@ -112,7 +112,7 @@ export class ActiveIncidentsComponent implements OnInit {
       },
       {
         key: 'status',
-        header: 'STATUS',
+        header: 'Status',
         cellType: 'badge-with-subtext',
         badgeField: 'status',
         subtextField: 'statusSince',
@@ -123,7 +123,7 @@ export class ActiveIncidentsComponent implements OnInit {
       },
       {
         key: 'createdBy',
-        header: 'CREATED BY',
+        header: 'Created by',
         cellType: 'two-line',
         primaryField: 'createdBy',
         secondaryField: 'createdAgo',
@@ -132,7 +132,7 @@ export class ActiveIncidentsComponent implements OnInit {
       },
       {
         key: 'kpi',
-        header: 'KPI',
+        header: 'Kpi',
         cellType: 'text',
         primaryField: 'kpi',
         sortable: false,
@@ -141,7 +141,7 @@ export class ActiveIncidentsComponent implements OnInit {
       },
       {
         key: 'asset',
-        header: 'ASSET',
+        header: 'Asset',
         cellType: 'two-line',
         primaryField: 'ministryName',
         secondaryField: 'assetName',

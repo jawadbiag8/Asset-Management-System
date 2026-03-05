@@ -35,35 +35,6 @@ $manage-radius: 8px;
   margin-bottom: 0;
 }
 
-.btn-audit-log {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: #0d9488;
-  border: 1px solid rgba(20, 184, 166, 0.5);
-  color: #ffffff;
-  border-radius: $manage-radius;
-  font-weight: 500;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background 0.2s, border-color 0.2s;
-
-  .audit-log-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    color: #ffffff;
-  }
-
-  &:hover {
-    background: #0f766e;
-    border-color: $manage-teal;
-    color: #ffffff;
-  }
-}
-
 .import-assets-wrapper {
   display: flex;
   align-items: center;
@@ -282,6 +253,93 @@ $manage-radius: 8px;
     ::ng-deep .mat-mdc-form-field-subscript-wrapper {
       min-height: 2em;
       margin-top: 2px;
+    }
+  }
+}
+
+.section-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.technical-owners-desc {
+  color: #fff;
+}
+
+.technical-owners-list {
+  .technical-owner-card {
+    background: transparent;
+  }
+
+  .technical-owner-fields {
+    min-width: 0;
+  }
+
+  .technical-owner-actions-below {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 8px;
+  }
+
+  .btn-delete-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+    color: #e5534b;
+    border: 1px solid rgba(229, 83, 75, 0.4);
+    background: transparent;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover:not(:disabled) {
+      background: rgba(229, 83, 75, 0.12);
+      border-color: #e5534b;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .icon-sm {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+  }
+}
+
+.technical-owner-add-bottom {
+  .btn-add-row-bottom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 8px;
+    color: var(--color-primary, #14b8a6);
+    border: 1px solid rgba(20, 184, 166, 0.5);
+    background: transparent;
+
+    .icon-sm {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background: rgba(20, 184, 166, 0.12);
+      border-color: var(--color-primary, #14b8a6);
     }
   }
 }

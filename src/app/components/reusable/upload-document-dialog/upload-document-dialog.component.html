@@ -36,11 +36,17 @@
       @if (selectedFileName) {
         <p class="file-name">Selected: {{ selectedFileName }}</p>
       }
-      @if (file?.invalid && (file?.touched || file?.dirty)) {
+      @if (file?.invalid && (file?.touched || file?.dirty) && !file?.errors?.['invalidType']) {
         <span class="error-msg">Please select a file</span>
       }
       @if (file?.errors?.['invalidType']) {
-        <span class="error-msg">Please select an accepted file type</span>
+        @if (fileError === 'gif') {
+          <span class="error-msg" role="alert">GIF files (including animated GIFs) are not allowed. Please use another format such as .jpg or .png.</span>
+        } @else if (fileError === 'dangerous') {
+          <span class="error-msg" role="alert">This file type is not allowed for security reasons. Executables and script files (e.g. .exe, .html) cannot be uploaded, even if renamed. The server also verifies file content.</span>
+        } @else {
+          <span class="error-msg" role="alert">This file type is not allowed. Accepted: {{ acceptedTypesLabel }}</span>
+        }
       }
       @if (imagePreview) {
         <div class="image-preview">

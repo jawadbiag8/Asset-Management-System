@@ -161,11 +161,16 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
         secondaryField: 'assetUrl',
         linkField: 'assetUrl',
         sortable: true,
-        width: '140px',
+        width: '240px',
         routerLinkFn: (row: AssetDetail) => ({
           commands: ['/view-assets-detail'],
           queryParams: { id: row.id, ministryId: this.ministryId },
         }),
+        trailingButtonLabel: 'Analyze',
+        trailingButtonClick: (row: any) =>
+          this.router.navigate(['/asset-control-panel'], {
+            queryParams: { assetId: row.id },
+          }),
       },
       {
         key: 'department',
@@ -178,8 +183,8 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
       {
         key: 'currentStatus',
         header: 'Status',
-        cellType: 'badge-with-subtext',
-        badgeField: 'currentStatus',
+        cellType: 'status-dot-subtext',
+        primaryField: 'currentStatusDisplay',
         subtextField: 'lastCheckedFormatted',
         badgeStatus: (row: any) => {
           const status = row.currentStatus?.toLowerCase();
@@ -249,7 +254,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
           if (status.includes('high compliance') || status.includes('high'))
             return 'success';
           if (status.includes('medium compliance') || status.includes('medium'))
-            return 'info';
+            return 'warning';
           if (status.includes('low compliance') || status.includes('low'))
             return 'danger';
           return 'unknown';
@@ -268,9 +273,12 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
       {
         key: 'riskExposureIndex',
         header: 'Risk',
-        cellType: 'badge',
-        badgeField: 'riskExposureDisplay',
-        badgeStatus: (row: any) => {
+        cellType: 'metric-with-trend',
+        primaryField: 'riskExposureDisplay',
+        secondaryField: '',
+        sortable: true,
+        width: '95px',
+        textColor: (row: any) => {
           const risk = (row.riskExposureIndex || '').toUpperCase();
           if (risk === 'LOW RISK' || risk.includes('LOW')) return 'success';
           if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM'))
@@ -278,27 +286,36 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
           if (risk === 'HIGH RISK' || risk.includes('HIGH')) return 'danger';
           return 'unknown';
         },
-        sortable: true,
-        width: '65px',
+        trendIcon: (row: any) => {
+          const risk = (row.riskExposureIndex || '').toUpperCase();
+          if (risk === 'LOW RISK' || risk.includes('LOW')) return 'down';
+          if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) return 'right';
+          if (risk === 'HIGH RISK' || risk.includes('HIGH')) return 'up';
+          return 'unknown';
+        },
       },
       {
         key: 'citizenImpactLevel',
         header: 'Citizen Impact',
-        cellType: 'badge-with-subtext',
-        badgeField: 'citizenImpactLevel',
-        subtextField: 'citizenImpactLevelSubtext',
-        subtextAsTooltip: true,
-        tooltip: (row: any) => row.citizenImpactLevelSubtext ?? '',
-        tooltipPosition: 'above',
-        badgeStatus: (row: any) => {
+        cellType: 'metric-with-trend',
+        primaryField: 'citizenImpactLevelDisplay',
+        secondaryField: '',
+        sortable: true,
+        width: '105px',
+        textColor: (row: any) => {
           const impact = row.citizenImpactLevel?.toUpperCase();
           if (impact?.includes('LOW')) return 'success';
           if (impact?.includes('MEDIUM')) return 'warning';
           if (impact?.includes('HIGH')) return 'danger';
           return 'unknown';
         },
-        sortable: true,
-        width: '105px',
+        trendIcon: (row: any) => {
+          const impact = row.citizenImpactLevel?.toUpperCase();
+          if (impact?.includes('LOW')) return 'down';
+          if (impact?.includes('MEDIUM')) return 'right';
+          if (impact?.includes('HIGH')) return 'up';
+          return 'unknown';
+        },
       },
       {
         key: 'openIncidents',
@@ -322,6 +339,12 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
   // Computed: same display fields and shape as assets page (assets.component.ts tableConfigWithData)
   tableConfigWithData = computed<TableConfig>(() => {
     const data = this.assetDetails().map((asset) => {
+      const currentStatusDisplay = ((): string => {
+        const s = (asset.currentStatus || '').toLowerCase();
+        if (s === 'up' || s === 'online') return 'Online';
+        if (s === 'down' || s === 'offline') return 'Offline';
+        return asset.currentStatus || 'Unknown';
+      })();
       const healthStatusDisplay = ((): string => {
         const s = (asset.currentHealthStatus || '').toLowerCase();
         if (s.includes('healthy') || s.includes('up')) return 'Healthy';
@@ -347,11 +370,12 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
       })();
       const riskExposureDisplay = ((): string => {
         const u = (asset.riskExposureIndex || '').toUpperCase();
-        if (u === 'LOW RISK' || u.includes('LOW')) return 'LOW';
-        if (u === 'MEDIUM RISK' || u.includes('MEDIUM')) return 'MEDIUM';
-        if (u === 'HIGH RISK' || u.includes('HIGH')) return 'HIGH';
-        return (asset.riskExposureIndex || 'N/A').toUpperCase();
+        if (u === 'LOW RISK' || u.includes('LOW')) return 'Low';
+        if (u === 'MEDIUM RISK' || u.includes('MEDIUM')) return 'Medium';
+        if (u === 'HIGH RISK' || u.includes('HIGH')) return 'High';
+        return (asset.riskExposureIndex || 'Unknown').split('-')[0]?.trim() || 'Unknown';
       })();
+      const citizenImpactLevelDisplay = (asset.citizenImpactLevel || '').split('-')[0]?.trim() || 'Unknown';
       const healthPercentage =
         asset.healthIndex != null ? `${asset.healthIndex}%` : 'N/A';
       const performancePercentage =
@@ -373,6 +397,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
         ...asset,
         websiteApplication: asset.websiteName,
         assetUrl: asset.websiteUrl,
+        currentStatusDisplay,
         lastCheckedFormatted: asset.currentStatusChecked,
         healthStatusDisplay,
         healthIcon: asset.currentHealthIcon,
@@ -382,6 +407,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
         complianceStatusDisplay,
         compliancePercentage,
         riskExposureDisplay,
+        citizenImpactLevelDisplay,
         openIncidentsDisplay: openIncidentsNum,
         highSeverityText: `Critical Severity: ${highSeverityNum ?? 0}`,
       };
@@ -805,8 +831,8 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
           ? `Compliance Index: ${complianceIndex}%`
           : 'Compliance Index: N/A';
 
-      // Risk Exposure Index (uppercase for display)
-      const riskExposureIndex = (item.riskExposureIndex || 'N/A').toUpperCase();
+      // Risk Exposure Index (capitalized for display)
+      const riskExposureIndex = this.toTitleCase(item.riskExposureIndex || 'N/A');
 
       // Citizen impact: badge = first part (LOW/HIGH/MEDIUM/UNKNOWN), subtext = part after " - " (e.g. "Supporting Services")
       const citizenImpactRaw = item.citizenImpactLevel || 'N/A';
@@ -946,6 +972,11 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
       .replace(/\b1 hour ago\b/gi, '1 hr ago')
       .replace(/\b(\d+) hours ago\b/gi, '$1 hrs ago')
       .replace(/\bJust now\b/gi, 'just now');
+  }
+
+  private toTitleCase(s: string): string {
+    if (!s || s === 'N/A') return s || 'N/A';
+    return s.split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
   }
 
   private getHealthIcon(healthStatus: string): string {

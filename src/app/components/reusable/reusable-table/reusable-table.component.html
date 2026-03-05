@@ -157,11 +157,12 @@
                         <button
                           type="button"
                           class="leading-icon-btn"
+                          [matTooltip]="(column.leadingIconFilledFn && column.leadingIconFilledFn(row)) ? 'Remove from watch list' : 'Add to watch list'"
                           (click)="$event.stopPropagation(); column.leadingIconClick && column.leadingIconClick(row)"
                           [attr.aria-label]="column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'Remove from favorites' : 'Add to favorites'"
                         >
                           <mat-icon class="leading-icon">{{
-                            column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'favorite' : 'favorite_border'
+                            column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'star' : 'star_border'
                           }}</mat-icon>
                         </button>
                       }
@@ -208,12 +209,13 @@
                           <button
                             type="button"
                             class="leading-icon-btn leading-icon-btn-above"
+                            [matTooltip]="(column.leadingIconFilledFn && column.leadingIconFilledFn(row)) ? 'Remove from watch list' : 'Add to watch list'"
                             [class.leading-icon-filled]="column.leadingIconFilledFn && column.leadingIconFilledFn(row)"
                             (click)="$event.stopPropagation(); column.leadingIconClick && column.leadingIconClick(row)"
                             [attr.aria-label]="column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'Remove from favorites' : 'Add to favorites'"
                           >
                             <mat-icon class="leading-icon">{{
-                              column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'favorite' : 'favorite_border'
+                              column.leadingIconFilledFn && column.leadingIconFilledFn(row) ? 'star' : 'star_border'
                             }}</mat-icon>
                           </button>
                           <button
@@ -378,7 +380,8 @@
                             [style.color]="action.color"
                             [disabled]="getActionDisabled(row, action)"
                             [attr.aria-label]="action.label"
-                            [matTooltip]="action.label"
+                            [matTooltip]="action.showTooltip !== false ? action.label : ''"
+                            [matTooltipDisabled]="action.showTooltip === false"
                             matTooltipPosition="above"
                             (click)="
                               $event.stopPropagation();

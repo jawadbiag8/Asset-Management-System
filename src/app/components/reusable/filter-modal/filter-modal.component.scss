@@ -151,7 +151,7 @@ $card-radius: 24px;
 
     .mat-mdc-select-value,
     .mat-mdc-select-value-text {
-      text-transform: uppercase;
+      text-transform: capitalize;
       color: $text-primary !important;
     }
 

@@ -1,18 +1,41 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-const ACCEPTED_TYPES = '.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif';
-const ACCEPTED_MIME = [
+export interface UploadDocumentDialogData {
+  mode?: 'asset' | 'correspondence';
+  correspondenceId?: number;
+  initialReferenceNumber?: string;
+}
+
+/** Allowed file extensions (no .gif; includes .xlsx). */
+const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx', 'xlsx', 'txt', 'jpg', 'jpeg', 'png'];
+
+/** Allowed MIME types (whitelist). Server should also validate MIME to block .exe/.html renamed as .jpg. */
+const ALLOWED_MIME = [
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'text/plain',
   'image/jpeg',
-  'image/jpg',
   'image/png',
-  'image/gif',
 ];
+
+/** Dangerous MIMEs: executables/scripts. Show specific error when detected (e.g. .exe/.html renamed as .jpg). */
+const BLOCKED_MIME = [
+  'application/x-msdownload',
+  'application/x-msdos-executable',
+  'application/x-executable',
+  'application/x-sh',
+  'application/x-bat',
+  'text/html',
+  'application/xhtml+xml',
+  'text/x-script',
+];
+
+const ACCEPTED_TYPES = '.pdf,.doc,.docx,.xlsx,.txt,.jpg,.jpeg,.png';
+const ACCEPTED_TYPES_LABEL = 'PDF (.pdf), Word (.doc, .docx), Excel (.xlsx), Text (.txt), Images (.jpg, .jpeg, .png)';
 
 @Component({
   selector: 'app-upload-document-dialog',
@@ -23,16 +46,19 @@ const ACCEPTED_MIME = [
 export class UploadDocumentDialogComponent {
   form: FormGroup;
   acceptedTypes = ACCEPTED_TYPES;
-  acceptedTypesLabel = 'PDF (.pdf), Word (.doc, .docx), Text (.txt), Images (.jpg, .jpeg, .png, .gif)';
+  acceptedTypesLabel = ACCEPTED_TYPES_LABEL;
   imagePreview: string | null = null;
   selectedFileName: string | null = null;
+  /** Specific file validation error for UI: 'gif' | 'dangerous' | 'invalid' | null */
+  fileError: 'gif' | 'dangerous' | 'invalid' | null = null;
 
   constructor(
     private fb: FormBuilder,
-    public dialogRef: MatDialogRef<UploadDocumentDialogComponent>
+    public dialogRef: MatDialogRef<UploadDocumentDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: UploadDocumentDialogData | undefined,
   ) {
     this.form = this.fb.group({
-      referenceNumber: ['', Validators.required],
+      referenceNumber: [data?.initialReferenceNumber ?? '', Validators.required],
       file: [null as File | null, Validators.required],
     });
   }
@@ -49,22 +75,50 @@ export class UploadDocumentDialogComponent {
     const file = input.files?.[0];
     this.imagePreview = null;
     this.selectedFileName = null;
+    this.fileError = null;
 
     if (!file) {
       this.form.patchValue({ file: null });
+      this.form.get('file')?.setErrors(null);
       return;
     }
 
-    const mime = file.type.toLowerCase();
-    const allowed = ACCEPTED_MIME.some((t) => mime === t || mime.startsWith('image/'));
-    if (!allowed) {
+    const ext = this.getExtension(file.name);
+    const mime = (file.type || '').toLowerCase().trim();
+
+    // 1. Block GIF explicitly (including animated) with clear message
+    if (ext === 'gif' || mime === 'image/gif') {
       this.form.patchValue({ file: null });
+      input.value = '';
       this.form.get('file')?.setErrors({ invalidType: true });
+      this.fileError = 'gif';
+      return;
+    }
+
+    // 2. Block dangerous MIMEs (e.g. .exe or .html renamed as .jpg) – server also validates
+    if (mime && BLOCKED_MIME.some((b) => mime === b || mime.startsWith(b))) {
+      this.form.patchValue({ file: null });
+      input.value = '';
+      this.form.get('file')?.setErrors({ invalidType: true });
+      this.fileError = 'dangerous';
+      return;
+    }
+
+    // 3. Whitelist: extension and MIME must both be allowed (MIME may include charset, e.g. image/jpeg; charset=utf-8)
+    const extOk = ALLOWED_EXTENSIONS.includes(ext);
+    const mimeBase = mime.split(';')[0].trim();
+    const mimeOk = ALLOWED_MIME.some((t) => mimeBase === t);
+    if (!extOk || !mimeOk) {
+      this.form.patchValue({ file: null });
+      input.value = '';
+      this.form.get('file')?.setErrors({ invalidType: true });
+      this.fileError = 'invalid';
       return;
     }
 
     this.form.patchValue({ file });
     this.selectedFileName = file.name;
+    this.form.get('file')?.setErrors(null);
 
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
@@ -73,6 +127,13 @@ export class UploadDocumentDialogComponent {
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  private getExtension(filename: string): string {
+    const name = (filename || '').trim();
+    const i = name.lastIndexOf('.');
+    if (i < 0 || i === name.length - 1) return '';
+    return name.slice(i + 1).toLowerCase();
   }
 
   onSubmit(): void {
@@ -90,7 +151,11 @@ export class UploadDocumentDialogComponent {
     };
     console.log(logPayload);
     // Return both for parent (edit form) and for logging
-    this.dialogRef.close({ referenceNumber: ref, file: f });
+    this.dialogRef.close({
+      referenceNumber: ref,
+      file: f,
+      ...(this.data?.mode === 'correspondence' && this.data?.correspondenceId != null && { correspondenceId: this.data.correspondenceId }),
+    });
   }
 
   onCancel(): void {

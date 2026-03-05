@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { HttpResponse } from '@angular/common/http';
 import { ApiService, ApiResponse, AssetHistoryItem } from '../../../services/api.service';
 import { UtilsService } from '../../../services/utils.service';
 import { BreadcrumbService } from '../../../services/breadcrumb.service';
@@ -198,11 +199,17 @@ export class AssetAuditLogComponent implements OnInit, OnDestroy {
       return;
     }
     this.api.downloadAssetHistoryDocument(historyId).subscribe({
-      next: (blob) => {
+      next: (response) => {
+        const blob = response.body;
+        if (!blob) {
+          this.utils.showToast('No document content received.', 'Ref. Document', 'error');
+          return;
+        }
+        const filename = this.getDownloadFilenameFromResponse(response, log.referenceNumber);
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = log.referenceNumber ? `ref-${log.referenceNumber}.pdf` : 'reference-document.pdf';
+        a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
         this.utils.showToast('Document downloaded.', 'Ref. Document', 'success');
@@ -211,5 +218,61 @@ export class AssetAuditLogComponent implements OnInit, OnDestroy {
         this.utils.showToast(err, 'Failed to download document.', 'error');
       },
     });
+  }
+
+  /**
+   * Derive download filename from response headers (Content-Disposition, Content-Type).
+   * Uses original filename/extension from backend when present; no automatic conversion to PDF.
+   */
+  private getDownloadFilenameFromResponse(response: HttpResponse<Blob>, refNumber: string): string {
+    const contentDisposition = response.headers.get('Content-Disposition');
+    const filename = this.parseFilenameFromContentDisposition(contentDisposition);
+    if (filename) return this.sanitizeFilename(filename);
+
+    const contentType = response.headers.get('Content-Type') || '';
+    const extension = this.getExtensionFromMimeType(contentType);
+    const base = refNumber && refNumber !== '—' ? `ref-${refNumber}` : 'reference-document';
+    return `${base}${extension}`;
+  }
+
+  private parseFilenameFromContentDisposition(header: string | null): string | null {
+    if (!header) return null;
+    // filename*=UTF-8''encoded-name (RFC 5987)
+    const starMatch = header.match(/filename\*=UTF-8''([^;\s]+)/i);
+    if (starMatch && starMatch[1]) {
+      try {
+        return decodeURIComponent(starMatch[1].trim());
+      } catch {
+        return starMatch[1].trim();
+      }
+    }
+    // filename="name" or filename=name
+    const normalMatch = header.match(/filename=["']?([^"';]+)["']?/i);
+    if (normalMatch && normalMatch[1]) return normalMatch[1].trim();
+    return null;
+  }
+
+  private getExtensionFromMimeType(contentType: string): string {
+    const mime = contentType.split(';')[0].trim().toLowerCase();
+    const map: Record<string, string> = {
+      'application/pdf': '.pdf',
+      'image/png': '.png',
+      'image/jpeg': '.jpg',
+      'image/jpg': '.jpg',
+      'image/gif': '.gif',
+      'image/webp': '.webp',
+      'application/msword': '.doc',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+      'application/vnd.ms-excel': '.xls',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+      'text/plain': '.txt',
+      'text/csv': '.csv',
+    };
+    return map[mime] ?? '.bin';
+  }
+
+  private sanitizeFilename(name: string): string {
+    const base = name.replace(/^.*[/\\]/, '').trim() || 'reference-document';
+    return base.replace(/[<>:"/\\|?*\x00-\x1f]/g, '_') || 'reference-document';
   }
 }

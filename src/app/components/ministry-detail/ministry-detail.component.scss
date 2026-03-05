@@ -213,61 +213,75 @@
     }
 }
 
-// Table column/cell styles (badge, two-line, etc.)
-::ng-deep .assets-table {
+// Table: same layout and colors as assets page (Status dot, Health/Performance/Compliance/Risk/Citizen Impact with arrows + colors)
+.dashboard-table-section {
+  overflow: hidden;
 
-    // Style for Status column (3rd)
-    td[mat-cell]:nth-child(3) {
-        .badge-cell {
-            .badge {
-                font-size: 12px;
-                font-weight: 500;
-                padding: 4px 10px;
-                border-radius: 24px;
-            }
-        }
+  .table-section-card {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+    isolation: isolate;
+    padding: 20px 24px;
+  }
+
+  ::ng-deep .assets-table {
+    th {
+      text-align: left;
+      .sortable-header {
+        justify-content: flex-start;
+      }
+    }
+    th[data-column="websiteApplication"],
+    th[data-column="department"],
+    th[data-column="currentStatus"],
+    th[data-column="healthstatus"],
+    th[data-column="performanceStatus"],
+    th[data-column="complianceStatus"],
+    th[data-column="riskExposureIndex"],
+    th[data-column="citizenImpactLevel"],
+    th[data-column="openIncidents"],
+    td[data-column="websiteApplication"],
+    td[data-column="department"],
+    td[data-column="currentStatus"],
+    td[data-column="healthstatus"],
+    td[data-column="performanceStatus"],
+    td[data-column="complianceStatus"],
+    td[data-column="riskExposureIndex"],
+    td[data-column="citizenImpactLevel"],
+    td[data-column="openIncidents"] {
+      text-align: left;
     }
 
-    // Column 4: Health (health-status with icon – styled by reusable-table)
-    // Column 5: Performance (metric-with-trend with icon – styled by reusable-table)
-    // Column 6: Compliance (metric-with-trend with icon – styled by reusable-table)
-
-    // Style for Risk column (7th) – badge (cellType: 'badge' uses .badge-wrapper)
-    td[mat-cell]:nth-child(7) {
-        .badge-wrapper .badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 24px;
-            text-transform: uppercase;
-        }
+    // Assets column: asset name teal, URL light gray (match assets page)
+    td[data-column="websiteApplication"] {
+      .two-line-cell-text .line-primary.line-link:not(.line-secondary-link) {
+        color: #00BFB2;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .two-line-cell-text .line-secondary-link {
+        color: #AAAAAA;
+        font-size: 12px;
+        font-weight: 400;
+      }
+      .trailing-btn-outline {
+        border: 1px solid rgba(255, 255, 255, 0.95);
+        color: #ffffff;
+      }
     }
 
-    // Style for Citizen Impact column (8th)
-    td[mat-cell]:nth-child(8) {
-        .badge-cell {
-            .badge {
-                font-size: 12px;
-                font-weight: 500;
-                padding: 4px 10px;
-                border-radius: 24px;
-            }
-        }
+    // Open Incidents column
+    td[data-column="openIncidents"] {
+      .two-line-cell .line-primary {
+        font-weight: 600;
+      }
+      .two-line-cell .line-secondary {
+        font-size: 12px;
+        color: var(--color-text-secondary);
+      }
     }
-
-    // Style for Open Incidents column (9th)
-    td[mat-cell]:nth-child(9) {
-        .two-line-cell {
-            .line-primary {
-                font-weight: 600;
-            }
-
-            .line-secondary {
-                font-size: 12px;
-                color: var(--color-text-secondary);
-            }
-        }
-    }
+  }
 }
 
 

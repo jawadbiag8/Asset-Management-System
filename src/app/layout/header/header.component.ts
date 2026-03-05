@@ -66,13 +66,13 @@ export class HeaderComponent {
     this.currentRoute.set(this.router.url);
   }
 
-  /** Active when on /assets or asset-related routes (add/edit/view), not on ministries. */
+  /** Active when on /asset or asset-related routes (add/edit/view), not on ministries. */
   isAssetsActive(): boolean {
     const path = this.currentRoute().split('?')[0];
     if (path.includes('/ministries') || path.includes('/ministry-detail')) return false;
     return (
-      path === '/assets' ||
-      path.startsWith('/assets/') ||
+      path === '/asset' ||
+      path.startsWith('/asset/') ||
       path.includes('/view-assets-detail') ||
       path.includes('/add-digital-assets') ||
       path.includes('/edit-digital-asset')
