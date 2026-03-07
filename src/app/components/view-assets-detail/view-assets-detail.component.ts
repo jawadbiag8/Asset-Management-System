@@ -1,6 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ApiService, ApiResponse } from '../../services/api.service';
+
+/** Single contact from GET Asset (contacts[]). */
+export interface AssetContact {
+  contactName?: string;
+  contactTitle?: string;
+  contactNumber?: string;
+  contactEmail?: string;
+  type?: string;
+}
 import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { UtilsService } from '../../services/utils.service';
 import { formatDateOrPassThrough } from '../../utils/date-format.util';
@@ -102,14 +112,39 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
     technicalOwnerContact: '',
   };
 
+  /** Contacts from GET Asset (contacts[]) – used for Technical Contacts section. */
+  assetContacts: AssetContact[] = [];
+
+  /** Primary contact from GET Asset contacts (type === 'Business' or contactTitle === 'Primary'). */
+  get primaryContact(): AssetContact | null {
+    const list = this.assetContacts || [];
+    return (
+      list.find(
+        (c) =>
+          String(c?.type ?? '').toLowerCase() === 'business' ||
+          String(c?.contactTitle ?? '').toLowerCase() === 'primary',
+      ) ?? null
+    );
+  }
+
+  /** Technical contacts only (type === 'Technical'). */
+  get technicalContacts(): AssetContact[] {
+    return (this.assetContacts || []).filter(
+      (c) => String(c?.type ?? '').toLowerCase() === 'technical',
+    );
+  }
+
   loadAssetDashboard() {
     if (!this.assetId) {
       console.error('Asset ID is required');
       return;
     }
 
-    this.apiService.getAssetsDashboad(this.assetId).subscribe({
-      next: (response: ApiResponse<any>) => {
+    forkJoin({
+      dashboard: this.apiService.getAssetsDashboad(this.assetId),
+      asset: this.apiService.getAssetById(this.assetId),
+    }).subscribe({
+      next: ({ dashboard: response, asset: assetResponse }) => {
         if (response.isSuccessful && response.data) {
           const d = response.data;
 
@@ -177,9 +212,18 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
         } else {
           console.error('API Error:', response.message);
         }
+
+        if (assetResponse?.isSuccessful && assetResponse?.data) {
+          const data = assetResponse.data as Record<string, unknown>;
+          const contacts = (data['contacts'] as AssetContact[]) ?? [];
+          this.assetContacts = Array.isArray(contacts) ? contacts : [];
+        } else {
+          this.assetContacts = [];
+        }
       },
       error: (error) => {
         console.error('Error loading asset dashboard:', error);
+        this.assetContacts = [];
       },
     });
   }

@@ -19,4 +19,67 @@
   padding: 12px 32px 0;
   position: relative;
   z-index: 400;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  align-items: flex-start;
+
+  flex-wrap: nowrap;
+  min-height: 0;
+  line-height: 20px;
+
+  app-reusable-breadcrum {
+    display: inline-block;
+    line-height: 20px;
+    vertical-align: middle;
+  }
+
+  app-reusable-breadcrum ::ng-deep .breadcrumb-container {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 20px;
+  }
+
+  app-reusable-breadcrum ::ng-deep .breadcrumb {
+    line-height: 20px;
+    align-items: center;
+  }
+
+  app-reusable-breadcrum ::ng-deep .breadcrumb-link a,
+  app-reusable-breadcrum ::ng-deep .breadcrumb-current,
+  app-reusable-breadcrum ::ng-deep .breadcrumb-separator {
+    line-height: 20px;
+  }
+}
+
+.app-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary, #008080);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  cursor: pointer;
+  transition: color 0.2s;
+  flex-shrink: 0;
+  vertical-align: middle;
+
+  &:hover {
+    color: #006666;
+    text-decoration: underline;
+  }
+}
+
+.app-back-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: block;
+  vertical-align: middle;
+}
+
+.app-back-text {
+  line-height: 20px;
 }

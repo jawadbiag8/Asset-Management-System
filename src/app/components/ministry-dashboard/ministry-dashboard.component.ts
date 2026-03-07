@@ -456,7 +456,9 @@ export class MinistryDashboardComponent implements OnInit {
   onCorrespondence(ministryId: string, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    this.generateReport(ministryId, event);
+    this.router.navigate(['/ministry-correspondence-history'], {
+      queryParams: { ministryId },
+    });
   }
 
   generateReport(ministryId: string, event: Event): void {

@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray, AbstractControl } from '@angular/forms';
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { BreadcrumbService } from '../../services/breadcrumb.service';
-import { ApiResponse, ApiService, BulkUploadErrorRow, BulkUploadErrorData } from '../../services/api.service';
+import { ApiResponse, ApiService, BulkUploadErrorRow, BulkUploadErrorData, AssetUpdatePutRequest, AssetContactItem } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
 import { DashboardReturnStateService } from '../../services/dashboard-return-state.service';
 import { CanComponentDeactivate } from '../../guards/can-deactivate.guard';
@@ -185,6 +185,9 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
 
       // Edit only: Asset Status (from CommonLookup/type/AssetStatus)
       assetStatusId: [null as number | null],
+      // Edit: RefId and Path for PUT Asset/{id} (from GET or document upload)
+      refId: [''],
+      path: [''],
     });
   }
 
@@ -300,34 +303,62 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
           const name = (data['websiteApplication'] ?? data['assetName'] ?? 'Edit Digital Asset') as string;
           this.breadcrumbService.setCurrentLabel(name);
 
-          // Pre-populate technical owners (array from API or legacy single contact)
-          const rawOwners = data['technicalOwners'] ?? data['technicalContacts'];
+          // API response: contacts[] with contactName, contactTitle, contactNumber, contactEmail, type ("Business" | "Technical")
+          const contacts = (data['contacts'] as Array<Record<string, unknown>>) ?? [];
+          const businessContact = contacts.find((c) => String(c['type'] ?? '').toLowerCase() === 'business');
+          const technicalContacts = contacts.filter((c) => String(c['type'] ?? '').toLowerCase() === 'technical');
+
+          // Primary contact from type === "Business"
+          this.digitalAssetForm.patchValue({
+            ministryId: data['ministryId'] ?? '',
+            departmentId: data['departmentId'] ?? '',
+            assetName: data['assetName'] ?? '',
+            assetUrl: data['assetUrl'] ?? '',
+            description: data['description'] ?? '',
+            citizenImpactLevelId: data['citizenImpactLevelId'] ?? '',
+            assetStatusId: data['statusId'] ?? data['assetStatusId'] ?? null,
+            refId: data['refId'] ?? data['RefId'] ?? '',
+            path: data['path'] ?? data['Path'] ?? data['documentPath'] ?? '',
+            primaryContactName: businessContact?.['contactName'] ?? '',
+            primaryContactEmail: businessContact?.['contactEmail'] ?? '',
+            primaryContactPhone: businessContact?.['contactNumber'] ?? '',
+          });
+
+          // Technical owners: one row per contact with type === "Technical"
           this.technicalOwnersArray.clear();
-          if (Array.isArray(rawOwners) && rawOwners.length > 0) {
-            for (const o of rawOwners as Record<string, unknown>[]) {
+          if (technicalContacts.length > 0) {
+            for (const c of technicalContacts) {
               this.technicalOwnersArray.push(this.fb.group({
-                name: [o['name'] ?? o['technicalContactName'] ?? '', Validators.required],
-                email: [o['email'] ?? o['technicalContactEmail'] ?? '', [Validators.required, Validators.email]],
-                phone: [o['phone'] ?? o['technicalContactPhone'] ?? '', [Validators.pattern(ManageDigitalAssetsComponent.PHONE_PATTERN)]],
-                contactTitle: [o['contactTitle'] ?? '', Validators.required],
+                name: [c['contactName'] ?? '', Validators.required],
+                email: [c['contactEmail'] ?? '', [Validators.required, Validators.email]],
+                phone: [c['contactNumber'] ?? '', [Validators.pattern(ManageDigitalAssetsComponent.PHONE_PATTERN)]],
+                contactTitle: [c['contactTitle'] ?? '', Validators.required],
               }));
             }
-          } else if (data['technicalContactName'] || data['technicalContactEmail']) {
-            this.technicalOwnersArray.push(this.fb.group({
-              name: [data['technicalContactName'] ?? '', Validators.required],
-              email: [data['technicalContactEmail'] ?? '', [Validators.required, Validators.email]],
-              phone: [data['technicalContactPhone'] ?? '', [Validators.pattern(ManageDigitalAssetsComponent.PHONE_PATTERN)]],
-              contactTitle: [data['technicalContactTitle'] ?? '', Validators.required],
-            }));
           } else {
-            this.technicalOwnersArray.push(this.createTechnicalOwnerGroup());
+            // Legacy fallback: technicalOwners / technicalContacts from old API shape
+            const rawOwners = data['technicalOwners'] ?? data['technicalContacts'];
+            if (Array.isArray(rawOwners) && rawOwners.length > 0) {
+              for (const o of rawOwners as Record<string, unknown>[]) {
+                this.technicalOwnersArray.push(this.fb.group({
+                  name: [o['name'] ?? o['technicalContactName'] ?? o['contactName'] ?? '', Validators.required],
+                  email: [o['email'] ?? o['technicalContactEmail'] ?? o['contactEmail'] ?? '', [Validators.required, Validators.email]],
+                  phone: [o['phone'] ?? o['technicalContactPhone'] ?? o['contactNumber'] ?? '', [Validators.pattern(ManageDigitalAssetsComponent.PHONE_PATTERN)]],
+                  contactTitle: [o['contactTitle'] ?? '', Validators.required],
+                }));
+              }
+            } else if (data['technicalContactName'] || data['technicalContactEmail']) {
+              this.technicalOwnersArray.push(this.fb.group({
+                name: [data['technicalContactName'] ?? '', Validators.required],
+                email: [data['technicalContactEmail'] ?? '', [Validators.required, Validators.email]],
+                phone: [data['technicalContactPhone'] ?? '', [Validators.pattern(ManageDigitalAssetsComponent.PHONE_PATTERN)]],
+                contactTitle: [data['technicalContactTitle'] ?? '', Validators.required],
+              }));
+            } else {
+              this.technicalOwnersArray.push(this.createTechnicalOwnerGroup());
+            }
           }
 
-          const { technicalOwners: _to, technicalContacts: _tc, ...rest } = data;
-          this.digitalAssetForm.patchValue({
-            ...rest,
-            assetStatusId: data['statusId'] ?? data['assetStatusId'],
-          });
           this.digitalAssetForm.markAsPristine();
           this.digitalAssetForm.markAsUntouched();
         } else {
@@ -366,12 +397,41 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     if (raw['departmentId'] != null && raw['departmentId'] !== '') {
       payload.departmentId = raw['departmentId'] as number;
     }
-    if (this.pageInfo().pageState === 'edit' && raw['assetStatusId'] != null && raw['assetStatusId'] !== '') {
-      payload.assetStatusId = raw['assetStatusId'] as number;
-    }
-
     if (this.pageInfo().pageState === 'edit') {
-      this.api.updateAsset(this.pageInfo().assetId, payload).subscribe({
+      const contacts: AssetContactItem[] = [];
+      if (raw['primaryContactName'] || raw['primaryContactEmail']) {
+        contacts.push({
+          ContactName: (raw['primaryContactName'] as string) || 'Primary Contact',
+          ContactTitle: 'Primary',
+          ContactNumber: (raw['primaryContactPhone'] as string) || '',
+          ContactEmail: (raw['primaryContactEmail'] as string) || '',
+          Type: 'Business',
+        });
+      }
+      technicalOwners.forEach((o) => {
+        contacts.push({
+          ContactName: o.name || 'Technical Owner',
+          ContactTitle: o.contactTitle || 'Technical Owner',
+          ContactNumber: o.phone || '',
+          ContactEmail: o.email || '',
+          Type: 'Technical',
+        });
+      });
+      if (contacts.length === 0) {
+        contacts.push({
+          ContactName: 'Primary Contact',
+          ContactTitle: 'Primary',
+          ContactNumber: (raw['primaryContactPhone'] as string) || '',
+          ContactEmail: (raw['primaryContactEmail'] as string) || '',
+          Type: 'Business',
+        });
+      }
+      const putBody: AssetUpdatePutRequest = {
+        RefId: (raw['refId'] as string) || '',
+        Path: (raw['path'] as string) || '',
+        Contacts: contacts,
+      };
+      this.api.updateAsset(this.pageInfo().assetId, putBody).subscribe({
         next: (res: ApiResponse) => {
           if (res.isSuccessful) {
             this.utils.showToast(res.message, 'Asset updated successfully', 'success');
@@ -383,10 +443,9 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
         },
         error: (error: any) => {
           this.utils.showToast(error, 'Error updating asset', 'error');
-        }
+        },
       });
-
-      return
+      return;
     }
 
     this.api.addAsset(payload).subscribe({
@@ -531,8 +590,31 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     return true;
   }
 
-  /** Opens upload document dialog; on submit, receives referenceNumber + file and auto-submits edit form. */
+  /**
+   * Called when user clicks "Update Digital Asset" (edit mode).
+   * Runs form validation first (including Technical Owners). If invalid, shows errors and does not open dialog.
+   * If valid, opens the reference/document upload dialog.
+   */
+  onUpdateDigitalAssetClick(): void {
+    this.technicalOwnersArray.updateValueAndValidity();
+    this.digitalAssetForm.updateValueAndValidity();
+    this.digitalAssetForm.markAllAsTouched();
+    if (this.digitalAssetForm.invalid) {
+      this.utils.showToast('Please fix the errors in the form (e.g. Technical Owners: required fields, duplicate email).', 'Validation', 'error');
+      return;
+    }
+    this.openUploadDocumentDialog();
+  }
+
+  /** Opens upload document dialog; on submit, receives referenceNumber + file and auto-submits edit form. Does not open if form is invalid. */
   openUploadDocumentDialog(): void {
+    this.technicalOwnersArray.updateValueAndValidity();
+    this.digitalAssetForm.updateValueAndValidity();
+    if (this.digitalAssetForm.invalid) {
+      this.digitalAssetForm.markAllAsTouched();
+      this.utils.showToast('Please fix the form errors before updating. Technical Owners: Name, Email, and Contact Title are required; duplicate emails are not allowed.', 'Validation', 'error');
+      return;
+    }
     const dialogRef = this.dialog.open(UploadDocumentDialogComponent, {
       width: '520px',
       disableClose: false,

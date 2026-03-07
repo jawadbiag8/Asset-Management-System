@@ -242,6 +242,11 @@ $manage-radius: 8px;
       margin-bottom: 0;
     }
 
+    /* First row (Description + Primary Contact) – space below so Technical Owners doesn’t overlap */
+    .row.g-2.mt-2 {
+      margin-bottom: 0.5rem;
+    }
+
     app-reusable-input {
       margin-bottom: 0;
     }
@@ -257,14 +262,24 @@ $manage-radius: 8px;
   }
 }
 
+/* Technical Owners – separate row with clear spacing to avoid text overlap */
+.technical-owners-row {
+  margin-top: 1.5rem;
+  clear: both;
+}
+
 .section-subtitle {
   font-size: 16px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
+  margin-top: 0;
+  margin-bottom: 0.25rem;
 }
 
 .technical-owners-desc {
-  color: #fff;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 1rem;
+  line-height: 1.5;
 }
 
 .technical-owners-list {

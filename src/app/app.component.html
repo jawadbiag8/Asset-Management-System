@@ -1,6 +1,12 @@
 <div class="app-shell">
   <app-header *ngIf="showHeader"></app-header>
   <div class="app-breadcrumb-wrap" *ngIf="showHeader && breadcrumbService.currentBreadcrumbs().length > 1">
+    <a *ngIf="showBackLink" class="app-back-link" (click)="goBack()" role="button">
+      <svg class="app-back-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M16.3124 8.99983C16.3124 9.31033 16.0604 9.56234 15.7499 9.56234H3.60818L7.89816 13.8523C8.11791 14.0721 8.11791 14.4283 7.89816 14.6481C7.78866 14.7576 7.64464 14.8131 7.50064 14.8131C7.35664 14.8131 7.21261 14.7583 7.10311 14.6481L1.85311 9.39809C1.80136 9.34634 1.76021 9.28417 1.73171 9.21517C1.67471 9.07792 1.67471 8.92267 1.73171 8.78542C1.76021 8.71642 1.80136 8.65406 1.85311 8.60231L7.10311 3.35231C7.32286 3.13256 7.67914 3.13256 7.89889 3.35231C8.11864 3.57206 8.11864 3.92834 7.89889 4.14809L3.60891 8.43807H15.7499C16.0604 8.43732 16.3124 8.68933 16.3124 8.99983Z" fill="currentColor"/>
+      </svg>
+      <span class="app-back-text">Back</span>
+    </a>
     <app-reusable-breadcrum [breadcrumbs]="breadcrumbService.currentBreadcrumbs()"></app-reusable-breadcrum>
   </div>
   <router-outlet></router-outlet>

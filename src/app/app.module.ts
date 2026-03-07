@@ -45,6 +45,7 @@ import { AssetAuditLogComponent } from './components/assets/asset-audit-log/asse
 import { AssetsComponent } from './components/assets/assets.component';
 import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
 import { MinistryDashboardComponent } from './components/ministry-dashboard/ministry-dashboard.component';
+import { MinistryCorrespondenceHistoryComponent } from './components/ministry-correspondence-history/ministry-correspondence-history.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import { MinistryDashboardComponent } from './components/ministry-dashboard/mini
     AssetsComponent,
     PmDashboardComponent,
     MinistryDashboardComponent,
+    MinistryCorrespondenceHistoryComponent,
   ],
   imports: [
     BrowserModule,

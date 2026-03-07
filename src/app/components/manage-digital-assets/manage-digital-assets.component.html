@@ -193,9 +193,11 @@
                                     [control]="getControl('primaryContactPhone')">
                                 </app-reusable-input>
                             </div>
+                        </div>
 
-                            <!-- Dynamic Technical Owners -->
-                            <div class="col-12 mt-3">
+                        <!-- Technical Owners – separate row to avoid overlap with Primary Contact hints -->
+                        <div class="row technical-owners-row">
+                            <div class="col-12">
                                 <h3 class="section-subtitle mb-1">Technical Owners</h3>
                                 <p class="technical-owners-desc small mb-3">Add all responsible technical contacts. Each row has a <strong>Delete</strong> below it; use <strong>Add row</strong> at the bottom to add another. Name, Email, and Contact Title are required; duplicate emails are not allowed.</p>
 
@@ -256,7 +258,7 @@
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" routerLink="/dashboard">Cancel</button>
                         @if (pageInfo().pageState === 'edit') {
-                        <button type="button" class="btn btn-primary" (click)="openUploadDocumentDialog()">
+                        <button type="button" class="btn btn-primary" (click)="onUpdateDigitalAssetClick()">
                             Update Digital Asset
                         </button>
                         } @else {

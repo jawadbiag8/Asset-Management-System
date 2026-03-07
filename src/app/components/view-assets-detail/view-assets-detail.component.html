@@ -238,42 +238,52 @@
     </app-active-incidents>
   </div>
 
-  <!-- Ownership & Accountability Section -->
+  <!-- Ownership & Accountability Section (above Technical Contacts, same card style) -->
   <div class="ownership-section">
     <h2 class="section-title">Ownership & Accountability</h2>
     <div class="section-separator"></div>
-    <div class="ownership-cards">
-      <div class="ownership-card">
-        <div class="ownership-label">OWNER NAME</div>
-        <div class="ownership-value">{{ ownership.ownerName || "Not Assigned" }}</div>
-      </div>
-      <div class="ownership-card">
-        <div class="ownership-label">OWNER EMAIL</div>
-        <div class="ownership-value">{{ ownership.ownerEmail || "N/A" }}</div>
-      </div>
-      <div class="ownership-card">
-        <div class="ownership-label">OWNER CONTACT</div>
-        <div class="ownership-value">{{ ownership.ownerContact || "N/A" }}</div>
-      </div>
-      <div class="ownership-card">
-        <div class="ownership-label">TECHNICAL OWNER NAME</div>
-        <div
-          class="ownership-value"
-          [ngClass]="{ 'not-assigned': !ownership.technicalOwnerName }"
-        >
-          {{ ownership.technicalOwnerName || "Not Assigned" }}
+    <div class="ownership-contacts-list">
+      <div class="ownership-contact-card">
+        <div class="ownership-contact-card-title">Primary Contact</div>
+        <div class="ownership-contact-row">
+          <span class="ownership-contact-label">Name</span>
+          <span class="ownership-contact-value">{{ primaryContact?.contactName || 'Not Assigned' }}</span>
+        </div>
+        <div class="ownership-contact-row">
+          <span class="ownership-contact-label">Email</span>
+          <a *ngIf="primaryContact?.contactEmail" [href]="'mailto:' + (primaryContact?.contactEmail ?? '')" class="ownership-contact-link">{{ primaryContact?.contactEmail }}</a>
+          <span *ngIf="!primaryContact?.contactEmail" class="ownership-contact-value">N/A</span>
+        </div>
+        <div class="ownership-contact-row">
+          <span class="ownership-contact-label">Contact</span>
+          <span class="ownership-contact-value">{{ primaryContact?.contactNumber || 'N/A' }}</span>
         </div>
       </div>
-      <div class="ownership-card">
-        <div class="ownership-label">EMAIL</div>
-        <div class="ownership-value">
-          {{ ownership.technicalOwnerEmail || "N/A" }}
+    </div>
+  </div>
+
+  <!-- Technical Contacts Section -->
+  <div class="technical-contacts-section" *ngIf="technicalContacts.length > 0">
+    <h2 class="section-title">Technical Contacts</h2>
+    <div class="section-separator"></div>
+    <div class="technical-contacts-list">
+      <div class="technical-contact-card" *ngFor="let contact of technicalContacts">
+        <div class="technical-contact-row">
+          <span class="technical-contact-label">Name</span>
+          <span class="technical-contact-value">{{ contact.contactName || '—' }}</span>
         </div>
-      </div>
-      <div class="ownership-card">
-        <div class="ownership-label">CONTACT</div>
-        <div class="ownership-value">
-          {{ ownership.technicalOwnerContact || "N/A" }}
+        <div class="technical-contact-row">
+          <span class="technical-contact-label">Title</span>
+          <span class="technical-contact-value">{{ contact.contactTitle || '—' }}</span>
+        </div>
+        <div class="technical-contact-row">
+          <span class="technical-contact-label">Phone</span>
+          <span class="technical-contact-value">{{ contact.contactNumber || '—' }}</span>
+        </div>
+        <div class="technical-contact-row">
+          <span class="technical-contact-label">Email</span>
+          <a *ngIf="contact.contactEmail" [href]="'mailto:' + contact.contactEmail" class="technical-contact-link">{{ contact.contactEmail }}</a>
+          <span *ngIf="!contact.contactEmail" class="technical-contact-value">—</span>
         </div>
       </div>
     </div>

@@ -62,6 +62,11 @@ export class ActiveIncidentsComponent implements OnInit {
 
   incidents = signal<ActiveIncident[]>([]);
   totalItems = signal<number>(0);
+  /** Summary counts for KPI cards (Total, Open, Resolved, Archived) – only when showHeader && !assetId */
+  summaryTotal = signal<number>(0);
+  summaryOpen = signal<number>(0);
+  summaryResolved = signal<number>(0);
+  summaryArchived = signal<number>(0);
   private incidentsByAssetLoading = false;
   /** When true, table can render (filters applied from route if any). Avoids double API call when opening with ?MinistryId=... */
   filtersReady = signal(false);
@@ -88,6 +93,17 @@ export class ActiveIncidentsComponent implements OnInit {
     searchPlaceholder: 'Search Incidents',
     serverSideSearch: true,
     columns: [
+      {
+        key: 'asset',
+        header: 'Assets',
+        cellType: 'two-line',
+        primaryField: 'assetName',
+        secondaryField: 'assetUrlDisplay',
+        linkField: 'assetUrl',
+        sortable: false,
+        width: '260px',
+        cellClass: 'incident-asset-cell',
+      },
       {
         key: 'incident',
         header: 'Incident',
@@ -123,7 +139,7 @@ export class ActiveIncidentsComponent implements OnInit {
       },
       {
         key: 'createdBy',
-        header: 'Created by',
+        header: 'Created By',
         cellType: 'two-line',
         primaryField: 'createdBy',
         secondaryField: 'createdAgo',
@@ -131,23 +147,18 @@ export class ActiveIncidentsComponent implements OnInit {
         width: '180px',
       },
       {
-        key: 'kpi',
-        header: 'Kpi',
-        cellType: 'text',
-        primaryField: 'kpi',
+        key: 'checkIncident',
+        header: 'Check Incident',
+        cellType: 'actions',
         sortable: false,
-        width: '250px',
-        cellClass: 'fw-bold',
-      },
-      {
-        key: 'asset',
-        header: 'Asset',
-        cellType: 'two-line',
-        primaryField: 'ministryName',
-        secondaryField: 'assetName',
-        linkField: 'assetRouterLink',
-        sortable: false,
-        width: '200px',
+        width: '180px',
+        actionLinks: [
+          {
+            label: 'Check Current Status',
+            display: 'text',
+            color: 'var(--color-primary, #008080)',
+          },
+        ],
       },
     ],
     data: [],
@@ -408,6 +419,11 @@ export class ActiveIncidentsComponent implements OnInit {
           );
         }
         this.filtersReady.set(true);
+        // Load summary counts for KPI cards when on main incidents page
+        if (this.showHeader && !this.assetId && responses.statuses?.isSuccessful) {
+          const statuses = Array.isArray(responses.statuses.data) ? responses.statuses.data : [];
+          this.loadSummaryCounts(statuses);
+        }
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error loading filter options', 'error');
@@ -425,6 +441,43 @@ export class ActiveIncidentsComponent implements OnInit {
           this.updateFilterOptions(filterId, defaultOptions);
         });
         this.filtersReady.set(true);
+      },
+    });
+  }
+
+  /** Load summary counts for the 4 KPI cards (Total, Open, Resolved, Archived). */
+  private loadSummaryCounts(statuses: { id?: number; name?: string }[]): void {
+    const getStatusId = (name: string) => {
+      const s = statuses.find(
+        (x) => String(x.name || '').toLowerCase() === name.toLowerCase(),
+      );
+      return s?.id != null ? String(s.id) : null;
+    };
+    const openId = getStatusId('Open');
+    const resolvedId = getStatusId('Resolved');
+    const archivedId = getStatusId('Archived');
+
+    const baseParams = new HttpParams().set('pageNumber', '1').set('pageSize', '1');
+    const total$ = this.apiService.getIncidents(baseParams);
+    const open$ = openId ? this.apiService.getIncidents(baseParams.set('StatusId', openId)) : null;
+    const resolved$ = resolvedId ? this.apiService.getIncidents(baseParams.set('StatusId', resolvedId)) : null;
+    const archived$ = archivedId ? this.apiService.getIncidents(baseParams.set('StatusId', archivedId)) : null;
+
+    const requests = [total$, open$, resolved$, archived$].filter(Boolean) as ReturnType<ApiService['getIncidents']>[];
+    forkJoin(requests).subscribe({
+      next: (responses) => {
+        const getTotal = (r: ApiResponse) => (r as any)?.data?.totalCount ?? 0;
+        let idx = 0;
+        this.summaryTotal.set(getTotal(responses[idx++]));
+        this.summaryOpen.set(open$ ? getTotal(responses[idx++]) : 0);
+        this.summaryResolved.set(resolved$ ? getTotal(responses[idx++]) : 0);
+        this.summaryArchived.set(archived$ ? getTotal(responses[idx++]) : 0);
+      },
+      error: () => {
+        this.summaryTotal.set(this.totalItems());
+        this.summaryOpen.set(0);
+        this.summaryResolved.set(0);
+        this.summaryArchived.set(0);
       },
     });
   }
@@ -529,8 +582,8 @@ export class ActiveIncidentsComponent implements OnInit {
             ministryName: incident.ministryName || 'N/A',
             kpiDescription:
               incident.kpiDescription || incident.description || 'N/A',
-            // Use full URL from backend if available, otherwise use router link
             assetRouterLink: incident.assetUrl,
+            assetUrlDisplay: incident.assetUrl || '—',
           }));
           this.incidents.set(processedIncidents);
           this.totalItems.set(totalCount);
@@ -582,6 +635,7 @@ export class ActiveIncidentsComponent implements OnInit {
             kpiDescription:
               incident.kpiDescription || incident.description || 'N/A',
             assetRouterLink: incident.assetUrl,
+            assetUrlDisplay: incident.assetUrl || '—',
           }));
           this.incidents.set(processedIncidents);
           this.totalItems.set(totalCount);
@@ -695,7 +749,7 @@ export class ActiveIncidentsComponent implements OnInit {
     } else if (statusUpper === 'MONITORING') {
       return 'var(--color-green-light)'; // Light green background
     } else if (statusUpper === 'RESOLVED' || statusUpper === 'CLOSED') {
-      return '#B2F5EA'; // Teal/blue-green background
+      return '#2CCC004A'; // Resolved green background
     } else if (statusUpper === 'IN PROGRESS' || statusUpper === 'IN_PROGRESS') {
       return 'var(--color-blue-light)';
     }
@@ -713,7 +767,7 @@ export class ActiveIncidentsComponent implements OnInit {
     } else if (statusUpper === 'MONITORING') {
       return 'var(--color-green-dark)'; // Green text
     } else if (statusUpper === 'RESOLVED' || statusUpper === 'CLOSED') {
-      return '#047857'; // Dark teal text
+      return '#fff'; // White text on green background
     } else if (statusUpper === 'IN PROGRESS' || statusUpper === 'IN_PROGRESS') {
       return 'var(--color-blue-dark)';
     }
@@ -747,6 +801,12 @@ export class ActiveIncidentsComponent implements OnInit {
 
   onRefresh(): void {
     this.utils.refreshTableData();
+  }
+
+  onCheckIncident(event: { row: any; columnKey: string }): void {
+    if (event?.row?.id != null && event.columnKey === 'Check Current Status') {
+      this.router.navigate(['/incidents', event.row.id]);
+    }
   }
 
   onAddIncident(): void {

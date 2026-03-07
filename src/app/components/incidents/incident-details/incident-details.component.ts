@@ -378,7 +378,7 @@ export class IncidentDetailsComponent implements OnInit, OnDestroy {
     } else if (statusUpper === 'MONITORING') {
       return 'var(--color-green-light)';
     } else if (statusUpper === 'RESOLVED' || statusUpper === 'CLOSED') {
-      return '#B2F5EA';
+      return '#2CCC004A';
     } else if (statusUpper === 'IN PROGRESS' || statusUpper === 'IN_PROGRESS') {
       return 'var(--color-blue-light)';
     }
@@ -396,7 +396,7 @@ export class IncidentDetailsComponent implements OnInit, OnDestroy {
     } else if (statusUpper === 'MONITORING') {
       return 'var(--color-green-dark)';
     } else if (statusUpper === 'RESOLVED' || statusUpper === 'CLOSED') {
-      return '#047857';
+      return '#fff';
     } else if (statusUpper === 'IN PROGRESS' || statusUpper === 'IN_PROGRESS') {
       return 'var(--color-blue-dark)';
     }

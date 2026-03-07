@@ -18,6 +18,7 @@ const BREADCRUMB_CONFIG: { path: string; config: BreadcrumbConfig }[] = [
   { path: '/dashboard', config: { label: 'Dashboards' } },
   { path: '/asset', config: { label: 'Assets', parentPath: '/dashboard' } },
   { path: '/ministries', config: { label: 'Ministries', parentPath: '/dashboard' } },
+  { path: '/ministry-correspondence-history', config: { label: 'Correspondence History', parentPath: '/dashboard' } },
   { path: '/ministry-detail', config: { label: 'Ministry Detail', parentPath: '/ministries' } },
   { path: '/asset-control-panel', config: { label: 'Asset Control Panel', parentPath: '/asset' } },
   { path: '/asset-audit-log', config: { label: 'Audit Logs', parentPath: '/asset' } },

@@ -1,12 +1,31 @@
 <div class="container-fluid" [class.incidents-page]="showHeader" [class.p-4]="showHeader">
   @if (showHeader) {
-    <header class="incidents-header d-flex justify-content-between align-items-center">
-      <h1 class="incidents-page-title">All Incidents</h1>
+    <h1 class="incidents-page-title">All Incidents</h1>
 
-    </header>
+    <!-- Summary KPI cards: Total, Open, Resolved, Archived -->
+    @if (!assetId) {
+      <div class="incidents-summary-cards">
+        <div class="incident-kpi-card">
+          <span class="incident-kpi-value">{{ summaryTotal() }}</span>
+          <span class="incident-kpi-label">Total Incidents</span>
+        </div>
+        <div class="incident-kpi-card">
+          <span class="incident-kpi-value">{{ summaryOpen() }}</span>
+          <span class="incident-kpi-label">Open</span>
+        </div>
+        <div class="incident-kpi-card">
+          <span class="incident-kpi-value">{{ summaryResolved() }}</span>
+          <span class="incident-kpi-label">Resolved</span>
+        </div>
+        <div class="incident-kpi-card">
+          <span class="incident-kpi-value">{{ summaryArchived() }}</span>
+          <span class="incident-kpi-label">Archived</span>
+        </div>
+      </div>
+    }
   }
 
-  <div [class.mt-5]="showHeader">
+  <div class="incidents-content" [class.incidents-content--with-header]="showHeader">
     @if (!hasRouteQueryParams || filtersReady()) {
       @if (showHeader) {
         <div id="incidents-table" class="dashboard-table-section">
@@ -16,6 +35,7 @@
               [filters]="displayFilters()"
               (searchQuery)="loadIncidents($event)"
               [totalItems]="totalItems()"
+              (actionClick)="onCheckIncident($event)"
             >
             </app-reusable-table>
           </div>
@@ -26,6 +46,7 @@
           [filters]="displayFilters()"
           (searchQuery)="loadIncidents($event)"
           [totalItems]="totalItems()"
+          (actionClick)="onCheckIncident($event)"
         >
         </app-reusable-table>
       }

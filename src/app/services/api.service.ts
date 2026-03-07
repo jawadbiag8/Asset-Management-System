@@ -46,6 +46,37 @@ export interface AssetHistoryItem {
   changes: Record<string, unknown>;
 }
 
+/** Contact item for PUT Asset/{id} body (edit asset). */
+export interface AssetContactItem {
+  ContactName: string;
+  ContactTitle: string;
+  ContactNumber: string;
+  ContactEmail: string;
+  Type: 'Business' | 'Technical';
+}
+
+/** PUT Asset/{id} request body (edit asset – RefId, Path, Contacts). */
+export interface AssetUpdatePutRequest {
+  RefId: string;
+  Path: string;
+  Contacts: AssetContactItem[];
+}
+
+/** Single item from GET Ministry/{ministryId}/correspondence */
+export interface MinistryCorrespondenceItem {
+  id: number;
+  ministryId: number;
+  ministryName: string;
+  status: string;
+  reportPath?: string;
+  refId?: string | null;
+  refPath?: string | null;
+  createdAt: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -114,6 +145,17 @@ export class ApiService {
     return this.http.get<ApiResponse<any[]>>(
       `${this.baseUrl}/Ministry/correspondence/getAll`,
       options,
+    );
+  }
+
+  /**
+   * Get correspondence list for a ministry.
+   * GET Ministry/{ministryId}/correspondence
+   */
+  getMinistryCorrespondence(ministryId: number | string): Observable<ApiResponse<MinistryCorrespondenceItem[]>> {
+    return this.http.get<ApiResponse<MinistryCorrespondenceItem[]>>(
+      `${this.baseUrl}/Ministry/${ministryId}/correspondence`,
+      { headers: { Accept: 'text/plain' } },
     );
   }
 
@@ -277,12 +319,24 @@ export class ApiService {
     );
   }
 
+  /**
+   * PUT Asset/{id} – update asset with RefId, Path, and Contacts (JSON body).
+   * Use this for edit asset; Accept and Content-Type headers are set by HttpClient.
+   */
   updateAsset(
     assetId: number | null,
-    asset: DigitalAssetRequest,
+    body: AssetUpdatePutRequest,
   ): Observable<ApiResponse<any>> {
-    let url = `${this.baseUrl}/Asset/${assetId}`;
-    return this.http.put<ApiResponse<any>>(url, asset);
+    if (assetId == null) {
+      return new Observable((obs) => {
+        obs.error(new Error('Asset ID is required for update'));
+        obs.complete();
+      });
+    }
+    const url = `${this.baseUrl}/Asset/${assetId}`;
+    return this.http.put<ApiResponse<any>>(url, body, {
+      headers: { Accept: 'text/plain', 'Content-Type': 'application/json' },
+    });
   }
 
   /**

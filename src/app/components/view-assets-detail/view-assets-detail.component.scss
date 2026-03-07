@@ -768,17 +768,17 @@ a.link {
     color: rgba(255, 255, 255, 0.85) !important;
   }
 
-  // Pagination buttons (use teal so they match dark theme)
+  // Pagination – white for arrows and current page
   ::ng-deep .pagination-button {
-    color: var(--color-primary, #00cfcf) !important;
+    color: #ffffff !important;
 
     mat-icon {
-      color: var(--color-primary, #00cfcf) !important;
+      color: #ffffff !important;
     }
   }
 
   ::ng-deep .page-indicator .current-page {
-    color: var(--color-primary, #00cfcf) !important;
+    color: #ffffff !important;
   }
 
   // Filter bar + search (same as assets.component.scss)
@@ -826,7 +826,70 @@ a.link {
   }
 }
 
-// Ownership & Accountability Section - dark theme
+// Technical Contacts Section - dark theme
+.technical-contacts-section {
+  background-color: $detail-card-bg;
+  border-radius: $detail-card-radius;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 1px solid $detail-card-border;
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: $detail-text-primary;
+    margin-bottom: 16px;
+    margin-top: 0;
+  }
+
+  .technical-contacts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .technical-contact-card {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: $detail-card-radius;
+    padding: 16px 20px;
+    border: 1px solid $detail-card-border;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px 24px;
+  }
+
+  .technical-contact-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .technical-contact-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: $detail-text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .technical-contact-value {
+      font-size: 14px;
+      color: $detail-text-secondary;
+    }
+
+    .technical-contact-link {
+      font-size: 14px;
+      color: var(--color-primary, #008080);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Ownership & Accountability Section - same card style as Technical Contacts
 .ownership-section {
   background-color: $detail-card-bg;
   border-radius: $detail-card-radius;
@@ -843,36 +906,61 @@ a.link {
     margin-top: 0;
   }
 
-  .ownership-cards {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
+  .ownership-contacts-list {
+    display: flex;
+    flex-direction: column;
     gap: 16px;
+  }
 
-    .ownership-card {
-      background-color: rgba(0, 0, 0, 0.15);
-      border-radius: $detail-card-radius;
-      padding: 20px;
-      border: 1px solid $detail-card-border;
+  .ownership-contact-card {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: $detail-card-radius;
+    padding: 16px 20px;
+    border: 1px solid $detail-card-border;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px 24px;
+  }
 
-      .ownership-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: $detail-text-muted;
-        text-transform: capitalize;
-        letter-spacing: 0.5px;
-        margin-bottom: 12px;
-        line-height: 1.4;
+  .ownership-contact-card-title {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    font-weight: 600;
+    color: $detail-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .ownership-contact-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .ownership-contact-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: $detail-text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .ownership-contact-value {
+      font-size: 14px;
+      color: $detail-text-secondary;
+
+      &.not-assigned {
+        color: var(--color-red, #EF4444);
       }
+    }
 
-      .ownership-value {
-        font-size: 14px;
-        font-weight: 400;
-        color: $detail-text-secondary;
-        line-height: 1.5;
+    .ownership-contact-link {
+      font-size: 14px;
+      color: var(--color-primary, #008080);
+      text-decoration: none;
 
-        &.not-assigned {
-          color: var(--color-red, #EF4444);
-        }
+      &:hover {
+        text-decoration: underline;
       }
     }
   }
@@ -885,8 +973,8 @@ a.link {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .ownership-section .ownership-cards {
-    grid-template-columns: repeat(3, 1fr);
+  .ownership-section .ownership-contact-card {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -901,8 +989,8 @@ a.link {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .ownership-section .ownership-cards {
-    grid-template-columns: repeat(3, 1fr);
+  .ownership-section .ownership-contact-card {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -1018,6 +1106,21 @@ a.link {
     }
   }
 
+  .technical-contacts-section {
+    padding: 20px;
+    margin-bottom: 24px;
+
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .technical-contact-card {
+      grid-template-columns: 1fr 1fr;
+      padding: 14px 16px;
+    }
+  }
+
   .ownership-section {
     padding: 20px;
     margin-bottom: 24px;
@@ -1027,13 +1130,13 @@ a.link {
       margin-bottom: 12px;
     }
 
-    .ownership-cards {
-      grid-template-columns: repeat(2, 1fr);
+    .ownership-contacts-list {
       gap: 12px;
+    }
 
-      .ownership-card {
-        padding: 16px;
-      }
+    .ownership-contact-card {
+      padding: 14px 16px;
+      grid-template-columns: 1fr;
     }
   }
 }
@@ -1162,6 +1265,21 @@ a.link {
     }
   }
 
+  .technical-contacts-section {
+    padding: 16px;
+    margin-bottom: 20px;
+
+    .section-title {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .technical-contact-card {
+      grid-template-columns: 1fr;
+      padding: 12px 14px;
+    }
+  }
+
   .ownership-section {
     padding: 16px;
     margin-bottom: 20px;
@@ -1171,20 +1289,21 @@ a.link {
       margin-bottom: 10px;
     }
 
-    .ownership-cards {
-      grid-template-columns: 1fr;
+    .ownership-contacts-list {
       gap: 10px;
+    }
 
-      .ownership-card {
-        padding: 14px;
+    .ownership-contact-card {
+      padding: 12px 14px;
+      grid-template-columns: 1fr;
 
-        .ownership-label {
-          font-size: 10px;
-        }
+      .ownership-contact-label {
+        font-size: 10px;
+      }
 
-        .ownership-value {
-          font-size: 13px;
-        }
+      .ownership-contact-value,
+      .ownership-contact-link {
+        font-size: 13px;
       }
     }
   }
@@ -1203,7 +1322,7 @@ a.link {
     font-size: 22px;
   }
 
-  .ownership-section .ownership-cards {
+  .ownership-section .ownership-contact-card {
     grid-template-columns: 1fr;
   }
 }

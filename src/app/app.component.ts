@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { BreadcrumbService } from './services/breadcrumb.service';
 
@@ -14,6 +15,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private location: Location,
     public breadcrumbService: BreadcrumbService,
   ) {}
 
@@ -32,5 +34,18 @@ export class AppComponent implements OnInit {
   private updateHeader(url: string) {
     // Hide header on noHeaderPages
     this.showHeader = !this.noHeaderPages.some((page) => url.includes(page));
+  }
+
+  /** True when breadcrumb is shown and current route is not Dashboard or PM Dashboard. */
+  get showBackLink(): boolean {
+    if (!this.showHeader || this.breadcrumbService.currentBreadcrumbs().length <= 1) {
+      return false;
+    }
+    const path = this.router.url.split('?')[0].replace(/\/$/, '') || '/';
+    return path !== '/dashboard' && path !== '/pm-dashboard' && !path.startsWith('/pm-dashboard/');
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }
