@@ -82,6 +82,33 @@
 
         @if (isExpanded(log.id)) {
           <div class="accordion-body">
+            @if (log.contacts && log.contacts.length > 0) {
+              <div class="changes-section">
+                <span class="body-label section-label">Contacts</span>
+                <div class="contacts-list">
+                  @for (contact of log.contacts; track contact.ContactName + contact.ContactEmail + $index) {
+                    <div class="contact-card">
+                      <div class="contact-row">
+                        <span class="contact-name">{{ contact.ContactName }}</span>
+                        <span class="contact-type-badge" [attr.data-type]="contact.Type">{{ contact.Type }}</span>
+                      </div>
+                      <div class="contact-row body-row">
+                        <span class="body-label">Title:</span>
+                        <span class="body-value">{{ contact.ContactTitle }}</span>
+                      </div>
+                      <div class="contact-row body-row">
+                        <span class="body-label">Email:</span>
+                        <span class="body-value">{{ contact.ContactEmail }}</span>
+                      </div>
+                      <div class="contact-row body-row">
+                        <span class="body-label">Number:</span>
+                        <span class="body-value">{{ contact.ContactNumber }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
             @for (change of log.changesList; track change.label + change.value) {
               <div class="body-row" [class.body-description-row]="change.label === 'Description' && change.value.length > 80">
                 <span class="body-label">{{ change.label }}:</span>
@@ -92,7 +119,7 @@
                 }
               </div>
             }
-            @if (log.changesList.length === 0) {
+            @if (log.changesList.length === 0 && (!log.contacts || log.contacts.length === 0)) {
               <div class="body-row">
                 <span class="body-value body-muted">No change details</span>
               </div>

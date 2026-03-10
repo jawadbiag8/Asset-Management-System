@@ -75,6 +75,17 @@
                 <span class="watchlist-status-dot" aria-hidden="true"></span>
                 <span class="watchlist-status-text">{{ isStatusUp(fav.currentStatus) ? 'Online' : 'Offline' }}</span>
               </span>
+              <button type="button" class="watchlist-check-all-btn" matTooltip="Check all KPIs"
+                (click)="onWatchlistCheckAllKpis(fav.id); $event.preventDefault(); $event.stopPropagation()"
+                [disabled]="checkAllKpisAssetId() === fav.id"
+                [attr.aria-label]="'Check all KPIs for this asset'">
+                <svg class="watchlist-check-all-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M21.1693 8C19.6262 4.46819 16.102 2 12.0014 2C6.81606 2 2.55251 5.94668 2.05078 11" stroke="currentColor" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 8H21.4C21.7314 8 22 7.73137 22 7.4V3" stroke="currentColor" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2.88146 16C4.42458 19.5318 7.94874 22 12.0494 22C17.2347 22 21.4983 18.0533 22 13" stroke="currentColor" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7.04883 16H2.64883C2.31746 16 2.04883 16.2686 2.04883 16.6V21" stroke="currentColor" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
             </li>
             }
           </ul>

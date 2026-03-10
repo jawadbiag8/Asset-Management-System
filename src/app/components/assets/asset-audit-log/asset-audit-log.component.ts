@@ -10,6 +10,15 @@ export interface ChangeItem {
   value: string;
 }
 
+/** Contact entry inside history changes.Contacts[] (from API) */
+export interface HistoryContactItem {
+  ContactName: string;
+  ContactTitle: string;
+  Type: string;
+  ContactEmail: string;
+  ContactNumber: string;
+}
+
 export interface AuditLogEntry {
   id: string;
   dateTime: string;
@@ -17,8 +26,10 @@ export interface AuditLogEntry {
   referenceNumber: string;
   /** Optional path for Ref. Document download */
   documentPath?: string;
-  /** All changes in this iteration – shown under accordion */
+  /** All changes in this iteration – shown under accordion (excludes Contacts) */
   changesList: ChangeItem[];
+  /** Parsed from changes.Contacts when present */
+  contacts?: HistoryContactItem[];
 }
 
 @Component({
@@ -36,7 +47,7 @@ export class AssetAuditLogComponent implements OnInit, OnDestroy {
 
   private readonly allLogs = signal<AuditLogEntry[]>([]);
 
-  /** Filtered list by search (date, editedBy, referenceNumber, or any change label/value) */
+  /** Filtered list by search (date, editedBy, referenceNumber, changes, or contacts) */
   filteredLogs = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const logs = this.allLogs();
@@ -47,10 +58,21 @@ export class AssetAuditLogComponent implements OnInit, OnDestroy {
         log.editedBy.toLowerCase().includes(term) ||
         log.referenceNumber.toLowerCase().includes(term);
       if (matchMeta) return true;
-      return log.changesList.some(
+      if (log.changesList.some(
         (c) =>
           c.label.toLowerCase().includes(term) || c.value.toLowerCase().includes(term)
-      );
+      ))
+        return true;
+      if (log.contacts?.some(
+        (c) =>
+          (c.ContactName ?? '').toLowerCase().includes(term) ||
+          (c.ContactTitle ?? '').toLowerCase().includes(term) ||
+          (c.Type ?? '').toLowerCase().includes(term) ||
+          (c.ContactEmail ?? '').toLowerCase().includes(term) ||
+          (c.ContactNumber ?? '').toLowerCase().includes(term)
+      ))
+        return true;
+      return false;
     });
   });
 
@@ -117,10 +139,24 @@ export class AssetAuditLogComponent implements OnInit, OnDestroy {
 
   private mapHistoryItemToEntry(item: AssetHistoryItem): AuditLogEntry {
     const changes = item.changes ?? {};
-    const changesList: ChangeItem[] = Object.entries(changes).map(([key, val]) => ({
-      label: this.formatChangeLabel(key),
-      value: val == null ? '—' : String(val).trim() || '—',
-    }));
+    const contactsRaw = changes['Contacts'] ?? changes['contacts'];
+    const contacts: HistoryContactItem[] = Array.isArray(contactsRaw)
+      ? contactsRaw.filter((c): c is HistoryContactItem => c != null && typeof c === 'object').map((c) => ({
+          ContactName: (c as any).ContactName ?? (c as any).contactName ?? '—',
+          ContactTitle: (c as any).ContactTitle ?? (c as any).contactTitle ?? '—',
+          Type: (c as any).Type ?? (c as any).type ?? '—',
+          ContactEmail: (c as any).ContactEmail ?? (c as any).contactEmail ?? '—',
+          ContactNumber: (c as any).ContactNumber ?? (c as any).contactNumber ?? '—',
+        }))
+      : [];
+
+    const changesList: ChangeItem[] = Object.entries(changes)
+      .filter(([key]) => key !== 'Contacts' && key !== 'contacts')
+      .map(([key, val]) => ({
+        label: this.formatChangeLabel(key),
+        value: val == null ? '—' : (typeof val === 'object' ? JSON.stringify(val) : String(val)).trim() || '—',
+      }));
+
     return {
       id: String(item.id),
       dateTime: this.formatDateTime(item.createdAt),
@@ -128,6 +164,7 @@ export class AssetAuditLogComponent implements OnInit, OnDestroy {
       referenceNumber: item.refId || '—',
       documentPath: item.path || undefined,
       changesList,
+      contacts: contacts.length > 0 ? contacts : undefined,
     };
   }
 

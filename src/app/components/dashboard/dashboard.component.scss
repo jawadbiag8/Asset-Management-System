@@ -593,6 +593,37 @@
   }
 }
 
+.watchlist-panel .watchlist-check-all-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin-left: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+
+  .watchlist-check-all-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  &:hover:not(:disabled) {
+    color: #00cfcf;
+    background: rgba(0, 207, 207, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+}
 
 .correspondence-panel {
   .panel-list-draft-wrap {

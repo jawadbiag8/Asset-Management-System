@@ -276,6 +276,17 @@ $manage-radius: 8px;
       background-color: rgba(0, 0, 0, 0.2) !important;
       border-radius: 12px;
     }
+    /* Remove inner vertical line between leading–notch–trailing */
+    .mdc-notched-outline .mdc-notched-outline__leading {
+      border-right: none !important;
+    }
+    .mdc-notched-outline .mdc-notched-outline__notch {
+      border-left: none !important;
+      border-right: none !important;
+    }
+    .mdc-notched-outline .mdc-notched-outline__trailing {
+      border-left: none !important;
+    }
     .mdc-notched-outline .mdc-notched-outline__leading,
     .mdc-notched-outline .mdc-notched-outline__notch,
     .mdc-notched-outline .mdc-notched-outline__trailing {
@@ -621,6 +632,17 @@ $manage-radius: 8px;
   }
 
   .mat-mdc-form-field-appearance-outline {
+    /* Remove inner vertical line between leading–notch–trailing */
+    .mdc-notched-outline .mdc-notched-outline__leading {
+      border-right: none !important;
+    }
+    .mdc-notched-outline .mdc-notched-outline__notch {
+      border-left: none !important;
+      border-right: none !important;
+    }
+    .mdc-notched-outline .mdc-notched-outline__trailing {
+      border-left: none !important;
+    }
     .mat-mdc-form-field-outline,
     .mdc-notched-outline__leading,
     .mdc-notched-outline__notch,

@@ -62,6 +62,23 @@ export interface AssetUpdatePutRequest {
   Contacts: AssetContactItem[];
 }
 
+/** POST /api/Asset request body (add asset) – matches API: contacts[] with camelCase. */
+export interface AddAssetApiRequest {
+  ministryId: number;
+  departmentId?: number;
+  assetName: string;
+  assetUrl: string;
+  citizenImpactLevelId: number;
+  description: string;
+  contacts: {
+    contactName: string;
+    contactTitle: string;
+    contactEmail: string;
+    contactNumber: string;
+    type: 'Business' | 'Technical';
+  }[];
+}
+
 /** Single item from GET Ministry/{ministryId}/correspondence */
 export interface MinistryCorrespondenceItem {
   id: number;
@@ -313,8 +330,14 @@ export class ApiService {
     );
   }
 
-  addAsset(asset: DigitalAssetRequest): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Asset`, asset);
+  /**
+   * POST Asset – add asset. Body: ministryId, departmentId?, assetName, assetUrl,
+   * citizenImpactLevelId, description, contacts[] (contactName, contactTitle, contactEmail, contactNumber, type).
+   */
+  addAsset(asset: AddAssetApiRequest): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Asset`, asset, {
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    });
   }
 
   getAssetById(assetId: number): Observable<ApiResponse<any>> {

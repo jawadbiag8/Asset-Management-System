@@ -4,7 +4,7 @@ import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray, AbstractControl } from '@angular/forms';
 import { BreadcrumbItem } from '../reusable/reusable-breadcrum/reusable-breadcrum.component';
 import { BreadcrumbService } from '../../services/breadcrumb.service';
-import { ApiResponse, ApiService, BulkUploadErrorRow, BulkUploadErrorData, AssetUpdatePutRequest, AssetContactItem } from '../../services/api.service';
+import { ApiResponse, ApiService, BulkUploadErrorRow, BulkUploadErrorData, AssetUpdatePutRequest, AssetContactItem, AddAssetApiRequest } from '../../services/api.service';
 import { UtilsService } from '../../services/utils.service';
 import { DashboardReturnStateService } from '../../services/dashboard-return-state.service';
 import { CanComponentDeactivate } from '../../guards/can-deactivate.guard';
@@ -448,7 +448,46 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       return;
     }
 
-    this.api.addAsset(payload).subscribe({
+    const contacts: AddAssetApiRequest['contacts'] = [];
+    if (raw['primaryContactName'] || raw['primaryContactEmail']) {
+      contacts.push({
+        contactName: (raw['primaryContactName'] as string) || 'Primary Contact',
+        contactTitle: 'Primary',
+        contactEmail: (raw['primaryContactEmail'] as string) || '',
+        contactNumber: (raw['primaryContactPhone'] as string) || '',
+        type: 'Business',
+      });
+    }
+    technicalOwners.forEach((o) => {
+      contacts.push({
+        contactName: o.name || 'Technical Owner',
+        contactTitle: o.contactTitle || 'Technical Owner',
+        contactEmail: o.email || '',
+        contactNumber: o.phone || '',
+        type: 'Technical',
+      });
+    });
+    if (contacts.length === 0) {
+      contacts.push({
+        contactName: 'Primary Contact',
+        contactTitle: 'Primary',
+        contactEmail: (raw['primaryContactEmail'] as string) || '',
+        contactNumber: (raw['primaryContactPhone'] as string) || '',
+        type: 'Business',
+      });
+    }
+    const addBody: AddAssetApiRequest = {
+      ministryId: payload.ministryId,
+      assetName: payload.assetName,
+      assetUrl: payload.assetUrl,
+      citizenImpactLevelId: payload.citizenImpactLevelId,
+      description: payload.description ?? '',
+      contacts,
+    };
+    if (payload.departmentId != null) {
+      addBody.departmentId = payload.departmentId;
+    }
+    this.api.addAsset(addBody).subscribe({
       next: (res: ApiResponse) => {
         if (res.isSuccessful) {
           this.utils.showToast(res.message, 'Asset added successfully', 'success');

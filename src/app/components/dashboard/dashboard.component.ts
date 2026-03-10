@@ -64,18 +64,21 @@ export interface CorrespondenceItem {
 }
 
 function formatCorrespondenceTime(iso: string | null | undefined): string {
-  if (!iso) return '—';
+  if (iso == null || String(iso).trim() === '') return '—';
   try {
     const d = new Date(iso);
-    if (isNaN(d.getTime())) return String(iso);
+    if (isNaN(d.getTime())) return '—';
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const year = d.getFullYear();
     const h = d.getHours();
     const m = d.getMinutes();
     const ampm = h >= 12 ? 'PM' : 'AM';
     const h12 = h % 12 || 12;
     const min = String(m).padStart(2, '0');
-    return `${h12}:${min} ${ampm}`;
+    return `${month}/${day}/${year}, ${h12}:${min} ${ampm}`;
   } catch {
-    return String(iso);
+    return '—';
   }
 }
 
@@ -295,6 +298,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   /** Favorite assets for dashboard panel */
   favoriteAssets = signal<FavoriteAssetItem[]>([]);
   favoriteAssetsLoading = signal<boolean>(false);
+  /** Asset ID for which check-all KPIs is in progress (disables that row's button). */
+  checkAllKpisAssetId = signal<number | null>(null);
 
   /** Correspondence list from API Ministry/correspondence/getAll */
   correspondencePeriod = 'today';
@@ -870,6 +875,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return u === 'up' || u === 'online' || u === 'healthy' || u === 'compliant';
   }
 
+  /** Call KpisLov/manual-from-asset/{assetId}/check-all for watchlist item */
+  onWatchlistCheckAllKpis(assetId: number): void {
+    this.checkAllKpisAssetId.set(assetId);
+    this.apiService.checkAllKpisFromAsset(assetId).subscribe({
+      next: (res) => {
+        this.checkAllKpisAssetId.set(null);
+        if (res?.isSuccessful) {
+          this.utils.showToast(res?.message ?? 'Check completed.', 'Watchlist', 'success');
+          this.loadFavoriteAssets();
+        } else {
+          this.utils.showToast(res?.message ?? 'Check failed.', 'Watchlist', 'error');
+        }
+      },
+      error: (err) => {
+        this.checkAllKpisAssetId.set(null);
+        this.utils.showToast(err?.message ?? 'Check all KPIs failed.', 'Watchlist', 'error');
+      },
+    });
+  }
+
   /** Remove asset from favorites and refresh list */
   removeFromFavorites(assetId: number): void {
     this.apiService.removeAssetFromFavorites(assetId).subscribe({
@@ -904,7 +929,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             number: index + 1,
             ministryId: row.ministryId != null ? Number(row.ministryId) : undefined,
             ministryName: row.ministryName ?? row.ministry ?? '—',
-            time: formatCorrespondenceTime(row.updatedAt ),
+            time: formatCorrespondenceTime(row.updatedAt ?? row.createdAt),
             status: (row.status === 'Dispatched' || row.status === 'Draft' ? row.status : (String(row.status ?? '').toLowerCase() === 'dispatched' ? 'Dispatched' : 'Draft')) as 'Dispatched' | 'Draft',
           }));
           this.correspondenceItems.set(items);
