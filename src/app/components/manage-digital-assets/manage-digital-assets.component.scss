@@ -266,6 +266,134 @@ $manage-radius: 8px;
 .technical-owners-row {
   margin-top: 1.5rem;
   clear: both;
+
+  /* Input fields: chote / compact + border white 20%, background black 20% – puri row dikhe */
+  ::ng-deep {
+    .mat-mdc-form-field {
+      font-size: 13px;
+    }
+    .mat-mdc-text-field-wrapper {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      border-radius: 12px;
+    }
+    .mdc-notched-outline .mdc-notched-outline__leading,
+    .mdc-notched-outline .mdc-notched-outline__notch,
+    .mdc-notched-outline .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__leading,
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__notch,
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__trailing,
+    .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__leading,
+    .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__notch,
+    .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+}
+
+/* Technical Owners – title + Add More same line; description below (image layout) */
+.technical-owners-header {
+  margin-bottom: 0.5rem;
+}
+
+.technical-owners-title-row {
+  /* Title left, Add More right – same horizontal line */
+}
+
+.technical-owners-header .technical-owners-desc {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+/* + Add More – outline (white border, dark background) – design match */
+/* Add More – pill shape, dark teal bg, white border + white text (image match) */
+.btn-add-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border-radius: 24px;
+  color: #fff;
+  border: 1px solid #fff;
+
+  .icon-sm {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #fff;
+  }
+
+  &:hover {
+    background: var(--color-primary-hover, #006666);
+    border-color: #fff;
+    color: #fff;
+  }
+}
+
+/* + Add Row – primary green (light green bg, white text) – design match */
+.btn-add-row-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  color: #fff;
+  border: none;
+  background: var(--color-primary, #14b8a6);
+
+  .icon-sm {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: var(--color-primary-hover, #0d9488);
+    color: #fff;
+  }
+}
+
+/* Delete row: red trash icon only (no circle) – inline at end of row */
+.btn-delete-row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 14px;
+  border-radius: 4px;
+
+  .delete-icon-svg {
+    width: 16px;
+    height: 18px;
+    display: block;
+  }
+
+  &:hover:not(:disabled) .delete-icon-svg path {
+    fill: #ff6b6b;
+  }
+
+  &:disabled .delete-icon-svg path {
+    opacity: 0.5;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .section-subtitle {
@@ -291,6 +419,30 @@ $manage-radius: 8px;
     min-width: 0;
   }
 
+  /* Single flex row: 4 equal fields + delete – sab fit, puri row dikhe */
+  .technical-owner-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .technical-owner-row .btn-delete-row-icon {
+    flex-shrink: 0;
+  }
+
+  .technical-owner-col {
+    flex: 1 1 0;
+    min-width: 80px;
+  }
+
+  @media (max-width: 767px) {
+    .technical-owner-col {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+  }
+
   .technical-owner-actions-below {
     display: flex;
     align-items: center;
@@ -309,10 +461,11 @@ $manage-radius: 8px;
     border: 1px solid rgba(229, 83, 75, 0.4);
     background: transparent;
 
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
+    .delete-icon-svg {
+      flex-shrink: 0;
+      width: 16px;
       height: 18px;
+      display: block;
     }
 
     &:hover:not(:disabled) {

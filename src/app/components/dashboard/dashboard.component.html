@@ -1,134 +1,167 @@
 <div class="dashboard-page container-fluid p-4">
-    <!-- Page Header: Title (left) | Add Digital Assets (right) -->
-    <div class="dashboard-header row align-items-center">
-        <h1 class="dashboard-page-title col">Digital Assets Monitoring Dashboard</h1>
-        <div class="col-auto d-flex align-items-center gap-2">
-            <a routerLink="/add-digital-assets" class="btn btn-primary">
-                <mat-icon>add</mat-icon>
-                Add Digital Assets
-            </a>
-        </div>
+  <!-- Page Header: Title (left) | Add Digital Assets (right) -->
+  <div class="dashboard-header row align-items-center">
+    <h1 class="dashboard-page-title col">Digital Assets Monitoring Dashboard</h1>
+    <div class="col-auto d-flex align-items-center gap-2">
+      <a routerLink="/add-digital-assets" class="btn btn-primary">
+        <mat-icon>add</mat-icon>
+        Add Digital Assets
+      </a>
     </div>
+  </div>
 
-    <!-- Digital Assets Overall Performance (card: title + badge, pill bar, legend) -->
-    <section class="performance-section" aria-label="Digital Assets Overall Performance">
-        <div class="performance-card">
-            <div class="performance-card-header">
-                <h2 class="performance-card-title">Digital Assets Overall Performance</h2>
-                <span class="performance-badge">{{ performanceBar().compliantPct }}% Compliant</span>
-            </div>
-            <div class="performance-bar" role="presentation">
-                <span class="performance-segment performance-offline" [style.width.%]="performanceBar().offlinePct" title="Assets Offline"></span>
-                <span class="performance-segment performance-non-compliant" [style.width.%]="performanceBar().nonCompliantPct" title="Assets Non Compliant"></span>
-                <span class="performance-segment performance-compliant" [style.width.%]="performanceBar().compliantPct" title="Assets Compliant"></span>
-            </div>
-            <div class="performance-legend">
-                <div class="performance-legend-item performance-legend-offline">
-                    <span class="performance-legend-bullet" aria-hidden="true"></span>
-                    <span class="performance-legend-label">{{ performanceBar().offlinePct }}% Assets Offline</span>
-                </div>
-                <div class="performance-legend-item performance-legend-non-compliant">
-                    <span class="performance-legend-bullet" aria-hidden="true"></span>
-                    <span class="performance-legend-label">{{ performanceBar().nonCompliantPct }}% Assets Non Compliant</span>
-                </div>
-                <div class="performance-legend-item performance-legend-compliant">
-                    <span class="performance-legend-bullet" aria-hidden="true"></span>
-                    <span class="performance-legend-label">{{ performanceBar().compliantPct }}% Assets Compliant</span>
-                </div>
-            </div>
+  <!-- Digital Assets Overall Performance (card: title + badge, pill bar, legend) -->
+  <section class="performance-section" aria-label="Digital Assets Overall Performance">
+    <div class="performance-card">
+      <div class="performance-card-header">
+        <h2 class="performance-card-title">Digital Assets Overall Performance</h2>
+        <span class="performance-badge">{{ performanceBar().compliantPct }}% Compliant</span>
+      </div>
+      <div class="performance-bar" role="presentation">
+        <span class="performance-segment performance-non-compliant" [style.width.%]="performanceBar().nonCompliantPct"
+          title="Assets Non Compliant"></span>
+        <span class="performance-segment performance-compliant" [style.width.%]="performanceBar().compliantPct"
+          title="Assets Compliant"></span>
+      </div>
+      <div class="performance-legend">
+        <div class="performance-legend-item performance-legend-non-compliant">
+          <span class="performance-legend-bullet" aria-hidden="true"></span>
+          <span class="performance-legend-label">{{ performanceBar().nonCompliantPct }}% Non Compliant</span>
         </div>
-    </section>
+        <div class="performance-legend-item performance-legend-compliant">
+          <span class="performance-legend-bullet" aria-hidden="true"></span>
+          <span class="performance-legend-label">{{ performanceBar().compliantPct }}% Compliant</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Key Metrics: 8 cards in 2 rows x 4 columns -->
-    @if (dashboardKpis().isVisible) {
-        <div class="kpi-grid">
-            @for (item of dashboardKpisDisplay(); track item.id) {
-                <app-dashboardkpi class="kpi-card-cell" [item]="item" (cardAction)="onKpiCardAction($event)"></app-dashboardkpi>
-            }
-        </div>
+  <!-- Key Metrics: 8 cards in 2 rows x 4 columns -->
+  @if (dashboardKpis().isVisible) {
+  <div class="kpi-grid">
+    @for (item of dashboardKpisDisplay(); track item.id) {
+    <app-dashboardkpi class="kpi-card-cell" [item]="item" (cardAction)="onKpiCardAction($event)"></app-dashboardkpi>
     }
+  </div>
+  }
 
-    <!-- Favorite Assets & Correspondence (two columns) -->
-    <div class="dashboard-bottom-row row g-4 mt-2">
-        <!-- Watchlist (Favorite Assets) -->
-        <div class="col-12 col-lg-6">
-            <section class="dashboard-panel watchlist-panel" aria-label="Watchlist">
-                <h2 class="panel-title">Watch List</h2>
-                <p class="panel-subtitle">List of all assets marked as favorite</p>
-                <div class="panel-divider"></div>
-                <div class="panel-list-wrap">
-                    @if (favoriteAssetsLoading()) {
-                        <p class="panel-muted">Loading...</p>
-                    } @else if (favoriteAssets().length === 0) {
-                        <p class="panel-muted">No assets in watchlist yet. Add from an asset detail page.</p>
-                    } @else {
-                        <ul class="panel-list">
-                            @for (fav of favoriteAssets(); track fav.id) {
-                                <li class="panel-list-item">
-                                    <button type="button" class="watchlist-star-btn" matTooltip="Remove from watch list" (click)="removeFromFavorites(fav.id); $event.preventDefault(); $event.stopPropagation()" [attr.aria-label]="'Remove from favorites'">
-                                        <mat-icon class="watchlist-star-icon">star</mat-icon>
-                                    </button>
-                                    <a [routerLink]="['/view-assets-detail']" [queryParams]="{ id: fav.id, ministryId: fav.ministryId ?? '' }" class="panel-list-label">{{ fav.assetName || fav.websiteApplication || 'Asset' }}{{ fav.ministryName ? ' - ' + fav.ministryName : '' }}</a>
-                                    <span class="watchlist-status" [class.status-online]="isStatusUp(fav.currentStatus)" [class.status-offline]="!isStatusUp(fav.currentStatus)">
-                                        <span class="watchlist-status-text">{{ isStatusUp(fav.currentStatus) ? 'Online' : 'Offline' }}</span>
-                                        <span class="watchlist-status-dot" aria-hidden="true"></span>
-                                    </span>
-                                </li>
-                            }
-                        </ul>
-                    }
-                </div>
-            </section>
+  <!-- Favorite Assets & Correspondence (two columns) -->
+  <div class="dashboard-bottom-row row g-4 mt-2">
+    <!-- Watchlist (Favorite Assets) -->
+    <div class="col-12 col-lg-6">
+      <section class="dashboard-panel watchlist-panel" aria-label="Watchlist">
+        <h2 class="panel-title">Watchlist</h2>
+        <p class="panel-subtitle">List of all assets marked as favorite</p>
+        <div class="panel-divider"></div>
+        <div class="panel-list-wrap">
+          @if (favoriteAssetsLoading()) {
+          <p class="panel-muted">Loading...</p>
+          } @else if (favoriteAssets().length === 0) {
+          <p class="panel-muted">No assets in watchlist yet. Add from an asset page.</p>
+          } @else {
+          <ul class="panel-list">
+            @for (fav of favoriteAssets(); track fav.id) {
+            <li class="panel-list-item">
+              <button type="button" class="watchlist-star-btn" matTooltip="Remove from watch list"
+                (click)="removeFromFavorites(fav.id); $event.preventDefault(); $event.stopPropagation()"
+                [attr.aria-label]="'Remove from favorites'">
+                <mat-icon class="watchlist-star-icon">star</mat-icon>
+              </button>
+              <a [routerLink]="['/view-assets-detail']" [queryParams]="{ id: fav.id, ministryId: fav.ministryId ?? '' }"
+                class="panel-list-label">{{ fav.assetName || fav.websiteApplication || 'Asset' }}{{ fav.ministryName ? '
+                - ' + fav.ministryName : '' }}</a>
+              <span class="watchlist-status" [class.status-online]="isStatusUp(fav.currentStatus)"
+                [class.status-offline]="!isStatusUp(fav.currentStatus)">
+                <span class="watchlist-status-dot" aria-hidden="true"></span>
+                <span class="watchlist-status-text">{{ isStatusUp(fav.currentStatus) ? 'Online' : 'Offline' }}</span>
+              </span>
+            </li>
+            }
+          </ul>
+          }
         </div>
-        <!-- Correspondence -->
-        <div class="col-12 col-lg-6">
-            <section class="dashboard-panel correspondence-panel" aria-label="Correspondence">
-                <div class="panel-head-row">
-                    <div>
-                        <h2 class="panel-title">Correspondence</h2>
-                        <p class="panel-subtitle">Recent Ministries with Uploaded Reports in eOffice</p>
-                    </div>
-                    <select class="panel-dropdown" [(ngModel)]="correspondencePeriod" (ngModelChange)="onCorrespondencePeriodChange()" aria-label="Period">
+      </section>
+    </div>
+    <!-- Correspondence -->
+    <div class="col-12 col-lg-6">
+      <section class="dashboard-panel correspondence-panel" aria-label="Correspondence">
+        <div class="panel-head-row">
+          <div>
+            <h2 class="panel-title">Correspondence</h2>
+            <p class="panel-subtitle">Recent Ministries with Uploaded Reports in eOffice</p>
+          </div>
+          <!-- <select class="panel-dropdown" [(ngModel)]="correspondencePeriod" (ngModelChange)="onCorrespondencePeriodChange()" aria-label="Period">
                         <option value="today">Today</option>
                         <option value="week">This Week</option>
                         <option value="month">This Month</option>
-                    </select>
-                </div>
-                <div class="panel-divider"></div>
-
-                <div class="panel-list-wrap">
-                    @if (correspondenceLoading()) {
-                        <p class="panel-muted">Loading...</p>
-                    } @else if (correspondenceItems().length === 0) {
-                        <p class="panel-muted">No correspondence data available.</p>
-                    } @else {
-                        <ol class="panel-list panel-list-numbered">
-                            @for (item of correspondenceItems(); track item.id) {
-                                <li class="panel-list-item">
-                                    <span class="panel-list-num">{{ item.number }}.</span>
-                                    @if (item.ministryId != null) {
-                                        <a [routerLink]="['/ministry-detail']" [queryParams]="{ ministryId: item.ministryId }" class="panel-list-label panel-list-label-link">{{ item.ministryName }}</a>
-                                    } @else {
-                                        <span class="panel-list-label">{{ item.ministryName }}</span>
-                                    }
-                                    <span class="panel-list-meta">{{ item.time }}</span>
-                                    @if (item.status === 'Draft') {
-                                        <button type="button" class="panel-list-draft-trigger" (click)="onDraftClick(item); $event.stopPropagation()" aria-label="Add reference document">
-                                            <span class="panel-list-badge badge-draft">{{ item.status }}</span>
-                                            <mat-icon class="panel-list-doc-icon" aria-hidden="true">description</mat-icon>
-                                        </button>
-                                    } @else {
-                                        <span class="panel-list-badge badge-dispatched">{{ item.status }}</span>
-                                    }
-                                </li>
-                            }
-                        </ol>
-                    }
-                </div>
-                <div class="panel-footer">
-                    <button type="button" class="btn-correspondence-history" (click)="onCorrespondenceHistory()">Correspondence History</button>
-                </div>
-            </section>
+                    </select> -->
         </div>
+        <div class="panel-divider"></div>
+
+        <div class="panel-list-wrap">
+          @if (correspondenceLoading()) {
+          <p class="panel-muted">Loading...</p>
+          } @else if (correspondenceItems().length === 0) {
+          <p class="panel-muted">No correspondence data available.</p>
+          } @else {
+          <ol class="panel-list panel-list-numbered">
+            @for (item of correspondenceItems(); track item.id) {
+            <li class="panel-list-item">
+              <span class="panel-list-num">{{ item.number }}.</span>
+              @if (item.ministryId != null) {
+              <a [routerLink]="['/ministry-detail']" [queryParams]="{ ministryId: item.ministryId }"
+                class="panel-list-label panel-list-label-link">{{ item.ministryName }}</a>
+              } @else {
+              <span class="panel-list-label">{{ item.ministryName }}</span>
+              }
+              <span class="panel-list-meta">{{ item.time }}</span>
+              @if (item.status === 'Draft') {
+              <span class="panel-list-draft-wrap">
+                <button type="button" class="panel-list-draft-trigger"
+                  (click)="onDraftClick(item); $event.stopPropagation()" aria-label="Add reference document">
+                  <span class="panel-list-badge badge-draft">{{ item.status }}</span>
+                </button>
+                <button type="button" class="panel-list-doc-btn"
+                  (click)="onDownloadCorrespondenceReport(item); $event.stopPropagation()"
+                  [disabled]="downloadingReportId() === item.id"
+                  aria-label="Download report">
+                  <mat-icon class="panel-list-doc-icon" aria-hidden="true">description</mat-icon>
+                </button>
+              </span>
+              } @else {
+              <button type="button" class="panel-list-draft-trigger"
+                (click)="onDownloadCorrespondenceReport(item); $event.stopPropagation()"
+                [disabled]="downloadingReportId() === item.id"
+                [attr.aria-label]="'Download report'">
+                <span class="panel-list-badge badge-dispatched">{{ item.status }}</span>
+                <mat-icon class="panel-list-doc-icon" aria-hidden="true">description</mat-icon>
+              </button>
+              }
+            </li>
+            }
+          </ol>
+          }
+        </div>
+        <div class="panel-footer">
+          <button type="button" class="btn-correspondence-history" (click)="onCorrespondenceHistory()">
+            <svg class="btn-correspondence-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M17 21H7C3 21 2 20 2 16V8C2 4 3 3 7 3H17C21 3 22 4 22 8V16C22 20 21 21 17 21Z" stroke="white"
+                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M14 8H19" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M15 12H19" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M17 16H19" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path
+                d="M8.49994 11.2899C9.49958 11.2899 10.3099 10.4796 10.3099 9.47992C10.3099 8.48029 9.49958 7.66992 8.49994 7.66992C7.50031 7.66992 6.68994 8.48029 6.68994 9.47992C6.68994 10.4796 7.50031 11.2899 8.49994 11.2899Z"
+                stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path
+                d="M12 16.3298C11.86 14.8798 10.71 13.7398 9.26 13.6098C8.76 13.5598 8.25 13.5598 7.74 13.6098C6.29 13.7498 5.14 14.8798 5 16.3298"
+                stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Correspondence History
+          </button>
+        </div>
+      </section>
     </div>
+  </div>
 </div>

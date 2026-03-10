@@ -78,7 +78,7 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Asset Details
+  // Asset Details (favorite from dashboard/header API)
   assetDetails = {
     assetName: '',
     url: '',
@@ -89,6 +89,7 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
     lastOutage: '',
     currentHealth: '',
     riskExposureIndex: '',
+    favorite: false,
   };
 
   // Summary KPIs
@@ -159,6 +160,7 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
             lastOutage: d.lastOutage ?? '',
             currentHealth: d.currentHealth ?? '',
             riskExposureIndex: d.riskExposureIndex ?? '',
+            favorite: Boolean(d.favorite),
           };
           this.breadcrumbService.setCurrentLabel(this.assetDetails.assetName || 'Asset Detail');
 
@@ -234,35 +236,126 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
     return formatDateOrPassThrough(value);
   }
 
-  getStatusBadgeClass(status: string): string {
-    if (status === 'HIGH') {
-      return 'status-badge-high';
-    } else if (status === 'MEDIUM') {
-      return 'status-badge-medium';
-    } else if (status === 'LOW') {
-      return 'status-badge-low';
-    }
-    return '';
+  /** Compliance Overview badge class (High/Medium/Low/N/A – case-insensitive). */
+  getStatusBadgeClass(status: string | undefined | null): string {
+    const u = String(status ?? '').trim().toUpperCase();
+    if (u === 'HIGH') return 'status-badge-high';
+    if (u === 'MEDIUM') return 'status-badge-medium';
+    if (u === 'LOW') return 'status-badge-low';
+    return 'status-badge-unknown';
   }
 
-  /** Health / impact badge: show only LOW / HIGH / MEDIUM / UNKNOWN (strip extra text) */
+  /** Compliance status display label (title case). */
+  getComplianceStatusLabel(status: string | undefined | null): string {
+    const u = String(status ?? '').trim().toUpperCase();
+    if (u === 'HIGH') return 'High';
+    if (u === 'MEDIUM') return 'Medium';
+    if (u === 'LOW') return 'Low';
+    return status?.trim() || 'N/A';
+  }
+
+  /** Value class for metrics/status panel (same as asset-control-panel): value-success | value-warning | value-danger | value-unknown */
+  getHeaderValueClass(
+    value: string | undefined | null,
+    type: 'citizenImpact' | 'health' | 'risk' | 'status',
+  ): string {
+    const badge =
+      type === 'status'
+        ? this.getHeaderStatusBadgeClass(value)
+        : this.getHeaderMetricBadgeClass(value, type);
+    if (badge === 'badge-status-success') return 'value-success';
+    if (badge === 'badge-status-warning') return 'value-warning';
+    if (badge === 'badge-status-danger') return 'value-danger';
+    return 'value-unknown';
+  }
+
+  private getHeaderMetricBadgeClass(
+    value: string | undefined | null,
+    type: 'citizenImpact' | 'health' | 'risk',
+  ): string {
+    if (!value) return 'badge-status-unknown';
+    const u = String(value).trim().toUpperCase();
+    if (type === 'citizenImpact') {
+      if (u.includes('LOW')) return 'badge-status-success';
+      if (u.includes('MEDIUM')) return 'badge-status-warning';
+      if (u.includes('HIGH')) return 'badge-status-danger';
+      return 'badge-status-unknown';
+    }
+    if (type === 'health') {
+      if (u.includes('GOOD') || u.includes('EXCELLENT') || u.includes('HEALTHY') || u.includes('HIGH'))
+        return 'badge-status-success';
+      if (u.includes('AVERAGE') || u.includes('FAIR') || u.includes('MODERATE') || u.includes('MEDIUM'))
+        return 'badge-status-warning';
+      if (u.includes('POOR') || u.includes('CRITICAL') || u.includes('LOW')) return 'badge-status-danger';
+      return 'badge-status-unknown';
+    }
+    if (type === 'risk') {
+      if (u.includes('LOW')) return 'badge-status-success';
+      if (u.includes('MEDIUM')) return 'badge-status-warning';
+      if (u.includes('HIGH')) return 'badge-status-danger';
+      return 'badge-status-unknown';
+    }
+    return 'badge-status-unknown';
+  }
+
+  private getHeaderStatusBadgeClass(status: string | undefined | null): string {
+    if (!status) return 'badge-status-unknown';
+    const s = String(status).trim().toUpperCase();
+    if (s.includes('UP') || s.includes('ONLINE')) return 'badge-status-success';
+    if (s.includes('DOWN') || s.includes('OFFLINE')) return 'badge-status-danger';
+    if (s.includes('WARNING') || s.includes('PARTIAL') || s.includes('DEGRADED')) return 'badge-status-warning';
+    return 'badge-status-unknown';
+  }
+
+  /** Display value for metric (capitalized). */
+  getHeaderDisplayValue(value: string | undefined | null, _type: string): string {
+    if (!value) return 'Unknown';
+    const part = String(value).split('-')[0]?.trim() || value;
+    return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+  }
+
+  /** Arrow/bar indicator: 'up' | 'down' for citizen/risk. */
+  getMetricIndicator(
+    value: string | undefined | null,
+    type: 'citizenImpact' | 'risk',
+  ): 'up' | 'down' | null {
+    if (!value) return null;
+    const u = String(value).trim().toUpperCase();
+    if (type === 'citizenImpact') {
+      if (u.includes('HIGH')) return 'up';
+      if (u.includes('LOW')) return 'down';
+      return null;
+    }
+    if (type === 'risk') {
+      if (u.includes('HIGH')) return 'up';
+      if (u.includes('LOW')) return 'down';
+      if (u.includes('MEDIUM')) return 'down';
+      return null;
+    }
+    return null;
+  }
+
+  /** Resolved color for Current Health (Fair = orange, etc.). */
+  getCurrentHealthColor(value: string | undefined | null): string {
+    const badge = this.getHeaderMetricBadgeClass(value, 'health');
+    if (badge === 'badge-status-success') return 'var(--color-green, #10b981)';
+    if (badge === 'badge-status-warning') return 'var(--color-orange, #f59e0b)';
+    if (badge === 'badge-status-danger') return 'var(--color-red, #dc2626)';
+    return 'rgba(255, 255, 255, 0.65)';
+  }
+
+  /** Health / impact badge: show only Low / High / Medium / Unknown (strip extra text, title case) */
   getHealthOrImpactBadgeLabel(value: string | undefined | null): string {
-    if (!value) return 'UNKNOWN';
+    if (!value) return 'Unknown';
     const s = String(value).trim();
     const dash = s.indexOf(' - ');
     const short = dash >= 0 ? s.slice(0, dash).trim() : s;
     const upper = short.toUpperCase();
-    if (
-      upper === 'LOW' ||
-      upper === 'HIGH' ||
-      upper === 'MEDIUM' ||
-      upper === 'UNKNOWN'
-    )
-      return upper;
-    if (upper.includes('LOW')) return 'LOW';
-    if (upper.includes('HIGH')) return 'HIGH';
-    if (upper.includes('MEDIUM')) return 'MEDIUM';
-    return 'UNKNOWN';
+    if (upper === 'LOW' || upper.includes('LOW')) return 'Low';
+    if (upper === 'HIGH' || upper.includes('HIGH')) return 'High';
+    if (upper === 'MEDIUM' || upper.includes('MEDIUM')) return 'Medium';
+    if (upper === 'UNKNOWN' || upper.includes('UNKNOWN')) return 'Unknown';
+    return 'Unknown';
   }
 
   /** Citizen impact badge: show only LOW / HIGH / MEDIUM / UNKNOWN */
@@ -399,22 +492,58 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  // onAddToFavorite(): void {
-  //   if (this.assetId == null) {
-  //     this.utils.showToast('Asset ID is missing.', 'Add to Favorite', 'warning');
-  //     return;
-  //   }
-  //   this.apiService.addAssetToFavorites(this.assetId).subscribe({
-  //     next: (res: ApiResponse<any>) => {
-  //       if (res?.isSuccessful) {
-  //         this.utils.showToast(res.message ?? 'Added to favorites.', 'Add to Favorite', 'success');
-  //       } else {
-  //         this.utils.showToast(res?.message ?? 'Could not add to favorites.', 'Add to Favorite', 'error');
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.utils.showToast(err, 'Failed to add to favorites.', 'error');
-  //     },
-  //   });
-  // }
+  /** Trigger manual check for all KPIs of this asset (GET KpisLov/manual-from-asset/{assetId}/check-all). */
+  onCheckCurrentStatus(): void {
+    if (this.assetId == null) {
+      this.utils.showToast(null, 'Asset ID is missing.', 'error');
+      return;
+    }
+    this.apiService.checkAllKpisFromAsset(this.assetId).subscribe({
+      next: (res) => {
+        if (res?.isSuccessful) {
+          this.utils.showToast(null, res?.message ?? 'Current status check triggered successfully.', 'success');
+          this.loadAssetDashboard();
+        } else {
+          this.utils.showToast(null, res?.message ?? 'Check failed.', 'error');
+        }
+      },
+      error: (err) => {
+        this.utils.showToast(err, 'Failed to check current status.');
+      },
+    });
+  }
+
+  /** Toggle favorite (Watchlist) – same as Dashboard: add/remove and update state from API response. */
+  toggleFavorite(): void {
+    if (this.assetId == null) {
+      this.utils.showToast('Asset ID is missing.', 'Watchlist', 'warning');
+      return;
+    }
+    const isFavorite = this.assetDetails.favorite;
+    const request$ = isFavorite
+      ? this.apiService.removeAssetFromFavorites(this.assetId)
+      : this.apiService.addAssetToFavorites(this.assetId);
+
+    request$.subscribe({
+      next: (res: ApiResponse<any>) => {
+        if (res?.isSuccessful) {
+          this.assetDetails.favorite = !isFavorite;
+          this.utils.showToast(
+            isFavorite ? 'Removed from Watchlist.' : 'Added to Watchlist.',
+            'Watchlist',
+            'success',
+          );
+        } else {
+          this.utils.showToast(
+            res?.message ?? (isFavorite ? 'Could not remove from Watchlist.' : 'Could not add to Watchlist.'),
+            'Watchlist',
+            'error',
+          );
+        }
+      },
+      error: (err) => {
+        this.utils.showToast(err?.message ?? (isFavorite ? 'Could not remove from Watchlist.' : 'Could not add to Watchlist.'), 'Watchlist', 'error');
+      },
+    });
+  }
 }

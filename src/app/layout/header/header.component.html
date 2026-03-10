@@ -12,7 +12,7 @@
   <!-- RIGHT: Menu (nav) + Executive Dashboard + Profile -->
   <div class="right">
     <nav class="nav" [class.open]="menuOpen">
-      <a href="/dashboard" (click)="onHeaderNav('/dashboard'); $event.preventDefault()" [class.active]="isDashboardActive()">Dashboards</a>
+      <a href="/dashboard" (click)="onHeaderNav('/dashboard'); $event.preventDefault()" [class.active]="isDashboardActive()">Dashboard</a>
       <a href="/asset" (click)="onHeaderNav('/asset'); $event.preventDefault()" [class.active]="isAssetsActive()">Assets</a>
       <a href="/ministries" (click)="onHeaderNav('/ministries'); $event.preventDefault()" [class.active]="isMinistriesActive()">Ministries</a>
       <a href="/incidents" (click)="onHeaderNav('/incidents'); $event.preventDefault()" [class.active]="isIncidentsActive()">Incidents</a>

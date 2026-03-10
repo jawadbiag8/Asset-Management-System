@@ -122,8 +122,27 @@
     }
   }
 
-  /* Login input fields: same as manage-digital-assets – primary labels, placeholder 30% white */
+  /* Login input fields: border white 20% opacity, background black 20% opacity */
   ::ng-deep {
+    .mat-mdc-text-field-wrapper {
+      background-color: rgba(0, 0, 0, 0.2) !important;
+      border-radius: 12px;
+    }
+
+    .mdc-notched-outline .mdc-notched-outline__leading,
+    .mdc-notched-outline .mdc-notched-outline__notch,
+    .mdc-notched-outline .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__leading,
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__notch,
+    .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__trailing,
+    .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__leading,
+    .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__notch,
+    .mat-mdc-form-field:hover .mdc-notched-outline .mdc-notched-outline__trailing {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
     .mat-mdc-form-field-subscript-wrapper {
       margin-top: 4px;
     }

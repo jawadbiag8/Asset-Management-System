@@ -12,7 +12,6 @@
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
-
 .header-left {
   display: flex;
   align-items: center;
@@ -171,7 +170,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   text-transform: capitalize;
-  color: var(--color-green-teal);
+  color: #fff;
   background: transparent;
   border: 1px solid var(--color-green-teal);
   border-radius: 6px;
@@ -410,10 +409,64 @@
   }
 }
 
-.btn-view {
+// Correspondence: same size as PDF | View (padding 8px 14px, border-radius 8px)
+.btn-correspondence {
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  border-radius: 8px;
+}
+
+// Combined PDF + View button (dark teal bg, PDF left teal, divider, View right gray)
+.btn-pdf-view {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  border: 1px solid rgba(0, 207, 207, 0.5);
+  border-radius: 8px;
+  background: rgba(0, 61, 61, 0.5);
+  overflow: hidden;
+
+  .btn-pdf-view-pdf,
+  .btn-pdf-view-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn-pdf-view-pdf {
+    color: var(--color-primary, #008080);
+
+    &:hover {
+      background: rgba(0, 128, 128, 0.15);
+    }
+  }
+
+  .btn-pdf-view-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(0, 207, 207, 0.4);
+    flex-shrink: 0;
+  }
+
+  .btn-pdf-view-view {
+    color: rgba(255, 255, 255, 0.7);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .btn-pdf-view-icon {
+    flex-shrink: 0;
+  }
 }
 
 .accordion-toggle {

@@ -36,7 +36,7 @@
               </p>
               <div class="kpi-divider-white"></div>
               <div class="kpi-footer-white">
-                <a routerLink="/dashboard" class="kpi-link-white">View Assets With Low Digital Experience Score </a>
+                <a routerLink="/asset" class="kpi-link-white">View Assets With Low Digital Experience Score </a>
               </div>
             </div>
           </div>
@@ -54,7 +54,7 @@
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a routerLink="/dashboard" class="kpi-link">View Assets That Meet Compliance Standards </a>
+                <a routerLink="/asset" class="kpi-link">View Assets That Meet Compliance Standards </a>
               </div>
             </div>
           </div>
@@ -76,7 +76,7 @@
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a routerLink="/dashboard" [queryParams]="{ currentStatus: 'Down' }" class="kpi-link">View Assets
+                <a routerLink="/asset" [queryParams]="{ currentStatus: 'Offline' }" class="kpi-link">View Assets
                   Currently Down </a>
               </div>
             </div>
@@ -139,7 +139,7 @@
               </p>
               <div class="kpi-divider"></div>
               <div class="kpi-footer">
-                <a routerLink="/dashboard" [queryParams]="{ riskIndex: 'LOW RISK' }" class="kpi-link">View Assets With
+                <a routerLink="/asset" [queryParams]="{ riskIndex: 'Low' }" class="kpi-link">View Assets With
                   High Security Compliance </a>
               </div>
             </div>

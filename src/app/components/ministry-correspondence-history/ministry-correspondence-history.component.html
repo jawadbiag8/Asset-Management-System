@@ -41,10 +41,31 @@
             </div>
             <div class="meta-row">
               <span class="meta-label">Date/Time</span>
-              <span class="meta-value">{{ formatDate(item.createdAt) }}</span>
+              <span class="meta-value">{{ formatDate(item.updatedAt ?? item.createdAt) }}</span>
             </div>
           </div>
-          <span [class]="'status-pill ' + getStatusPillClass(item.status)">{{ item.status || '—' }}</span>
+          @if (getStatusPillClass(item.status) === 'status-draft') {
+          <span class="card-actions-wrap">
+            <button type="button" class="card-action-trigger card-action-draft"
+              (click)="onDraftClick(item); $event.stopPropagation()" aria-label="Add reference document">
+              <span class="status-pill status-draft">{{ item.status || 'Draft' }}</span>
+            </button>
+            <button type="button" class="card-action-doc"
+              (click)="onDownloadCorrespondenceReport(item); $event.stopPropagation()"
+              [disabled]="downloadingReportId === item.id"
+              aria-label="Download report">
+              <mat-icon class="card-doc-icon" aria-hidden="true">description</mat-icon>
+            </button>
+          </span>
+          } @else {
+          <button type="button" class="card-action-trigger card-action-download"
+            (click)="onDownloadCorrespondenceReport(item); $event.stopPropagation()"
+            [disabled]="downloadingReportId === item.id"
+            aria-label="Download report">
+            <span [class]="'status-pill ' + getStatusPillClass(item.status)">{{ item.status || '—' }}</span>
+            <mat-icon class="card-doc-icon" aria-hidden="true">description</mat-icon>
+          </button>
+          }
         </div>
       }
     </div>

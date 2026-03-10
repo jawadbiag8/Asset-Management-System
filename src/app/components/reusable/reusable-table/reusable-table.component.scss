@@ -402,8 +402,8 @@
     }
 
     .line-link {
-        font-weight: 400;
-        font-size: 12px;
+        font-weight: 600;
+        font-size: 15px;
         color: var(--color-green-teal);
         text-decoration: underline;
         line-height: 1.4;
@@ -503,7 +503,7 @@
         background: transparent;
         border: 1px solid rgba(255, 255, 255, 0.95);
         color: #ffffff;
-        border-radius: 9999px;
+        // border-radius: 9999px;
         cursor: pointer;
         white-space: nowrap;
 
@@ -597,8 +597,17 @@
         color: var(--color-orange, #f59e0b);
     }
     &.text-unknown .metric-trend-text,
-    &.text-unknown .metric-trend-icon {
+    &.text-unknown .metric-trend-icon,
+    &.text-unknown .metric-trend-icon-line {
         color: var(--color-text-tertiary, #9ca3af);
+    }
+    .metric-trend-icon-line {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    .metric-trend-icon-line svg {
+        display: block;
     }
     &.text-info .metric-trend-text,
     &.text-info .metric-trend-icon {
@@ -670,6 +679,14 @@
         font-size: 20px;
         width: 20px;
         height: 20px;
+    }
+    .analyze-icon-line {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .analyze-icon-line svg {
+        display: block;
     }
 
     .custom-icon {
@@ -818,6 +835,16 @@
     height: 16px;
     font-size: 16px;
     margin-left: 4px;
+  }
+  .text-cell-icon-line {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+  }
+  .text-cell-icon-line svg {
+    display: block;
+  }
+  .text-cell-icon:not(.text-cell-icon-line) {
     color: #6B7280;
   }
 
@@ -926,7 +953,7 @@
 }
 
 .text-warning {
-    color: var(--color-orange-dark) !important;
+    color: var(--color-orange, #f59e0b) !important;
 }
 
 .text-danger {
@@ -1274,9 +1301,14 @@
         height: 20px;
 
         .analyze-icon,
+        .analyze-icon-line,
         .custom-icon {
             width: 18px;
             height: 18px;
+        }
+        .analyze-icon-line svg {
+            width: 15px;
+            height: 2px;
         }
     }
 

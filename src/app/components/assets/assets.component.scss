@@ -4,13 +4,11 @@
   padding: 24px 32px 32px;
 }
 
-/* Page Header: Title aligned with table card content (Bootstrap row has -12px margin) */
+/* Page Header: inside table card so it aligns with table and never goes outside */
 .assets-header {
-  margin-bottom: 24px;
-
-  .col:first-child {
-    padding-left: 36px; /* align "Assets" title with first column of table (card padding 24px) */
-  }
+  margin-bottom: 20px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .assets-page-title {
@@ -136,8 +134,8 @@
         color: #00BFB2;
       }
       .trailing-btn-analyze-capsule {
-        border: 1px solid rgba(255, 255, 255, 0.95);
-        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.95) !important;
+        color: #ffffff !important;
       }
     }
   }

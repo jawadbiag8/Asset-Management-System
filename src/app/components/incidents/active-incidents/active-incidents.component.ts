@@ -418,6 +418,24 @@ export class ActiveIncidentsComponent implements OnInit {
             this.activatedRoute.snapshot.queryParams,
           );
         }
+        // Default to "Open" filter on main incidents page when no status in URL
+        if (this.showHeader && !this.assetId && responses.statuses?.isSuccessful) {
+          this.tableFilters.update((filters) => {
+            const statusFilter = filters.find((f) => f.id === 'status');
+            if (!statusFilter || (statusFilter.value ?? '') !== '') return filters;
+            const openOpt = statusFilter.options?.find(
+              (o) => String(o.label || '').toLowerCase() === 'open',
+            );
+            if (!openOpt?.value) return filters;
+            return filters.map((f) =>
+              f.id === 'status'
+                ? { ...f, value: openOpt.value, label: `Status: ${openOpt.label}` }
+                : f,
+            );
+          });
+          // Trigger first load with Open filter so table shows filtered data (table may emit later with same params)
+          this.loadIncidents(this.buildSearchParamsFromFilters());
+        }
         this.filtersReady.set(true);
         // Load summary counts for KPI cards when on main incidents page
         if (this.showHeader && !this.assetId && responses.statuses?.isSuccessful) {
@@ -494,6 +512,55 @@ export class ActiveIncidentsComponent implements OnInit {
         return filter;
       });
     });
+  }
+
+  /** Apply status filter when user clicks Open / Resolved / Archived tile. Total tile does nothing. */
+  onSummaryTileClick(status: 'open' | 'resolved' | 'archived'): void {
+    const statusLabel = status === 'open' ? 'Open' : status === 'resolved' ? 'Resolved' : 'Archived';
+    const filters = this.tableFilters();
+    const statusFilter = filters.find((f) => f.id === 'status');
+    if (!statusFilter?.options?.length) return;
+    const opt = statusFilter.options.find(
+      (o) => String(o.label || '').toLowerCase() === statusLabel.toLowerCase(),
+    );
+    if (!opt?.value) return;
+
+    this.tableFilters.update((prev) =>
+      prev.map((f) => {
+        if (f.id !== 'status') return f;
+        return {
+          ...f,
+          value: opt.value,
+          label: `Status: ${opt.label}`,
+        };
+      }),
+    );
+
+    const params = this.buildSearchParamsFromFilters();
+    this.loadIncidents(params);
+  }
+
+  /** Build HttpParams from current table filters (page 1, default size) for tile-click or programmatic filter. Uses same param names as reusable-table (PageNumber, PageSize). */
+  private buildSearchParamsFromFilters(): HttpParams {
+    const config = this.tableConfig();
+    const pageSize = (config as any).defaultPageSize ?? 10;
+    let params = new HttpParams()
+      .set('PageNumber', '1')
+      .set('PageSize', String(pageSize));
+
+    if (this.hasMinistryIdFromRoute) {
+      const mid =
+        this.activatedRoute.snapshot.queryParams['MinistryId'] ??
+        this.activatedRoute.snapshot.queryParams['ministryId'];
+      if (mid) params = params.set('MinistryId', mid);
+    }
+
+    this.tableFilters().forEach((filter) => {
+      if (filter.paramKey && filter.value != null && filter.value !== '' && filter.value !== 'All') {
+        params = params.set(filter.paramKey, filter.value);
+      }
+    });
+    return params;
   }
 
   loadIncidents(searchQuery: HttpParams): void {
@@ -804,9 +871,25 @@ export class ActiveIncidentsComponent implements OnInit {
   }
 
   onCheckIncident(event: { row: any; columnKey: string }): void {
-    if (event?.row?.id != null && event.columnKey === 'Check Current Status') {
-      this.router.navigate(['/incidents', event.row.id]);
+    if (event?.columnKey !== 'Check Current Status') return;
+    const row = event?.row as ActiveIncident;
+    if (row?.assetId == null || row?.kpiId == null) {
+      this.utils.showToast(null, 'Asset or KPI information is missing.', 'error');
+      return;
     }
+    this.apiService.manualCheckFromAsset(row.assetId, row.kpiId).subscribe({
+      next: (res) => {
+        if (res?.isSuccessful) {
+          this.utils.showToast(null, res?.message ?? 'Current status check triggered successfully.', 'success');
+          this.onRefresh();
+        } else {
+          this.utils.showToast(null, res?.message ?? 'Check failed.', 'error');
+        }
+      },
+      error: (err) => {
+        this.utils.showToast(err, 'Failed to check current status.');
+      },
+    });
   }
 
   onAddIncident(): void {

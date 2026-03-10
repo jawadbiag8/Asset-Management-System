@@ -1,29 +1,18 @@
 <div class="assets-page container-fluid p-4">
-  <!-- Page Header: Title (left) | Search + Add Digital Assets (right) -->
-  <header class="assets-header row align-items-center">
-    <h1 class="assets-page-title col">Assets</h1>
-    <div class="col-auto d-flex align-items-center gap-3">
-      <!-- <div class="assets-search-wrap">
-        <mat-icon class="assets-search-icon">search</mat-icon>
-        <input
-          type="search"
-          class="assets-search-input"
-          placeholder="Search Assets"
-          [ngModel]="headerSearchValue()"
-          (ngModelChange)="onHeaderSearchChange($event)"
-          (keyup.enter)="onHeaderSearchSubmit()"
-        />
-      </div> -->
-      <a routerLink="/add-digital-assets" class="btn btn-primary">
-        <mat-icon>add</mat-icon>
-        Add Digital Assets
-      </a>
-    </div>
-  </header>
-
-  <!-- Table: same structure as dashboard – glass card + design tokens from styles.scss -->
+  <!-- Table section: header + table inside same card so header stays aligned with table -->
   <div id="assets-table" class="dashboard-table-section">
     <div class="table-section-card">
+      <!-- Page Header inside card: Title (left) | Add Digital Assets (right) – same width as table -->
+      <header class="assets-header row align-items-center">
+        <h1 class="assets-page-title col">Assets</h1>
+        <div class="col-auto d-flex align-items-center gap-3 ms-auto">
+          <a routerLink="/add-digital-assets" class="btn btn-primary">
+            <mat-icon>add</mat-icon>
+            Add Digital Assets
+          </a>
+        </div>
+      </header>
+
       <app-reusable-table
         [config]="tableConfigWithData()"
         [filters]="tableFilters()"

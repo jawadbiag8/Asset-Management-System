@@ -2,7 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService, ApiResponse, MinistryCorrespondenceItem } from '../../services/api.service';
 import { BreadcrumbService } from '../../services/breadcrumb.service';
+import { UtilsService } from '../../services/utils.service';
 import { formatDateTime } from '../../utils/date-format.util';
+import { MatDialog } from '@angular/material/dialog';
+import { UploadDocumentDialogComponent, UploadDocumentDialogData } from '../reusable/upload-document-dialog/upload-document-dialog.component';
 
 @Component({
   selector: 'app-ministry-correspondence-history',
@@ -18,11 +21,15 @@ export class MinistryCorrespondenceHistoryComponent implements OnInit, OnDestroy
   searchTerm = '';
   pageSize = 10;
   pageIndex = 0;
+  /** ID of correspondence whose report is being downloaded */
+  downloadingReportId: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
     private breadcrumbService: BreadcrumbService,
+    private dialog: MatDialog,
+    private utils: UtilsService,
   ) {}
 
   ngOnInit(): void {
@@ -127,5 +134,47 @@ export class MinistryCorrespondenceHistoryComponent implements OnInit, OnDestroy
 
   onPageChange(newIndex: number): void {
     this.pageIndex = Math.max(0, newIndex);
+  }
+
+  /** Open Upload Document dialog when user clicks Draft (same as dashboard). */
+  onDraftClick(item: MinistryCorrespondenceItem): void {
+    const data: UploadDocumentDialogData = {
+      mode: 'correspondence',
+      correspondenceId: item.id,
+      ministryId: item.ministryId,
+    };
+    const dialogRef = this.dialog.open(UploadDocumentDialogComponent, {
+      width: '500px',
+      panelClass: 'upload-document-dialog-dark',
+      data,
+    });
+    dialogRef.afterClosed().subscribe((result: { referenceNumber: string; file: File; correspondenceId?: number } | undefined) => {
+      if (result?.referenceNumber && result?.file) {
+        this.utils.showToast('Reference document submitted.', 'Correspondence', 'success');
+        this.loadCorrespondence();
+      }
+    });
+  }
+
+  /** Download correspondence report (GET Ministry/correspondence/{id}/report). */
+  onDownloadCorrespondenceReport(item: MinistryCorrespondenceItem): void {
+    const id = item.id;
+    this.downloadingReportId = id;
+    this.apiService.getCorrespondenceReport(id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `correspondence-report-${id}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.utils.showToast('Report downloaded.', 'Correspondence', 'success');
+        this.downloadingReportId = null;
+      },
+      error: () => {
+        this.utils.showToast('Report not available or failed to download.', 'Correspondence', 'error');
+        this.downloadingReportId = null;
+      },
+    });
   }
 }

@@ -227,15 +227,18 @@ export class MinistryDashboardComponent implements OnInit {
     return this.statusBadgeClass(this.selectedStatus() || '');
   }
 
-  /** Return assets for a ministry filtered by selected Current Status. */
-  /** Assets to show in accordion. Only filter by status when current filter is Status; else show API response as-is. */
+  /** Return assets for a ministry filtered by selected Current Status (Online/Offline). */
   getFilteredAssets(ministryId: string): AssetTile[] {
     const assets = this.getAssets(ministryId);
     if (this.currentFilterId() !== 'status') return assets;
     const status = this.selectedStatus();
     if (!status) return assets;
-    const normalized = status.toUpperCase();
-    return assets.filter((a) => (a.currentStatus || 'UNKNOWN').toUpperCase() === normalized);
+    const normalized = status.trim().toUpperCase();
+    return assets.filter((a) => {
+      const s = (a.currentStatus || 'UNKNOWN').toUpperCase();
+      const assetMapped = s === 'UP' ? 'ONLINE' : s === 'DOWN' ? 'OFFLINE' : s;
+      return assetMapped === normalized;
+    });
   }
 
   /** API filterType names (ministrydetails API). Status also uses filterType/filterValue, not a separate status param. */
@@ -355,12 +358,12 @@ export class MinistryDashboardComponent implements OnInit {
     return this.getApiFilterType(id);
   }
 
-  /** API filterValue: for status use value as-is (ALL/Up/Down); for others map to High/Average/Poor/Unknown. */
+  /** API filterValue: for status send Online/Offline; for others map to High/Average/Poor/Unknown. */
   private getFilterValueForApi(): string {
     const id = this.currentFilterId();
     const raw = this.getSelectedValueForCurrentFilter();
     if (!raw) return '';
-    if (id === 'status') return raw; // ALL, Up, Down as-is
+    if (id === 'status') return raw; // Online, Offline as-is
     let mapped = this.mapToApiFilterValue(raw);
     // If value is LOV id (e.g. "1") and mapped to Unknown, try mapping by option label (e.g. "LOW - Supporting Services")
     if (mapped === 'Unknown') {
@@ -412,6 +415,16 @@ export class MinistryDashboardComponent implements OnInit {
     return 'badge-status-unknown';
   }
 
+  /** Display label for status badge (title case: Online, Offline, etc.). */
+  getDisplayStatus(status: string | undefined | null): string {
+    const s = (status || 'UNKNOWN').toUpperCase();
+    if (s === 'UP' || s === 'ONLINE') return 'Online';
+    if (s === 'DOWN' || s === 'OFFLINE') return 'Offline';
+    if (s === 'WARNING') return 'Warning';
+    if (s === 'PARTIAL' || s === 'DEGRADED') return s === 'PARTIAL' ? 'Partial' : 'Degraded';
+    return s === 'UNKNOWN' ? 'Unknown' : status || 'Unknown';
+  }
+
   /** Tile background class by status (for whole-tile tint) */
   tileBgClass(status: string): string {
     const s = (status || 'UNKNOWN').toUpperCase();
@@ -423,7 +436,7 @@ export class MinistryDashboardComponent implements OnInit {
 
   formatTileValue(value: number | null): string {
     if (value == null) return '--';
-    return value >= 0 && value <= 99 ? value.toString().padStart(2, '0') : String(value);
+    return value >= 0 && value <= 99 ? value.toString().padStart(2) : String(value);
   }
 
   /** Bottom-left value text color class by status */

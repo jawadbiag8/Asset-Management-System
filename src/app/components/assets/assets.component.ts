@@ -95,7 +95,7 @@ export class AssetsComponent implements OnInit {
         primaryField: 'ministryDepartment',
         secondaryField: 'department',
         sortable: true,
-        width: '220px',
+        width: '170px',
         routerLinkFn: (row) => ({
           commands: ['/ministry-detail'],
           queryParams: { ministryId: row.ministryId ?? '' },
@@ -198,7 +198,7 @@ export class AssetsComponent implements OnInit {
         primaryField: 'riskExposureDisplay',
         secondaryField: '',
         sortable: true,
-        width: '65px',
+        width: '95px',
         textColor: (row: any) => {
           const risk = (row.riskExposureIndex || '').toUpperCase();
           if (risk === 'LOW RISK' || risk.includes('LOW')) return 'success';
@@ -325,11 +325,11 @@ export class AssetsComponent implements OnInit {
 
       const formatRiskDisplay = (value: string | null | undefined): string => {
         if (!value) return value ?? '';
-        const u = value.toUpperCase();
-        if (u === 'LOW RISK' || u.includes('LOW')) return 'LOW';
-        if (u === 'MEDIUM RISK' || u.includes('MEDIUM')) return 'MEDIUM';
-        if (u === 'HIGH RISK' || u.includes('HIGH')) return 'HIGH';
-        return value.toUpperCase();
+        const u = value.trim().toUpperCase();
+        if (u === 'LOW RISK' || u.includes('LOW')) return 'Low';
+        if (u === 'MEDIUM RISK' || u.includes('MEDIUM')) return 'Medium';
+        if (u === 'HIGH RISK' || u.includes('HIGH')) return 'High';
+        return value.trim().charAt(0).toUpperCase() + value.trim().slice(1).toLowerCase();
       };
 
       const formatHighSeverityText = (highSeverity: number): string => {
@@ -438,12 +438,12 @@ export class AssetsComponent implements OnInit {
             const next = new Set(current);
             next.delete(id);
             this.favoriteAssetIds.set(next);
-            this.utils.showToast('Removed from favorites.', 'Favorites', 'success');
+            this.utils.showToast('Removed from Watchlist.', 'Watchlist', 'success');
           } else {
-            this.utils.showToast(r?.message ?? 'Could not remove from favorites.', 'Favorites', 'error');
+            this.utils.showToast(r?.message ?? 'Could not remove from Watchlist.', 'Watchlist', 'error');
           }
         },
-        error: (err) => this.utils.showToast(err?.message ?? 'Could not remove from favorites.', 'Favorites', 'error'),
+        error: (err) => this.utils.showToast(err?.message ?? 'Could not remove from Watchlist.', 'Watchlist', 'error'),
       });
     } else {
       this.apiService.addAssetToFavorites(id).subscribe({
@@ -452,14 +452,22 @@ export class AssetsComponent implements OnInit {
             const next = new Set(current);
             next.add(id);
             this.favoriteAssetIds.set(next);
-            this.utils.showToast('Added to favorites.', 'Favorites', 'success');
+            this.utils.showToast('Added to Watchlist.', 'Watchlist', 'success');
           } else {
-            this.utils.showToast(r?.message ?? 'Could not add to favorites.', 'Favorites', 'error');
+            this.utils.showToast(r?.message ?? 'Could not add to Watchlist.', 'Watchlist', 'error');
           }
         },
-        error: (err) => this.utils.showToast(err?.message ?? 'Could not add to favorites.', 'Favorites', 'error'),
+        error: (err) => this.utils.showToast(err?.message ?? 'Could not add to Watchlist.', 'Watchlist', 'error'),
       });
     }
+  }
+
+  /** Normalize status from URL: Up -> Online, Down -> Offline (UI shows Online/Offline everywhere). */
+  private normalizeStatusFromUrl(value: string): string {
+    const u = (value || '').trim().toUpperCase();
+    if (u === 'UP') return 'Online';
+    if (u === 'DOWN') return 'Offline';
+    return value ?? '';
   }
 
   private applyInitialQueryParams(): void {
@@ -482,8 +490,11 @@ export class AssetsComponent implements OnInit {
     this.tableFilters.update((filters) =>
       filters.map((f) => {
         if (!f.paramKey) return f;
-        const value = qp[f.paramKey];
+        let value = qp[f.paramKey];
         if (value == null || value === '') return f;
+        if (f.paramKey === 'currentStatus') {
+          value = this.normalizeStatusFromUrl(value);
+        }
         const labelPart = f.label.split(':')[0] ?? f.paramKey;
         return {
           ...f,

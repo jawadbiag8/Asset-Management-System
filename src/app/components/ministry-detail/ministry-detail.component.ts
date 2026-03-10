@@ -101,7 +101,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
       title: 'Total Assets',
       subTitle: 'Active Monitoring Across All Departments',
       linkText: 'View All >',
-      linkPath: '/dashboard',
+      linkPath: '/asset',
     },
     {
       id: 2,
@@ -899,7 +899,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
         title: 'Total Assets',
         subTitle: 'Active Monitoring Across All Departments',
         linkText: 'View All >',
-        linkPath: '/dashboard',
+        linkPath: '/asset',
       },
       {
         id: 2,
@@ -984,7 +984,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
     if (status.includes('healthy') || status.includes('good'))
       return 'check_circle';
     if (status.includes('critical') || status.includes('poor') || status.includes('down')) return 'error';
-    if (status.includes('average') || status.includes('warning')) return 'warning';
+    if (status.includes('average') || status.includes('warning') || status.includes('fair')) return 'warning';
     return 'help_outline';
   }
 

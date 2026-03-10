@@ -56,8 +56,10 @@
     </div>
 
     <div class="dialog-actions">
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="submitting">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting">
+        {{ submitting ? 'Submitting...' : 'Submit' }}
+      </button>
     </div>
   </form>
 </div>

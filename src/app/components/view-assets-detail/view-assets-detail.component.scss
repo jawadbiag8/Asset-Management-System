@@ -14,6 +14,23 @@ $detail-card-radius: 24px;
   color: var(--color-text-primary);
 }
 
+// Ministry name as main page title (like ministry detail – large, bold, white)
+.ministry-page-title {
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: 0;
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary, #ffffff);
+}
+
+.card-inner-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--color-text-primary, #ffffff);
+}
+
 // Header card - prevent overlap/overflow at tablet (768px)
 .header-card {
   max-width: 100%;
@@ -28,6 +45,34 @@ $detail-card-radius: 24px;
   max-width: 100%;
   overflow-x: hidden;
   color: $detail-text-primary;
+}
+
+// Left column: asset details (same structure as asset-control-panel)
+.asset-details-col {
+  text-align: left;
+}
+
+.asset-details-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 32px;
+  align-items: flex-start;
+}
+
+.asset-detail-block {
+  flex: 0 1 auto;
+
+  label {
+    color:rgba(255, 255, 255, 0.5019607843) !important; // muted light gray with teal undertone (matches UI)
+  }
+}
+
+.asset-details-actions {
+  text-align: left;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 // Below breadcrumb: Add to Favorite on the right
@@ -74,23 +119,22 @@ $detail-card-radius: 24px;
     border-color: $detail-separator !important;
   }
 
-  // Extra gap between left column and metrics box so DEPARTMENT doesn't overlap
-  @media (min-width: 992px) {
-    .col-lg-5:first-child {
+  // Extra gap between left column and metrics box
+  @media (min-width: 768px) {
+    .col-md-5:first-child {
       padding-right: 12px;
     }
-    .col-lg-5:nth-child(2) {
+    .col-md-5:nth-child(2) {
       padding-left: 12px;
     }
   }
 
-  // At 1024px (laptop) ensure clear gap and no overflow from left into metrics box
-  @media (min-width: 992px) and (max-width: 1199px) {
-    .col-lg-5:first-child {
+  @media (min-width: 768px) and (max-width: 1199px) {
+    .col-md-5:first-child {
       padding-right: 24px;
       overflow: hidden;
     }
-    .col-lg-5:nth-child(2) {
+    .col-md-5:nth-child(2) {
       padding-left: 24px;
     }
   }
@@ -143,6 +187,159 @@ $detail-card-radius: 24px;
   max-width: 100%;
 }
 
+// Metrics panel (same as asset-control-panel): teal border, dark bg, 3 sections with value + indicator
+.metrics-panel {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(0, 207, 207, 0.45);
+  border-radius: 12px;
+  background: rgba(13, 29, 29, 0.6);
+  overflow: hidden;
+  margin: 0 0 31px 0;
+}
+
+.metric-section {
+  flex: 1;
+  padding: 16px 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &.metric-section-last {
+    border-right: none;
+  }
+}
+
+.metric-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+.metric-value-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.metric-value {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: capitalize;
+
+  &.value-success {
+    color: var(--color-green, #10b981);
+  }
+  &.value-warning {
+    color: var(--color-orange, #f59e0b);
+  }
+  &.value-danger {
+    color: var(--color-red, #dc2626);
+  }
+  &.value-unknown {
+    color: rgba(255, 255, 255, 0.65);
+  }
+}
+
+.metrics-panel .metric-value.value-warning,
+.metrics-panel .metric-indicator.value-warning,
+.metrics-panel .metric-indicator.metric-indicator-bar.value-warning {
+  color: var(--color-orange, #f59e0b) !important;
+}
+.metrics-panel .metric-indicator.metric-indicator-bar.value-warning svg {
+  fill: currentColor;
+}
+
+.metric-indicator {
+  display: inline-flex;
+  align-items: center;
+
+  &.value-success { color: var(--color-green, #10b981); }
+  &.value-warning { color: var(--color-orange, #f59e0b); }
+  &.value-danger { color: var(--color-red, #dc2626); }
+  &.value-unknown { color: rgba(255, 255, 255, 0.5); }
+
+  &.metric-indicator-bar svg {
+    opacity: 0.9;
+  }
+
+  .metric-trend-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Status panel (same as asset-control-panel): current status box + last outage
+.status-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 220px;
+  margin-left: auto;
+}
+
+.status-panel .current-status-box {
+  border: 1px solid rgba(0, 207, 207, 0.45);
+  border-radius: 12px;
+  background: rgba(13, 29, 29, 0.6);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  align-items: center;
+}
+
+.status-panel .current-status-box .metric-label {
+  text-align: center;
+}
+
+.status-panel .current-status-box .metric-value-row {
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.status-value {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+.status-value.value-success { color: var(--color-green, #10b981); }
+.status-value.value-warning { color: var(--color-orange, #f59e0b); }
+.status-value.value-danger { color: #e5534b; }
+.status-value.value-unknown { color: rgba(255, 255, 255, 0.65); }
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.value-success { background: var(--color-green, #10b981); }
+.status-dot.value-warning { background: var(--color-orange, #f59e0b); }
+.status-dot.value-danger { background: #dc2626; }
+.status-dot.value-unknown { background: rgba(255, 255, 255, 0.4); }
+
+.last-outage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.last-outage-value {
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 // Left section styling - URL, MINISTRY, DEPARTMENT labels on same baseline (2nd SS alignment)
 .left-section {
   display: flex;
@@ -169,6 +366,7 @@ $detail-card-radius: 24px;
     flex-direction: column;
     gap: 0;
     margin-bottom: 28px;
+    margin-top: 20px;
     align-items: flex-start;
 
     @media (min-width: 992px) {
@@ -207,9 +405,7 @@ $detail-card-radius: 24px;
     }
   }
 
-  .analyze-button-container {
-    margin-top: 28px;
-  }
+
 }
 
 // Status box wrapper - max-width on desktop, full width on mobile (dark theme)
@@ -377,6 +573,30 @@ a.link {
   }
 }
 
+// Check Current Status button - same outline style as Edit
+.btn-check-status {
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.8);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
 // Edit button - white outline and white text (same as Audit Log)
 .btn-edit {
   background-color: transparent;
@@ -422,6 +642,27 @@ a.link {
     font-size: 20px;
     width: 20px;
     height: 20px;
+  }
+}
+
+// Favorite star (outlined) – next to Audit Log, same outline style
+.btn-favorite-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background-color: transparent;
+  color: #fff;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+
+  .favorite-star-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
   }
 
   &:hover {
@@ -533,12 +774,18 @@ a.link {
 
         &.status-badge-medium {
           background-color: var(--color-orange, #f59e0b) !important;
-          color: #1a1a1a !important;
+          color: #ffffff !important;
         }
 
         &.status-badge-low {
           background-color: var(--color-green, #10b981) !important;
           color: #ffffff !important;
+        }
+
+        &.status-badge-unknown {
+          background-color: rgba(255, 255, 255, 0.15) !important;
+          color: rgba(255, 255, 255, 0.85) !important;
+          border: 1px solid rgba(255, 255, 255, 0.25);
         }
       }
     }
@@ -716,7 +963,7 @@ a.link {
   }
   ::ng-deep .assets-table .text-warning .line-primary,
   ::ng-deep .assets-table .text-warning {
-    color: #fbbf24 !important;
+    color: var(--color-orange, #f59e0b) !important;
   }
   ::ng-deep .assets-table .text-default .line-primary {
     color: rgba(255, 255, 255, 0.65) !important;
@@ -1004,28 +1251,16 @@ a.link {
     padding: 20px;
   }
 
-  .left-section {
-    h1 {
-      font-size: 1.35rem;
+  .asset-details-col {
+    .asset-details-row {
       margin-bottom: 20px;
     }
 
-    .info-row {
-      margin-bottom: 20px;
-
-      .info-item {
-        margin-bottom: 12px;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
-    }
-
-    .analyze-button-container {
+    .asset-details-actions {
       margin-top: 20px;
 
       .btn-analyze,
+      .btn-check-status,
       .btn-edit {
         width: 100%;
         max-width: 280px;
@@ -1046,7 +1281,19 @@ a.link {
     border-color: $detail-card-border !important;
   }
 
+  .metrics-panel {
+    flex-direction: column;
+    .metric-section {
+      border-right: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      &.metric-section-last {
+        border-bottom: none;
+      }
+    }
+  }
+
   // Status box - full width on tablet
+  .status-panel,
   .status-box-wrapper {
     max-width: 100%;
     margin-left: 0 !important;
@@ -1154,18 +1401,14 @@ a.link {
     padding: 16px;
   }
 
-  .left-section {
-    h1 {
-      font-size: 1.2rem;
-      margin-bottom: 16px;
-    }
-
-    .info-row .info-item {
+  .asset-details-col {
+    .asset-details-row .asset-detail-block {
       margin-bottom: 14px;
     }
 
-    .analyze-button-container .btn-analyze,
-    .analyze-button-container .btn-edit {
+    .asset-details-actions .btn-analyze,
+    .asset-details-actions .btn-check-status,
+    .asset-details-actions .btn-edit {
       width: 100%;
       max-width: none;
       padding: 12px 16px;
@@ -1314,7 +1557,8 @@ a.link {
     padding: 10px !important;
   }
 
-  .left-section h1 {
+  .left-section h1,
+  .left-section .card-inner-title {
     font-size: 1.1rem;
   }
 

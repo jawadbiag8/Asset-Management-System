@@ -2,25 +2,28 @@
   @if (showHeader) {
     <h1 class="incidents-page-title">All Incidents</h1>
 
-    <!-- Summary KPI cards: Total, Open, Resolved, Archived -->
+    <!-- Summary KPI cards: Total (no action), Open / Resolved / Archived (click = apply filter) -->
     @if (!assetId) {
       <div class="incidents-summary-cards">
-        <div class="incident-kpi-card">
+        <div class="incident-kpi-card incident-kpi-card--total">
           <span class="incident-kpi-value">{{ summaryTotal() }}</span>
           <span class="incident-kpi-label">Total Incidents</span>
         </div>
-        <div class="incident-kpi-card">
+        <button type="button" class="incident-kpi-card incident-kpi-card--clickable"
+          (click)="onSummaryTileClick('open')" aria-label="Filter by Open">
           <span class="incident-kpi-value">{{ summaryOpen() }}</span>
           <span class="incident-kpi-label">Open</span>
-        </div>
-        <div class="incident-kpi-card">
+        </button>
+        <button type="button" class="incident-kpi-card incident-kpi-card--clickable"
+          (click)="onSummaryTileClick('resolved')" aria-label="Filter by Resolved">
           <span class="incident-kpi-value">{{ summaryResolved() }}</span>
           <span class="incident-kpi-label">Resolved</span>
-        </div>
-        <div class="incident-kpi-card">
+        </button>
+        <button type="button" class="incident-kpi-card incident-kpi-card--clickable"
+          (click)="onSummaryTileClick('archived')" aria-label="Filter by Archived">
           <span class="incident-kpi-value">{{ summaryArchived() }}</span>
           <span class="incident-kpi-label">Archived</span>
-        </div>
+        </button>
       </div>
     }
   }

@@ -44,7 +44,7 @@
           matInput
           [type]="showPassword ? 'text' : 'password'"
           formControlName="password"
-          placeholder=""
+          placeholder="Password"
           [class.mat-input-invalid]="submitted && f['password'].errors"
         />
         <span matSuffix class="custom-icon password-toggle" (click)="togglePasswordVisibility()">

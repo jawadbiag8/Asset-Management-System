@@ -1,22 +1,20 @@
 <div class="asset-audit-log">
   <div class="page-header">
-    <div class="header-left">
-      <h1 class="page-title">Audit Logs</h1>
-      <div class="search-wrap">
-        <span class="search-icon" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="M21 21l-4.35-4.35"/>
-          </svg>
-        </span>
-        <input
-          type="text"
-          class="search-input"
-          [value]="searchTerm()"
-          (input)="onSearchChange(($any($event.target)).value)"
-          placeholder="Search Assets"
-        />
-      </div>
+    <h1 class="page-title">Audit Logs</h1>
+    <div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </span>
+      <input
+        type="text"
+        class="search-input"
+        [value]="searchTerm()"
+        (input)="onSearchChange(($any($event.target)).value)"
+        placeholder="Search Assets"
+      />
     </div>
   </div>
 
@@ -59,7 +57,7 @@
               >
                 <mat-icon class="doc-icon" aria-hidden="true">description</mat-icon>
                 <span>Ref. Document</span>
-                <mat-icon class="chevron-icon" aria-hidden="true">expand_less</mat-icon>
+                <!-- <mat-icon class="chevron-icon" aria-hidden="true">expand_less</mat-icon> -->
               </button>
             }
           </div>

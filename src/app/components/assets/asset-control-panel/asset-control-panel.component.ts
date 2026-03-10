@@ -406,7 +406,7 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
   /** Dashboard-style badge class for header badges (pill + glass, same as dashboard). */
   getHeaderBadgeStatusClass(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk'): string {
     if (!value) return 'badge-status-unknown';
-    const upperValue = String(value).toUpperCase();
+    const upperValue = String(value).trim().toUpperCase();
 
     if (type === 'citizenImpact') {
       if (upperValue.includes('LOW')) return 'badge-status-success';
@@ -415,9 +415,10 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
       return 'badge-status-unknown';
     }
     if (type === 'health') {
-      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT')) return 'badge-status-success';
-      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR')) return 'badge-status-warning';
-      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL')) return 'badge-status-danger';
+      if (upperValue.includes('GOOD') || upperValue.includes('EXCELLENT') || upperValue.includes('HEALTHY') || upperValue.includes('HIGH'))
+        return 'badge-status-success';
+      if (upperValue.includes('AVERAGE') || upperValue.includes('FAIR') || upperValue.includes('MODERATE') || upperValue.includes('MEDIUM')) return 'badge-status-warning';
+      if (upperValue.includes('POOR') || upperValue.includes('CRITICAL') || upperValue.includes('LOW')) return 'badge-status-danger';
       return 'badge-status-unknown';
     }
     if (type === 'risk') {
@@ -427,6 +428,49 @@ export class AssetControlPanelComponent implements OnInit, OnDestroy {
       return 'badge-status-unknown';
     }
     return 'badge-status-unknown';
+  }
+
+  /** Value text color class for metrics panel (value-success, value-warning, value-danger, value-unknown). */
+  getHeaderValueClass(value: string | undefined | null, type: 'citizenImpact' | 'health' | 'risk' | 'status'): string {
+    const badge = type === 'status' ? this.getCurrentStatusBadgeClass(value) : this.getHeaderBadgeStatusClass(value, type);
+    if (badge === 'badge-status-success') return 'value-success';
+    if (badge === 'badge-status-warning') return 'value-warning';
+    if (badge === 'badge-status-danger') return 'value-danger';
+    return 'value-unknown';
+  }
+
+  /** Resolved color for Current Health (so it always shows even if CSS is overridden). */
+  getCurrentHealthColor(value: string | undefined | null): string {
+    const badge = this.getHeaderBadgeStatusClass(value, 'health');
+    if (badge === 'badge-status-success') return 'var(--color-green, #10b981)';
+    if (badge === 'badge-status-warning') return 'var(--color-orange, #f59e0b)';
+    if (badge === 'badge-status-danger') return 'var(--color-red, #dc2626)';
+    return 'rgba(255, 255, 255, 0.65)';
+  }
+
+  /** Display text for metric (capitalized, e.g. first part before '-'). */
+  getHeaderDisplayValue(value: string | undefined | null, _type: string): string {
+    if (!value) return 'Unknown';
+    const part = value.split('-')[0]?.trim() || value;
+    return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+  }
+
+  /** Indicator for metric: 'up' | 'down' for citizen/risk (arrow). */
+  getMetricIndicator(value: string | undefined | null, type: 'citizenImpact' | 'risk'): 'up' | 'down' | null {
+    if (!value) return null;
+    const u = String(value).trim().toUpperCase();
+    if (type === 'citizenImpact') {
+      if (u.includes('HIGH')) return 'up';
+      if (u.includes('LOW')) return 'down';
+      return null;
+    }
+    if (type === 'risk') {
+      if (u.includes('HIGH')) return 'up';
+      if (u.includes('LOW')) return 'down';
+      if (u.includes('MEDIUM')) return 'down'; // show down arrow for medium so icon is never missing
+      return null;
+    }
+    return null;
   }
 
   /** Dashboard-style badge class for CURRENT STATUS (UP/ONLINE = success, DOWN/OFFLINE = danger, etc.). */

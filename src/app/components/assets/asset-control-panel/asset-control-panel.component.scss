@@ -1,46 +1,162 @@
-// Status badges section: label + badge centered in each column
-.status-badges-row .status-badge-col {
+// Metrics panel (image style): one card, teal border, dark bg, 3 sections with vertical dividers
+.metrics-panel {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(0, 207, 207, 0.45);
+  border-radius: 12px;
+  background: rgba(13, 29, 29, 0.6);
+  overflow: hidden;
+}
+
+.metric-section {
+  flex: 1;
+  padding: 16px 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
+  gap: 8px;
+
+  &.metric-section-last {
+    border-right: none;
+  }
+}
+
+.metric-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  text-align: center;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+.metric-value-row {
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.metric-value {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: capitalize;
+
+  &.value-success {
+    color: var(--color-green, #10b981);
+  }
+  &.value-warning {
+    color: var(--color-orange, #f59e0b);
+  }
+  &.value-danger {
+    color: var(--color-red, #dc2626);
+  }
+  &.value-unknown {
+    color: rgba(255, 255, 255, 0.65);
+  }
+}
+
+// Current Health (Fair etc.) – ensure yellow/orange is never overridden
+.metrics-panel .metric-value.value-warning,
+.metrics-panel .metric-indicator.value-warning,
+.metrics-panel .metric-indicator.metric-indicator-bar.value-warning {
+  color: var(--color-orange, #f59e0b) !important;
+}
+.metrics-panel .metric-indicator.metric-indicator-bar.value-warning svg {
+  fill: currentColor;
+}
+
+.metric-indicator {
+  display: inline-flex;
+  align-items: center;
+
+  &.value-success { color: var(--color-green, #10b981); }
+  &.value-warning { color: var(--color-orange, #f59e0b); }
+  &.value-danger { color: var(--color-red, #dc2626); }
+  &.value-unknown { color: rgba(255, 255, 255, 0.5); }
+
+  &.metric-indicator-bar svg {
+    opacity: 0.9;
+  }
+
+  .metric-trend-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Status panel (right): current status box + last outage
+.status-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 220px;
+  margin-left: auto;
+}
+
+.status-panel .current-status-box {
+  border: 1px solid rgba(0, 207, 207, 0.45);
+  border-radius: 12px;
+  background: rgba(13, 29, 29, 0.6);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  align-items: center;
+}
+
+.status-panel .current-status-box .metric-label {
   text-align: center;
 }
 
-// Header badges: dashboard design (pill, glass, 24px radius) via global .badge-status-*
-.status-badge-col .badge {
-  display: inline-flex;
-  justify-content: center;
+.status-panel .current-status-box .metric-value-row {
   align-items: center;
-  min-width: 80px;
-  width: auto;
+  justify-content: center;
+  gap: 8px;
+}
+
+.status-value {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+// Status colors (image: Offline = reddish-orange text, dot = solid red)
+.status-value.value-success { color: var(--color-green, #10b981); }
+.status-value.value-warning { color: var(--color-orange, #f59e0b); }
+.status-value.value-danger { color: #e5534b; } // reddish-orange for status text
+.status-value.value-unknown { color: rgba(255, 255, 255, 0.65); }
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.value-success { background: var(--color-green, #10b981); }
+.status-dot.value-warning { background: var(--color-orange, #f59e0b); }
+.status-dot.value-danger { background: #dc2626; } // solid red for dot
+.status-dot.value-unknown { background: rgba(255, 255, 255, 0.4); }
+
+.last-outage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.last-outage-value {
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .center {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-// Current Status box: label + badge centered (dashboard-style pill), transparent background
-.current-status-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  background-color: transparent !important;
-  background: transparent !important;
-}
-.current-status-badge {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 80px;
-  width: auto;
-  text-transform: capitalize;
-}
-
-.last-outage-value {
-  text-transform: none;
 }
 
 // Left column: asset details + Check All KPIs – left-aligned like Health Dashboard layout
@@ -93,6 +209,23 @@
     opacity: 0.8;
     cursor: not-allowed;
   }
+}
+
+// Ministry name as main page title (like ministry detail – large, bold, white)
+.ministry-page-title {
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: 0;
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary, #ffffff);
+}
+
+.card-inner-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--color-text-primary, #ffffff);
 }
 
 .card {

@@ -127,12 +127,18 @@
                           : onIconClick(row, column.key)
                       "
                     >
-                      @if (column.iconUrl) {
+                      @if (column.iconUrl && !column.iconUrl.includes('unknown')) {
                         <img
                           [src]="column.iconUrl"
                           alt="icon"
                           class="custom-icon"
                         />
+                      } @else if (column.iconName === 'help_outline' || (column.iconUrl && column.iconUrl.includes('unknown'))) {
+                        <span class="analyze-icon analyze-icon-line" [style.color]="column.iconColor" aria-hidden="true">
+                          <svg width="15" height="2" viewBox="0 0 15 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="0.65" y1="0.650049" x2="14.35" y2="0.650049" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.3" stroke-linecap="round"/>
+                          </svg>
+                        </span>
                       } @else {
                         <mat-icon
                           class="analyze-icon"
@@ -331,9 +337,17 @@
                         <span class="metric-trend-text">{{
                           getCellValue(row, column.primaryField || "")
                         }}</span>
-                        <mat-icon class="metric-trend-icon">{{
-                          getTrendIconName(row, column)
-                        }}</mat-icon>
+                        @if (getTrendIconName(row, column) === 'help_outline') {
+                          <span class="metric-trend-icon metric-trend-icon-line" aria-hidden="true">
+                            <svg width="15" height="2" viewBox="0 0 15 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <line x1="0.65" y1="0.650049" x2="14.35" y2="0.650049" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.3" stroke-linecap="round"/>
+                            </svg>
+                          </span>
+                        } @else {
+                          <mat-icon class="metric-trend-icon">{{
+                            getTrendIconName(row, column)
+                          }}</mat-icon>
+                        }
                       </div>
                       <div class="metric-trend-percentage">
                         {{ getCellValue(row, column.secondaryField || "") }}
@@ -462,9 +476,17 @@
                           @if (
                             column.showIcon && column.iconName && !column.iconUrl
                           ) {
-                            <mat-icon class="text-cell-icon" aria-hidden="true">{{
-                              column.iconName
-                            }}</mat-icon>
+                            @if (column.iconName === 'help_outline') {
+                              <span class="text-cell-icon text-cell-icon-line" aria-hidden="true">
+                                <svg width="15" height="2" viewBox="0 0 15 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <line x1="0.65" y1="0.650049" x2="14.35" y2="0.650049" stroke="currentColor" stroke-opacity="0.5" stroke-width="1.3" stroke-linecap="round"/>
+                                </svg>
+                              </span>
+                            } @else {
+                              <mat-icon class="text-cell-icon" aria-hidden="true">{{
+                                column.iconName
+                              }}</mat-icon>
+                            }
                           }
                         </span>
                       }

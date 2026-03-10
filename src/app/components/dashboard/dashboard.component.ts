@@ -102,9 +102,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   tableFilters = signal<FilterPill[]>([]);
 
-  /** Overall performance bar: % Offline | % Non Compliant | % Compliant (derived from summary). */
-  performanceBar = signal<{ offlinePct: number; nonCompliantPct: number; compliantPct: number }>({
-    offlinePct: 0,
+  /** Overall performance bar: % Non Compliant (red) | % Compliant (green) only. */
+  performanceBar = signal<{ nonCompliantPct: number; compliantPct: number }>({
     nonCompliantPct: 100,
     compliantPct: 0,
   });
@@ -301,6 +300,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   correspondencePeriod = 'today';
   correspondenceItems = signal<CorrespondenceItem[]>([]);
   correspondenceLoading = signal<boolean>(false);
+  /** ID of correspondence whose report is being downloaded */
+  downloadingReportId = signal<number | null>(null);
 
   // Computed signal to keep table config in sync with data
   tableConfigWithData = computed<TableConfig>(() => {
@@ -445,7 +446,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'success',
         subValueText: 'View Online Assets ',
-        subValueLink: '/asset?currentStatus=Up',
+        subValueLink: '/asset?currentStatus=Online',
       },
       {
         id: 3,
@@ -485,7 +486,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         subValue: '',
         subValueColor: 'danger',
         subValueText: 'View Assets With High Risk ',
-        subValueLink: '/asset?riskIndex=HIGH RISK',
+        subValueLink: '/asset?riskIndex=High',
       },
       {
         id: 7,
@@ -531,6 +532,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.signalR.leaveTopic(this.summaryTopic).catch(() => {});
   }
 
+  /** Normalize status from URL: Up -> Online, Down -> Offline (UI shows Online/Offline). */
+  private normalizeStatusFromUrl(value: string): string {
+    const u = (value || '').trim().toUpperCase();
+    if (u === 'UP') return 'Online';
+    if (u === 'DOWN') return 'Offline';
+    return value ?? '';
+  }
+
   /** URL se saare filter query params padhkar table filters par lagao (edit se wapas aane ya direct URL par aane par). */
   private applyInitialQueryParams(): void {
     const qp = this.activatedRoute.snapshot.queryParams as Record<string, string>;
@@ -552,8 +561,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.tableFilters.update((filters) =>
       filters.map((f) => {
         if (!f.paramKey) return f;
-        const value = qp[f.paramKey];
+        let value = qp[f.paramKey];
         if (value == null || value === '') return f;
+        if (f.paramKey === 'currentStatus') {
+          value = this.normalizeStatusFromUrl(value);
+        }
         const labelPart = f.label.split(':')[0] ?? f.paramKey;
         return {
           ...f,
@@ -692,13 +704,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             data.criticalSeverityOpenIncidentsPercentage ?? 0,
         };
 
-        // Overall performance bar: offline % | non-compliant % | compliant %
-        const total = summary.totalAssets || 1;
-        const offlinePct = Math.round(((total - summary.assetsOnline) / total) * 100);
+        // Overall performance bar: non-compliant (red) + compliant (green) only
         const compliantPct = Math.round(Number(summary.complianceIndex) || 0);
-        const nonCompliantPct = Math.max(0, 100 - offlinePct - compliantPct);
+        const nonCompliantPct = Math.max(0, 100 - compliantPct);
         this.performanceBar.set({
-          offlinePct: Math.max(0, offlinePct),
           nonCompliantPct,
           compliantPct: Math.min(100, compliantPct),
         });
@@ -731,7 +740,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   : '',
               subValueColor: 'success',
               subValueText: 'View Online Assets ',
-              subValueLink: '/asset?currentStatus=Up',
+              subValueLink: '/asset?currentStatus=Online',
             },
             {
               id: 3,
@@ -780,7 +789,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               subValue: summary.highRiskAssetsStatus,
               subValueColor: 'danger',
               subValueText: 'View Assets With High Risk ',
-              subValueLink: '/asset?riskIndex=HIGH RISK',
+              subValueLink: '/asset?riskIndex=High',
             },
             {
               id: 7,
@@ -866,10 +875,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.apiService.removeAssetFromFavorites(assetId).subscribe({
       next: (res) => {
         if (res?.isSuccessful) {
-          this.utils.showToast('Asset removed from favorites.', 'Favorites', 'success');
+          this.utils.showToast('Asset removed from Watchlist.', 'Watchlist', 'success');
           this.loadFavoriteAssets();
         } else {
-          this.utils.showToast(res?.message ?? 'Could not remove from favorites.', 'Favorites', 'error');
+          this.utils.showToast(res?.message ?? 'Could not remove from Watchlist.', 'Watchlist', 'error');
         }
       },
       error: (err) => {
@@ -895,7 +904,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             number: index + 1,
             ministryId: row.ministryId != null ? Number(row.ministryId) : undefined,
             ministryName: row.ministryName ?? row.ministry ?? '—',
-            time: formatCorrespondenceTime(row.createdAt ?? row.updatedAt ?? row.time),
+            time: formatCorrespondenceTime(row.updatedAt ),
             status: (row.status === 'Dispatched' || row.status === 'Draft' ? row.status : (String(row.status ?? '').toLowerCase() === 'dispatched' ? 'Dispatched' : 'Draft')) as 'Dispatched' | 'Draft',
           }));
           this.correspondenceItems.set(items);
@@ -920,6 +929,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const data: UploadDocumentDialogData = {
       mode: 'correspondence',
       correspondenceId: item.id,
+      ministryId: item.ministryId,
     };
     const dialogRef = this.dialog.open(UploadDocumentDialogComponent, {
       width: '500px',
@@ -934,8 +944,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Download correspondence report (GET Ministry/correspondence/{id}/report) and save as file */
+  onDownloadCorrespondenceReport(item: CorrespondenceItem): void {
+    const id = item.id;
+    this.downloadingReportId.set(id);
+    this.apiService.getCorrespondenceReport(id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `correspondence-report-${id}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.utils.showToast('Report downloaded.', 'Correspondence', 'success');
+        this.downloadingReportId.set(null);
+      },
+      error: () => {
+        this.utils.showToast('Report not available or failed to download.', 'Correspondence', 'error');
+        this.downloadingReportId.set(null);
+      },
+    });
+  }
+
   onCorrespondenceHistory(): void {
-    // Placeholder: navigate to correspondence history or open modal
+    this.router.navigate(['/ministry-correspondence-history'], {
+      queryParams: { ministryId: -1 },
+    });
   }
 
   updateFilterOptions(

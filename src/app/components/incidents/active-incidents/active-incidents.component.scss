@@ -43,6 +43,23 @@ $incidents-pill-radius: 999px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  &.incident-kpi-card--total {
+    cursor: default;
+  }
+
+  &.incident-kpi-card--clickable {
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    transition: background 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+  }
 }
 
 .incident-kpi-value {
@@ -98,7 +115,7 @@ $incidents-pill-radius: 999px;
     -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
     isolation: isolate;
-    padding: 20px 24px;
+    // padding: 20px 24px;
   }
 
   --color-bg-primary: rgba(255, 255, 255, 0.06);
@@ -215,11 +232,13 @@ $incidents-pill-radius: 999px;
   }
 }
 
-/* Check Current Status button – solid dark teal bg, white text, centered (capsule) */
-.dashboard-table-section ::ng-deep .actions-cell .action-link {
+/* Check Current Status button – dark teal bg, white text, border, capsule (incidents page with header) */
+.dashboard-table-section ::ng-deep .actions-cell .action-link,
+/* Same style on asset detail page (incidents inside .incidents-section) */
+:host-context(.incidents-section) ::ng-deep .actions-cell .action-link {
   background: #0d3d3d;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
   border-radius: 999px;
   padding: 8px 18px;
   font-size: 14px;
@@ -232,8 +251,8 @@ $incidents-pill-radius: 999px;
 
   &:hover:not([disabled]) {
     background: #0f4a4a;
-    border-color: rgba(255, 255, 255, 0.4);
-    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.7);
+    color: #fff !important;
   }
 }
 

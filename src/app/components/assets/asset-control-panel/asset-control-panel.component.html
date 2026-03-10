@@ -1,9 +1,12 @@
 <div class="container-fluid p-4">
   @if(assetControlPanelData()) {
+  <!-- Ministry name as main page title (like ministry detail) -->
+  <h1 class="ministry-page-title">{{ assetControlPanelData()!.header.ministry || 'Asset Control Panel' }}</h1>
+
   <div class="card shadow-sm mt-4">
-    <!-- Page Title -->
+    <!-- Card title: Health Dashboard / Asset name -->
     <div class="card-body">
-      <h1 class="mb-4 fw-bold">{{ assetControlPanelData()!.header.assetName || 'Unknown' }}</h1>
+      <h2 class="card-inner-title mb-4">{{ assetControlPanelData()!.header.assetName || 'Health Dashboard' }}</h2>
 
       <!-- Asset Details and Status Section -->
       <div class="row g-4">
@@ -37,47 +40,59 @@
           </div>
         </div>
 
-        <!-- Middle: Status Badges Group -->
+        <!-- Middle: Metrics Panel (image style – teal border, 3 sections with dividers, value + indicator) -->
         <div class="col-12 col-md-5">
-          <div class="border rounded p-4">
-            <div class="row g-3 status-badges-row">
-              <div class="col-12 col-sm-4 border-end border-sm-end-0 pb-3 pb-sm-0 pe-sm-3 status-badge-col">
-                <label class="text-muted small fw-medium mb-2">Citizen Impact Level</label>
-                <span class="badge"
-                  [ngClass]="getHeaderBadgeStatusClass(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact')">
-                  {{ assetControlPanelData()!.header.citizenImpactLevel.split('-')[0] || 'Unknown' }}
+          <div class="metrics-panel">
+            <div class="metric-section">
+              <label class="metric-label">Citizen Impact Level</label>
+              <div class="metric-value-row">
+                <span class="metric-value" [ngClass]="getHeaderValueClass(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact')">
+                  {{ getHeaderDisplayValue(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact') }}
+                </span>
+                <span class="metric-indicator" [ngClass]="getHeaderValueClass(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact')" *ngIf="getMetricIndicator(assetControlPanelData()!.header.citizenImpactLevel, 'citizenImpact') as ind">
+                  <mat-icon class="metric-trend-icon" aria-hidden="true">{{ ind === 'up' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
                 </span>
               </div>
-              <div class="col-12 col-sm-4 border-end border-sm-end-0 pb-3 pb-sm-0 pe-sm-3 status-badge-col">
-                <label class="text-muted small fw-medium mb-2">Current Health</label>
-                <span class="badge"
-                  [ngClass]="getHeaderBadgeStatusClass(assetControlPanelData()!.header.currentHealth, 'health')">
-                  {{ assetControlPanelData()!.header.currentHealth || 'Unknown' }}
+            </div>
+            <div class="metric-section metric-section-health">
+              <label class="metric-label">Current Health</label>
+              <div class="metric-value-row">
+                <span class="metric-value metric-value-health" [style.color]="getCurrentHealthColor(assetControlPanelData()!.header.currentHealth)">
+                  {{ getHeaderDisplayValue(assetControlPanelData()!.header.currentHealth, 'health') }}
+                </span>
+                <span class="metric-indicator metric-indicator-bar metric-indicator-health" [style.color]="getCurrentHealthColor(assetControlPanelData()!.header.currentHealth)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="14" width="4" height="6"/><rect x="10" y="10" width="4" height="10"/><rect x="16" y="6" width="4" height="14"/></svg>
                 </span>
               </div>
-              <div class="col-12 col-sm-4 status-badge-col">
-                <label class="text-muted small fw-medium mb-2">Risk Exposure Index</label>
-                <span class="badge"
-                  [ngClass]="getHeaderBadgeStatusClass(assetControlPanelData()!.header.riskExposureIndex, 'risk')">
-                  {{ assetControlPanelData()!.header.riskExposureIndex || 'Unknown' }}
+            </div>
+            <div class="metric-section metric-section-last">
+              <label class="metric-label">Risk Exposure Index</label>
+              <div class="metric-value-row">
+                <span class="metric-value" [ngClass]="getHeaderValueClass(assetControlPanelData()!.header.riskExposureIndex, 'risk')">
+                  {{ getHeaderDisplayValue(assetControlPanelData()!.header.riskExposureIndex, 'risk') }}
                 </span>
+                @if (assetControlPanelData()!.header.riskExposureIndex) {
+                  <span class="metric-indicator" [ngClass]="getHeaderValueClass(assetControlPanelData()!.header.riskExposureIndex, 'risk')">
+                    <mat-icon class="metric-trend-icon" aria-hidden="true">{{ getMetricIndicator(assetControlPanelData()!.header.riskExposureIndex, 'risk') === 'up' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                  </span>
+                }
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Right: Current Status Box -->
+        <!-- Right: Status Panel (current status + dot, last outage) -->
         <div class="col-12 col-md-2">
-          <div class="d-flex flex-column gap-3 ms-auto" style="max-width: 220px;">
-            <div class="rounded p-3 current-status-box" [ngClass]="getStatusBoxClass(assetControlPanelData()!.header.currentStatus)">
-              <label class="text-muted small fw-medium mb-2">Current Status</label>
-              <span class="badge current-status-badge"
-                [ngClass]="getCurrentStatusBadgeClass(assetControlPanelData()!.header.currentStatus)">
-                {{ assetControlPanelData()!.header.currentStatus || 'Unknown' }}
-              </span>
+          <div class="status-panel">
+            <div class="current-status-box">
+              <label class="metric-label">Current Status</label>
+              <div class="metric-value-row">
+                <span class="status-dot" [ngClass]="getHeaderValueClass(assetControlPanelData()!.header.currentStatus, 'status')"></span>
+                <span class="metric-value status-value" [ngClass]="getHeaderValueClass(assetControlPanelData()!.header.currentStatus, 'status')">{{ assetControlPanelData()!.header.currentStatus || 'Unknown' }}</span>
+              </div>
             </div>
-            <div class="d-flex justify-content-between gap-2">
-              <label class="text-muted small fw-medium mb-1 ">Last Outage</label>
+            <div class="last-outage-row">
+              <label class="metric-label">Last Outage</label>
               <span class="last-outage-value">{{ formatLastOutage(assetControlPanelData()!.header.lastOutage) }}</span>
             </div>
           </div>

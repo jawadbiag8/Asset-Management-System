@@ -89,7 +89,7 @@
 
             &:not(.badge-red) {
                 background-color: #FEF3C7;
-                color: #F59E0B;
+                color: var(--color-orange, #f59e0b);
             }
 
             &.badge-red {
@@ -145,7 +145,7 @@
     cursor: pointer;
 }
 
-// Table section: exactly like assets page (glass card + same design tokens)
+// Table section: align full width with page header and summary cards (no extra horizontal padding)
 .dashboard-table-section {
     overflow: hidden;
 
@@ -154,7 +154,7 @@
         -webkit-backdrop-filter: blur(20px);
         overflow: hidden;
         isolation: isolate;
-        padding: 20px 24px;
+        padding: 20px 0;
     }
 
     // Dark theme for filters/search (reusable-table)
@@ -213,7 +213,7 @@
     }
 }
 
-// Table: same layout and colors as assets page (Status dot, Health/Performance/Compliance/Risk/Citizen Impact with arrows + colors)
+// Table: same layout and colors as assets page; card padding vertical only so table aligns with header/cards
 .dashboard-table-section {
   overflow: hidden;
 
@@ -222,7 +222,7 @@
     -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
     isolation: isolate;
-    padding: 20px 24px;
+    padding: 20px 0;
   }
 
   ::ng-deep .assets-table {
@@ -426,4 +426,8 @@
             padding: 14px 12px !important;
         }
     }
+}
+ .trailing-btn-analyze-capsule {
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  color: #ffffff !important;
 }

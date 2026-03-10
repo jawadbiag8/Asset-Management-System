@@ -12,11 +12,8 @@
   flex-wrap: wrap;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+.page-header .search-wrap {
+  margin-left: auto;
 }
 
 .page-title {

@@ -1,184 +1,100 @@
 <div class="container-fluid p-4 view-assets-detail-page">
-  <!-- Below breadcrumb: title left, Add to Favorite right -->
-  <!-- <div class="detail-page-top row align-items-center mt-2 mb-0">
-    <div class="col"></div>
-    <div class="col-auto">
-      <button type="button" class="btn btn-add-to-favorite" (click)="onAddToFavorite()" aria-label="Add to Favorite">
-        <mat-icon class="favorite-icon">favorite_border</mat-icon>
-        Add to Favorite
-      </button>
-    </div>
-  </div> -->
+  <!-- Ministry name as main page title (like ministry detail / image) -->
+  <h1 class="ministry-page-title">{{ assetDetails.ministry || 'Health Dashboard' }}</h1>
 
-  <!-- Health Dashboard Card -->
+  <!-- Health Dashboard Card (structure same as asset-control-panel) -->
   <div class="card shadow-sm mt-4 header-card">
-    <!-- Page Title -->
     <div class="card-body header-card-body">
-      <!-- Left: Asset Details (stacks below lg to avoid overlap at 768px) -->
-      <div class="row g-4 align-items-center header-row">
-        <div class="col-12 col-lg-5">
-          <div class="left-section">
-            <h1 class="fw-bold">
-              {{ assetDetails.assetName || "Health Dashboard" }}
-            </h1>
+      <h2 class="card-inner-title mb-4">{{ assetDetails.assetName || 'Health Dashboard' }}</h2>
 
-            <div class="info-row">
-              <div class="info-item">
-                <label
-                  class="text-muted small fw-medium mb-1 d-block"
-                  >Url</label
-                >
-                <a
-                  [href]="'https://' + assetDetails.url"
-                  target="_blank"
-                  class="link"
-                >
-                  {{ assetDetails.url }}
-                </a>
-              </div>
-              <div class="info-item">
-                <label
-                  class="text-muted small fw-medium mb-1 d-block"
-                  >Department</label
-                >
-                <span class="d-block fw-semibold">{{
-                  assetDetails.department || "N/A"
-                }}</span>
-              </div>
-            </div>
-
-            <div class="analyze-button-container d-flex flex-wrap gap-2">
-              <button class="btn btn-analyze" (click)="onAnalyze()">
-                Analyze
-              </button>
-              <button class="btn btn-edit" (click)="onEdit()">
-                Edit
-              </button>
-              <a
-                [routerLink]="['/asset-audit-log']"
-                [queryParams]="assetId != null ? { assetId } : {}"
-                class="btn btn-audit-log"
-                aria-label="Audit Log"
-              >
-                <mat-icon class="audit-log-icon">history</mat-icon>
-                Audit Log
+      <!-- Asset Details and Status Section -->
+      <div class="row g-4 header-row">
+        <!-- Left: Asset Details (URL, Ministry, Department, actions – left-aligned) -->
+        <div class="col-12 col-md-5 asset-details-col">
+          <div class="asset-details-row">
+            <div class="asset-detail-block">
+              <label class="text-muted small fw-medium mb-1 d-block">Url</label>
+              <a [href]="'https://' + assetDetails.url" target="_blank" class="link">
+                {{ assetDetails.url }}
               </a>
             </div>
-          </div>
-        </div>
-
-        <!-- Middle: Status Badges Group -->
-        <div class="col-12 col-lg-5">
-          <div class="border rounded p-4 metrics-box">
-            <div class="row g-3 metrics-row">
-              <div
-                class="col-12 col-sm-4 border-end border-sm-end-0 pb-3 pb-sm-0 pe-sm-3"
-              >
-                <div class="center">
-                  <label class="text-muted small fw-medium mb-2"
-                    >Citizen Impact Level</label
-                  >
-                  <span
-                    class="badge"
-                    [ngClass]="
-                      getBadgeClass(
-                        getBadgeColor(
-                          assetDetails.citizenImpactLevel,
-                          'citizenImpact'
-                        )
-                      )
-                    "
-                    [style.background-color]="
-                      getBadgeColor(
-                        assetDetails.citizenImpactLevel,
-                        'citizenImpact'
-                      )
-                    "
-                    [style.color]="
-                      getBadgeTextColor(
-                        assetDetails.citizenImpactLevel,
-                        'citizenImpact'
-                      )
-                    "
-                  >
-                    {{
-                      getCitizenImpactBadgeLabel(
-                        assetDetails.citizenImpactLevel
-                      )
-                    }}
-                  </span>
-                </div>
-              </div>
-              <div
-                class="col-12 col-sm-4 border-end border-sm-end-0 pb-3 pb-sm-0 pe-sm-3"
-              >
-                <div class="center">
-                  <label class="text-muted small fw-medium mb-2"
-                    >Current Health</label
-                  >
-                  <span
-                    class="badge"
-                    [ngClass]="
-                      getBadgeClass(
-                        getBadgeColor(assetDetails.currentHealth, 'health')
-                      )
-                    "
-                    [style.background-color]="
-                      getBadgeColor(assetDetails.currentHealth, 'health')
-                    "
-                    [style.color]="
-                      getBadgeTextColor(assetDetails.currentHealth, 'health')
-                    "
-                  >
-                    {{
-                      getHealthOrImpactBadgeLabel(assetDetails.currentHealth)
-                    }}
-                  </span>
-                </div>
-              </div>
-              <div class="col-12 col-sm-4">
-                <div class="center">
-                  <label class="text-muted small fw-medium mb-2"
-                    >Risk Exposure Index</label
-                  >
-                  <span
-                    class="fw-semibold"
-                    [style.color]="
-                      getBadgeTextColor(assetDetails.riskExposureIndex, 'risk')
-                    "
-                  >
-                    {{ assetDetails.riskExposureIndex || "Unknown" }}
-                  </span>
-                </div>
-              </div>
+            <div class="asset-detail-block">
+              <label class="text-muted small fw-medium mb-1 d-block">Ministry</label>
+              <span class="d-block fw-semibold">{{ assetDetails.ministry || 'N/A' }}</span>
+            </div>
+            <div class="asset-detail-block">
+              <label class="text-muted small fw-medium mb-1 d-block">Department</label>
+              <span class="d-block fw-semibold">{{ assetDetails.department || 'N/A' }}</span>
             </div>
           </div>
+          <div class="asset-details-actions mt-3">
+            <button type="button" class="btn btn-analyze" (click)="onAnalyze()">Analyze</button>
+            <button type="button" class="btn btn-check-status" (click)="onCheckCurrentStatus()">Check Current Status</button>
+            <button type="button" class="btn btn-edit" (click)="onEdit()">Edit</button>
+            <a [routerLink]="['/asset-audit-log']" [queryParams]="assetId != null ? { assetId } : {}" class="btn btn-audit-log" aria-label="Audit Log">
+              <mat-icon class="audit-log-icon">history</mat-icon>
+              Audit Log
+            </a>
+            <button type="button" class="btn btn-favorite-star" (click)="toggleFavorite()" [attr.aria-label]="assetDetails.favorite ? 'Remove from Watchlist' : 'Add to Watchlist'" [title]="assetDetails.favorite ? 'Remove from Watchlist' : 'Add to Watchlist'">
+              <mat-icon class="favorite-star-icon">{{ assetDetails.favorite ? 'star' : 'star_outline' }}</mat-icon>
+            </button>
+          </div>
         </div>
 
-        <!-- Right: Current Status Box -->
-        <div class="col-12 col-lg-2">
-          <div class="status-box-wrapper d-flex flex-column gap-3 ms-auto">
-            <div
-              class="rounded p-3"
-              [ngClass]="getStatusBoxClass(assetDetails.currentStatus)"
-            >
-              <div class="center">
-                <label class="text-muted small fw-medium mb-2"
-                  >Current Status</label
-                >
-                <span
-                  class="fw-semibold"
-                  [ngClass]="getStatusTextClass(assetDetails.currentStatus)"
-                >
-                  {{ assetDetails.currentStatus || "Unknown" }}
+        <!-- Middle: Metrics Panel (teal border, 3 sections, value + indicator) -->
+        <div class="col-12 col-md-5">
+          <div class="metrics-panel">
+            <div class="metric-section">
+              <label class="metric-label">Citizen Impact Level</label>
+              <div class="metric-value-row">
+                <span class="metric-value" [ngClass]="getHeaderValueClass(assetDetails.citizenImpactLevel, 'citizenImpact')">
+                  {{ getHeaderDisplayValue(assetDetails.citizenImpactLevel, 'citizenImpact') }}
+                </span>
+                <span class="metric-indicator" [ngClass]="getHeaderValueClass(assetDetails.citizenImpactLevel, 'citizenImpact')" *ngIf="getMetricIndicator(assetDetails.citizenImpactLevel, 'citizenImpact') as ind">
+                  <mat-icon class="metric-trend-icon" aria-hidden="true">{{ ind === 'up' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
                 </span>
               </div>
             </div>
-            <div class="status-last-outage-row">
-              <label class="text-muted small fw-medium mb-1"
-                >Last Outage</label
-              >
-              <span>{{ formatLastOutage(assetDetails.lastOutage) }}</span>
+            <div class="metric-section metric-section-health">
+              <label class="metric-label">Current Health</label>
+              <div class="metric-value-row">
+                <span class="metric-value metric-value-health" [style.color]="getCurrentHealthColor(assetDetails.currentHealth)">
+                  {{ getHeaderDisplayValue(assetDetails.currentHealth, 'health') }}
+                </span>
+                <span class="metric-indicator metric-indicator-bar metric-indicator-health" [style.color]="getCurrentHealthColor(assetDetails.currentHealth)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="14" width="4" height="6"/><rect x="10" y="10" width="4" height="10"/><rect x="16" y="6" width="4" height="14"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="metric-section metric-section-last">
+              <label class="metric-label">Risk Exposure Index</label>
+              <div class="metric-value-row">
+                <span class="metric-value" [ngClass]="getHeaderValueClass(assetDetails.riskExposureIndex, 'risk')">
+                  {{ getHeaderDisplayValue(assetDetails.riskExposureIndex, 'risk') }}
+                </span>
+                @if (assetDetails.riskExposureIndex) {
+                  <span class="metric-indicator" [ngClass]="getHeaderValueClass(assetDetails.riskExposureIndex, 'risk')">
+                    <mat-icon class="metric-trend-icon" aria-hidden="true">{{ getMetricIndicator(assetDetails.riskExposureIndex, 'risk') === 'up' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Status Panel (current status + dot, last outage) -->
+        <div class="col-12 col-md-2">
+          <div class="status-panel">
+            <div class="current-status-box">
+              <label class="metric-label">Current Status</label>
+              <div class="metric-value-row">
+                <span class="status-dot" [ngClass]="getHeaderValueClass(assetDetails.currentStatus, 'status')"></span>
+                <span class="metric-value status-value" [ngClass]="getHeaderValueClass(assetDetails.currentStatus, 'status')">{{ assetDetails.currentStatus || 'Unknown' }}</span>
+              </div>
+            </div>
+            <div class="last-outage-row">
+              <label class="metric-label">Last Outage</label>
+              <span class="last-outage-value">{{ formatLastOutage(assetDetails.lastOutage) }}</span>
             </div>
           </div>
         </div>
@@ -217,7 +133,7 @@
           class="status-badge"
           [ngClass]="getStatusBadgeClass(standard.status)"
         >
-          {{ standard.status }}
+          {{ getComplianceStatusLabel(standard.status) }}
         </span>
       </div>
     </div>

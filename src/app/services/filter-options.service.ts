@@ -4,6 +4,24 @@ import { forkJoin, Observable, of } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import type { FilterOption } from '../components/reusable/reusable-table/reusable-table.component';
 
+/** Capitalize string to title case for dropdown labels (e.g. "HIGH" -> "High", "average" -> "Average"). */
+function toTitleCase(s: string): string {
+  if (s == null || typeof s !== 'string') return '';
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/** Map risk index LOV value to API param: Low, Medium, High (Asset API expects these). */
+function mapRiskIndexToApiValue(raw: string): string {
+  const u = (raw || '').trim().toUpperCase();
+  if (u.includes('LOW') || u === 'LOW') return 'Low';
+  if (u.includes('MEDIUM') || u === 'MEDIUM' || u.includes('MID')) return 'Medium';
+  if (u.includes('HIGH') || u === 'HIGH') return 'High';
+  return '';
+}
+
 /** Same filter config as dashboard: ids and labels for menu/table filters. */
 export const DASHBOARD_FILTER_MENU: { id: string; label: string }[] = [
   { id: 'ministry', label: 'Ministry' },
@@ -38,8 +56,8 @@ export class FilterOptionsService {
   loadFilterOptions(): Observable<void> {
     const statusOptionsStatic: FilterOption[] = [
       { label: 'All', value: '' },
-      { label: 'UP', value: 'Up' },
-      { label: 'DOWN', value: 'Down' },
+      { label: 'Online', value: 'Online' },
+      { label: 'Offline', value: 'Offline' },
     ];
 
     return forkJoin({
@@ -57,8 +75,9 @@ export class FilterOptionsService {
             ? responses.ministries.data
             : [];
           ministries.forEach((ministry: any) => {
+            const name = ministry.ministryName || ministry.name;
             ministryOptions.push({
-              label: ministry.ministryName || ministry.name,
+              label: toTitleCase(String(name ?? '')),
               value:
                 ministry.id?.toString() ||
                 ministry.ministryName ||
@@ -79,7 +98,7 @@ export class FilterOptionsService {
             : [];
           citizenImpacts.forEach((impact: any) => {
             citizenImpactOptions.push({
-              label: impact.name,
+              label: toTitleCase(String(impact.name ?? '')),
               value: impact.id?.toString() ?? impact.name,
             });
           });
@@ -94,8 +113,9 @@ export class FilterOptionsService {
             ? responses.healthStatus.data
             : [];
           items.forEach((item: any) => {
+            const label = item.name ?? item.label ?? String(item);
             healthOptions.push({
-              label: item.name ?? item.label ?? String(item),
+              label: toTitleCase(String(label)),
               value: item.id?.toString() ?? item.name ?? item.value ?? String(item),
             });
           });
@@ -110,8 +130,9 @@ export class FilterOptionsService {
             ? responses.performanceStatus.data
             : [];
           items.forEach((item: any) => {
+            const label = item.name ?? item.label ?? String(item);
             performanceOptions.push({
-              label: item.name ?? item.label ?? String(item),
+              label: toTitleCase(String(label)),
               value: item.id?.toString() ?? item.name ?? item.value ?? String(item),
             });
           });
@@ -126,8 +147,9 @@ export class FilterOptionsService {
             ? responses.complianceStatus.data
             : [];
           items.forEach((item: any) => {
+            const label = item.name ?? item.label ?? String(item);
             complianceOptions.push({
-              label: item.name ?? item.label ?? String(item),
+              label: toTitleCase(String(label)),
               value: item.id?.toString() ?? item.name ?? item.value ?? String(item),
             });
           });
@@ -141,15 +163,22 @@ export class FilterOptionsService {
           const items = Array.isArray(responses.riskExposureIndex.data)
             ? responses.riskExposureIndex.data
             : [];
+          const seen = new Set<string>();
           items.forEach((item: any) => {
-            riskOptions.push({
-              label: item.name ?? item.label ?? String(item),
-              value: item.id?.toString() ?? item.name ?? item.value ?? String(item),
-            });
+            const raw = (item.name ?? item.label ?? item.value ?? String(item)).toString().toUpperCase();
+            const value = mapRiskIndexToApiValue(raw);
+            if (value && !seen.has(value)) {
+              seen.add(value);
+              riskOptions.push({ label: toTitleCase(value), value });
+            }
           });
-          this.riskIndexOptions.set(riskOptions);
+          if (riskOptions.length <= 1) {
+            this.riskIndexOptions.set([{ label: 'All', value: '' }, { label: 'Low', value: 'Low' }, { label: 'Medium', value: 'Medium' }, { label: 'High', value: 'High' }]);
+          } else {
+            this.riskIndexOptions.set(riskOptions);
+          }
         } else {
-          this.riskIndexOptions.set([{ label: 'All', value: '' }]);
+          this.riskIndexOptions.set([{ label: 'All', value: '' }, { label: 'Low', value: 'Low' }, { label: 'Medium', value: 'Medium' }, { label: 'High', value: 'High' }]);
         }
       }),
       catchError(() => {
@@ -159,7 +188,7 @@ export class FilterOptionsService {
         this.healthOptions.set([{ label: 'All', value: '' }]);
         this.performanceOptions.set([{ label: 'All', value: '' }]);
         this.complianceOptions.set([{ label: 'All', value: '' }]);
-        this.riskIndexOptions.set([{ label: 'All', value: '' }]);
+        this.riskIndexOptions.set([{ label: 'All', value: '' }, { label: 'Low', value: 'Low' }, { label: 'Medium', value: 'Medium' }, { label: 'High', value: 'High' }]);
         return of(undefined);
       }),
       map(() => undefined as void)

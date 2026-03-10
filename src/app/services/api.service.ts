@@ -135,6 +135,16 @@ export class ApiService {
   }
 
   /**
+   * Download correspondence report (file). GET Ministry/correspondence/{id}/report
+   */
+  getCorrespondenceReport(correspondenceId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/Ministry/correspondence/${correspondenceId}/report`,
+      { responseType: 'blob' },
+    );
+  }
+
+  /**
    * Get all correspondence (recent ministries with uploaded reports).
    * GET Ministry/correspondence/getAll
    */
@@ -155,6 +165,22 @@ export class ApiService {
   getMinistryCorrespondence(ministryId: number | string): Observable<ApiResponse<MinistryCorrespondenceItem[]>> {
     return this.http.get<ApiResponse<MinistryCorrespondenceItem[]>>(
       `${this.baseUrl}/Ministry/${ministryId}/correspondence`,
+      { headers: { Accept: 'text/plain' } },
+    );
+  }
+
+  /**
+   * Dispatch correspondence: upload reference document for a ministry.
+   * POST Ministry/{ministryId}/report/dispatch
+   * Body: multipart/form-data with refId (string) and file (File).
+   */
+  dispatchCorrespondenceReport(ministryId: number | string, refId: string, file: File): Observable<ApiResponse<any>> {
+    const formData = new FormData();
+    formData.append('refId', refId);
+    formData.append('file', file, file.name);
+    return this.http.post<ApiResponse<any>>(
+      `${this.baseUrl}/Ministry/${ministryId}/report/dispatch`,
+      formData,
       { headers: { Accept: 'text/plain' } },
     );
   }
@@ -217,9 +243,9 @@ export class ApiService {
       return of({
         isSuccessful: true,
         data: [
-          { label: 'LOW RISK', id: 'LOW RISK' },
-          { label: 'MEDIUM RISK', id: 'MEDIUM RISK' },
-          { label: 'HIGH RISK', id: 'HIGH RISK' },
+          { label: 'LOW RISK', id: 'LOW' },
+          { label: 'MEDIUM RISK', id: 'MEDIUM' },
+          { label: 'HIGH RISK', id: 'HIGH' },
           { label: 'Unknown', id: 'Unknown' },
         ],
       });

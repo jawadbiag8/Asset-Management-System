@@ -123,7 +123,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     const isAddMode = routePath === 'add-digital-assets';
     this.pageInfo.set({
       pageState: isAddMode ? 'add' : 'edit',
-      title: isAddMode ? 'Add New Digital Asset' : 'Edit Digital Asset',
+      title: isAddMode ? 'Add New Digital Asset' : 'Edit Digital Assets',
       subtitle: isAddMode ? 'Fill in the details below to add a new digital asset to the monitoring system' : 'Fill in the details below to update existing digital asset to the monitoring system',
       assetId: isAddMode ? null : this.activatedRoute.snapshot.queryParams['assetId']
     });
@@ -498,7 +498,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
             'Import Assets',
             'success',
           );
-          this.route.navigate(['/dashboard']);
+          this.route.navigate(['/asset']);
         } else {
           const data = res.data as BulkUploadErrorData | undefined;
           if (data?.errors?.length) {

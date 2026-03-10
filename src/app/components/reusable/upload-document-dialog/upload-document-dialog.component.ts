@@ -1,10 +1,14 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ApiService } from '../../../services/api.service';
+import { UtilsService } from '../../../services/utils.service';
 
 export interface UploadDocumentDialogData {
   mode?: 'asset' | 'correspondence';
   correspondenceId?: number;
+  /** Ministry ID for dispatch API (required when mode is 'correspondence') */
+  ministryId?: number;
   initialReferenceNumber?: string;
 }
 
@@ -51,11 +55,15 @@ export class UploadDocumentDialogComponent {
   selectedFileName: string | null = null;
   /** Specific file validation error for UI: 'gif' | 'dangerous' | 'invalid' | null */
   fileError: 'gif' | 'dangerous' | 'invalid' | null = null;
+  /** Submitting dispatch API (correspondence mode) */
+  submitting = false;
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<UploadDocumentDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: UploadDocumentDialogData | undefined,
+    private apiService: ApiService,
+    private utils: UtilsService,
   ) {
     this.form = this.fb.group({
       referenceNumber: [data?.initialReferenceNumber ?? '', Validators.required],
@@ -141,21 +149,40 @@ export class UploadDocumentDialogComponent {
       this.form.markAllAsTouched();
       return;
     }
-    const ref = this.form.value.referenceNumber as string;
+    const ref = (this.form.value.referenceNumber as string).trim();
     const f = this.form.value.file as File;
-    const logPayload = {
-      referenceNumber: ref,
-      fileName: f.name,
-      fileSize: f.size,
-      fileType: f.type,
-    };
-    console.log(logPayload);
-    // Return both for parent (edit form) and for logging
-    this.dialogRef.close({
-      referenceNumber: ref,
-      file: f,
-      ...(this.data?.mode === 'correspondence' && this.data?.correspondenceId != null && { correspondenceId: this.data.correspondenceId }),
-    });
+
+    if (this.data?.mode === 'correspondence') {
+      if (this.data.ministryId == null) {
+        this.utils.showToast('Ministry not found. Cannot dispatch.', 'Dispatch', 'error');
+        return;
+      }
+      this.submitting = true;
+      this.apiService.dispatchCorrespondenceReport(this.data.ministryId, ref, f).subscribe({
+        next: (res) => {
+          this.submitting = false;
+          if (res?.isSuccessful) {
+            this.dialogRef.close({
+              referenceNumber: ref,
+              file: f,
+              correspondenceId: this.data?.correspondenceId,
+              success: true,
+            });
+          } else {
+            this.utils.showToast(res?.message ?? 'Failed to dispatch correspondence.', 'Dispatch', 'error');
+          }
+        },
+        error: (err) => {
+          this.submitting = false;
+          const msg = err?.error?.message ?? err?.message ?? 'Failed to dispatch correspondence.';
+          this.utils.showToast(msg, 'Dispatch', 'error');
+        },
+      });
+      return;
+    }
+
+    // Non-correspondence mode (e.g. asset): just close with data for parent
+    this.dialogRef.close({ referenceNumber: ref, file: f });
   }
 
   onCancel(): void {

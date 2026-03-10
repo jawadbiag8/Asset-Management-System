@@ -1,273 +1,266 @@
 <div class="manage-assets-page container-fluid p-4">
-    <div class="row">
-        <div class="col-md-3 col-sm-12"></div>
-        <div class="col-md-6 col-sm-12">
+  <div class="row">
+    <div class="col-md-3 col-sm-12"></div>
+    <div class="col-md-6 col-sm-12">
 
-            <!-- Breadcrumb -->
+      <!-- Breadcrumb -->
 
-            <!-- Page Header -->
-            <div class="page-header mb-4">
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                    <div>
-                        <h1 class="page-title">{{ pageInfo().title }}</h1>
-                        <p class="page-subtitle">{{ pageInfo().subtitle }}</p>
-                    </div>
-                    @if (pageInfo().pageState === 'add') {
-                    <div class="import-assets-wrapper">
-                        <input #bulkUploadInput type="file" accept=".csv" class="d-none"
-                            (change)="onBulkUploadFile($event)">
-                        <button type="button" class="btn btn-primary import-assets-btn"
-                            [matMenuTriggerFor]="importAssetsMenu" aria-label="Import Assets">
-                            <mat-icon>upload</mat-icon>
-                            Import Assets
-                            <mat-icon class="chevron">expand_more</mat-icon>
-                        </button>
-                        <mat-menu #importAssetsMenu="matMenu" class="import-assets-menu">
-                            <button mat-menu-item (click)="onDownloadTemplate()">
-                                <mat-icon>download</mat-icon>
-                                <span>Download Template</span>
-                            </button>
-                            <button mat-menu-item (click)="onBulkUpload()">
-                                <mat-icon>upload</mat-icon>
-                                <span>Bulk Upload</span>
-                            </button>
-                        </mat-menu>
-                    </div>
-                    }
-                </div>
+      <!-- Page Header -->
+      <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <h1 class="page-title">{{ pageInfo().title }}</h1>
+            <p class="page-subtitle">{{ pageInfo().subtitle }}</p>
+          </div>
+          @if (pageInfo().pageState === 'add') {
+          <div class="import-assets-wrapper">
+            <input #bulkUploadInput type="file" accept=".csv" class="d-none" (change)="onBulkUploadFile($event)">
+            <button type="button" class="btn btn-primary import-assets-btn" [matMenuTriggerFor]="importAssetsMenu"
+              aria-label="Import Assets">
+              <mat-icon>upload</mat-icon>
+              Import Assets
+              <mat-icon class="chevron">expand_more</mat-icon>
+            </button>
+            <mat-menu #importAssetsMenu="matMenu" class="import-assets-menu">
+              <button mat-menu-item (click)="onDownloadTemplate()">
+                <mat-icon>download</mat-icon>
+                <span>Download Template</span>
+              </button>
+              <button mat-menu-item (click)="onBulkUpload()">
+                <mat-icon>upload</mat-icon>
+                <span>Bulk Upload</span>
+              </button>
+            </mat-menu>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Bulk upload validation errors (table + CSV download) -->
+      @if (bulkUploadErrors(); as errors) {
+      <div class="bulk-upload-errors-panel mt-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="bulk-upload-errors-title mb-0">Bulk upload failed – validation errors</h2>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn download-errors-csv-btn" (click)="downloadBulkUploadErrorsCsv()">
+              <mat-icon>download</mat-icon>
+              Download errors as CSV
+            </button>
+            <button type="button" class="btn close-errors-panel-btn" (click)="closeBulkUploadErrors()">
+              Close
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="bulk-upload-errors-table">
+            <thead>
+              <tr>
+                <th>Row #</th>
+                <th>Asset Name</th>
+                <th>Error Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of errors; track row.rowNumber + row.assetName) {
+              <tr>
+                <td>{{ row.rowNumber }}</td>
+                <td>{{ row.assetName }}</td>
+                <td>{{ row.errorMessage }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+
+      <!-- Form Card -->
+      <div class="form-card">
+        <form [formGroup]="digitalAssetForm" (ngSubmit)="onSubmit()">
+          <!-- Section 1: Basic Information -->
+          <div class="form-section">
+            <h2 class="section-title">Basic Information</h2>
+
+            <div class="info-box">
+              <mat-icon class="info-icon">info</mat-icon>
+              <span class="info-text">Provide the essential details to identify and categorize your
+                digital asset.</span>
             </div>
 
-            <!-- Bulk upload validation errors (table + CSV download) -->
-            @if (bulkUploadErrors(); as errors) {
-            <div class="bulk-upload-errors-panel mt-4 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="bulk-upload-errors-title mb-0">Bulk upload failed – validation errors</h2>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn download-errors-csv-btn" (click)="downloadBulkUploadErrorsCsv()">
-                            <mat-icon>download</mat-icon>
-                            Download errors as CSV
-                        </button>
-                        <button type="button" class="btn close-errors-panel-btn" (click)="closeBulkUploadErrors()">
-                            Close
-                        </button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="bulk-upload-errors-table">
-                        <thead>
-                            <tr>
-                                <th>Row #</th>
-                                <th>Asset Name</th>
-                                <th>Error Message</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (row of errors; track row.rowNumber + row.assetName) {
-                            <tr>
-                                <td>{{ row.rowNumber }}</td>
-                                <td>{{ row.assetName }}</td>
-                                <td>{{ row.errorMessage }}</td>
-                            </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+            <div class="row g-3 mt-3">
+              <div class="col-md-6">
+                <app-reusable-input label="Ministry" type="select" [options]="ministryOptions"
+                  hint="Primary Ministry responsible for this asset" placeholder="Select Ministry"
+                  [control]="getControl('ministryId')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input label="Department" type="select" [options]="departments"
+                  hint="Enter the specific department or division" placeholder="e.g Health Services Department"
+                  [control]="getControl('departmentId')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input label="Application Name" type="text" placeholder="e.g Health Portal"
+                  hint="The display name for this digital asset" [control]="getControl('assetName')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input label="URL" type="text" placeholder="https://example.gov"
+                  hint="For URL, including protocol (https://)." [errorMessages]="urlErrorMessages"
+                  [control]="getControl('assetUrl')">
+                </app-reusable-input>
+              </div>
+            </div>
+            @if (pageInfo().pageState === 'edit') {
+            <div class="row g-3 mt-2">
+              <div class="col-md-12">
+                <app-reusable-input label="Breach Status" type="select" [options]="assetStatusOptions"
+                  placeholder="Select status" hint="Current status of the asset (edit only)"
+                  [errorMessages]="assetStatusErrorMessages" [control]="getControl('assetStatusId')">
+                </app-reusable-input>
+              </div>
             </div>
             }
+          </div>
 
-            <!-- Form Card -->
-            <div class="form-card">
-                <form [formGroup]="digitalAssetForm" (ngSubmit)="onSubmit()">
-                    <!-- Section 1: Basic Information -->
-                    <div class="form-section">
-                        <h2 class="section-title">Basic Information</h2>
+          <!-- Section Compliance Configuration -->
+          <div class="form-section">
+            <h2 class="section-title">Compliance & Impact</h2>
 
-                        <div class="info-box">
-                            <mat-icon class="info-icon">info</mat-icon>
-                            <span class="info-text">Provide the essential details to identify and categorize your
-                                digital asset.</span>
-                        </div>
-
-                        <div class="row g-3 mt-3">
-                            <!-- Left Column -->
-                            <div class="col-md-6">
-                                <!-- Ministry Field -->
-                                <app-reusable-input label="Ministry" type="select" [options]="ministryOptions"
-                                    hint="Primary Ministry responsible for this asset"
-                                    [control]="getControl('ministryId')">
-                                </app-reusable-input>
-
-                                <!-- Asset Name Field -->
-                                <app-reusable-input label="Website / Application Name" type="text"
-                                    placeholder="e.g Health Portal" hint="The display name for this digital asset"
-                                    [control]="getControl('assetName')">
-                                </app-reusable-input>
-                            </div>
-
-                            <!-- Right Column -->
-                            <div class="col-md-6">
-                                <!-- Department Field -->
-                                <app-reusable-input label="Department" type="select" [options]="departments"
-                                    hint="Enter the specific department or division"
-                                    [control]="getControl('departmentId')">
-                                </app-reusable-input>
-
-                                <!-- Asset URL Field -->
-                                <app-reusable-input label="URL" type="text" placeholder="https://example.gov"
-                                    hint="Full URL including protocol (https://)" [errorMessages]="urlErrorMessages"
-                                    [control]="getControl('assetUrl')">
-                                </app-reusable-input>
-                            </div>
-                        </div>
-                        @if (pageInfo().pageState === 'edit') {
-                        <div class="row g-3 mt-2">
-                            <div class="col-md-12">
-                                <app-reusable-input label="Asset Status" type="select"
-                                    [options]="assetStatusOptions" placeholder="Select asset status"
-                                    hint="Current status of this asset (edit only)"
-                                    [errorMessages]="assetStatusErrorMessages"
-                                    [control]="getControl('assetStatusId')">
-                                </app-reusable-input>
-                            </div>
-                        </div>
-                        }
-                    </div>
-
-                    <!-- Section Compliance Configuration -->
-                    <div class="form-section">
-                        <h2 class="section-title">Compliance & Impact</h2>
-
-                        <div class="info-box">
-                            <mat-icon class="info-icon">info</mat-icon>
-                            <span class="info-text">Define compliance requirements and citizen impact level</span>
-                        </div>
-
-                        <div class="row g-3 mt-3">
-                            <!-- Left Column -->
-                            <div class="col-md-12">
-                                <!-- Digital Experience Level Field -->
-                                <app-reusable-input label="Digital Experience Level" type="select"
-                                    [options]="citizenImpactLevelOptions" placeholder="Digital Experience level"
-                                    hint="How critical this asset is to citizens"
-                                    [control]="getControl('citizenImpactLevelId')">
-                                </app-reusable-input>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section Additional Information -->
-                    <div class="form-section form-section-additional">
-                        <h2 class="section-title">Additional Information</h2>
-
-                        <div class="row g-2 mt-2">
-                            <!-- Full Width -->
-                            <div class="col-12">
-                                <!-- Description Field -->
-                                <app-reusable-input label="Description" type="textarea"
-                                    placeholder="Provide additional context about this digital asset"
-                                    hint="Optional: Add notes or special requirements" [rows]="4"
-                                    [control]="getControl('description')">
-                                </app-reusable-input>
-                            </div>
-                            <div class="col-md-4">
-                                <!-- Primary Contact Name Field -->
-                                <app-reusable-input label="Primary Contact Name" type="text" placeholder="Name"
-                                    hint="Person responsible for this asset"
-                                    [control]="getControl('primaryContactName')">
-                                </app-reusable-input>
-                            </div>
-
-                            <div class="col-md-4">
-                                <!-- Primary Contact Email Field -->
-                                <app-reusable-input label="Primary Contact Email" type="email"
-                                    placeholder="Enter the primary contact email"
-                                    hint="Email for incident notifications"
-                                    [control]="getControl('primaryContactEmail')">
-                                </app-reusable-input>
-                            </div>
-
-                            <div class="col-md-4">
-                                <!-- Primary Contact Phone Field -->
-                                <app-reusable-input label="Primary Contact Phone" type="text"
-                                    placeholder="e.g +92-300-123-4567" hint="Phone number for primary contact"
-                                    [control]="getControl('primaryContactPhone')">
-                                </app-reusable-input>
-                            </div>
-                        </div>
-
-                        <!-- Technical Owners – separate row to avoid overlap with Primary Contact hints -->
-                        <div class="row technical-owners-row">
-                            <div class="col-12">
-                                <h3 class="section-subtitle mb-1">Technical Owners</h3>
-                                <p class="technical-owners-desc small mb-3">Add all responsible technical contacts. Each row has a <strong>Delete</strong> below it; use <strong>Add row</strong> at the bottom to add another. Name, Email, and Contact Title are required; duplicate emails are not allowed.</p>
-
-                                <div formArrayName="technicalOwners" class="technical-owners-list">
-                                    @for (item of technicalOwnersArray.controls; track $index; let i = $index) {
-                                        <div [formGroupName]="i" class="technical-owner-card mb-3">
-                                            <div class="technical-owner-fields">
-                                                <div class="row g-2">
-                                                    <div class="col-12 col-md-6 col-lg-3">
-                                                        <app-reusable-input label="Name" type="text" placeholder="Full name"
-                                                            [control]="getTechnicalOwnerControl(i, 'name')"
-                                                            [errorMessages]="technicalOwnerErrorMessages">
-                                                        </app-reusable-input>
-                                                    </div>
-                                                    <div class="col-12 col-md-6 col-lg-3">
-                                                        <app-reusable-input label="Email" type="email" placeholder="email@example.gov"
-                                                            [control]="getTechnicalOwnerControl(i, 'email')"
-                                                            [errorMessages]="technicalOwnerErrorMessages">
-                                                        </app-reusable-input>
-                                                    </div>
-                                                    <div class="col-12 col-md-6 col-lg-3">
-                                                        <app-reusable-input label="Phone" type="text" placeholder="e.g +92-300-123-4567"
-                                                            [control]="getTechnicalOwnerControl(i, 'phone')"
-                                                            [errorMessages]="technicalOwnerErrorMessages">
-                                                        </app-reusable-input>
-                                                    </div>
-                                                    <div class="col-12 col-md-6 col-lg-3">
-                                                        <app-reusable-input label="Contact Title" type="text" placeholder="e.g. System Administrator"
-                                                            [control]="getTechnicalOwnerControl(i, 'contactTitle')"
-                                                            [errorMessages]="technicalOwnerErrorMessages">
-                                                        </app-reusable-input>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="technical-owner-actions-below">
-                                                <button type="button" class="btn btn-delete-row" (click)="removeTechnicalOwner(i)" [disabled]="technicalOwnersArray.length <= 1" [attr.aria-label]="'Delete row ' + (i + 1)" title="Delete this row">
-                                                    <mat-icon>delete_outline</mat-icon>
-                                                    <span>Delete</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                                <div class="technical-owner-add-bottom mt-2">
-                                    <button type="button" class="btn btn-add-row-bottom" (click)="addTechnicalOwner()">
-                                        <mat-icon class="icon-sm">add</mat-icon>
-                                        Add row
-                                    </button>
-                                </div>
-                                @if (digitalAssetForm.get('technicalOwners')?.errors?.['duplicateEmail']) {
-                                    <p class="text-danger small mt-2" role="alert">Two or more Technical Owners have the same email address. Each contact must have a unique email.</p>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Form Actions -->
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" routerLink="/dashboard">Cancel</button>
-                        @if (pageInfo().pageState === 'edit') {
-                        <button type="button" class="btn btn-primary" (click)="onUpdateDigitalAssetClick()">
-                            Update Digital Asset
-                        </button>
-                        } @else {
-                        <button type="submit" class="btn btn-primary">Add Digital Asset</button>
-                        }
-                    </div>
-                </form>
+            <div class="info-box">
+              <mat-icon class="info-icon">info</mat-icon>
+              <span class="info-text">Define compliance requirements and citizen impact level</span>
             </div>
-        </div>
-        <div class="col-md-3 col-sm-12"></div>
+
+            <div class="row g-3 mt-3">
+              <div class="col-md-12">
+                <app-reusable-input label="Digital Citizen Impact Level" type="select"
+                  [options]="citizenImpactLevelOptions" placeholder="Select level"
+                  hint="How critical this asset is to citizens" [control]="getControl('citizenImpactLevelId')">
+                </app-reusable-input>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Additional Information -->
+          <div class="form-section form-section-additional">
+            <h2 class="section-title">Additional Information</h2>
+
+            <div class="info-box">
+              <mat-icon class="info-icon">info</mat-icon>
+              <span class="info-text">Provide additional content about this digital asset.</span>
+            </div>
+
+            <div class="row g-2 mt-2">
+              <div class="col-12">
+                <app-reusable-input label="Description" type="textarea"
+                  placeholder="Define, Add Note or special requirements"
+                  hint="Optional: Add notes or special requirements" [rows]="4" [control]="getControl('description')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-4">
+                <app-reusable-input label="Primary Contact Name" type="text" placeholder="Primary Contact Name"
+                  hint="Person responsible for this asset" [control]="getControl('primaryContactName')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-4">
+                <app-reusable-input label="Primary Contact Email" type="email" placeholder="Primary Contact Email"
+                  hint="Email for incident notification" [control]="getControl('primaryContactEmail')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-4">
+                <app-reusable-input label="Primary Contact Phone" type="text" placeholder="Primary Contact Phone"
+                  hint="Phone number for primary contact" [control]="getControl('primaryContactPhone')">
+                </app-reusable-input>
+              </div>
+            </div>
+
+            <!-- Technical Owners – title + Add More same line; description below (image layout) -->
+            <div class="row technical-owners-row">
+              <div class="col-12">
+                <div class="technical-owners-header">
+                  <div class="technical-owners-title-row d-flex justify-content-between align-items-center gap-2">
+                    <h3 class="section-subtitle mb-0">Technical Owners</h3>
+                    <button type="button" class="btn btn-add-more" (click)="addTechnicalOwner()"
+                      aria-label="Add another technical owner">
+                      <mat-icon class="icon-sm">add</mat-icon>
+                      Add More
+                    </button>
+                  </div>
+                  <p class="technical-owners-desc small mb-0 mt-2">Add all responsible technical contacts. Each row has a
+                    <strong>Delete</strong> below it; use <strong>Add row</strong> at the bottom to add another. Name,
+                    Email, and Contact Title are required; duplicate emails are not allowed.</p>
+                </div>
+
+                <div formArrayName="technicalOwners" class="technical-owners-list mt-3">
+                  @for (item of technicalOwnersArray.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="technical-owner-card mb-3">
+                    <div class="technical-owner-fields">
+                      <div class="technical-owner-row">
+                        <div class="technical-owner-col">
+                          <app-reusable-input label="Name" type="text" placeholder="Name *"
+                            [control]="getTechnicalOwnerControl(i, 'name')"
+                            [errorMessages]="technicalOwnerErrorMessages">
+                          </app-reusable-input>
+                        </div>
+                        <div class="technical-owner-col">
+                          <app-reusable-input label="Email" type="email" placeholder="Email *"
+                            [control]="getTechnicalOwnerControl(i, 'email')"
+                            [errorMessages]="technicalOwnerErrorMessages">
+                          </app-reusable-input>
+                        </div>
+                        <div class="technical-owner-col">
+                          <app-reusable-input label="Phone" type="text" placeholder="Phone *"
+                            [control]="getTechnicalOwnerControl(i, 'phone')"
+                            [errorMessages]="technicalOwnerErrorMessages">
+                          </app-reusable-input>
+                        </div>
+                        <div class="technical-owner-col">
+                          <app-reusable-input label="Contact Title" type="text" placeholder="Contact Title *"
+                            [control]="getTechnicalOwnerControl(i, 'contactTitle')"
+                            [errorMessages]="technicalOwnerErrorMessages">
+                          </app-reusable-input>
+                        </div>
+                        <button type="button" class="btn btn-delete-row-icon"
+                          (click)="removeTechnicalOwner(i)" [disabled]="technicalOwnersArray.length <= 1"
+                          [attr.aria-label]="'Delete row ' + (i + 1)" title="Delete this row">
+                          <svg class="delete-icon-svg" width="16" height="18" viewBox="0 0 16 18" fill="none"
+                            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path
+                              d="M3 18C2.45 18 1.97917 17.8042 1.5875 17.4125C1.19583 17.0208 1 16.55 1 16V3H0V1H5V0H11V1H16V3H15V16C15 16.55 14.8042 17.0208 14.4125 17.4125C14.0208 17.8042 13.55 18 13 18H3ZM13 3H3V16H13V3ZM5 14H7V5H5V14ZM9 14H11V5H9V14Z"
+                              fill="#FF4444" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                  }
+                </div>
+
+                @if (digitalAssetForm.get('technicalOwners')?.errors?.['duplicateEmail']) {
+                <p class="text-danger small mt-2" role="alert">Two or more Technical Owners have the same email address.
+                  Each contact must have a unique email.</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" routerLink="/asset">Cancel</button>
+            @if (pageInfo().pageState === 'edit') {
+            <button type="button" class="btn btn-primary" (click)="onUpdateDigitalAssetClick()">
+              Update Digital Asset
+            </button>
+            } @else {
+            <button type="submit" class="btn btn-primary">Add Digital Asset</button>
+            }
+          </div>
+        </form>
+      </div>
     </div>
+    <div class="col-md-3 col-sm-12"></div>
+  </div>
 </div>
