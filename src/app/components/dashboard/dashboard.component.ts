@@ -887,6 +887,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         } else {
           this.utils.showToast(res?.message ?? 'Check failed.', 'Watchlist', 'error');
         }
+
       },
       error: (err) => {
         this.checkAllKpisAssetId.set(null);
