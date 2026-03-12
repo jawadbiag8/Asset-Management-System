@@ -51,6 +51,7 @@ export interface FavoriteAssetItem {
   websiteApplication?: string;
   ministryName?: string;
   currentStatus?: string;
+  openIncidents?: number;
 }
 
 /** Correspondence list item for dashboard panel */
@@ -855,6 +856,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             websiteApplication: row.websiteApplication ?? row.assetName ?? row.name,
             ministryName: row.ministryName ?? row.ministryDepartment,
             currentStatus: row.currentStatus ?? row.status ?? 'Unknown',
+            openIncidents: row.openIncidents != null ? Number(row.openIncidents) : 0,
           }));
           this.favoriteAssets.set(items);
         } else {
@@ -1198,7 +1200,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const queryParams: Record<string, string | number> = {
       PageNumber: 1,
       PageSize: 10,
-      StatusId: 14,
+      Status: 'Open',
       AssetId: row?.id ?? 0,
     };
     if (row?.ministryId != null && row.ministryId !== '') {

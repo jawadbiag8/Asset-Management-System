@@ -542,6 +542,27 @@
   cursor: pointer;
 }
 
+.watchlist-panel .watchlist-open-incidents {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  cursor: pointer;
+  margin-right: 8px;
+
+  .watchlist-open-incidents-count {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  &:hover {
+    color: #00cfcf;
+    .watchlist-open-incidents-count {
+      color: #00e5e5;
+    }
+  }
+}
+
 .watchlist-panel .watchlist-star-btn {
   flex-shrink: 0;
   display: inline-flex;

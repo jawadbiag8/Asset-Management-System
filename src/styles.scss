@@ -91,17 +91,17 @@
 
   --color-black: #011B1B;
 
-  /* Severity badge (P1–P4 oval style) — background + white text */
-  --severity-critical-bg: #FF00007D;
+  /* Severity badge (P1–P4): P1 dark red, P2 mustard yellow, P3 medium blue, P4 dark green */
+  --severity-critical-bg: #b91c1c;
   --severity-critical-text: #ffffff;
   --severity-critical-border: rgba(255, 255, 255, 0.35);
-  --severity-high-bg: #4C97FFB2;
+  --severity-high-bg: #ca8a04;
   --severity-high-text: #ffffff;
   --severity-high-border: rgba(255, 255, 255, 0.35);
-  --severity-medium-bg: #2CCC004A;
+  --severity-medium-bg: #2563eb;
   --severity-medium-text: #ffffff;
   --severity-medium-border: rgba(255, 255, 255, 0.35);
-  --severity-low-bg: #F08901BD;
+  --severity-low-bg: #15803d;
   --severity-low-text: #ffffff;
   --severity-low-border: rgba(255, 255, 255, 0.35);
   --severity-na-bg: #A9A9A9;

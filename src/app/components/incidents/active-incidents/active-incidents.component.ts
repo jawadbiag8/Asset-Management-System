@@ -410,6 +410,8 @@ export class ActiveIncidentsComponent implements OnInit {
           delete paramsForFilters['MinistryId'];
           if (Object.keys(paramsForFilters).length > 0) {
             this.applyQueryParamsToFilters(paramsForFilters);
+            // Trigger load with applied filters so the table shows filtered data (e.g. Status=Open from watchlist link)
+            this.loadIncidents(this.buildSearchParamsFromFilters());
           }
         }
         // When opened from ministry detail (/incidents?MinistryId=...), apply route query params to filters
@@ -441,10 +443,10 @@ export class ActiveIncidentsComponent implements OnInit {
           this.loadIncidents(this.buildSearchParamsFromFilters());
         }
         this.filtersReady.set(true);
-        // Load summary counts for KPI cards when on main incidents page
+        // Load global summary for KPI cards (one unfiltered call so counts are correct even when default Open filter is on)
         if (this.showHeader && !this.assetId && responses.statuses?.isSuccessful) {
           const statuses = Array.isArray(responses.statuses.data) ? responses.statuses.data : [];
-          this.loadSummaryCounts(statuses);
+          this.loadGlobalSummary(statuses);
         }
       },
       error: (error: any) => {
@@ -467,7 +469,36 @@ export class ActiveIncidentsComponent implements OnInit {
     });
   }
 
-  /** Load summary counts for the 4 KPI cards (Total, Open, Resolved, Archived). */
+  /**
+   * Load global summary for the 4 KPI cards via one unfiltered API call.
+   * Ensures counts are correct on first load even when default filter is Open.
+   */
+  private loadGlobalSummary(statuses: { id?: number; name?: string }[]): void {
+    const params = new HttpParams().set('PageNumber', '1').set('PageSize', '1');
+    this.apiService.getIncidents(params).subscribe({
+      next: (response: ApiResponse) => {
+        if (response.isSuccessful && response.data?.summary) {
+          const s = response.data.summary as {
+            totalIncidents?: number;
+            openIncidents?: number;
+            closedIncidents?: number;
+            archivedIncidents?: number;
+          };
+          this.summaryTotal.set(Number(s.totalIncidents) || 0);
+          this.summaryOpen.set(Number(s.openIncidents) || 0);
+          this.summaryResolved.set((Number(s.closedIncidents) || 0) - (Number(s.archivedIncidents) || 0));
+          this.summaryArchived.set(Number(s.archivedIncidents) || 0);
+        } else {
+          this.loadSummaryCounts(statuses);
+        }
+      },
+      error: () => {
+        this.loadSummaryCounts(statuses);
+      },
+    });
+  }
+
+  /** Load summary counts for the 4 KPI cards (Total, Open, Resolved, Archived) via 4 separate calls. */
   private loadSummaryCounts(statuses: { id?: number; name?: string }[]): void {
     const getStatusId = (name: string) => {
       const s = statuses.find(
@@ -634,6 +665,25 @@ export class ActiveIncidentsComponent implements OnInit {
         if (response.isSuccessful) {
           const data: ActiveIncident[] = response.data.data;
           const totalCount = response.data.totalCount || 0;
+          // Update summary cards only when request has no status filter, so Total stays global (not overwritten by filtered response)
+          const hasStatusFilter = apiParams.has('StatusId') && (apiParams.get('StatusId') ?? '') !== '';
+          if (
+            this.showHeader &&
+            !this.assetId &&
+            response.data?.summary &&
+            !hasStatusFilter
+          ) {
+            const s = response.data.summary as {
+              totalIncidents?: number;
+              openIncidents?: number;
+              closedIncidents?: number;
+              archivedIncidents?: number;
+            };
+            this.summaryTotal.set(Number(s.totalIncidents) || 0);
+            this.summaryOpen.set(Number(s.openIncidents) || 0);
+            this.summaryResolved.set((Number(s.closedIncidents) || 0) - (Number(s.archivedIncidents) || 0));
+            this.summaryArchived.set(Number(s.archivedIncidents) || 0);
+          }
           // Process and format the incidents data
           const processedIncidents = data.map((incident: any) => ({
             ...incident,
@@ -745,21 +795,21 @@ export class ActiveIncidentsComponent implements OnInit {
   getSeverityBadgeColor(severity: string): string {
     if (!severity) return '#F3F4F6';
     const level = severity.toString().toUpperCase();
-    // P1=red, P2=blue, P3=green, P4=orange (oval severity badges)
+    // P1 dark red, P2 mustard yellow, P3 medium blue, P4 dark green
     if (
       level === 'P1' ||
       level === '1' ||
       level === 'P1 CRITICAL' ||
       level === 'CRITICAL'
     ) {
-      return '#FF00007D';
+      return 'var(--severity-critical-bg)';
     } else if (
       level === 'P2' ||
       level === '2' ||
       level === 'P2 HIGH' ||
       level === 'HIGH'
     ) {
-      return '#4C97FFB2';
+      return 'var(--severity-high-bg)';
     } else if (
       level === 'P3' ||
       level === '3' ||
@@ -767,7 +817,7 @@ export class ActiveIncidentsComponent implements OnInit {
       level === 'MEDIUM' ||
       level === 'MODERATE'
     ) {
-      return '#2CCC004A';
+      return 'var(--severity-medium-bg)';
     } else if (
       level === 'P4' ||
       level === '4' ||
@@ -775,7 +825,7 @@ export class ActiveIncidentsComponent implements OnInit {
       level === 'LOW' ||
       level === 'INFO'
     ) {
-      return '#F08901BD';
+      return 'var(--severity-low-bg)';
     }
     return '#F3F4F6';
   }

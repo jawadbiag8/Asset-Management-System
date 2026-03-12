@@ -375,10 +375,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
 
 
   onSubmit() {
-    if (this.digitalAssetForm.invalid) {
-      this.digitalAssetForm.markAllAsTouched();
-      return;
-    }
+    if (!this.isFormValidForSubmit()) return;
 
     const raw = this.digitalAssetForm.value as Record<string, unknown>;
     const technicalOwners = (raw['technicalOwners'] as TechnicalOwnerItem[]) ?? [];
@@ -630,30 +627,37 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
   }
 
   /**
+   * Returns true only when the whole form (including Technical Owners) is valid. Use before opening dialog or submitting.
+   * Forces validation and touch so that UI shows errors.
+   */
+  private isFormValidForSubmit(): boolean {
+    this.digitalAssetForm.markAllAsTouched();
+    this.technicalOwnersArray.controls.forEach((group) => group.markAllAsTouched());
+    this.technicalOwnersArray.updateValueAndValidity({ emitEvent: true });
+    this.digitalAssetForm.updateValueAndValidity({ emitEvent: true });
+    if (this.digitalAssetForm.invalid) return false;
+    if (this.technicalOwnersArray.invalid) return false;
+    const arr = this.technicalOwnersArray;
+    for (let i = 0; i < arr.length; i++) {
+      const g = arr.at(i) as FormGroup;
+      if (g.get('name')?.invalid || g.get('email')?.invalid || g.get('contactTitle')?.invalid) return false;
+    }
+    return true;
+  }
+
+  /**
    * Called when user clicks "Update Digital Asset" (edit mode).
    * Runs form validation first (including Technical Owners). If invalid, shows errors and does not open dialog.
    * If valid, opens the reference/document upload dialog.
    */
   onUpdateDigitalAssetClick(): void {
-    this.technicalOwnersArray.updateValueAndValidity();
-    this.digitalAssetForm.updateValueAndValidity();
-    this.digitalAssetForm.markAllAsTouched();
-    if (this.digitalAssetForm.invalid) {
-      this.utils.showToast('Please fix the errors in the form (e.g. Technical Owners: required fields, duplicate email).', 'Validation', 'error');
-      return;
-    }
+    if (!this.isFormValidForSubmit()) return;
     this.openUploadDocumentDialog();
   }
 
   /** Opens upload document dialog; on submit, receives referenceNumber + file and auto-submits edit form. Does not open if form is invalid. */
   openUploadDocumentDialog(): void {
-    this.technicalOwnersArray.updateValueAndValidity();
-    this.digitalAssetForm.updateValueAndValidity();
-    if (this.digitalAssetForm.invalid) {
-      this.digitalAssetForm.markAllAsTouched();
-      this.utils.showToast('Please fix the form errors before updating. Technical Owners: Name, Email, and Contact Title are required; duplicate emails are not allowed.', 'Validation', 'error');
-      return;
-    }
+    if (!this.isFormValidForSubmit()) return;
     const dialogRef = this.dialog.open(UploadDocumentDialogComponent, {
       width: '520px',
       disableClose: false,

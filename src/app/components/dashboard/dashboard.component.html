@@ -70,6 +70,11 @@
               <a [routerLink]="['/view-assets-detail']" [queryParams]="{ id: fav.id, ministryId: fav.ministryId ?? '' }"
                 class="panel-list-label">{{ fav.assetName || fav.websiteApplication || 'Asset' }}{{ fav.ministryName ? '
                 - ' + fav.ministryName : '' }}</a>
+              <a [routerLink]="['/view-assets-detail']" [queryParams]="{ id: fav.id, ministryId: fav.ministryId ?? '', Status: 'Open' }"
+                class="watchlist-open-incidents" (click)="$event.stopPropagation()"
+                [attr.aria-label]="'Open Incidents: ' + (fav.openIncidents ?? 0) + ', view asset with open filter'">
+                Open Incidents: <span class="watchlist-open-incidents-count">{{ fav.openIncidents ?? 0 }}</span>
+              </a>
               <span class="watchlist-status" [class.status-online]="isStatusUp(fav.currentStatus)"
                 [class.status-offline]="!isStatusUp(fav.currentStatus)">
                 <span class="watchlist-status-dot" aria-hidden="true"></span>
@@ -109,7 +114,7 @@
         </div>
         <div class="panel-divider"></div>
 
-        <div class="panel-list-wrap">
+        <div class="">
           @if (correspondenceLoading()) {
           <p class="panel-muted">Loading...</p>
           } @else if (correspondenceItems().length === 0) {

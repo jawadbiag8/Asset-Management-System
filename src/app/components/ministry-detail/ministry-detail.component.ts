@@ -131,7 +131,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
       subTitle: 'Active High Severity Unresolved Incidents',
       linkText: 'View Open High Severity Incidents >',
       linkPath: '/incidents',
-      linkQueryParams: { MinistryId: '', SeverityId: 'P2', StatusId: '14' },
+      linkQueryParams: { MinistryId: '', SeverityId: 'P2', Status: 'Open' },
     },
   ]);
 
@@ -935,7 +935,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
         linkQueryParams: {
           MinistryId: this.ministryId?.toString() ?? '',
           SeverityId: 'P2',
-          StatusId: '14',
+          Status: 'Open',
         },
       },
     ]);

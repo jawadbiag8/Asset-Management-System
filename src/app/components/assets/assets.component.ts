@@ -788,7 +788,7 @@ export class AssetsComponent implements OnInit {
     const queryParams: Record<string, string | number> = {
       PageNumber: 1,
       PageSize: 10,
-      StatusId: 14,
+      Status: 'Open',
       AssetId: row?.id ?? 0,
     };
     if (row?.ministryId != null && row.ministryId !== '') {

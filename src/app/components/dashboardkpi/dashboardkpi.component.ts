@@ -73,12 +73,11 @@ export class DashboardkpiComponent {
         ? 'badge-status-success'
         : 'badge-status-danger';
     }
-    // Text badges: HEALTHY, AVERAGE, LOW, MEDIUM, HIGH, FAIR, etc.
+    // Text badges: HEALTHY, AVERAGE, LOW, MEDIUM, HIGH, FAIR, etc. Medium uses same (average) class as Average.
     const badgeText = this.item.subValue.toUpperCase();
     if (badgeText === 'HEALTHY' || badgeText === 'FAIR') return 'badge-status-success';
-    if (badgeText === 'AVERAGE') return 'badge-status-warning';
+    if (badgeText === 'AVERAGE' || badgeText === 'MEDIUM') return 'badge-status-warning';
     if (badgeText === 'LOW' || badgeText === 'HIGH') return 'badge-status-danger';
-    if (badgeText === 'MEDIUM') return 'badge-status-info';
     return this.item.subValueColor === 'success'
       ? 'badge-status-success'
       : this.item.subValueColor === 'danger'
