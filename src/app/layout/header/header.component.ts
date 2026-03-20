@@ -106,6 +106,10 @@ export class HeaderComponent {
     return this.currentRoute().includes('/incidents');
   }
 
+  isReportsActive(): boolean {
+    return this.currentRoute().includes('/reports');
+  }
+
   isPmDashboardActive(): boolean {
     return this.currentRoute().includes('/pm-dashboard');
   }
@@ -118,6 +122,12 @@ export class HeaderComponent {
   navigateToPmDashboard(): void {
     this.breadcrumbService.navigateFromHeader();
     this.router.navigate(['/pm-dashboard']);
+  }
+
+  navigateToSetup(): void {
+    this.closeProfileDropdown();
+    this.breadcrumbService.navigateFromHeader();
+    this.router.navigate(['/setup']);
   }
 
   /** Navigate from header nav – breadcrumb will hide and stay hidden on reload. */

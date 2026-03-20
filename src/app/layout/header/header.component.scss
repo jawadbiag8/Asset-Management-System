@@ -308,12 +308,20 @@
     background-color: rgba(255, 255, 255, 0.08);
   }
 
-  img {
+  img,
+  .dropdown-item-icon {
     width: 16px;
     height: 16px;
     display: block;
     flex-shrink: 0;
+  }
+
+  img {
     filter: brightness(0) invert(1);
+  }
+
+  .dropdown-item-icon {
+    color: rgba(255, 255, 255, 0.9);
   }
 
   span {

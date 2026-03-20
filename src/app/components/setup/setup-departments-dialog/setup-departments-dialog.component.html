@@ -1,0 +1,117 @@
+<div class="setup-dept-dialog">
+  <div class="dialog-header">
+    <h3>Manage Department</h3>
+    <button type="button" class="icon-btn" (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="divider"></div>
+
+  <label class="field-label">Add New Department <span>*</span></label>
+  <div class="add-row">
+    <input
+      type="text"
+      [ngModel]="newDepartmentName()"
+      (ngModelChange)="newDepartmentName.set($event)"
+      placeholder="Department Name"
+    />
+    <button
+      type="button"
+      class="plus-btn"
+      (click)="addLocalDepartment()"
+      [disabled]="creating() || !newDepartmentName().trim()"
+      aria-label="Add"
+    >
+      @if (creating()) {
+        <mat-icon>hourglass_top</mat-icon>
+      } @else {
+        <mat-icon>add</mat-icon>
+      }
+    </button>
+  </div>
+
+  <div class="divider divider--spaced"></div>
+
+  <p class="section-title">Current Departments</p>
+
+  @if (loading()) {
+    <div class="state loading">
+      <mat-spinner diameter="28"></mat-spinner>
+      <span>Loading departments...</span>
+    </div>
+  } @else if (error()) {
+    <div class="state error">{{ error() }}</div>
+  } @else {
+    <div class="dept-list">
+      @for (d of departments(); track d.id) {
+        <div class="dept-item">
+          @if (editingDepartmentId() === d.id) {
+            <div class="dept-edit-row">
+              <input
+                class="dept-edit-input"
+                type="text"
+                [ngModel]="editingDepartmentName()"
+                (ngModelChange)="editingDepartmentName.set($event)"
+                (keydown.enter)="saveDepartmentEdit(d)"
+                placeholder="Department name"
+              />
+              <button
+                type="button"
+                class="dept-edit-btn"
+                (click)="saveDepartmentEdit(d)"
+                [disabled]="updatingDepartmentId() === d.id || !editingDepartmentName().trim()"
+                aria-label="Save department name"
+              >
+                @if (updatingDepartmentId() === d.id) {
+                  <mat-icon>hourglass_top</mat-icon>
+                } @else {
+                  <mat-icon>check</mat-icon>
+                }
+              </button>
+              <button
+                type="button"
+                class="dept-edit-btn dept-edit-btn--cancel"
+                (click)="cancelEditDepartment()"
+                [disabled]="updatingDepartmentId() === d.id"
+                aria-label="Cancel edit"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          } @else {
+            <button
+              type="button"
+              class="dept-main dept-main-btn"
+              (click)="startEditDepartment(d)"
+              aria-label="Edit department name"
+            >
+              {{ d.departmentName }}
+            </button>
+          }
+          <div class="dept-sub">Added {{ formatDate(d.createdAt) }}</div>
+          <button
+            type="button"
+            class="delete-btn"
+            (click)="removeLocalDepartment(d.id)"
+            [disabled]="deletingDepartmentId() === d.id || updatingDepartmentId() === d.id"
+            aria-label="Delete department"
+          >
+            @if (deletingDepartmentId() === d.id) {
+              <mat-icon>hourglass_top</mat-icon>
+            } @else {
+              <mat-icon>delete</mat-icon>
+            }
+          </button>
+        </div>
+      } @empty {
+        <div class="state">No departments found for this ministry.</div>
+      }
+    </div>
+  }
+
+  <div class="dialog-footer">
+    <button type="button" class="close-btn" (click)="close()">Close</button>
+  </div>
+</div>
+

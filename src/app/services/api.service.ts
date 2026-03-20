@@ -79,6 +79,22 @@ export interface AddAssetApiRequest {
   }[];
 }
 
+export interface AddDepartmentApiRequest {
+  ministryId: number;
+  departmentName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+}
+
+export interface UpdateDepartmentApiRequest {
+  ministryId: number;
+  departmentName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+}
+
 /** Single item from GET Ministry/{ministryId}/correspondence */
 export interface MinistryCorrespondenceItem {
   id: number;
@@ -205,6 +221,30 @@ export class ApiService {
   getDepartmentsByMinistry(ministryId: number): Observable<ApiResponse> {
     return this.http.get<ApiResponse>(
       `${this.baseUrl}/Department/ministry/${ministryId}`,
+    );
+  }
+
+  addDepartment(payload: AddDepartmentApiRequest): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Department`, payload, {
+      headers: { Accept: 'text/plain', 'Content-Type': 'application/json' },
+    });
+  }
+
+  deleteDepartment(departmentId: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(
+      `${this.baseUrl}/Department/${departmentId}`,
+      { headers: { Accept: 'text/plain' } },
+    );
+  }
+
+  updateDepartment(
+    departmentId: number,
+    payload: UpdateDepartmentApiRequest,
+  ): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(
+      `${this.baseUrl}/Department/${departmentId}`,
+      payload,
+      { headers: { Accept: 'text/plain', 'Content-Type': 'application/json' } },
     );
   }
 
@@ -492,6 +532,14 @@ export class ApiService {
     return this.http.get<ApiResponse<any>>(url, {
       params: searchQuery ?? undefined,
     });
+  }
+  /**
+   * Get global incident header/summary for incidents dashboard cards.
+   * GET /api/Incident/header
+   */
+  getIncidentHeader(): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/Incident/header`;
+    return this.http.get<ApiResponse<any>>(url);
   }
   getAssetsDashboad(id: any): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Asset/${id}/dashboard/header`;

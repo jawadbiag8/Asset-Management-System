@@ -15,6 +15,11 @@ import { AssetsComponent } from './components/assets/assets.component';
 import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
 import { MinistryDashboardComponent } from './components/ministry-dashboard/ministry-dashboard.component';
 import { MinistryCorrespondenceHistoryComponent } from './components/ministry-correspondence-history/ministry-correspondence-history.component';
+import { ReportsPageComponent } from './components/reports-page/reports-page.component';
+import { SetupComponent } from './components/setup/setup.component';
+import { SetupHomeComponent } from './components/setup/setup-home/setup-home.component';
+import { SetupConfigurationsComponent } from './components/setup/setup-configurations/setup-configurations.component';
+import { SetupMinistriesComponent } from './components/setup/setup-ministries/setup-ministries.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -91,5 +96,23 @@ export const routes: Routes = [
     path: 'pm-dashboard',
     component: PmDashboardComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'reports',
+    component: ReportsPageComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'setup',
+    component: SetupComponent,
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: SetupHomeComponent },
+      { path: 'configurations', component: SetupConfigurationsComponent },
+      { path: 'ministries', component: SetupMinistriesComponent },
+      // Future:
+      // { path: 'users', component: SetupUsersComponent },
+      // { path: 'roles', component: SetupRolesComponent },
+    ],
   },
 ];

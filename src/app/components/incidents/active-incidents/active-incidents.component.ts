@@ -443,10 +443,9 @@ export class ActiveIncidentsComponent implements OnInit {
           this.loadIncidents(this.buildSearchParamsFromFilters());
         }
         this.filtersReady.set(true);
-        // Load global summary for KPI cards (one unfiltered call so counts are correct even when default Open filter is on)
-        if (this.showHeader && !this.assetId && responses.statuses?.isSuccessful) {
-          const statuses = Array.isArray(responses.statuses.data) ? responses.statuses.data : [];
-          this.loadGlobalSummary(statuses);
+        // Load header summary for KPI cards from /Incident/header once on init.
+        if (this.showHeader && !this.assetId) {
+          this.loadHeaderSummary();
         }
       },
       error: (error: any) => {
@@ -470,12 +469,11 @@ export class ActiveIncidentsComponent implements OnInit {
   }
 
   /**
-   * Load global summary for the 4 KPI cards via one unfiltered API call.
-   * Ensures counts are correct on first load even when default filter is Open.
+   * Load incidents header summary from /Incident/header for the 4 KPI cards.
+   * Cards always come from this API (list below still uses /Incident).
    */
-  private loadGlobalSummary(statuses: { id?: number; name?: string }[]): void {
-    const params = new HttpParams().set('PageNumber', '1').set('PageSize', '1');
-    this.apiService.getIncidents(params).subscribe({
+  private loadHeaderSummary(): void {
+    this.apiService.getIncidentHeader().subscribe({
       next: (response: ApiResponse) => {
         if (response.isSuccessful && response.data?.summary) {
           const s = response.data.summary as {
@@ -484,16 +482,20 @@ export class ActiveIncidentsComponent implements OnInit {
             closedIncidents?: number;
             archivedIncidents?: number;
           };
-          this.summaryTotal.set(Number(s.totalIncidents) || 0);
-          this.summaryOpen.set(Number(s.openIncidents) || 0);
-          this.summaryResolved.set((Number(s.closedIncidents) || 0) - (Number(s.archivedIncidents) || 0));
-          this.summaryArchived.set(Number(s.archivedIncidents) || 0);
-        } else {
-          this.loadSummaryCounts(statuses);
+          const total = Number(s.totalIncidents) || 0;
+          const open = Number(s.openIncidents) || 0;
+          const closed = Number(s.closedIncidents) || 0;
+          const archived = Number(s.archivedIncidents) || 0;
+          // Total card = non-archived incidents
+          this.summaryTotal.set(total - archived);
+          this.summaryOpen.set(open);
+          // Resolved card = closed but not archived
+          this.summaryResolved.set(closed - archived);
+          this.summaryArchived.set(archived);
         }
       },
       error: () => {
-        this.loadSummaryCounts(statuses);
+        // Keep existing values (0 by default); no toast needed for header failure.
       },
     });
   }

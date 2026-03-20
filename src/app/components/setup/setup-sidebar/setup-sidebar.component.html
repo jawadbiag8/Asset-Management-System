@@ -1,0 +1,59 @@
+<aside class="sidebar-card" aria-label="Setup sidebar">
+  <div class="sidebar-user">
+    <div class="avatar" aria-hidden="true">
+      @if (user.avatarUrl) {
+        <img class="avatar-img" [src]="user.avatarUrl" alt="" />
+      } @else {
+        {{ initials(user.name || 'Username') }}
+      }
+    </div>
+    <div class="user-meta">
+      <div class="user-name">{{ user.name || 'Username' }}</div>
+      <div class="user-role">{{ user.role || 'Admin' }}</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav" aria-label="Setup navigation">
+    <a
+      class="nav-item"
+      *ngFor="let it of items; trackBy: trackByRoute"
+      [routerLink]="it.route"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: it.route === '/setup' }"
+    >
+      <span class="nav-icon" aria-hidden="true">
+        @switch (it.icon ?? 'settings') {
+          @case ('grid') {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z" />
+            </svg>
+          }
+          @case ('building') {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 21h18M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17" />
+              <path d="M9 7h1M9 10h1M9 13h1M14 7h1M14 10h1M14 13h1" />
+            </svg>
+          }
+          @case ('users') {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          }
+          @default {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+              />
+            </svg>
+          }
+        }
+      </span>
+      <span class="nav-label">{{ it.label }}</span>
+    </a>
+  </nav>
+</aside>
+

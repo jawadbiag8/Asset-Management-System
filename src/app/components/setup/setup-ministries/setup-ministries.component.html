@@ -1,0 +1,151 @@
+<section class="setup-ministries">
+  <div class="top-row">
+    <h2 class="page-title">Ministries</h2>
+
+    <div class="search-wrap">
+      <mat-icon>search</mat-icon>
+      <input
+        type="text"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="onSearch($event)"
+        placeholder="Search"
+      />
+    </div>
+
+    <button type="button" class="add-btn">
+      <mat-icon>add</mat-icon>
+      Add Ministry
+    </button>
+  </div>
+
+  <div class="cards-row">
+    <button
+      type="button"
+      class="stat-card stat-card-btn"
+      [class.stat-card--active]="activeFilter() === 'all'"
+      (click)="setFilter('all')"
+    >
+      <span class="tile-icon tile-icon-neutral" aria-hidden="true">
+        <mat-icon>apartment</mat-icon>
+      </span>
+      <div class="value">{{ totalMinistries() }}</div>
+      <div class="label">All Ministries</div>
+    </button>
+
+    <button
+      type="button"
+      class="stat-card stat-card-btn"
+      [class.stat-card--active]="activeFilter() === 'focal-missing'"
+      (click)="setFilter('focal-missing')"
+    >
+      <span class="tile-icon tile-icon-focal" aria-hidden="true">
+        <mat-icon>person_off</mat-icon>
+      </span>
+      <div class="value">{{ focalMissingCount() }}</div>
+      <div class="label">Focal Persons Missing</div>
+    </button>
+
+    <button
+      type="button"
+      class="stat-card stat-card-btn"
+      [class.stat-card--active]="activeFilter() === 'logo-missing'"
+      (click)="setFilter('logo-missing')"
+    >
+      <span class="tile-icon tile-icon-logo" aria-hidden="true">
+        <mat-icon>broken_image</mat-icon>
+      </span>
+      <div class="value">{{ logoMissingCount() }}</div>
+      <div class="label">Ministries Logo Missing</div>
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+
+  <div class="table-wrap">
+    @if (loading()) {
+      <div class="loading">Loading ministries...</div>
+    } @else {
+      <table class="ministries-table">
+        <thead>
+          <tr>
+            <th>Ministry</th>
+            <th># of Department</th>
+            <th>Focal Person</th>
+            <th>Logo</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of filteredMinistries(); track m.id) {
+            <tr>
+              <td>{{ m.ministryName }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="dept-pill dept-pill--button"
+                  (click)="openDepartmentsDialog(m)"
+                >
+                  {{ m.numberOfDepartments }} Departments
+                </button>
+              </td>
+              <td>
+                @if (hasFocalPerson(m)) {
+                  {{ m.contactName }}
+                } @else {
+                  <span class="missing missing-focal">
+                    <mat-icon>person_off</mat-icon>
+                    Focal Person Missing
+                  </span>
+                }
+              </td>
+              <td>
+                @if (m.logoAvailable) {
+                  Yes
+                } @else {
+                  <span class="missing missing-logo">
+                    <mat-icon>error_outline</mat-icon>
+                    Logo is Missing
+                  </span>
+                }
+              </td>
+              <td class="action"><mat-icon>more_vert</mat-icon></td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty">No ministries found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  <div class="table-pagination">
+    <div class="page-info">
+      Showing {{ pageStart() }}-{{ pageEnd() }} of {{ totalItems() }}
+    </div>
+
+    <div class="page-controls">
+      <label class="page-size">
+        <span>Rows</span>
+        <select [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+      </label>
+
+      <button type="button" class="pager-btn" (click)="prevPage()" [disabled]="pageNumber() === 1 || loading()">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="page-number">{{ pageNumber() }}</span>
+      <button type="button" class="pager-btn" (click)="nextPage()" [disabled]="!hasNextPage() || loading()">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </div>
+</section>
+

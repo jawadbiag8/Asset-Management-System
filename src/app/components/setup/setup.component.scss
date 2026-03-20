@@ -1,0 +1,30 @@
+.setup-shell {
+  display: flex;
+  gap: 24px;
+  padding: 24px 24px 24px 24px;
+  min-height: calc(100vh - 82px);
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+.setup-sidebar {
+  width: 280px;
+  flex: 0 0 280px;
+}
+
+.setup-content {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .setup-shell {
+    flex-direction: column;
+  }
+
+  .setup-sidebar {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+}
+

@@ -139,7 +139,7 @@ html {
 body {
   font-family: var(--font-primary);
   min-height: 100%;
-  background: linear-gradient(180deg, #000000 0%, #003D3D 100%);
+  background: #020D0D;
   background-attachment: fixed;
   position: relative;
 }
@@ -148,7 +148,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url('/assets/bg.svg');
+  // background-image: url('/assets/bg.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1520,4 +1520,72 @@ select option {
 }
 .filter-modal-select-panel.mat-mdc-select-panel .mat-select-search-input {
   background: var(--color-bg-dark) !important;
+}
+
+/* Reports page – category dropdown panel: dark theme, teal highlight on selected/hover (image style) */
+.report-category-panel.mat-mdc-select-panel {
+  background: #0d1d1d !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding: 0;
+
+  .mat-mdc-option,
+  .mdc-list-item {
+    min-height: 48px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 8px;
+    margin: 2px 6px;
+
+    .mdc-list-item__primary-text {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    &.mdc-list-item--selected .mdc-list-item__primary-text {
+      color: #fff !important;
+    }
+
+    .mat-pseudo-checkbox-minimal,
+    .mat-mdc-option-pseudo-checkbox {
+      color: #0d9488 !important;
+    }
+    .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after,
+    .mat-mdc-option-pseudo-checkbox.mat-pseudo-checkbox-checked::after {
+      border-color: #0d9488 !important;
+    }
+
+    /* Selected: teal/cyan background */
+    &.mdc-list-item--selected {
+      background: rgba(13, 148, 136, 0.4) !important;
+    }
+
+    /* Hover / active: teal background */
+    &:hover,
+    &.mat-mdc-option-active {
+      background: rgba(13, 148, 136, 0.35) !important;
+      color: #fff !important;
+
+      .mdc-list-item__primary-text {
+        color: #fff !important;
+      }
+    }
+  }
+
+  /* Search – dark theme inside panel */
+  .mat-select-search-inner {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin: 8px;
+  }
+  .mat-select-search-input {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #e6edf3 !important;
+    caret-color: #0d9488;
+  }
+  .mat-select-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
 }

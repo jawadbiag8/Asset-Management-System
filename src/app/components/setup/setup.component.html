@@ -1,0 +1,12 @@
+<div class="setup-shell">
+  <app-setup-sidebar
+    class="setup-sidebar"
+    [user]="user()"
+    [items]="sidebarItems"
+  />
+
+  <main class="setup-content" role="main">
+    <router-outlet />
+  </main>
+</div>
+

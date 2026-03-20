@@ -15,7 +15,11 @@ export interface MinistrySummary {
   ministryName: string;
   departmentCount: number;
   assetCount: number;
+  /** Total assets for this ministry (denominator in x / total) */
+  totalAssets: number;
   openIncidents: number;
+  /** Total open incidents for this ministry (denominator in x / total) */
+  totalOpenIncidents: number;
 }
 
 export interface AssetTile {
@@ -318,7 +322,9 @@ export class MinistryDashboardComponent implements OnInit {
               ministryName: item.ministryName ?? item.name ?? 'N/A',
               departmentCount: item.numberOfDepartments ?? item.departmentCount ?? 0,
               assetCount: item.numberOfAssets ?? item.assetCount ?? 0,
+              totalAssets: item.totalAssets ?? item.numberOfAssets ?? item.assetCount ?? 0,
               openIncidents: item.openIncidentCount ?? item.openIncidents ?? 0,
+              totalOpenIncidents: item.totalOpenIncidentCount ?? item.totalOpenIncidents ?? item.openIncidentCount ?? 0,
             });
             const assetsList = Array.isArray(item.assets) ? item.assets : [];
             assetsMap[mid] = assetsList.map((a: any) => ({
