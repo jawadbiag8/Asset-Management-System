@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiService } from '../../../services/api.service';
+import { UtilsService } from '../../../services/utils.service';
 
 export interface SetupDepartmentsDialogData {
   ministryId: number;
@@ -19,6 +20,8 @@ interface DepartmentItem {
   contactEmail?: string;
   contactPhone?: string;
   createdAt?: string;
+  /** When false, department has linked assets – delete is blocked (API). */
+  canDelete?: boolean;
 }
 
 @Component({
@@ -50,6 +53,7 @@ export class SetupDepartmentsDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: SetupDepartmentsDialogData,
     private dialogRef: MatDialogRef<SetupDepartmentsDialogComponent>,
     private apiService: ApiService,
+    private utils: UtilsService,
   ) {}
 
   ngOnInit(): void {
@@ -73,7 +77,8 @@ export class SetupDepartmentsDialogComponent implements OnInit {
         }
 
         const raw = (res.data as any)?.data ?? res.data ?? [];
-        this.departments.set(Array.isArray(raw) ? raw : []);
+        const list = Array.isArray(raw) ? raw : [];
+        this.departments.set(list.map((item: any) => this.normalizeDepartmentItem(item)));
       },
       error: () => {
         this.loading.set(false);
@@ -162,8 +167,48 @@ export class SetupDepartmentsDialogComponent implements OnInit {
       });
   }
 
-  removeLocalDepartment(id: number): void {
+  /**
+   * API may send canDelete as bool, or string "false"/"true" (JSON quirk).
+   * `Boolean("false")` is true in JS — must parse explicitly.
+   */
+  private parseCanDelete(value: unknown): boolean {
+    if (value === undefined || value === null) return true;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      const s = value.trim().toLowerCase();
+      if (s === 'false' || s === '0') return false;
+      if (s === 'true' || s === '1') return true;
+      return true;
+    }
+    if (typeof value === 'number') return value !== 0;
+    return Boolean(value);
+  }
+
+  private normalizeDepartmentItem(item: any): DepartmentItem {
+    const canDeleteRaw = item?.canDelete ?? item?.CanDelete;
+    return {
+      id: item.id ?? item.Id,
+      ministryId: item.ministryId ?? item.MinistryId,
+      departmentName: item.departmentName ?? item.DepartmentName ?? '',
+      contactName: item.contactName ?? item.ContactName,
+      contactEmail: item.contactEmail ?? item.ContactEmail,
+      contactPhone: item.contactPhone ?? item.ContactPhone,
+      createdAt: item.createdAt ?? item.CreatedAt,
+      canDelete: this.parseCanDelete(canDeleteRaw),
+    };
+  }
+
+  removeLocalDepartment(d: DepartmentItem): void {
     if (this.deletingDepartmentId() != null || this.updatingDepartmentId() != null) return;
+    if (d.canDelete === false) {
+      this.utils.showToast(
+        'You cannot delete this department because some assets are linked with this department.',
+        'Cannot delete',
+        'warning',
+      );
+      return;
+    }
+    const id = d.id;
     this.error.set('');
     this.deletingDepartmentId.set(id);
     this.apiService.deleteDepartment(id).subscribe({

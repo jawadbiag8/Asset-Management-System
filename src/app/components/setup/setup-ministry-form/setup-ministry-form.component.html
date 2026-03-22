@@ -1,0 +1,120 @@
+<section class="setup-ministry-form">
+  <div class="breadcrumbs">
+    <a [routerLink]="['/setup/ministries']" class="crumb-back">← Back</a>
+    <span class="crumb-sep">Ministries</span>
+    <span class="crumb-slash">/</span>
+    <span>{{ isEditMode ? 'Edit Ministry' : 'Add Ministry' }}</span>
+  </div>
+
+  <div class="title-wrap">
+    <h2>{{ isEditMode ? 'Edit Ministry' : 'Add a New Ministry' }}</h2>
+    <p>
+      {{
+        isEditMode
+          ? 'Update details below, then you will choose a reference ID and document file (same as API update).'
+          : 'Fill in the details below to add a new Ministry to the monitoring system'
+      }}
+    </p>
+  </div>
+
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Loading ministry...</div>
+  } @else {
+    <form class="form-card" [formGroup]="form" (ngSubmit)="save()">
+      <div class="grid grid-one">
+        <mat-form-field class="field mat-field" appearance="outline">
+          <mat-label>Ministry Name</mat-label>
+          <input matInput type="text" formControlName="ministryName" placeholder="Ministry Name *" />
+          @if (hasControlError('ministryName')) {
+            <mat-error>{{ getControlError('ministryName', 'Ministry Name') }}</mat-error>
+          } @else {
+            <mat-hint>Enter the ministry name</mat-hint>
+          }
+        </mat-form-field>
+
+        <div class="field field-logo">
+          <span class="field-logo-label">
+            {{ isEditMode ? 'Ministry Logo' : 'Add Ministry Logo' }}
+            <span class="optional-tag">(optional)</span>
+          </span>
+          <label class="file-row">
+            <span class="choose-file-btn">Choose File</span>
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif"
+              (change)="onLogoFileChange($event)"
+            />
+            <span class="file-name">{{ selectedLogoFileName() }}</span>
+          </label>
+          @if (isEditMode && existingLogoAvailable() && !logoFile()) {
+            <small class="file-hint file-hint--muted">A logo is already on file. Choose a new image to replace it.</small>
+          } @else {
+            <small class="file-hint">Optional. Accepted: Images (.jpg, .jpeg, .png, .gif)</small>
+          }
+          @if (logoFileError()) {
+            <div class="file-err">{{ logoFileError() }}</div>
+          }
+        </div>
+
+        <mat-form-field class="field mat-field" appearance="outline">
+          <mat-label>Description</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            formControlName="description"
+            placeholder="Provide additional context about this Ministry"
+          ></textarea>
+          @if (hasControlError('description')) {
+            <mat-error>{{ getControlError('description', 'Description') }}</mat-error>
+          } @else {
+            <mat-hint>Optional: Add notes or special requirements</mat-hint>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="sub-title">Focal Person Information</div>
+
+      <div class="grid grid-four">
+        <mat-form-field class="field mat-field" appearance="outline">
+          <mat-label>Name</mat-label>
+          <input matInput type="text" formControlName="contactName" placeholder="Name *" />
+          @if (hasControlError('contactName')) {
+            <mat-error>{{ getControlError('contactName', 'Name') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field class="field mat-field" appearance="outline">
+          <mat-label>Phone</mat-label>
+          <input matInput type="text" formControlName="contactPhone" placeholder="Phone *" />
+          @if (hasControlError('contactPhone')) {
+            <mat-error>{{ getControlError('contactPhone', 'Phone') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field class="field mat-field" appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="contactEmail" placeholder="Email *" />
+          @if (hasControlError('contactEmail')) {
+            <mat-error>{{ getControlError('contactEmail', 'Email') }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field class="field mat-field" appearance="outline">
+          <mat-label>Designation</mat-label>
+          <input matInput type="text" formControlName="contactDesignation" placeholder="Designation *" />
+          @if (hasControlError('contactDesignation')) {
+            <mat-error>{{ getControlError('contactDesignation', 'Designation') }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" [routerLink]="['/setup/ministries']">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          {{ saving() ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Ministry' : 'Add Ministry') }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

@@ -3,8 +3,16 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { RouterModule } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
+import { UtilsService } from '../../../services/utils.service';
+import {
+  ConfirmationDialogComponent,
+  ConfirmationDialogData,
+} from '../../reusable/confirmation-dialog/confirmation-dialog.component';
 import {
   SetupDepartmentsDialogComponent,
   SetupDepartmentsDialogData,
@@ -20,6 +28,8 @@ interface MinistryApiItem {
   contactEmail: string | null;
   contactPhone: string | null;
   logoAvailable: boolean;
+  /** When false, delete is blocked (linked assets/departments). */
+  canDelete?: boolean;
 }
 
 interface MinistriesSummary {
@@ -33,7 +43,15 @@ type MinistryTableFilter = 'all' | 'focal-missing' | 'logo-missing';
 @Component({
   selector: 'app-setup-ministries',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule, MatDialogModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatDialogModule,
+    MatMenuModule,
+    MatButtonModule,
+    RouterModule,
+  ],
   templateUrl: './setup-ministries.component.html',
   styleUrls: ['./setup-ministries.component.scss'],
 })
@@ -85,6 +103,7 @@ export class SetupMinistriesComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private dialog: MatDialog,
+    private utils: UtilsService,
   ) {}
 
   ngOnInit(): void {
@@ -114,8 +133,8 @@ export class SetupMinistriesComponent implements OnInit {
         const root = res?.data as any;
         const apiSummary = root?.summary as MinistriesSummary | undefined;
         const data = root?.data ?? root?.items ?? root ?? [];
-        const normalized = Array.isArray(data) ? data : [];
-        this.ministries.set(normalized);
+        const list = Array.isArray(data) ? data : [];
+        this.ministries.set(list.map((item: any) => this.normalizeMinistryItem(item)));
 
         const total =
           root?.totalCount ??
@@ -123,7 +142,7 @@ export class SetupMinistriesComponent implements OnInit {
           root?.totalItems ??
           root?.count ??
           apiSummary?.totalMinistriesCount ??
-          normalized.length;
+          list.length;
         this.totalItems.set(Number(total) || 0);
         this.summary.set(apiSummary ?? null);
         this.hasNextPage.set(this.pageNumber() * this.pageSize() < (Number(total) || 0));
@@ -187,6 +206,80 @@ export class SetupMinistriesComponent implements OnInit {
   pageEnd(): number {
     const end = this.pageNumber() * this.pageSize();
     return Math.min(end, this.totalItems());
+  }
+
+  private parseCanDelete(value: unknown): boolean {
+    if (value === undefined || value === null) return true;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      const s = value.trim().toLowerCase();
+      if (s === 'false' || s === '0') return false;
+      if (s === 'true' || s === '1') return true;
+      return true;
+    }
+    if (typeof value === 'number') return value !== 0;
+    return Boolean(value);
+  }
+
+  private normalizeMinistryItem(item: any): MinistryApiItem {
+    const canDeleteRaw = item?.canDelete ?? item?.CanDelete;
+    return {
+      id: item.id ?? item.Id,
+      ministryName: item.ministryName ?? item.MinistryName ?? '',
+      numberOfDepartments: item.numberOfDepartments ?? item.NumberOfDepartments ?? 0,
+      numberOfAssets: item.numberOfAssets ?? item.NumberOfAssets ?? 0,
+      contactName: item.contactName ?? item.ContactName ?? null,
+      contactDesignation: item.contactDesignation ?? item.ContactDesignation ?? null,
+      contactEmail: item.contactEmail ?? item.ContactEmail ?? null,
+      contactPhone: item.contactPhone ?? item.ContactPhone ?? null,
+      logoAvailable: item.logoAvailable ?? item.LogoAvailable ?? false,
+      canDelete: this.parseCanDelete(canDeleteRaw),
+    };
+  }
+
+  onDeleteMinistry(m: MinistryApiItem, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (m.canDelete === false) {
+      this.utils.showToast(
+        'You cannot delete this ministry because some assets or departments are linked with it.',
+        'Cannot delete',
+        'warning',
+      );
+      return;
+    }
+    const data: ConfirmationDialogData = {
+      title: 'Delete ministry',
+      message: `Are you sure you want to delete "${m.ministryName}"? This action cannot be undone.`,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    };
+    this.dialog
+      .open(ConfirmationDialogComponent, {
+        width: '400px',
+        data,
+        disableClose: true,
+      })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (!confirmed) return;
+        this.loading.set(true);
+        this.apiService.deleteMinistry(m.id).subscribe({
+          next: (res) => {
+            this.loading.set(false);
+            if (!res?.isSuccessful) {
+              this.utils.showToast(res?.message ?? 'Failed to delete ministry.', 'Delete', 'error');
+              return;
+            }
+            this.utils.showToast(res?.message ?? 'Ministry deleted.', 'Delete', 'success');
+            this.loadMinistries();
+          },
+          error: () => {
+            this.loading.set(false);
+            this.utils.showToast('Error deleting ministry. Please try again.', 'Delete', 'error');
+          },
+        });
+      });
   }
 
   openDepartmentsDialog(m: MinistryApiItem): void {

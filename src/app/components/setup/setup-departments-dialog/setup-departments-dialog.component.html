@@ -93,7 +93,7 @@
           <button
             type="button"
             class="delete-btn"
-            (click)="removeLocalDepartment(d.id)"
+            (click)="removeLocalDepartment(d)"
             [disabled]="deletingDepartmentId() === d.id || updatingDepartmentId() === d.id"
             aria-label="Delete department"
           >

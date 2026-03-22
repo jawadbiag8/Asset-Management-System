@@ -1,0 +1,308 @@
+.setup-ministry-form {
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(153, 201, 214, 0.72);
+  margin-bottom: 16px;
+
+  .crumb-back {
+    color: #79c8dd;
+    text-decoration: none;
+  }
+
+  .crumb-sep {
+    color: rgba(153, 201, 214, 0.85);
+  }
+
+  .crumb-slash {
+    color: rgba(153, 201, 214, 0.6);
+  }
+}
+
+.title-wrap {
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  p {
+    margin: 8px 0 0 0;
+    font-size: 14px;
+    color: rgba(182, 208, 214, 0.72);
+  }
+}
+
+.form-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid-one {
+  grid-template-columns: 1fr;
+}
+
+.grid-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &.field-logo {
+    margin-bottom: 4px;
+  }
+
+  .field-logo-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2px;
+
+    .optional-tag {
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 12px;
+    }
+  }
+
+  .file-hint {
+    display: block;
+    margin-top: 4px;
+
+    &--muted {
+      color: rgba(173, 193, 198, 0.9);
+    }
+  }
+
+  .req {
+    color: #ff4f5c;
+    font-style: normal;
+    margin-left: 2px;
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  small {
+    font-size: 11px;
+    color: rgba(173, 193, 198, 0.7);
+  }
+}
+
+.file-err {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #f87171;
+}
+
+
+.mat-field {
+  width: 100%;
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  margin-top: 4px;
+  min-height: 2.4em;
+  display: block;
+}
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-radius: 8px;
+}
+
+:host ::ng-deep .mdc-notched-outline .mdc-notched-outline__leading {
+  border-right: none !important;
+}
+
+:host ::ng-deep .mdc-notched-outline .mdc-notched-outline__notch {
+  border-left: none !important;
+  border-right: none !important;
+}
+
+:host ::ng-deep .mdc-notched-outline .mdc-notched-outline__trailing {
+  border-left: none !important;
+}
+
+:host ::ng-deep .mdc-notched-outline__leading,
+:host ::ng-deep .mdc-notched-outline__notch,
+:host ::ng-deep .mdc-notched-outline__trailing,
+:host ::ng-deep .mat-mdc-form-field-outline {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing,
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-outline {
+  border-color: rgba(4, 191, 191, 0.5) !important;
+  color: rgba(4, 191, 191, 0.5) !important;
+}
+
+:host ::ng-deep .mat-mdc-input-element {
+  color: #ffffff !important;
+  font-size: 14px !important;
+}
+
+:host ::ng-deep .mat-mdc-input-element::placeholder,
+:host ::ng-deep input.mat-mdc-input-element::placeholder,
+:host ::ng-deep textarea.mat-mdc-input-element::placeholder {
+  color: rgba(255, 255, 255, 0.67) !important;
+}
+
+:host ::ng-deep .mat-mdc-floating-label,
+:host ::ng-deep .mdc-floating-label,
+:host ::ng-deep .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label--float-above {
+  color: rgba(255, 255, 255, 0.67) !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field-hint {
+  color: #9ca3af !important;
+  font-size: 12px !important;
+}
+
+.file-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  width: fit-content;
+  position: relative;
+}
+
+.file-row input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.choose-file-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(226, 247, 255, 0.6);
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.file-name {
+  font-size: 14px;
+  color: rgba(204, 222, 228, 0.86);
+}
+
+.sub-title {
+  margin: 18px 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.actions {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-primary,
+.btn-secondary {
+  height: 54px;
+  border-radius: 8px;
+  min-width: 160px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-primary {
+  border: 1px solid rgba(20, 184, 166, 0.5);
+  background: rgba(4, 191, 191, 0.5);
+  color: #fff;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.error,
+.loading {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.error {
+  color: #ff7b88;
+}
+
+@media (max-width: 900px) {
+  .title-wrap h2 {
+    font-size: 26px;
+  }
+
+  .title-wrap p {
+    font-size: 13px;
+  }
+
+  .grid-four {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    min-width: 130px;
+    font-size: 16px;
+    height: 44px;
+  }
+
+  .field input,
+  .field textarea {
+    font-size: 16px;
+  }
+
+  .sub-title {
+    font-size: 20px;
+  }
+}
+

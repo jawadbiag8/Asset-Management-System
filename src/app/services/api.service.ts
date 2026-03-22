@@ -95,6 +95,34 @@ export interface UpdateDepartmentApiRequest {
   contactPhone: string;
 }
 
+export interface UpsertMinistryApiRequest {
+  ministryName: string;
+  contactName: string;
+  contactDesignation: string;
+  contactEmail: string;
+  contactPhone: string;
+  /** Optional – include when API supports on PUT */
+  address?: string;
+  description?: string;
+}
+
+/** POST /Ministry – multipart/form-data (create ministry + logo + reference file). */
+export interface CreateMinistryMultipartRequest {
+  ministryName: string;
+  /** Optional; send empty string if not collected in UI */
+  address?: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  contactDesignation: string;
+  refId: string;
+  /** Reference document from upload dialog – field name `file` (matches API curl). */
+  file: File;
+  /** Ministry logo from main form – field name `logo` (images). Optional. */
+  logo?: File | null;
+  description?: string;
+}
+
 /** Single item from GET Ministry/{ministryId}/correspondence */
 export interface MinistryCorrespondenceItem {
   id: number;
@@ -146,6 +174,69 @@ export class ApiService {
   getMinistries(searchQuery?: HttpParams): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Ministry`;
     return this.http.get<ApiResponse<any>>(url, { params: searchQuery });
+  }
+
+  getMinistryById(ministryId: number): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/Ministry/${ministryId}`);
+  }
+
+  /**
+   * Create ministry – multipart/form-data (matches API: ministryName, address, contacts, refId, file).
+   * Do not set Content-Type; browser sets multipart boundary.
+   */
+  addMinistry(payload: CreateMinistryMultipartRequest): Observable<ApiResponse<any>> {
+    const fd = new FormData();
+    fd.append('ministryName', payload.ministryName);
+    fd.append('address', payload.address ?? '');
+    fd.append('contactName', payload.contactName);
+    fd.append('contactEmail', payload.contactEmail);
+    fd.append('contactPhone', payload.contactPhone);
+    fd.append('contactDesignation', payload.contactDesignation);
+    fd.append('refId', payload.refId ?? '');
+    fd.append('file', payload.file, payload.file.name);
+    if (payload.logo) {
+      fd.append('logo', payload.logo, payload.logo.name);
+    }
+    if (payload.description != null && payload.description !== '') {
+      fd.append('description', payload.description);
+    }
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Ministry`, fd, {
+      headers: { Accept: 'application/json' },
+    });
+  }
+
+  /**
+   * Update ministry – PUT multipart/form-data (matches API curl: ministryName, address, contacts, refId, file, optional logo).
+   * Authorization: Bearer … is added by `ApiInterceptor`.
+   */
+  updateMinistry(
+    ministryId: number,
+    payload: CreateMinistryMultipartRequest,
+  ): Observable<ApiResponse<any>> {
+    const fd = new FormData();
+    fd.append('ministryName', payload.ministryName);
+    fd.append('address', payload.address ?? '');
+    fd.append('contactName', payload.contactName);
+    fd.append('contactEmail', payload.contactEmail);
+    fd.append('contactPhone', payload.contactPhone);
+    fd.append('contactDesignation', payload.contactDesignation);
+    fd.append('refId', payload.refId ?? '');
+    fd.append('file', payload.file, payload.file.name);
+    if (payload.logo) {
+      fd.append('logo', payload.logo, payload.logo.name);
+    }
+    if (payload.description != null && payload.description !== '') {
+      fd.append('description', payload.description);
+    }
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/Ministry/${ministryId}`, fd, {
+      headers: { Accept: 'application/json' },
+    });
+  }
+
+  deleteMinistry(ministryId: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/Ministry/${ministryId}`, {
+      headers: { Accept: 'text/plain' },
+    });
   }
 
   /**

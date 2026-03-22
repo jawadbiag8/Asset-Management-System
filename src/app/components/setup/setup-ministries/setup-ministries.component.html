@@ -12,7 +12,7 @@
       />
     </div>
 
-    <button type="button" class="add-btn">
+    <button type="button" class="add-btn" [routerLink]="['/setup/ministries/new']">
       <mat-icon>add</mat-icon>
       Add Ministry
     </button>
@@ -110,7 +110,32 @@
                   </span>
                 }
               </td>
-              <td class="action"><mat-icon>more_vert</mat-icon></td>
+              <td class="action">
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="action-menu-trigger"
+                  [matMenuTriggerFor]="ministryRowMenu"
+                  aria-label="Ministry actions"
+                  (click)="$event.stopPropagation()"
+                >
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #ministryRowMenu="matMenu" panelClass="ministry-actions-panel">
+                  <button
+                    mat-menu-item
+                    type="button"
+                    [routerLink]="['/setup/ministries', m.id, 'edit']"
+                  >
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button mat-menu-item type="button" (click)="onDeleteMinistry(m)">
+                    <mat-icon>delete_outline</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </mat-menu>
+              </td>
             </tr>
           } @empty {
             <tr>

@@ -1509,6 +1509,10 @@ select option {
   border-radius: 12px !important;
   overflow: hidden !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  /* Light theme sets --mat-sys-on-surface to dark; override for dark menu surface */
+  --mat-menu-item-label-text-color: rgba(255, 255, 255, 0.96) !important;
+  --mat-sys-on-surface: #ffffff !important;
+  --mat-sys-on-surface-variant: rgba(255, 255, 255, 0.88) !important;
 }
 .cdk-overlay-container .mat-mdc-menu-panel .mat-mdc-menu-content {
   background: #161b22 !important;
@@ -1517,6 +1521,26 @@ select option {
 .cdk-overlay-container .mat-mdc-menu-panel .mat-icon,
 .cdk-overlay-container .mat-mdc-menu-panel .mat-mdc-menu-item .mat-icon {
   color: #fff !important;
+}
+
+/* Setup → Ministries row menu: M3 uses --mat-sys-on-surface (dark in light theme) for labels */
+.cdk-overlay-container .mat-mdc-menu-panel.ministry-actions-panel {
+  /* So text inherits white on dark panel (Material: color = var(--mat-menu-item-label-text-color, var(--mat-sys-on-surface))) */
+  --mat-menu-item-label-text-color: #ffffff !important;
+  --mat-sys-on-surface: #ffffff !important;
+  --mat-sys-on-surface-variant: rgba(255, 255, 255, 0.88) !important;
+
+  .mat-mdc-menu-item,
+  .mat-mdc-menu-item:link,
+  .mat-mdc-menu-item:visited {
+    --mat-menu-item-label-text-color: #ffffff !important;
+    --mat-sys-on-surface: #ffffff !important;
+    color: #ffffff !important;
+  }
+
+  .mat-mdc-menu-item .mat-mdc-menu-item-text {
+    color: #ffffff !important;
+  }
 }
 .filter-modal-select-panel.mat-mdc-select-panel .mat-select-search-input {
   background: var(--color-bg-dark) !important;

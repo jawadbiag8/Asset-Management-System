@@ -20,6 +20,7 @@ import { SetupComponent } from './components/setup/setup.component';
 import { SetupHomeComponent } from './components/setup/setup-home/setup-home.component';
 import { SetupConfigurationsComponent } from './components/setup/setup-configurations/setup-configurations.component';
 import { SetupMinistriesComponent } from './components/setup/setup-ministries/setup-ministries.component';
+import { SetupMinistryFormComponent } from './components/setup/setup-ministry-form/setup-ministry-form.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -110,6 +111,8 @@ export const routes: Routes = [
       { path: '', component: SetupHomeComponent },
       { path: 'configurations', component: SetupConfigurationsComponent },
       { path: 'ministries', component: SetupMinistriesComponent },
+      { path: 'ministries/new', component: SetupMinistryFormComponent },
+      { path: 'ministries/:id/edit', component: SetupMinistryFormComponent },
       // Future:
       // { path: 'users', component: SetupUsersComponent },
       // { path: 'roles', component: SetupRolesComponent },
