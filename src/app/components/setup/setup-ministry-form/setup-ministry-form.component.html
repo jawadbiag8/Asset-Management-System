@@ -1,10 +1,11 @@
 <section class="setup-ministry-form">
-  <div class="breadcrumbs">
-    <a [routerLink]="['/setup/ministries']" class="crumb-back">← Back</a>
-    <span class="crumb-sep">Ministries</span>
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a [routerLink]="['/setup']" class="crumb-link">Setup</a>
     <span class="crumb-slash">/</span>
-    <span>{{ isEditMode ? 'Edit Ministry' : 'Add Ministry' }}</span>
-  </div>
+    <a [routerLink]="['/setup/ministries']" class="crumb-link">Ministries</a>
+    <span class="crumb-slash">/</span>
+    <span class="crumb-current">{{ isEditMode ? 'Edit Ministry' : 'Add Ministry' }}</span>
+  </nav>
 
   <div class="title-wrap">
     <h2>{{ isEditMode ? 'Edit Ministry' : 'Add a New Ministry' }}</h2>

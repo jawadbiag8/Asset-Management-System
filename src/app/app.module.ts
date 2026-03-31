@@ -46,6 +46,7 @@ import { AssetsComponent } from './components/assets/assets.component';
 import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.component';
 import { MinistryDashboardComponent } from './components/ministry-dashboard/ministry-dashboard.component';
 import { MinistryCorrespondenceHistoryComponent } from './components/ministry-correspondence-history/ministry-correspondence-history.component';
+import { provideHighcharts } from 'highcharts-angular';
 
 @NgModule({
   declarations: [
@@ -102,6 +103,13 @@ import { MinistryCorrespondenceHistoryComponent } from './components/ministry-co
     }),
   ],
   providers: [
+    provideHighcharts({
+      instance: () => import('highcharts/esm/highcharts').then((m) => m.default),
+      modules: () => [
+        import('highcharts/esm/highcharts-more'),
+        import('highcharts/esm/modules/solid-gauge'),
+      ],
+    }),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiInterceptor,

@@ -130,6 +130,14 @@
                     <mat-icon>edit</mat-icon>
                     <span>Edit</span>
                   </button>
+                  <button
+                    mat-menu-item
+                    type="button"
+                    [routerLink]="['/setup/ministries', m.id, 'history']"
+                  >
+                    <mat-icon>history</mat-icon>
+                    <span>History</span>
+                  </button>
                   <button mat-menu-item type="button" (click)="onDeleteMinistry(m)">
                     <mat-icon>delete_outline</mat-icon>
                     <span>Delete</span>
@@ -149,7 +157,7 @@
 
   <div class="table-pagination">
     <div class="page-info">
-      Showing {{ pageStart() }}-{{ pageEnd() }} of {{ totalItems() }}
+      Showing {{ pageStart() }}-{{ pageEnd() }} of {{ totalItemsForView() }}
     </div>
 
     <div class="page-controls">
@@ -167,7 +175,7 @@
         <mat-icon>chevron_left</mat-icon>
       </button>
       <span class="page-number">{{ pageNumber() }}</span>
-      <button type="button" class="pager-btn" (click)="nextPage()" [disabled]="!hasNextPage() || loading()">
+      <button type="button" class="pager-btn" (click)="nextPage()" [disabled]="!hasNextPageForView() || loading()">
         <mat-icon>chevron_right</mat-icon>
       </button>
     </div>

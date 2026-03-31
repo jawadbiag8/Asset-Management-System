@@ -1,0 +1,101 @@
+<section class="setup-ministry-history">
+  <div class="top-row">
+    <a routerLink="/setup/ministries" class="crumb-back">← Back to Ministries</a>
+  </div>
+
+  <div class="page-header">
+    <div class="titles">
+      <h1 class="page-title">Ministry Audit Log</h1>
+      @if (ministryName()) {
+        <p class="page-sub">{{ ministryName() }}</p>
+      }
+    </div>
+    <div class="search-wrap">
+      <mat-icon class="search-ic" aria-hidden="true">search</mat-icon>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Search"
+        [value]="searchTerm()"
+        (input)="onSearch(($any($event.target)).value)"
+      />
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="error-state">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">Loading history...</div>
+  } @else if (!error()) {
+    <div class="accordion-list">
+      @for (row of filteredItems(); track row.id) {
+        <div class="accordion-item" [class.expanded]="isExpanded(row.id)">
+          <div
+            class="accordion-header"
+            (click)="toggleAccordion(row.id, $event)"
+            role="button"
+            tabindex="0"
+            (keydown.enter)="toggleAccordion(row.id, $event)"
+            (keydown.space)="toggleAccordion(row.id, $event)"
+          >
+            <div class="header-date">
+              <span class="date-time">{{ row.dateTime }}</span>
+            </div>
+            <div class="header-meta">
+              <div class="meta-block">
+                <span class="meta-label">User</span>
+                <span class="meta-value">{{ row.editedBy }}</span>
+              </div>
+              <div class="meta-block">
+                <span class="meta-label">Reference</span>
+                <span class="meta-value">{{ row.refId }}</span>
+              </div>
+              <button
+                type="button"
+                class="btn-download"
+                [disabled]="row.downloadDisabled"
+                [matTooltip]="
+                  row.downloadDisabled ? 'No attachment available for this entry' : 'Download reference document'
+                "
+                matTooltipPosition="above"
+                (click)="onDownload(row, $event)"
+              >
+                <mat-icon>download</mat-icon>
+                <span>Download</span>
+              </button>
+            </div>
+            <button
+              type="button"
+              class="accordion-toggle"
+              (click)="toggleAccordion(row.id, $event)"
+              [attr.aria-expanded]="isExpanded(row.id)"
+              aria-label="Expand or collapse"
+            >
+              <mat-icon>{{ isExpanded(row.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+          </div>
+
+          @if (isExpanded(row.id)) {
+            <div class="accordion-body">
+              <div class="changes-section">
+                <span class="body-label section-label">Changes</span>
+                <div class="changes-grid">
+                  @for (c of row.changeRows; track $index) {
+                    <div class="change-row">
+                      <span class="change-label">{{ c.label }}</span>
+                      <span class="change-value">{{ c.value }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @empty {
+        <div class="empty-state">No history entries for this ministry.</div>
+      }
+    </div>
+  }
+</section>

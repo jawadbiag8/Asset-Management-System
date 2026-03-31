@@ -80,16 +80,9 @@ export class SetupMinistriesComponent implements OnInit {
   });
 
   filteredMinistries = computed(() => {
-    const bySearch = this.searchedMinistries();
-
-    const mode = this.activeFilter();
-    if (mode === 'focal-missing') {
-      return bySearch.filter((m) => !this.hasFocalPerson(m));
-    }
-    if (mode === 'logo-missing') {
-      return bySearch.filter((m) => !m.logoAvailable);
-    }
-    return bySearch;
+    // Filtering is applied server-side via query params for card clicks.
+    // Keep local search behavior for instant typing feedback.
+    return this.searchedMinistries();
   });
 
   totalMinistries = computed(() => this.summary()?.totalMinistriesCount ?? this.totalItems());
@@ -98,6 +91,10 @@ export class SetupMinistriesComponent implements OnInit {
   );
   logoMissingCount = computed(
     () => this.summary()?.ministriesMissingLogo ?? this.searchedMinistries().filter((m) => !m.logoAvailable).length,
+  );
+  totalItemsForView = computed(() => this.totalItems());
+  hasNextPageForView = computed(
+    () => this.pageNumber() * this.pageSize() < this.totalItemsForView(),
   );
 
   constructor(
@@ -117,6 +114,12 @@ export class SetupMinistriesComponent implements OnInit {
       .set('PageNumber', String(this.pageNumber()))
       .set('PageSize', String(this.pageSize()))
       .set('SearchTerm', this.searchTerm().trim());
+    const mode = this.activeFilter();
+    if (mode === 'logo-missing') {
+      params = params.set('LogoAvailable', 'false');
+    } else if (mode === 'focal-missing') {
+      params = params.set('HasContactEmail', 'false');
+    }
 
     this.apiService.getMinistries(params).subscribe({
       next: (res) => {
@@ -177,7 +180,7 @@ export class SetupMinistriesComponent implements OnInit {
   }
 
   nextPage(): void {
-    if (this.hasNextPage() && !this.loading()) {
+    if (this.hasNextPageForView() && !this.loading()) {
       this.pageNumber.update((p) => p + 1);
       this.loadMinistries();
     }
@@ -199,13 +202,13 @@ export class SetupMinistriesComponent implements OnInit {
   }
 
   pageStart(): number {
-    if (this.totalItems() === 0) return 0;
+    if (this.totalItemsForView() === 0) return 0;
     return (this.pageNumber() - 1) * this.pageSize() + 1;
   }
 
   pageEnd(): number {
     const end = this.pageNumber() * this.pageSize();
-    return Math.min(end, this.totalItems());
+    return Math.min(end, this.totalItemsForView());
   }
 
   private parseCanDelete(value: unknown): boolean {
@@ -259,6 +262,7 @@ export class SetupMinistriesComponent implements OnInit {
         width: '400px',
         data,
         disableClose: true,
+        panelClass: 'app-confirmation-dialog-dark',
       })
       .afterClosed()
       .subscribe((confirmed: boolean) => {

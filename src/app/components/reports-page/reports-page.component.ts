@@ -2,32 +2,18 @@ import { Component } from '@angular/core';
 import { DynamicReportComponent } from '../dynamic-report/dynamic-report.component';
 
 /**
- * Reports page – DynamicReportComponent wired to real APIs.
- *
- * - Categories: GET /api/report-definitions/categories
- * - Datapoints: GET /api/report-definitions/subcategories/{subcategoryId}/datapoints
- *   (tab click pe subcategory id path mein bhejte hain)
+ * Reports page – core reports APIs (categories → sub-categories → data-points) via DynamicReportComponent.
  */
 @Component({
   selector: 'app-reports-page',
   standalone: true,
   imports: [DynamicReportComponent],
   template: `
-    <app-dynamic-report
-      [categoryApiUrl]="categoryApiUrl"
-      [subCategoryDataApiUrl]="subCategoryDataApiUrl"
-      [chartColorScheme]="chartColors"
-    />
+    <app-dynamic-report [chartColorScheme]="chartColors" />
   `,
   styles: [':host { display: block; height: 100%; }'],
 })
 export class ReportsPageComponent {
-  private readonly apiBase = 'http://47.129.240.107:7008/api';
-
-  categoryApiUrl = `${this.apiBase}/report-definitions/categories`;
-
-  /** Base for datapoints: component calls {subCategoryDataApiUrl}/subcategories/{id}/datapoints */
-  subCategoryDataApiUrl = `${this.apiBase}/report-definitions`;
-
+  /** Aligns with CX Dashboard / PDA: green, amber, red, teal, indigo. */
   chartColors = ['#10B981', '#F59E0B', '#EF4444', '#008080', '#6366F1'];
 }

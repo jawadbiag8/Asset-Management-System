@@ -111,6 +111,30 @@
                   [control]="getControl('assetUrl')">
                 </app-reusable-input>
               </div>
+              <div class="col-md-6">
+                <app-reusable-input label="Asset Type" type="select" [options]="assetTypeOptions"
+                  placeholder="Select asset type" hint="Category of digital asset (Website / Web Application / Mobile App)"
+                  [control]="getControl('assetTypeId')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input label="Hosting Classification" type="select" [options]="hostingTypeOptions"
+                  placeholder="Select hosting type" hint="Hosting model for this asset"
+                  [control]="getControl('hostingTypeId')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input label="Development Vendor" type="select" [options]="vendorOptions"
+                  placeholder="Select development vendor" hint="Vendor that developed this asset"
+                  [control]="getControl('developmentVendorId')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input label="Hosting Vendor" type="select" [options]="vendorOptions"
+                  placeholder="Select hosting vendor" hint="Vendor managing hosting/infrastructure"
+                  [control]="getControl('managingVendorId')">
+                </app-reusable-input>
+              </div>
             </div>
             @if (pageInfo().pageState === 'edit') {
             <div class="row g-3 mt-2">

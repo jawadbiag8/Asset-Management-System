@@ -26,6 +26,10 @@ export interface DigitalAssetRequest {
   assetUrl: string;
   description: string;
   citizenImpactLevelId: number;
+  assetTypeId?: number;
+  hostingTypeId?: number;
+  developmentVendorId?: number;
+  managingVendorId?: number;
   primaryContactName: string;
   primaryContactEmail: string;
   primaryContactPhone: string;
@@ -64,6 +68,9 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
   ministryOptions: { label: string, value: number }[] = [];
   departments: { label: string, value: number }[] = [];
   citizenImpactLevelOptions: { label: string, value: number }[] = [];
+  assetTypeOptions: { label: string, value: number }[] = [];
+  hostingTypeOptions: { label: string, value: number }[] = [];
+  vendorOptions: { label: string, value: number }[] = [];
   /** Options for Asset Status dropdown (edit mode only); from API CommonLookup/type/AssetStatus */
   assetStatusOptions: { label: string, value: number }[] = [];
 
@@ -157,6 +164,9 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
 
     this.getMinistryOptions();
     this.getCitizenImpactLevelOptions();
+    this.getAssetTypeOptions();
+    this.getHostingTypeOptions();
+    this.getVendorOptions();
   }
 
 
@@ -173,6 +183,10 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
 
       // Compliance Configuration
       citizenImpactLevelId: ['', Validators.required],
+      assetTypeId: ['', Validators.required],
+      hostingTypeId: ['', Validators.required],
+      developmentVendorId: ['', Validators.required],
+      managingVendorId: ['', Validators.required],
 
       // Additional Information
       description: ['', Validators.maxLength(500)],
@@ -275,6 +289,57 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     });
   }
 
+  getAssetTypeOptions() {
+    this.api.getLovByType('assetType').subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful) {
+          this.assetTypeOptions = res.data.map((item: any) => ({ label: item.name, value: item.id })) || [];
+        } else {
+          this.utils.showToast(res.message, 'Error fetching asset types', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error fetching asset types', 'error');
+      }
+    });
+  }
+
+  getHostingTypeOptions() {
+    this.api.getLovByType('hostingType').subscribe({
+      next: (res: ApiResponse) => {
+        if (res.isSuccessful) {
+          this.hostingTypeOptions = res.data.map((item: any) => ({ label: item.name, value: item.id })) || [];
+        } else {
+          this.utils.showToast(res.message, 'Error fetching hosting types', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error fetching hosting types', 'error');
+      }
+    });
+  }
+
+  getVendorOptions() {
+    this.api.getAllVendors().subscribe({
+      next: (res: ApiResponse<any>) => {
+        if (!res?.isSuccessful) {
+          this.utils.showToast(res?.message, 'Error fetching vendors', 'error');
+          return;
+        }
+        const root = res?.data as any;
+        const data = root?.data ?? root?.items ?? root ?? [];
+        const list = Array.isArray(data) ? data : [];
+        this.vendorOptions = list.map((v: any) => ({
+          label: v.vendorName ?? v.name ?? `Vendor ${v.id}`,
+          value: v.id,
+        }));
+      },
+      error: (error: any) => {
+        this.utils.showToast(error, 'Error fetching vendors', 'error');
+      }
+    });
+  }
+
   /** Load Asset Status options for edit mode (CommonLookup/type/AssetStatus). */
   getAssetStatusOptions() {
     this.api.getLovByType('AssetStatus').subscribe({
@@ -316,6 +381,10 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
             assetUrl: data['assetUrl'] ?? '',
             description: data['description'] ?? '',
             citizenImpactLevelId: data['citizenImpactLevelId'] ?? '',
+            assetTypeId: data['assetTypeId'] ?? '',
+            hostingTypeId: data['hostingTypeId'] ?? '',
+            developmentVendorId: data['developmentVendorId'] ?? '',
+            managingVendorId: data['managingVendorId'] ?? '',
             assetStatusId: data['statusId'] ?? data['assetStatusId'] ?? null,
             refId: data['refId'] ?? data['RefId'] ?? '',
             path: data['path'] ?? data['Path'] ?? data['documentPath'] ?? '',
@@ -386,6 +455,10 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       assetUrl: raw['assetUrl'] as string,
       description: raw['description'] as string,
       citizenImpactLevelId: raw['citizenImpactLevelId'] as number,
+      assetTypeId: raw['assetTypeId'] as number,
+      hostingTypeId: raw['hostingTypeId'] as number,
+      developmentVendorId: raw['developmentVendorId'] as number,
+      managingVendorId: raw['managingVendorId'] as number,
       primaryContactName: raw['primaryContactName'] as string,
       primaryContactEmail: raw['primaryContactEmail'] as string,
       primaryContactPhone: raw['primaryContactPhone'] as string,
@@ -424,6 +497,17 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
         });
       }
       const putBody: AssetUpdatePutRequest = {
+        ministryId: payload.ministryId,
+        departmentId: payload.departmentId,
+        assetName: payload.assetName,
+        assetUrl: payload.assetUrl,
+        description: payload.description ?? '',
+        citizenImpactLevelId: payload.citizenImpactLevelId,
+        statusId: raw['assetStatusId'] as number,
+        assetTypeId: payload.assetTypeId as number,
+        hostingTypeId: payload.hostingTypeId as number,
+        developmentVendorId: payload.developmentVendorId as number,
+        managingVendorId: payload.managingVendorId as number,
         RefId: (raw['refId'] as string) || '',
         Path: (raw['path'] as string) || '',
         Contacts: contacts,
@@ -479,6 +563,10 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       assetUrl: payload.assetUrl,
       citizenImpactLevelId: payload.citizenImpactLevelId,
       description: payload.description ?? '',
+      assetTypeId: payload.assetTypeId as number,
+      hostingTypeId: payload.hostingTypeId as number,
+      developmentVendorId: payload.developmentVendorId as number,
+      managingVendorId: payload.managingVendorId as number,
       contacts,
     };
     if (payload.departmentId != null) {
@@ -695,6 +783,10 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       assetUrl: raw['assetUrl'] as string,
       description: raw['description'] as string,
       citizenImpactLevelId: raw['citizenImpactLevelId'] as number,
+      assetTypeId: raw['assetTypeId'] as number,
+      hostingTypeId: raw['hostingTypeId'] as number,
+      developmentVendorId: raw['developmentVendorId'] as number,
+      managingVendorId: raw['managingVendorId'] as number,
       primaryContactName: raw['primaryContactName'] as string,
       primaryContactEmail: raw['primaryContactEmail'] as string,
       primaryContactPhone: raw['primaryContactPhone'] as string,

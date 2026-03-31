@@ -21,7 +21,7 @@
         (actionClick)="onActionClick($event)"
       >
       <ng-container headerActions>
-        <input
+        <!-- <input
           #bulkUploadInput
           type="file"
           accept=".csv"
@@ -36,7 +36,7 @@
         >
           <mat-icon>upload</mat-icon>
           Import Assets
-        </button>
+        </button> -->
         <mat-menu #importAssetsMenu="matMenu" class="import-assets-menu">
           <button mat-menu-item (click)="onDownloadTemplate()">
             <mat-icon>download</mat-icon>

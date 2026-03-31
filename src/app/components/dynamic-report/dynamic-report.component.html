@@ -1,46 +1,158 @@
 <div class="dynamic-report">
-  <!-- Header: dropdown (left) + Generate Report (right) – no box, distinct header -->
   <div class="report-header">
-    <mat-form-field appearance="outline" class="category-select">
-      <mat-label>Select report category</mat-label>
-      <mat-select
-        [value]="selectedCategory()"
-        [compareWith]="compareCategories"
-        (selectionChange)="onCategoryChange($event.value)"
-        panelClass="report-category-panel">
-        <mat-option>
-          <ngx-mat-select-search
-            [formControl]="categoryFilterControl"
-            placeholderLabel="Search category...">
-          </ngx-mat-select-search>
-        </mat-option>
-        @if (categoriesLoading()) {
-          <mat-option disabled>
-            <mat-spinner diameter="24"></mat-spinner>
-            Loading...
+    <div class="report-filters">
+      <mat-form-field appearance="outline" class="category-select">
+        <mat-label>Select report category</mat-label>
+        <mat-select
+          [value]="selectedCategory()"
+          [compareWith]="compareCategories"
+          (selectionChange)="onCategoryChange($event.value)"
+          panelClass="report-category-panel">
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="categoryFilterControl"
+              placeholderLabel="Search category...">
+            </ngx-mat-select-search>
           </mat-option>
-        } @else if (categoriesError()) {
-          <mat-option disabled>{{ categoriesError() }}</mat-option>
-        } @else {
-          @for (cat of filteredCategories(); track cat.id) {
-            <mat-option [value]="cat">{{ cat.name }}</mat-option>
+          @if (categoriesLoading()) {
+            <mat-option disabled>
+              <mat-spinner diameter="24"></mat-spinner>
+              Loading...
+            </mat-option>
+          } @else if (categoriesError()) {
+            <mat-option disabled>{{ categoriesError() }}</mat-option>
+          } @else {
+            @for (cat of filteredCategories(); track cat.id) {
+              <mat-option [value]="cat">{{ cat.name }}</mat-option>
+            }
+            @if (filteredCategories().length === 0) {
+              <mat-option disabled>No categories found</mat-option>
+            }
           }
-          @if (filteredCategories().length === 0) {
-            <mat-option disabled>No categories found</mat-option>
-          }
-        }
-      </mat-select>
-    </mat-form-field>
-    <button type="button" class="btn-generate-report" mat-flat-button>
+        </mat-select>
+      </mat-form-field>
+
+      @if (showMinistryDropdown()) {
+        <mat-form-field appearance="outline" class="ministry-select">
+          <mat-label>Select ministry</mat-label>
+          <mat-select
+            [value]="selectedMinistry()"
+            [compareWith]="compareMinistries"
+            (selectionChange)="onMinistryChange($event.value)"
+            panelClass="report-category-panel">
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="ministryFilterControl"
+                placeholderLabel="Search ministry...">
+              </ngx-mat-select-search>
+            </mat-option>
+            @if (ministriesLoading()) {
+              <mat-option disabled>
+                <mat-spinner diameter="24"></mat-spinner>
+                Loading...
+              </mat-option>
+            } @else if (ministriesError()) {
+              <mat-option disabled>{{ ministriesError() }}</mat-option>
+            } @else {
+              @for (m of filteredMinistries(); track m.id) {
+                <mat-option [value]="m">{{ m.name }}</mat-option>
+              }
+              @if (filteredMinistries().length === 0) {
+                <mat-option disabled>No ministries found</mat-option>
+              }
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      @if (showDepartmentDropdown()) {
+        <mat-form-field appearance="outline" class="department-select">
+          <mat-label>Select department</mat-label>
+          <mat-select
+            [value]="selectedDepartment()"
+            [compareWith]="compareDepartments"
+            (selectionChange)="onDepartmentChange($event.value)"
+            panelClass="report-category-panel">
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="departmentFilterControl"
+                placeholderLabel="Search department...">
+              </ngx-mat-select-search>
+            </mat-option>
+            @if (showAssetDropdown()) {
+              <mat-option [value]="null">Select Department</mat-option>
+            }
+            @if (departmentsLoading()) {
+              <mat-option disabled>
+                <mat-spinner diameter="24"></mat-spinner>
+                Loading...
+              </mat-option>
+            } @else if (departmentsError()) {
+              <mat-option disabled>{{ departmentsError() }}</mat-option>
+            } @else {
+              @for (d of filteredDepartments(); track d.id) {
+                <mat-option [value]="d">{{ d.name }}</mat-option>
+              }
+              @if (filteredDepartments().length === 0) {
+                <mat-option disabled>No departments found</mat-option>
+              }
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      @if (showAssetDropdown()) {
+        <mat-form-field appearance="outline" class="asset-select">
+          <mat-label>Select asset</mat-label>
+          <mat-select
+            [value]="selectedAsset()"
+            [compareWith]="compareAssets"
+            (selectionChange)="onAssetChange($event.value)"
+            panelClass="report-category-panel">
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="assetFilterControl"
+                placeholderLabel="Search asset...">
+              </ngx-mat-select-search>
+            </mat-option>
+            <mat-option [value]="null">Select Asset</mat-option>
+            @if (assetsLoading()) {
+              <mat-option disabled>
+                <mat-spinner diameter="24"></mat-spinner>
+                Loading...
+              </mat-option>
+            } @else if (assetsError()) {
+              <mat-option disabled>{{ assetsError() }}</mat-option>
+            } @else {
+              @for (a of filteredAssets(); track a.id) {
+                <mat-option [value]="a">{{ a.name }}</mat-option>
+              }
+              @if (filteredAssets().length === 0) {
+                <mat-option disabled>No assets found</mat-option>
+              }
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+    </div>
+    <button type="button" class="btn-generate-report" mat-flat-button (click)="refreshReport()">
       <mat-icon>description</mat-icon>
       Generate Report
     </button>
   </div>
 
-  <!-- One large rounded dashboard panel: pills + content -->
   <div class="report-dashboard-panel">
-    <!-- Report type tabs (inside panel, top) -->
-    @if (subCategories().length > 0) {
+    @if (subCategoriesLoading()) {
+      <div class="report-inline-loading">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading report types…</span>
+      </div>
+    } @else if (subCategoriesError()) {
+      <div class="report-error report-error--inline">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ subCategoriesError() }}</p>
+      </div>
+    } @else if (subCategories().length > 0) {
       <div class="subcategory-pills">
         @for (sub of subCategories(); track sub.id) {
           <button
@@ -54,20 +166,9 @@
       </div>
     }
 
-    <!-- Empty states (inside panel) -->
-    @if (!selectedCategory() && categories().length > 0) {
+    @if (selectedCategory() && !subCategoriesLoading() && subCategories().length === 0 && !subCategoriesError()) {
       <div class="report-empty-state">
-        <p>Select a <strong>category</strong> from the dropdown above, then choose a report type from the tabs above.</p>
-      </div>
-    }
-    @if (selectedCategory() && subCategories().length === 0 && !dataPointsLoading() && dataPoints().length === 0 && !selectedSubCategory()) {
-      <div class="report-empty-state">
-        <p>No subcategories found for this category. Try another category.</p>
-      </div>
-    }
-    @if (selectedSubCategory() && dataPoints().length === 0 && !dataPointsLoading() && !dataPointsError()) {
-      <div class="report-empty-state">
-        <p>No data for this report type yet. Try another report or check back later.</p>
+        <p>No sub-categories found for this category. Try another category.</p>
       </div>
     }
 
@@ -82,17 +183,18 @@
         <p>{{ dataPointsError() }}</p>
       </div>
     } @else if (dataPoints().length > 0) {
-      <!-- Left: 2 sub-columns (3 tiles | 2 tiles) | Right: donut chart -->
       <div class="report-body">
         <div class="report-body-left">
           <div class="report-tiles-col">
-            @for (dp of dataPointsSlice(0, 3); track dp.id) {
+            @for (dp of tilesFirstColumn(); track dp.id) {
               <button
                 type="button"
                 class="tile"
                 [class.tile--active]="isDataPointActive(dp)"
                 (click)="onDataPointClick(dp)">
-                <div class="tile-value">{{ dp.value }}{{ dp.unit }}</div>
+                <div class="tile-value">
+                  {{ formatMetricValue(dp) }}<span class="tile-unit">{{ dp.unit }}</span>
+                </div>
                 <div class="tile-title">{{ dp.title }}</div>
                 @if (dp.subtitle) {
                   <div class="tile-subtitle">{{ dp.subtitle }}</div>
@@ -101,13 +203,15 @@
             }
           </div>
           <div class="report-tiles-col">
-            @for (dp of dataPointsSlice(3, 5); track dp.id) {
+            @for (dp of tilesSecondColumn(); track dp.id) {
               <button
                 type="button"
                 class="tile"
                 [class.tile--active]="isDataPointActive(dp)"
                 (click)="onDataPointClick(dp)">
-                <div class="tile-value">{{ dp.value }}{{ dp.unit }}</div>
+                <div class="tile-value">
+                  {{ formatMetricValue(dp) }}<span class="tile-unit">{{ dp.unit }}</span>
+                </div>
                 <div class="tile-title">{{ dp.title }}</div>
                 @if (dp.subtitle) {
                   <div class="tile-subtitle">{{ dp.subtitle }}</div>
@@ -122,33 +226,30 @@
               <div class="chart-card">
                 <h3 class="chart-title">{{ selectedDataPoint()!.title }}</h3>
                 @if (selectedDataPoint(); as dp) {
-                  <p class="chart-subtitle">{{ dp.subtitle ? '(' + dp.subtitle + ')' : '(' + dp.value + (dp.unit || '') + ')' }}</p>
+                  <p class="chart-subtitle">
+                    @if (dp.subtitle) {
+                      {{ dp.subtitle }}
+                    } @else {
+                      {{ formatMetricValue(dp) }}{{ dp.unit }}
+                    }
+                  </p>
                 }
                 <div class="chart-wrapper" [style.height.px]="chartView[1]">
-                  @switch (activeChartType()) {
-                    @case ('pie') {
-                      <ngx-charts-pie-chart [view]="chartView" [results]="chartData" [scheme]="$any(chartColorScheme)" [gradient]="true" [legend]="true" [labels]="true" [doughnut]="false"></ngx-charts-pie-chart>
-                    }
-                    @case ('donut') {
-                      <ngx-charts-pie-chart [view]="chartView" [results]="chartData" [scheme]="$any(chartColorScheme)" [gradient]="true" [legend]="true" [labels]="true" [doughnut]="true" [arcWidth]="0.5"></ngx-charts-pie-chart>
-                      @if (selectedDataPoint(); as dp) {
-                        <div class="chart-center-value">
-                          <span class="chart-center-number">{{ dp.value }}{{ dp.unit }}</span>
-                        </div>
-                      }
-                    }
-                    @case ('line') {
-                      <ngx-charts-line-chart [view]="chartView" [results]="chartData" [scheme]="$any(chartColorScheme)" [xAxis]="true" [yAxis]="true" [legend]="true" [showXAxisLabel]="true" [showYAxisLabel]="true" [gradient]="true"></ngx-charts-line-chart>
-                    }
-                    @case ('bar') {
-                      <ngx-charts-bar-vertical [view]="chartView" [results]="chartData" [scheme]="$any(chartColorScheme)" [xAxis]="true" [yAxis]="true" [legend]="true" [showXAxisLabel]="true" [showYAxisLabel]="true" [gradient]="true"></ngx-charts-bar-vertical>
-                    }
-                    @case ('area') {
-                      <ngx-charts-area-chart [view]="chartView" [results]="chartData" [scheme]="$any(chartColorScheme)" [xAxis]="true" [yAxis]="true" [legend]="true" [showXAxisLabel]="true" [showYAxisLabel]="true" [gradient]="true" [autoScale]="true"></ngx-charts-area-chart>
-                    }
-                    @default {
-                      <ngx-charts-pie-chart [view]="chartView" [results]="chartData" [scheme]="$any(chartColorScheme)" [legend]="true" [doughnut]="true"></ngx-charts-pie-chart>
-                    }
+                  @for (k of [chartInstanceKey()]; track k) {
+                    <div
+                      highchartsChart
+                      [options]="highchartsOptions()"
+                      [oneToOne]="true"
+                      [style.width.%]="100"
+                      [style.height.px]="chartView[1]"
+                      [style.display]="'block'">
+                    </div>
+                  }
+                  @if (activeChartType() === 'gauge') {
+                    <div class="gauge-center-overlay">
+                      <div class="gauge-value">{{ gaugeValueText() }}</div>
+                      <div class="gauge-label">Completion Score</div>
+                    </div>
                   }
                 </div>
               </div>
@@ -161,7 +262,7 @@
           </div>
         </div>
       </div>
-    } @else if (selectedSubCategory()) {
+    } @else if (selectedSubCategory() && !dataPointsLoading()) {
       <div class="chart-placeholder chart-placeholder--in-panel">
         <p>No data points for this report.</p>
       </div>

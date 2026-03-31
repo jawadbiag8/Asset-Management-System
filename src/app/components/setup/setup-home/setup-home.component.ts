@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { ApiResponse, ApiService, SetupDashboardSummary } from '../../../services/api.service';
 import { UtilsService } from '../../../services/utils.service';
 
 @Component({
@@ -12,19 +13,19 @@ import { UtilsService } from '../../../services/utils.service';
 
       <div class="kpi-row" role="list">
         <div class="kpi-card" role="listitem">
-          <div class="kpi-value">46</div>
+          <div class="kpi-value">{{ counts().totalMinistriesCount }}</div>
           <div class="kpi-label">Total Ministries</div>
         </div>
         <div class="kpi-card" role="listitem">
-          <div class="kpi-value">125</div>
+          <div class="kpi-value">{{ counts().totalDepartmentsCount }}</div>
           <div class="kpi-label">Total Departments</div>
         </div>
         <div class="kpi-card" role="listitem">
-          <div class="kpi-value">46</div>
+          <div class="kpi-value">{{ counts().totalVendorsCount }}</div>
           <div class="kpi-label">Total Vendors</div>
         </div>
         <div class="kpi-card" role="listitem">
-          <div class="kpi-value">3</div>
+          <div class="kpi-value">{{ counts().hostingTypesCount }}</div>
           <div class="kpi-label">Hosting Classification</div>
         </div>
       </div>
@@ -90,12 +91,42 @@ import { UtilsService } from '../../../services/utils.service';
     `,
   ],
 })
-export class SetupHomeComponent {
+export class SetupHomeComponent implements OnInit {
   username = signal<string>('Username');
+  counts = signal<SetupDashboardSummary>({
+    totalMinistriesCount: 0,
+    totalDepartmentsCount: 0,
+    totalVendorsCount: 0,
+    hostingTypesCount: 0,
+  });
 
-  constructor(private utilsService: UtilsService) {
+  constructor(
+    private utilsService: UtilsService,
+    private apiService: ApiService,
+  ) {
     const userData = this.utilsService.getStorage<{ username?: string; name?: string }>('user');
     this.username.set(userData?.name || userData?.username || 'Username');
+  }
+
+  ngOnInit(): void {
+    this.loadSetupSummary();
+  }
+
+  private loadSetupSummary(): void {
+    this.apiService.getSetupDashboardSummary().subscribe({
+      next: (res: ApiResponse<SetupDashboardSummary>) => {
+        if (!res?.isSuccessful || !res?.data) return;
+        this.counts.set({
+          totalMinistriesCount: Number(res.data.totalMinistriesCount ?? 0),
+          totalDepartmentsCount: Number(res.data.totalDepartmentsCount ?? 0),
+          totalVendorsCount: Number(res.data.totalVendorsCount ?? 0),
+          hostingTypesCount: Number(res.data.hostingTypesCount ?? 0),
+        });
+      },
+      error: () => {
+        // Keep fallback zeros when summary API fails.
+      },
+    });
   }
 }
 

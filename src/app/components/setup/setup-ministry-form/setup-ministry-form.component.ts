@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ApiService, UpsertMinistryApiRequest, CreateMinistryMultipartRequest } from '../../../services/api.service';
 import { UploadDocumentDialogComponent } from '../../reusable/upload-document-dialog/upload-document-dialog.component';
+import { UtilsService } from '../../../services/utils.service';
 
 @Component({
   selector: 'app-setup-ministry-form',
@@ -52,6 +53,7 @@ export class SetupMinistryFormComponent implements OnInit {
     private apiService: ApiService,
     private route: ActivatedRoute,
     private router: Router,
+    private utils: UtilsService,
   ) {}
 
   ngOnInit(): void {
@@ -201,6 +203,7 @@ export class SetupMinistryFormComponent implements OnInit {
           this.error.set(res?.message || 'Failed to add ministry');
           return;
         }
+        this.utils.showToast(res?.message || 'Ministry created successfully.', 'Success', 'success');
         this.router.navigate(['/setup/ministries']);
       },
       error: () => {
@@ -224,6 +227,7 @@ export class SetupMinistryFormComponent implements OnInit {
           this.error.set(res?.message || 'Failed to update ministry');
           return;
         }
+        this.utils.showToast(res?.message || 'Ministry updated successfully.', 'Success', 'success');
         this.router.navigate(['/setup/ministries']);
       },
       error: () => {

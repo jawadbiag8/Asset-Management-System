@@ -441,6 +441,14 @@ $dialog-bg: #0d1117; // solid dark to avoid any white bleed
   clip-path: inset(0 round $dialog-radius);
 }
 
+/* Any confirmation dialog: dark overlay pane (covers opens that forget panelClass) */
+.cdk-overlay-pane:has(app-confirmation-dialog) {
+  background: $dialog-bg !important;
+  border-radius: $dialog-radius !important;
+  overflow: hidden !important;
+  clip-path: inset(0 round $dialog-radius);
+}
+
 .app-confirmation-dialog-dark {
   .mat-mdc-dialog-container {
     padding: 0 !important;

@@ -57,6 +57,17 @@ export interface AssetContactItem {
 
 /** PUT Asset/{id} request body (edit asset – RefId, Path, Contacts). */
 export interface AssetUpdatePutRequest {
+  ministryId?: number;
+  departmentId?: number;
+  assetName?: string;
+  assetUrl?: string;
+  description?: string;
+  citizenImpactLevelId?: number;
+  statusId?: number;
+  assetTypeId?: number;
+  hostingTypeId?: number;
+  developmentVendorId?: number;
+  managingVendorId?: number;
   RefId: string;
   Path: string;
   Contacts: AssetContactItem[];
@@ -70,6 +81,12 @@ export interface AddAssetApiRequest {
   assetUrl: string;
   citizenImpactLevelId: number;
   description: string;
+  assetTypeId?: number;
+  hostingTypeId?: number;
+  developmentVendorId?: number;
+  managingVendorId?: number;
+  refId?: string;
+  path?: string;
   contacts: {
     contactName: string;
     contactTitle: string;
@@ -121,6 +138,17 @@ export interface CreateMinistryMultipartRequest {
   /** Ministry logo from main form – field name `logo` (images). Optional. */
   logo?: File | null;
   description?: string;
+}
+
+/** Single item from GET Ministry/{ministryId}/history (audit log) */
+export interface MinistryHistoryItem {
+  id: number;
+  userName: string;
+  createdAt: string;
+  createdBy: string;
+  refId: string;
+  path: string;
+  changes: Record<string, unknown>;
 }
 
 /** Single item from GET Ministry/{ministryId}/correspondence */
@@ -178,6 +206,25 @@ export class ApiService {
 
   getMinistryById(ministryId: number): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.baseUrl}/Ministry/${ministryId}`);
+  }
+
+  /**
+   * Ministry audit / history – GET Ministry/{ministryId}/history
+   */
+  getMinistryHistory(ministryId: number): Observable<ApiResponse<MinistryHistoryItem[]>> {
+    return this.http.get<ApiResponse<MinistryHistoryItem[]>>(
+      `${this.baseUrl}/Ministry/${ministryId}/history`,
+      { headers: { Accept: 'application/json' } },
+    );
+  }
+
+  /**
+   * Download reference document for a ministry history entry.
+   * GET Ministry/history/{historyId}/download
+   */
+  downloadMinistryHistoryDocument(historyId: number): Observable<HttpResponse<Blob>> {
+    const url = `${this.baseUrl}/Ministry/history/${historyId}/download`;
+    return this.http.get(url, { responseType: 'blob', observe: 'response' });
   }
 
   /**
@@ -342,6 +389,8 @@ export class ApiService {
   getLovByType(
     lovType:
       | 'citizenImpactLevel'
+      | 'assetType'
+      | 'hostingType'
       | 'SeverityLevel'
       | 'Status'
       | 'IncidentCreationFrequency'
@@ -446,6 +495,13 @@ export class ApiService {
 
   getAllUsers(): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/User/dropdown`);
+  }
+
+  /** GET Vendor – list used for development/managing vendor dropdowns. */
+  getAllVendors(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/Vendor`, {
+      headers: { Accept: 'application/json' },
+    });
   }
 
   // Assets
@@ -718,4 +774,95 @@ export class ApiService {
     const url = `${this.baseUrl}/PMDashboard/top-ministries`;
     return this.http.get<ApiResponse<any>>(url);
   }
+
+  /** GET /setup/dashboard — setup dashboard summary counts. */
+  getSetupDashboardSummary(): Observable<ApiResponse<SetupDashboardSummary>> {
+    return this.http.get<ApiResponse<SetupDashboardSummary>>(
+      `${this.baseUrl}/setup/dashboard`,
+      { headers: { Accept: 'text/plain' } },
+    );
+  }
+
+  // Core reports (dynamic reports module)
+
+  /** GET /core-reports/categories — report category dropdown. */
+  getCoreReportCategories(): Observable<ApiResponse<CoreReportCategory[]>> {
+    return this.http.get<ApiResponse<CoreReportCategory[]>>(
+      `${this.baseUrl}/core-reports/categories`,
+      { headers: { Accept: 'application/json' } },
+    );
+  }
+
+  /** GET /core-reports/sub-categories?categoryId= (+ optional ministry/department/asset). */
+  getCoreReportSubCategories(
+    categoryId: number,
+    filters?: { ministryId?: number; departmentId?: number; assetId?: number | string },
+  ): Observable<ApiResponse<CoreReportSubCategory[]>> {
+    let params = new HttpParams().set('categoryId', String(categoryId));
+    if (filters?.ministryId != null) {
+      params = params.set('ministryId', String(filters.ministryId));
+    }
+    if (filters?.departmentId != null) {
+      params = params.set('departmentId', String(filters.departmentId));
+    }
+    if (filters?.assetId != null && filters.assetId !== '') {
+      params = params.set('assetId', String(filters.assetId));
+    }
+    return this.http.get<ApiResponse<CoreReportSubCategory[]>>(
+      `${this.baseUrl}/core-reports/sub-categories`,
+      { params, headers: { Accept: 'application/json' } },
+    );
+  }
+
+  /**
+   * GET /core-reports/data-points/{subCategoryId}
+   * Optional: ministryId, departmentId, assetId (query).
+   */
+  getCoreReportDataPoints(
+    subCategoryId: number,
+    filters?: { ministryId?: number; departmentId?: number; assetId?: number | string },
+  ): Observable<ApiResponse<unknown>> {
+    let params = new HttpParams();
+    if (filters?.ministryId != null) {
+      params = params.set('ministryId', String(filters.ministryId));
+    }
+    if (filters?.departmentId != null) {
+      params = params.set('departmentId', String(filters.departmentId));
+    }
+    if (filters?.assetId != null && filters.assetId !== '') {
+      params = params.set('assetId', String(filters.assetId));
+    }
+    const options =
+      params.keys().length > 0
+        ? { params, headers: { Accept: 'application/json' } }
+        : { headers: { Accept: 'application/json' } };
+    return this.http.get<ApiResponse<unknown>>(
+      `${this.baseUrl}/core-reports/data-points/${subCategoryId}`,
+      options,
+    );
+  }
+}
+
+/** Item from GET /core-reports/categories */
+export interface CoreReportCategory {
+  id: number;
+  name: string;
+  description?: string | null;
+  orderIndex?: number;
+}
+
+/** Item from GET /core-reports/sub-categories */
+export interface CoreReportSubCategory {
+  id: number;
+  name: string;
+  description?: string | null;
+  orderIndex?: number;
+  categoryId?: number;
+}
+
+export interface SetupDashboardSummary {
+  totalMinistriesCount: number;
+  totalDepartmentsCount: number;
+  totalVendorsCount: number;
+  hostingTypesCount: number;
 }

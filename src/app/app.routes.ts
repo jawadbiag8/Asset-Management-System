@@ -21,6 +21,7 @@ import { SetupHomeComponent } from './components/setup/setup-home/setup-home.com
 import { SetupConfigurationsComponent } from './components/setup/setup-configurations/setup-configurations.component';
 import { SetupMinistriesComponent } from './components/setup/setup-ministries/setup-ministries.component';
 import { SetupMinistryFormComponent } from './components/setup/setup-ministry-form/setup-ministry-form.component';
+import { SetupMinistryHistoryComponent } from './components/setup/setup-ministry-history/setup-ministry-history.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -112,6 +113,7 @@ export const routes: Routes = [
       { path: 'configurations', component: SetupConfigurationsComponent },
       { path: 'ministries', component: SetupMinistriesComponent },
       { path: 'ministries/new', component: SetupMinistryFormComponent },
+      { path: 'ministries/:id/history', component: SetupMinistryHistoryComponent },
       { path: 'ministries/:id/edit', component: SetupMinistryFormComponent },
       // Future:
       // { path: 'users', component: SetupUsersComponent },
