@@ -47,6 +47,11 @@ import { PmDashboardComponent } from './components/pm-dashboard/pm-dashboard.com
 import { MinistryDashboardComponent } from './components/ministry-dashboard/ministry-dashboard.component';
 import { MinistryCorrespondenceHistoryComponent } from './components/ministry-correspondence-history/ministry-correspondence-history.component';
 import { provideHighcharts } from 'highcharts-angular';
+import { ManageServicesComponent } from './components/manage-services/manage-services.component';
+import { ServiceDialogComponent } from './components/reusable/service-dialog/service-dialog.component';
+import { ServiceDetailComponent } from './components/service-detail/service-detail.component';
+import { IntegrateApiDialogComponent } from './components/reusable/integrate-api-dialog/integrate-api-dialog.component';
+import { AddManualStepDialogComponent } from './components/reusable/add-manual-step-dialog/add-manual-step-dialog.component';
 
 @NgModule({
   declarations: [
@@ -74,6 +79,11 @@ import { provideHighcharts } from 'highcharts-angular';
     PmDashboardComponent,
     MinistryDashboardComponent,
     MinistryCorrespondenceHistoryComponent,
+    ManageServicesComponent,
+    ServiceDialogComponent,
+    ServiceDetailComponent,
+    IntegrateApiDialogComponent,
+    AddManualStepDialogComponent,
   ],
   imports: [
     BrowserModule,

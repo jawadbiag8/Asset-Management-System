@@ -18,6 +18,7 @@ export interface ReusableInputConfig {
   disabled: boolean; // Always boolean, never undefined
   rows?: number; // For textarea
   options?: ReusableInputOption[]; // For select
+  multiple?: boolean; // For select multi-choice
   errorMessages?: { [key: string]: string }; // Custom error messages
 }
 
@@ -36,6 +37,7 @@ export class ReusableInputComponent implements OnInit, OnDestroy, OnChanges {
   @Input() disabled?: boolean;
   @Input() rows?: number;
   @Input() options?: ReusableInputOption[];
+  @Input() multiple?: boolean;
   @Input() errorMessages?: { [key: string]: string };
   
   @Input() control!: FormControl;
@@ -74,6 +76,7 @@ export class ReusableInputComponent implements OnInit, OnDestroy, OnChanges {
       disabled: this.disabled ?? false,
       rows: this.rows,
       options: this.options,
+      multiple: this.multiple ?? false,
       errorMessages: this.errorMessages
     };
 
@@ -129,6 +132,9 @@ export class ReusableInputComponent implements OnInit, OnDestroy, OnChanges {
     }
     if (changes['errorMessages']) {
       this.mergedConfig.errorMessages = this.errorMessages;
+    }
+    if (changes['multiple']) {
+      this.mergedConfig.multiple = this.multiple ?? false;
     }
   }
 

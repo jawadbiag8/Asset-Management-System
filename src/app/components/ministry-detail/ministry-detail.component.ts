@@ -4,12 +4,22 @@ import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { HttpParams } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 import {
   TableConfig,
   TableColumn,
   FilterPill,
 } from '../reusable/reusable-table/reusable-table.component';
 import { ApiService, ApiResponse } from '../../services/api.service';
+import {
+  CreateServiceRequest,
+  MinistryServiceItem as ApiMinistryServiceItem,
+  MinistryServicesResponseData,
+} from '../../services/api.service';
+import {
+  ServiceDialogComponent,
+  ServiceDialogResult,
+} from '../reusable/service-dialog/service-dialog.component';
 
 export interface AssetDetail {
   id: number;
@@ -36,6 +46,24 @@ export interface AssetDetail {
   highSeverityIncidents: number | string;
 }
 
+interface MinistryServiceItem {
+  id: number;
+  serviceName: string;
+  description?: string;
+  serviceTypeId?: number | null;
+  serviceType: string;
+  serviceMode: string;
+  status: 'Active' | 'Inactive';
+  digitalMaturity: number | null;
+  digitalMaturityText: string;
+  assetIds?: number[];
+  assetsCount: number;
+  stepsCount: number;
+  createdAt: string;
+  createdBy: string;
+  assetId?: number | null;
+}
+
 @Component({
   selector: 'app-ministry-detail',
   standalone: false,
@@ -43,6 +71,87 @@ export interface AssetDetail {
   styleUrl: './ministry-detail.component.scss',
 })
 export class MinistryDetailComponent implements OnInit, OnDestroy {
+  readonly detailTabs = [
+    { id: 'assets', label: 'Assets' },
+    { id: 'services', label: 'Services' },
+  ] as const;
+  activeDetailTab = signal<'assets' | 'services'>('assets');
+  servicesSummaryCount = signal<number>(14);
+  serviceAssetOptions = signal<{ label: string; value: number }[]>([]);
+  serviceTypeOptions = signal<{ label: string; value: number }[]>([
+    { label: 'Citizen Facing', value: 32 },
+    { label: 'Internal', value: 33 },
+  ]);
+  servicesLoading = signal<boolean>(false);
+  servicesError = signal<string | null>(null);
+  servicesSummaryCards = signal([
+    {
+      id: 1,
+      value: '7',
+      title: 'Total Assets',
+      subTitle: 'Active monitoring across all departments',
+      linkText: 'View all >',
+      linkPath: '/asset',
+    },
+    {
+      id: 2,
+      value: '14',
+      title: 'Total Services',
+      subTitle: 'Incidents across all departments',
+      linkText: 'View all incidents >',
+      linkPath: '#',
+    },
+    {
+      id: 3,
+      value: '8',
+      title: 'Open Incidents',
+      subTitle: 'All incidents: 20',
+      linkText: 'View open incidents >',
+      linkPath: '/incidents',
+      linkQueryParams: { Status: 'Open' },
+    },
+    {
+      id: 4,
+      value: '2',
+      title: 'High Severity Open Incidents',
+      subTitle: 'Active High Severity Unresolved Incidents',
+      linkText: 'View Open High Severity Incidents >',
+      linkPath: '/incidents',
+      linkQueryParams: { SeverityId: 'P2', Status: 'Open' },
+    },
+  ]);
+  readonly activeSummaryCards = computed(() =>
+    this.activeDetailTab() === 'services' ? this.servicesSummaryCards() : this.summaryCards(),
+  );
+  readonly services = signal<MinistryServiceItem[]>([
+    {
+      id: 1,
+      serviceName: 'Service Name Here',
+      serviceType: 'Citizen Facing/Internal',
+      serviceMode: 'Manual',
+      status: 'Active',
+      digitalMaturity: 89,
+      digitalMaturityText: '89%',
+      assetsCount: 3,
+      stepsCount: 4,
+      createdAt: '01/01/2026',
+      createdBy: 'Username 123',
+    },
+    {
+      id: 2,
+      serviceName: 'Service Name Here',
+      serviceType: 'Citizen Facing/Internal',
+      serviceMode: 'Manual',
+      status: 'Inactive',
+      digitalMaturity: 29,
+      digitalMaturityText: '29%',
+      assetsCount: 3,
+      stepsCount: 4,
+      createdAt: '01/01/2026',
+      createdBy: 'Username 123',
+    },
+  ]);
+
   tableFilters = signal<FilterPill[]>([
     {
       id: 'status',
@@ -106,11 +215,11 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
     {
       id: 2,
       value: '0',
-      title: 'Total Incidents',
-      subTitle: 'Incidents Across All Departments',
-      linkText: 'View All Incidents >',
-      linkPath: '/incidents',
-      linkQueryParams: { MinistryId: '' },
+        title: 'Total Incidents',
+        subTitle: 'Incidents Across All Departments',
+        linkText: 'View All Incidents >',
+        linkPath: '/incidents',
+        linkQueryParams: { MinistryId: '' },
     },
     {
       id: 3,
@@ -145,6 +254,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private apiService: ApiService,
     private breadcrumbService: BreadcrumbService,
+    private dialog: MatDialog,
   ) {}
 
   tableConfig = signal<TableConfig>({
@@ -428,8 +538,13 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
         this.ministryId = +id;
         // Load summary cards data
         this.loadSummaryCards();
+        this.loadServices();
+        this.loadServiceAssetOptions();
         // Trigger initial load when ministryId is available
         // The table component will emit searchQuery on init, which will call loadAssets
+      }
+      if (params['tab'] === 'services') {
+        this.activeDetailTab.set('services');
       }
     });
   }
@@ -698,6 +813,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
             response.data,
           );
           this.assetDetails.set(assets);
+          this.setServiceAssetOptionsFromAssets(assets);
 
           // Set total items for pagination
           if (response.data?.totalCount !== undefined) {
@@ -991,5 +1107,257 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
   onAddAsset() {
     // Navigate to add digital assets page
     this.router.navigate(['/add-digital-assets']);
+  }
+
+  onAddService(): void {
+    this.openServiceDialog('create');
+  }
+
+  onEditService(service: MinistryServiceItem, event?: Event): void {
+    event?.stopPropagation();
+    this.openServiceDialog('edit', service);
+  }
+
+  /** Navigate to service analytics / detail (GET /Service/{id}). */
+  goToServiceDetail(service: MinistryServiceItem): void {
+    if (!this.ministryId) return;
+    this.router.navigate(['/service-detail'], {
+      queryParams: { serviceId: service.id, ministryId: this.ministryId },
+    });
+  }
+
+  private openServiceDialog(mode: 'create' | 'edit', service?: MinistryServiceItem): void {
+    const dialogRef = this.dialog.open(ServiceDialogComponent, {
+      panelClass: 'service-dialog-panel',
+      disableClose: true,
+      data: {
+        mode,
+        service: service
+          ? { ...service, assetIds: Array.isArray(service.assetIds) ? service.assetIds : [] }
+          : undefined,
+        assetOptions: this.serviceAssetOptions(),
+        serviceTypeOptions: this.serviceTypeOptions(),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result: ServiceDialogResult | null | undefined) => {
+      if (!result) return;
+      if (mode === 'create') {
+        this.createService(result);
+      } else if (service) {
+        this.updateService(service.id, result);
+      }
+
+    });
+  }
+
+  onDetailTabChange(tabId: 'assets' | 'services'): void {
+    this.activeDetailTab.set(tabId);
+    if (tabId === 'services' && this.services().length === 0 && !this.servicesLoading()) {
+      this.loadServices();
+    }
+  }
+
+  private loadServices(): void {
+    if (!this.ministryId) return;
+    this.servicesLoading.set(true);
+    this.servicesError.set(null);
+
+    this.apiService.getServicesByMinistry(this.ministryId).subscribe({
+      next: (response: ApiResponse<MinistryServicesResponseData>) => {
+        this.servicesLoading.set(false);
+        if (!response?.isSuccessful || !response?.data) {
+          this.servicesError.set(response?.message ?? 'Failed to load services');
+          this.services.set([]);
+          return;
+        }
+
+        const payload = response.data;
+        const rows = Array.isArray(payload?.data) ? payload.data : [];
+        this.services.set(rows.map((r) => this.mapServiceRow(r)));
+
+        const s = payload?.summary;
+        const totalServices = Number(s?.totalServices ?? rows.length ?? 0);
+        const totalMappedAssetsCount = Number(s?.totalMappedAssetsCount ?? 0);
+        const digitalServicePercentage = s?.digitalServicePercentage ?? '0.00%';
+        const overallSuccessRate = s?.overallSuccessRate ?? '0.00%';
+
+        this.servicesSummaryCards.set([
+          {
+            id: 1,
+            value: String(totalMappedAssetsCount),
+            title: 'Total Assets',
+            subTitle: 'Active monitoring across all departments',
+            linkText: 'View all >',
+            linkPath: '/asset',
+          },
+          {
+            id: 2,
+            value: String(totalServices),
+            title: 'Total Services',
+            subTitle: `Digital Services: ${digitalServicePercentage}`,
+            linkText: 'View all services >',
+            linkPath: '#',
+          },
+          {
+            id: 3,
+            value: overallSuccessRate,
+            title: 'Overall Success Rate',
+            subTitle: 'Aggregated completion across services',
+            linkText: 'View details >',
+            linkPath: '#',
+          },
+          {
+            id: 4,
+            value: digitalServicePercentage,
+            title: 'Digital Service %',
+            subTitle: 'Digital service coverage',
+            linkText: 'View details >',
+            linkPath: '#',
+          },
+        ]);
+      },
+      error: (err) => {
+        this.servicesLoading.set(false);
+        this.servicesError.set(err?.message ?? 'Failed to load services');
+        this.services.set([]);
+      },
+    });
+  }
+
+  private mapServiceRow(row: ApiMinistryServiceItem): MinistryServiceItem {
+    const mode = String(row.serviceModeName ?? '').toLowerCase();
+    const isActive = row.isActive ?? (mode.includes('digital') || mode.includes('automated'));
+    const maturityRaw = String(row.digitalServicePercentage ?? '').trim();
+    const parsedMaturity = Number(maturityRaw.replace('%', '').trim());
+    const hasMaturity =
+      maturityRaw !== '' &&
+      maturityRaw.toUpperCase() !== 'N/A' &&
+      Number.isFinite(parsedMaturity);
+    const createdAt = row.createdAt
+      ? new Date(row.createdAt).toLocaleDateString('en-GB')
+      : 'N/A';
+
+    return {
+      id: Number(row.id ?? 0),
+      serviceName: row.serviceName ?? 'N/A',
+      serviceTypeId: row.serviceTypeId ?? null,
+      serviceType: row.serviceTypeName ?? 'N/A',
+      serviceMode: row.serviceModeName ?? 'N/A',
+      status: isActive ? 'Active' : 'Inactive',
+      digitalMaturity: hasMaturity ? Math.max(0, Math.min(100, parsedMaturity)) : null,
+      digitalMaturityText: hasMaturity ? `${Math.max(0, Math.min(100, parsedMaturity))}%` : 'N/A',
+      assetIds: Array.isArray(row.assetIds)
+        ? row.assetIds.map((x) => Number(x)).filter((x) => Number.isFinite(x) && x > 0)
+        : [],
+      assetsCount: Number(row.assetCount ?? 0),
+      stepsCount: Number(row.stepCount ?? 0),
+      createdAt,
+      createdBy: row.createdBy ?? 'N/A',
+      description: row.description ?? '',
+    };
+  }
+
+  private loadServiceAssetOptions(): void {
+    const currentAssets = this.assetDetails();
+    if (Array.isArray(currentAssets) && currentAssets.length > 0) {
+      this.setServiceAssetOptionsFromAssets(currentAssets);
+      return;
+    }
+    if (!this.ministryId) return;
+    const params = new HttpParams().set('PageNumber', '1').set('PageSize', '300');
+    this.apiService.getAssestByMinistry(params, this.ministryId).subscribe({
+      next: (response: ApiResponse<any>) => {
+        const rows = Array.isArray(response?.data?.data)
+          ? response.data.data
+          : Array.isArray(response?.data)
+            ? response.data
+            : [];
+        const options = rows
+          .map((a: any) => ({
+            label: String(a.assetName ?? a.websiteApplication ?? a.name ?? '').trim(),
+            value: Number(a.id ?? a.assetId),
+          }))
+          .filter(
+            (x: { label: string; value: number }) =>
+              !!x.label &&
+              Number.isFinite(x.value) &&
+              x.value > 0 &&
+              x.label.toLowerCase() !== 'select assets',
+          );
+        this.serviceAssetOptions.set(options);
+      },
+      error: () => {
+        this.serviceAssetOptions.set([]);
+      },
+    });
+  }
+
+  private setServiceAssetOptionsFromAssets(assets: AssetDetail[]): void {
+    const options = assets
+      .map((a) => ({
+        label: String(a.websiteName ?? '').trim(),
+        value: Number(a.id),
+      }))
+      .filter(
+        (x) =>
+          !!x.label &&
+          Number.isFinite(x.value) &&
+          x.value > 0 &&
+          x.label.toLowerCase() !== 'select assets',
+      );
+    const unique = new Map<number, { label: string; value: number }>();
+    options.forEach((o) => unique.set(o.value, o));
+    this.serviceAssetOptions.set(Array.from(unique.values()));
+  }
+
+  private createService(result: ServiceDialogResult): void {
+    if (!this.ministryId) return;
+    const payload: CreateServiceRequest = {
+      ministryId: this.ministryId,
+      serviceName: result.serviceName,
+      description: result.description,
+      serviceTypeId: result.serviceTypeId,
+      assetIds: Array.isArray(result.assetIds) ? result.assetIds.map((x) => Number(x)) : [],
+      manualSteps: [],
+    };
+
+    this.apiService.createService(payload).subscribe({
+      next: (response: ApiResponse<any>) => {
+        if (!response?.isSuccessful) {
+          this.servicesError.set(response?.message ?? 'Failed to create service');
+          return;
+        }
+        this.loadServices();
+      },
+      error: (err) => {
+        this.servicesError.set(err?.message ?? 'Failed to create service');
+      },
+    });
+  }
+
+  private updateService(serviceId: number, result: ServiceDialogResult): void {
+    if (!this.ministryId) return;
+    const payload: CreateServiceRequest = {
+      ministryId: this.ministryId,
+      serviceName: result.serviceName,
+      description: result.description,
+      serviceTypeId: result.serviceTypeId,
+      assetIds: Array.isArray(result.assetIds) ? result.assetIds.map((x) => Number(x)) : [],
+      manualSteps: [],
+    };
+
+    this.apiService.updateService(serviceId, payload).subscribe({
+      next: (response: ApiResponse<any>) => {
+        if (!response?.isSuccessful) {
+          this.servicesError.set(response?.message ?? 'Failed to update service');
+          return;
+        }
+        this.loadServices();
+      },
+      error: (err) => {
+        this.servicesError.set(err?.message ?? 'Failed to update service');
+      },
+    });
   }
 }

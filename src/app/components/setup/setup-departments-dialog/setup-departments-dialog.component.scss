@@ -197,6 +197,12 @@
   cursor: pointer;
   display: grid;
   place-items: center;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
 }
 
 .state {

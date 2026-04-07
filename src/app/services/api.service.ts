@@ -166,6 +166,161 @@ export interface MinistryCorrespondenceItem {
   updatedBy?: string;
 }
 
+export interface MinistryServiceSummary {
+  totalServices: number;
+  totalMappedAssetsCount: number;
+  overallSuccessRate: string;
+  digitalServicePercentage: string;
+}
+
+export interface MinistryServiceItem {
+  id: number;
+  ministryId: number;
+  ministryName: string;
+  serviceName: string;
+  description?: string;
+  serviceTypeId?: number;
+  serviceTypeName?: string;
+  serviceModeId?: number;
+  serviceModeName?: string;
+  assetIds?: number[];
+  assetCount?: number;
+  stepCount?: number;
+  digitalServicePercentage?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
+export interface MinistryServicesResponseData {
+  summary?: MinistryServiceSummary;
+  data?: MinistryServiceItem[];
+  totalCount?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  totalPages?: number;
+  hasPreviousPage?: boolean;
+  hasNextPage?: boolean;
+}
+
+export interface CreateServiceManualStep {
+  stepName: string;
+  description: string;
+}
+
+export interface CreateServiceRequest {
+  ministryId: number;
+  serviceName: string;
+  description: string;
+  serviceTypeId: number;
+  assetIds: number[];
+  manualSteps: CreateServiceManualStep[];
+}
+
+/** GET /Service/{id} — full service detail with steps and metrics. */
+export interface ServiceSummary {
+  totalForms: number;
+  linkedAssets: number;
+  totalOccurrences: number;
+  successRate: string;
+  digitalPercentage: string;
+}
+
+export interface ServiceStepMetricByAsset {
+  assetId: number;
+  assetName: string;
+  occurrences: number;
+  successRate: string;
+}
+
+export interface ServiceStepMetrics {
+  overallOccurrences: number;
+  avgTimeMs: string;
+  overallSuccessRate: string;
+  lastEventAt: string | null;
+  byAsset: ServiceStepMetricByAsset[];
+}
+
+export interface ServiceStepItem {
+  id: number;
+  stepName: string;
+  description?: string;
+  /** Present when API returns step ordering (edit / placement). */
+  displayOrder?: number;
+  isManual: boolean;
+  metrics: ServiceStepMetrics;
+}
+
+export interface ServiceDetailAsset {
+  assetId: number;
+  assetName: string;
+  assetUrl: string;
+}
+
+export interface ServiceDetailData {
+  summary: ServiceSummary;
+  id: number;
+  isActive: boolean;
+  ministryId: number;
+  ministryName: string;
+  serviceName: string;
+  description?: string;
+  serviceTypeId?: number;
+  serviceTypeName?: string;
+  serviceModeId?: number;
+  serviceModeName?: string;
+  assetIds?: number[];
+  assets?: ServiceDetailAsset[];
+  steps: ServiceStepItem[];
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
+/** GET /Service/{id}/steps/{stepName}/events/metrics */
+export interface ServiceStepEventMetricRow {
+  eventName: string;
+  totalOccurrences: number;
+  startedCount: number;
+  submittedCount: number;
+  avgTimeMs: string;
+  successRate: string;
+}
+
+export interface ServiceStepEventMetricsData {
+  stepName: string;
+  byEventName?: ServiceStepEventMetricRow[];
+  byEventType?: ServiceStepEventMetricRow[];
+}
+
+/** GET /Service/{id}/steps/order-limits */
+export interface ServiceStepOrderLimitsData {
+  mergedStepCount: number;
+  minDisplayOrder: number;
+  maxAvailableDisplayOrder: number;
+}
+
+/** POST /Service/{id}/steps — add manual step(s) */
+export interface PostServiceManualStepItem {
+  stepName: string;
+  description: string;
+  displayOrder: number;
+}
+
+export interface PostServiceStepsRequest {
+  steps: PostServiceManualStepItem[];
+}
+
+/** PUT /Service/{serviceId}/steps/{stepId} */
+export interface PutServiceStepRequest {
+  stepName: string;
+  description: string;
+  displayOrder: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -701,6 +856,142 @@ export class ApiService {
       params: searchQuery,
     });
   }
+
+  /**
+   * GET /Service?MinistryId={id}
+   */
+  getServicesByMinistry(
+    ministryId: number,
+    searchQuery?: HttpParams,
+  ): Observable<ApiResponse<MinistryServicesResponseData>> {
+    let params = searchQuery ?? new HttpParams();
+    params = params.set('MinistryId', String(ministryId));
+    return this.http.get<ApiResponse<MinistryServicesResponseData>>(
+      `${this.baseUrl}/Service`,
+      {
+        params,
+        headers: { Accept: 'text/plain' },
+      },
+    );
+  }
+
+  /**
+   * POST /Service
+   */
+  createService(payload: CreateServiceRequest): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Service`, payload, {
+      headers: { Accept: 'text/plain', 'Content-Type': 'application/json' },
+    });
+  }
+
+  /**
+   * PUT /Service/{id}
+   */
+  updateService(serviceId: number, payload: CreateServiceRequest): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/Service/${serviceId}`, payload, {
+      headers: { Accept: 'text/plain', 'Content-Type': 'application/json' },
+    });
+  }
+
+  /**
+   * GET /Service/{id}
+   */
+  getServiceById(serviceId: number): Observable<ApiResponse<ServiceDetailData>> {
+    return this.http.get<ApiResponse<ServiceDetailData>>(`${this.baseUrl}/Service/${serviceId}`, {
+      headers: { Accept: 'text/plain' },
+    });
+  }
+
+  /**
+   * GET /Service/{serviceId}/steps/{stepName}/events/metrics
+   */
+  getServiceStepEventMetrics(
+    serviceId: number,
+    stepName: string,
+  ): Observable<ApiResponse<ServiceStepEventMetricsData>> {
+    const encoded = encodeURIComponent(stepName);
+    return this.http.get<ApiResponse<ServiceStepEventMetricsData>>(
+      `${this.baseUrl}/Service/${serviceId}/steps/${encoded}/events/metrics`,
+      { headers: { Accept: 'text/plain' } },
+    );
+  }
+
+  /**
+   * GET /Service/{serviceId}/steps/order-limits
+   */
+  getServiceStepOrderLimits(serviceId: number): Observable<ApiResponse<ServiceStepOrderLimitsData>> {
+    return this.http.get<ApiResponse<ServiceStepOrderLimitsData>>(
+      `${this.baseUrl}/Service/${serviceId}/steps/order-limits`,
+      { headers: { Accept: 'text/plain' } },
+    );
+  }
+
+  /**
+   * POST /Service/{serviceId}/steps
+   */
+  postServiceSteps(
+    serviceId: number,
+    payload: PostServiceStepsRequest,
+  ): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Service/${serviceId}/steps`, payload, {
+      headers: { Accept: 'text/plain', 'Content-Type': 'application/json' },
+    });
+  }
+
+  /**
+   * PUT /Service/{serviceId}/steps/{stepId}
+   */
+  putServiceStep(
+    serviceId: number,
+    stepId: number,
+    payload: PutServiceStepRequest,
+  ): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(
+      `${this.baseUrl}/Service/${serviceId}/steps/${stepId}`,
+      payload,
+      { headers: { Accept: 'text/plain', 'Content-Type': 'application/json' } },
+    );
+  }
+
+  /**
+   * POST /service-correspondance/keys?downloadPdf={bool}
+   * Body: { assetId }
+   */
+  postServiceCorrespondenceKeys(
+    assetId: number,
+    downloadPdf: boolean = false,
+  ): Observable<ApiResponse<any>> {
+    const params = new HttpParams().set('downloadPdf', String(downloadPdf));
+    return this.http.post<ApiResponse<any>>(
+      `${this.baseUrl}/service-correspondance/keys`,
+      { assetId },
+      {
+        params,
+        headers: { Accept: '*/*', 'Content-Type': 'application/json' },
+      },
+    );
+  }
+
+  /**
+   * Same as POST /service-correspondance/keys but returns raw body as Blob (for PDF/file in new tab).
+   */
+  postServiceCorrespondenceKeysBlob(
+    assetId: number,
+    downloadPdf: boolean = true,
+  ): Observable<HttpResponse<Blob>> {
+    const params = new HttpParams().set('downloadPdf', String(downloadPdf));
+    return this.http.post(
+      `${this.baseUrl}/service-correspondance/keys`,
+      { assetId },
+      {
+        params,
+        headers: { Accept: '*/*', 'Content-Type': 'application/json' },
+        responseType: 'blob',
+        observe: 'response',
+      },
+    );
+  }
+
   getIncidentById(incidentId: number): Observable<ApiResponse<any>> {
     let url = `${this.baseUrl}/Incident/${incidentId}`;
     return this.http.get<ApiResponse<any>>(url);

@@ -1,0 +1,51 @@
+<div class="service-dialog">
+  <div class="dialog-header">
+    <h2>{{ data.mode === 'create' ? 'Add a New Service' : 'Edit Service' }}</h2>
+    <button type="button" class="close-btn" (click)="onClose()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="fields">
+      <app-reusable-input
+        label="Service Name"
+        type="text"
+        placeholder="Service Name"
+        [control]="getControl('serviceName')">
+      </app-reusable-input>
+
+      <app-reusable-input
+        label="Service Description"
+        type="textarea"
+        placeholder="Service Description"
+        [rows]="3"
+        [control]="getControl('description')">
+      </app-reusable-input>
+
+      <app-reusable-input
+        label="Service Type"
+        type="select"
+        placeholder="Select Service Type"
+        [options]="data.serviceTypeOptions"
+        [control]="getControl('serviceTypeId')">
+      </app-reusable-input>
+
+      <app-reusable-input
+        label="Assets"
+        type="select"
+        placeholder="Select Asset"
+        [multiple]="true"
+        [options]="data.assetOptions"
+        [control]="getControl('assetIds')">
+      </app-reusable-input>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-cancel" (click)="onClose()">Cancel</button>
+      <button type="submit" class="btn-submit">
+        {{ data.mode === 'create' ? 'Add Service' : 'Update Service' }}
+      </button>
+    </div>
+  </form>
+</div>

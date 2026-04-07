@@ -1333,6 +1333,32 @@ table th,
   text-transform: capitalize;
 }
 
+/* Theme scrollbar for dropdown panels */
+.mat-mdc-select-panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(13, 148, 136, 0.9) rgba(255, 255, 255, 0.08);
+}
+
+.mat-mdc-select-panel::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.mat-mdc-select-panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.mat-mdc-select-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #14b8a6 0%, #0f766e 100%);
+  border: 2px solid rgba(8, 20, 22, 0.9);
+  border-radius: 10px;
+}
+
+.mat-mdc-select-panel::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2dd4bf 0%, #0d9488 100%);
+}
+
 /* mat-select trigger: show selected value capitalized */
 .mat-mdc-select-value,
 .mat-mdc-select .mat-mdc-select-value-text {
@@ -1402,7 +1428,7 @@ select option {
   }
 
   .mat-select-search-input {
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: #111111 !important;
     color: #e6edf3 !important;
     caret-color: #008080;
 
@@ -1471,7 +1497,7 @@ select option {
   }
 
   .mat-select-search-input {
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: #111111 !important;
   }
 
   input,
@@ -1496,8 +1522,14 @@ select option {
     color: rgba(255, 255, 255, 0.65) !important;
   }
 
-  .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after {
-    border-color: #008080 !important;
+  .mat-pseudo-checkbox-minimal,
+  .mat-mdc-option-pseudo-checkbox {
+    color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after,
+  .mat-mdc-option-pseudo-checkbox.mat-pseudo-checkbox-checked::after {
+    border-color: #ffffff !important;
   }
 
   .mat-icon {
@@ -1551,7 +1583,7 @@ select option {
   }
 }
 .filter-modal-select-panel.mat-mdc-select-panel .mat-select-search-input {
-  background: var(--color-bg-dark) !important;
+  background: #111111 !important;
 }
 
 /* Reports page – category dropdown panel: dark theme, teal highlight on selected/hover (image style) */
@@ -1581,11 +1613,11 @@ select option {
 
     .mat-pseudo-checkbox-minimal,
     .mat-mdc-option-pseudo-checkbox {
-      color: #0d9488 !important;
+      color: rgba(255, 255, 255, 0.95) !important;
     }
     .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after,
     .mat-mdc-option-pseudo-checkbox.mat-pseudo-checkbox-checked::after {
-      border-color: #0d9488 !important;
+      border-color: #ffffff !important;
     }
 
     /* Selected: teal/cyan background */
@@ -1613,11 +1645,38 @@ select option {
     margin: 8px;
   }
   .mat-select-search-input {
-    background: rgba(255, 255, 255, 0.08) !important;
+    background: #111111 !important;
     color: #e6edf3 !important;
     caret-color: #0d9488;
   }
   .mat-select-search-input::placeholder {
     color: rgba(255, 255, 255, 0.5) !important;
+  }
+}
+
+.service-dialog-panel {
+  .mat-mdc-dialog-surface {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+}
+
+.integrate-api-dialog-panel {
+  .mat-mdc-dialog-surface {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+}
+
+.add-manual-step-dialog-panel {
+  .mat-mdc-dialog-surface {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
   }
 }

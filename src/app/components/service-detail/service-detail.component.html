@@ -1,0 +1,176 @@
+<div class="service-detail-page container-fluid p-4">
+  @if (loading()) {
+    <div class="state-msg">Loading service…</div>
+  } @else if (error()) {
+    <div class="state-msg state-msg--error">{{ error() }}</div>
+    <button type="button" class="btn-outline" (click)="goBackToMinistry()">Back to ministry</button>
+  } @else if (detail()) {
+    @let d = detail()!;
+
+    <div class="page-head">
+      <div class="page-head-text">
+        <h1 class="page-title">Service Detail Page</h1>
+        <p class="page-sub">
+          {{ d.serviceName }}
+          @if (d.ministryName) {
+            <span class="page-sub-sep">·</span>
+            <span>{{ d.ministryName }}</span>
+          }
+        </p>
+      </div>
+      <div class="page-head-actions">
+        <button type="button" class="btn-outline" (click)="goToAddManualStep()">Add Manual Step</button>
+        <button type="button" class="btn-primary" (click)="onIntegrateApis()">
+          <mat-icon class="btn-icon">code</mat-icon>
+          Integrate API's
+        </button>
+      </div>
+    </div>
+
+    <div class="summary-grid-outer">
+      <div class="summary-grid">
+        @for (card of summaryCards(); track card.title) {
+          <article class="summary-card">
+            <div class="summary-card-value">{{ card.value }}</div>
+            <h3 class="summary-card-title">{{ card.title }}</h3>
+            <p class="summary-card-desc">{{ card.subTitle }}</p>
+            <div class="summary-card-rule"></div>
+            <button type="button" class="summary-card-link">View details</button>
+          </article>
+        }
+      </div>
+    </div>
+
+    <div class="steps-list">
+      @for (step of steps(); track step.id; let i = $index) {
+        <div class="step-block" [class.step-block--manual]="step.isManual">
+          <div
+            class="step-header"
+            role="button"
+            tabindex="0"
+            (click)="onStepHeaderClick(step, $event)"
+            (keydown.enter)="toggleStep(step)"
+            (keydown.space)="$event.preventDefault(); toggleStep(step)"
+            [attr.aria-expanded]="isExpanded(step.id)">
+            <div class="step-header-row">
+              <div class="step-header-main">
+                <span class="step-heading">{{ stepTitle(step, i) }}</span>
+              </div>
+
+              <div
+                class="step-header-metrics-row"
+                [class.step-header-metrics-row--manual]="step.isManual">
+                @if (!step.isManual) {
+                  <div class="header-metric-block">
+                    <span class="header-metric-label">Occurrence</span>
+                    <span class="header-metric-value">{{ step.metrics.overallOccurrences }}</span>
+                  </div>
+
+                  @if (step.metrics.byAsset.length) {
+                    @for (a of step.metrics.byAsset; track a.assetId; let ai = $index) {
+                      <span class="header-metric-sep" aria-hidden="true"></span>
+                      <div class="header-metric-block header-metric-block--asset">
+                        <span class="header-metric-label">{{ a.assetName }}</span>
+                        <div class="header-metric-bar-line">
+                          <div class="header-bar-track">
+                            <div
+                              class="header-bar-fill"
+                              [class.header-bar-fill--amber]="ai % 2 === 0"
+                              [class.header-bar-fill--green]="ai % 2 !== 0"
+                              [style.width.%]="parsePercentWidth(a.successRate)"></div>
+                          </div>
+                          <span class="header-bar-pct">{{ a.successRate }}</span>
+                        </div>
+                      </div>
+                    }
+                  }
+
+                  <span class="header-metric-sep" aria-hidden="true"></span>
+
+                  <div class="header-metric-block header-metric-block--completion">
+                    <span class="header-metric-label">Completion rate</span>
+                    <div class="header-metric-bar-line">
+                      <div class="header-bar-track header-bar-track--wide">
+                        <div
+                          class="header-bar-fill header-bar-fill--completion"
+                          [style.width.%]="parsePercentWidth(step.metrics.overallSuccessRate)"></div>
+                      </div>
+                      <span class="header-bar-pct header-bar-pct--completion">{{
+                        step.metrics.overallSuccessRate
+                      }}</span>
+                    </div>
+                  </div>
+
+                  <span class="header-metric-sep" aria-hidden="true"></span>
+                }
+
+                <button
+                  type="button"
+                  class="step-edit-btn"
+                  (click)="onEditStep(step, i, $event)"
+                  aria-label="Edit step">
+                  <mat-icon class="step-edit-btn__icon" aria-hidden="true">edit</mat-icon>
+                  <span class="step-edit-btn__label">Edit</span>
+                </button>
+              </div>
+
+              <mat-icon class="chevron" aria-hidden="true">{{
+                isExpanded(step.id) ? 'expand_less' : 'expand_more'
+              }}</mat-icon>
+            </div>
+          </div>
+
+          @if (isExpanded(step.id)) {
+            <div class="step-body">
+              <div class="step-table-panel">
+                <table class="step-table">
+                  <thead>
+                    <tr>
+                      <th>Event Name</th>
+                      <th>Occurrences</th>
+                      <th>Started</th>
+                      <th>Submitted</th>
+                      <th>Avg. Time</th>
+                      <th class="text-end">Success Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @if (isStepEventsLoading(step.id)) {
+                      <tr>
+                        <td colspan="6" class="cell-muted">Loading events…</td>
+                      </tr>
+                    } @else if (getStepEventError(step.id)) {
+                      <tr>
+                        <td colspan="6" class="cell-error">{{ getStepEventError(step.id) }}</td>
+                      </tr>
+                    } @else if (getStepEventRows(step.id).length === 0) {
+                      <tr>
+                        <td colspan="6" class="cell-muted">No event metrics for this step.</td>
+                      </tr>
+                    } @else {
+                      @for (ev of getStepEventRows(step.id); track ev.eventName + '-' + $index) {
+                        <tr>
+                          <td>
+                            <div class="event-name-cell">
+                              <span class="event-num">{{ $index + 1 }}</span>
+                              <span class="event-text">{{ formatEventName(ev.eventName) }}</span>
+                            </div>
+                          </td>
+                          <td>{{ ev.totalOccurrences | number }}</td>
+                          <td>{{ ev.startedCount | number }}</td>
+                          <td>{{ ev.submittedCount | number }}</td>
+                          <td>{{ formatAvgTime(ev.avgTimeMs) }}</td>
+                          <td class="cell-success text-end">{{ ev.successRate }}</td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

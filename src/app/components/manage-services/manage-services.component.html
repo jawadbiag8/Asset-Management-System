@@ -1,0 +1,95 @@
+<div class="manage-services-page container-fluid p-4">
+  <div class="row">
+    <div class="col-md-3 col-sm-12"></div>
+    <div class="col-md-6 col-sm-12">
+      <div class="page-header mb-4">
+        <h1 class="page-title">{{ pageTitle() }}</h1>
+        <p class="page-subtitle">{{ pageSubtitle() }}</p>
+      </div>
+
+      <div class="form-card">
+        <form [formGroup]="serviceForm" (ngSubmit)="onCreateService()">
+          <div class="form-section">
+            <h2 class="section-title">Service Information</h2>
+            <div class="row g-3 mt-2">
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Service Name"
+                  type="text"
+                  placeholder="Enter service name"
+                  [control]="getControl('serviceName')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Status"
+                  type="select"
+                  placeholder="Select status"
+                  [options]="statusOptions"
+                  [control]="getControl('status')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Service Type"
+                  type="select"
+                  placeholder="Select type"
+                  [options]="serviceTypeOptions"
+                  [control]="getControl('serviceType')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Service Mode"
+                  type="select"
+                  placeholder="Select mode"
+                  [options]="serviceModeOptions"
+                  [control]="getControl('serviceMode')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-4">
+                <app-reusable-input
+                  label="Assets Count"
+                  type="number"
+                  placeholder="0"
+                  [control]="getControl('assetsCount')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-4">
+                <app-reusable-input
+                  label="Steps Count"
+                  type="number"
+                  placeholder="0"
+                  [control]="getControl('stepsCount')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-4">
+                <app-reusable-input
+                  label="Digital Maturity (%)"
+                  type="number"
+                  placeholder="0-100"
+                  [control]="getControl('digitalMaturity')">
+                </app-reusable-input>
+              </div>
+              <div class="col-md-12">
+                <app-reusable-input
+                  label="Description"
+                  type="textarea"
+                  placeholder="Write service description"
+                  [rows]="4"
+                  [control]="getControl('description')">
+                </app-reusable-input>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Service</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-12"></div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="manual-step-dialog">
+  <div class="dialog-header">
+    <h2>{{ dialogTitle }}</h2>
+    <button type="button" class="close-btn" (click)="onClose()" [disabled]="submitting" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="fields">
+      <app-reusable-input
+        label="Step Name"
+        type="text"
+        placeholder="Step Name"
+        [control]="getControl('stepName')">
+      </app-reusable-input>
+
+      <app-reusable-input
+        label="Step Placement"
+        type="select"
+        placeholder="Step Placement"
+        [options]="placementSelectOptions"
+        [control]="getControl('displayOrder')">
+      </app-reusable-input>
+
+      <app-reusable-input
+        label="Step Description"
+        type="textarea"
+        placeholder="Step Description"
+        [rows]="3"
+        [control]="getControl('description')">
+      </app-reusable-input>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-cancel" (click)="onClose()" [disabled]="submitting">Cancel</button>
+      <button type="submit" class="btn-submit" [disabled]="submitting">{{ submitLabel }}</button>
+    </div>
+  </form>
+</div>

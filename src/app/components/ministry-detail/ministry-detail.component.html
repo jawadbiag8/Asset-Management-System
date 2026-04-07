@@ -1,15 +1,33 @@
 <div class="ministry-detail-page container-fluid p-4">
   <div class="page-header">
     <h1 class="digitalAssetsTitle">{{ ministryName() }}</h1>
-    <button class="btn-add-asset" (click)="onAddAsset()">
-      <mat-icon>add</mat-icon>
-      Add Digital Asset
-    </button>
+    <div class="page-header-actions">
+      <button class="btn-add-service" (click)="onAddService()">Add New Service</button>
+      <button class="btn-add-asset" (click)="onAddAsset()">
+        <mat-icon>add</mat-icon>
+        Add Digital Assets
+      </button>
+    </div>
+  </div>
+
+  <div class="detail-tabs-wrap">
+    <div class="detail-tabs">
+      @for (tab of detailTabs; track tab.id) {
+        <button
+          type="button"
+          class="detail-tab-btn"
+          [class.detail-tab-btn--active]="activeDetailTab() === tab.id"
+          (click)="onDetailTabChange(tab.id)"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </div>
   </div>
 
   <!-- Summary Cards Section -->
   <div class="summary-cards-section">
-    @for (card of summaryCards(); track card.id) {
+    @for (card of activeSummaryCards(); track card.id) {
       <div class="summary-card">
         <div class="card-content">
           <h2 class="card-value">{{ card.value }}</h2>
@@ -27,14 +45,95 @@
     }
   </div>
 
-  <div id="assets-table" class="dashboard-table-section">
-    <div class="table-section-card">
-      <app-reusable-table
-        [config]="tableConfigWithData()"
-        [filters]="tableFilters()"
-        [totalItems]="totalItems()"
-        (searchQuery)="loadAssets($event)"
-      ></app-reusable-table>
+  @if (activeDetailTab() === 'assets') {
+    <div id="assets-table" class="dashboard-table-section">
+      <div class="table-section-card">
+        <app-reusable-table
+          [config]="tableConfigWithData()"
+          [filters]="tableFilters()"
+          [totalItems]="totalItems()"
+          (searchQuery)="loadAssets($event)"
+        ></app-reusable-table>
+      </div>
     </div>
-  </div>
+  } @else {
+    <div class="services-tab-panel">
+      <div class="services-panel-header">All Services</div>
+      @if (servicesLoading()) {
+        <div class="services-state">Loading services...</div>
+      } @else if (servicesError()) {
+        <div class="services-state services-state--error">{{ servicesError() }}</div>
+      } @else if (services().length === 0) {
+        <div class="services-state">No services found.</div>
+      } @else {
+        <div class="services-list">
+          @for (service of services(); track service.id) {
+            <div class="service-card" (click)="goToServiceDetail(service)" (keydown.enter)="goToServiceDetail(service)" tabindex="0" role="link">
+              <div class="service-meta-grid">
+                <div class="meta-item">
+                  <div class="meta-label">SERVICE NAME</div>
+                  <div class="meta-value">{{ service.serviceName }}</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">SERVICE TYPE</div>
+                  <div class="meta-value">{{ service.serviceType }}</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">SERVICE MODE</div>
+                  <div class="meta-value">{{ service.serviceMode }}</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">STATUS</div>
+                  <div
+                    class="status-pill"
+                    [class.status-pill--active]="service.status === 'Active'"
+                    [class.status-pill--inactive]="service.status !== 'Active'">
+                    {{ service.status }}
+                  </div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">DIGITAL MATURITY</div>
+                  <div class="maturity-wrap">
+                    @if (service.digitalMaturity != null) {
+                      <div class="maturity-track">
+                        <div
+                          class="maturity-fill"
+                          [class.maturity-fill--active]="service.status === 'Active'"
+                          [class.maturity-fill--inactive]="service.status !== 'Active'"
+                          [style.width.%]="service.digitalMaturity"></div>
+                      </div>
+                    }
+                    <span class="maturity-value">{{ service.digitalMaturityText }}</span>
+                  </div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">ASSETS COUNT</div>
+                  <div class="meta-value">{{ service.assetsCount }}</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">STEPS COUNT</div>
+                  <div class="meta-value">{{ service.stepsCount }}</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">CREATED AT</div>
+                  <div class="meta-value">{{ service.createdAt }}</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">CREATED BY</div>
+                  <div class="meta-value">{{ service.createdBy }}</div>
+                </div>
+                <button
+                  type="button"
+                  class="service-action-btn"
+                  aria-label="Edit service"
+                  (click)="onEditService(service, $event)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
 </div>

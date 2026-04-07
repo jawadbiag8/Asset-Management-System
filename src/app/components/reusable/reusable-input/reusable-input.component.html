@@ -4,13 +4,13 @@
     </mat-label>
 
     @if(mergedConfig.type === 'select') {
-    <mat-select [formControl]="control" [placeholder]="mergedConfig.placeholder || ''" #singleSelect
+    <mat-select [formControl]="control" [placeholder]="mergedConfig.placeholder || ''" [multiple]="mergedConfig.multiple === true" #singleSelect
             panelClass="reusable-input-select-panel">
         <mat-option>
             <ngx-mat-select-search [formControl]="filterControl"
                 [placeholderLabel]="'Search...'"></ngx-mat-select-search>
         </mat-option>
-        @if(!mergedConfig.required) {
+        @if(!mergedConfig.required && mergedConfig.multiple !== true) {
         <mat-option value="">Select {{ mergedConfig.label }}</mat-option>
         }
         @if((filteredOptions | async)?.length === 0) {

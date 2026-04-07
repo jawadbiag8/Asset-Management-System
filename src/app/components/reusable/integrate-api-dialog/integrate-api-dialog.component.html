@@ -1,0 +1,35 @@
+<div class="integrate-api-dialog">
+  <div class="integrate-api-header">
+    <h2 class="integrate-api-title">Integrate API's</h2>
+    <button type="button" class="integrate-api-close" (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="integrate-api-rule"></div>
+
+  <div class="integrate-api-body">
+    @if (!data.assets.length) {
+      <p class="integrate-api-empty">No assets are linked to this service.</p>
+    } @else {
+      <ul class="integrate-api-list">
+        @for (asset of data.assets; track asset.assetId) {
+          <li class="integrate-api-row">
+            <span class="integrate-api-name">{{ asset.assetName }}</span>
+            <button
+              type="button"
+              class="integrate-api-download"
+              [disabled]="isDownloading(asset)"
+              (click)="onDownloadKeys(asset)"
+              title="Download integration keys">
+              @if (isDownloading(asset)) {
+                <mat-icon class="integrate-api-spin">hourglass_empty</mat-icon>
+              } @else {
+                <mat-icon>download</mat-icon>
+              }
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>

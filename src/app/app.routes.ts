@@ -22,6 +22,8 @@ import { SetupConfigurationsComponent } from './components/setup/setup-configura
 import { SetupMinistriesComponent } from './components/setup/setup-ministries/setup-ministries.component';
 import { SetupMinistryFormComponent } from './components/setup/setup-ministry-form/setup-ministry-form.component';
 import { SetupMinistryHistoryComponent } from './components/setup/setup-ministry-history/setup-ministry-history.component';
+import { ManageServicesComponent } from './components/manage-services/manage-services.component';
+import { ServiceDetailComponent } from './components/service-detail/service-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -68,6 +70,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'service-detail',
+    component: ServiceDetailComponent,
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'view-assets-detail',
     component: ViewAssetsDetailComponent,
     canActivate: [AuthGuard],
@@ -83,6 +90,11 @@ export const routes: Routes = [
     component: ManageDigitalAssetsComponent,
     canActivate: [AuthGuard],
     canDeactivate: [CanDeactivateGuard],
+  },
+  {
+    path: 'add-new-service',
+    component: ManageServicesComponent,
+    canActivate: [AuthGuard],
   },
   {
     path: 'incidents',
