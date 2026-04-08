@@ -82,28 +82,28 @@
       <div class="grid grid-four">
         <mat-form-field class="field mat-field" appearance="outline">
           <mat-label>Name</mat-label>
-          <input matInput type="text" formControlName="contactName" placeholder="Name *" />
+          <input matInput type="text" formControlName="contactName" placeholder="Name" />
           @if (hasControlError('contactName')) {
             <mat-error>{{ getControlError('contactName', 'Name') }}</mat-error>
           }
         </mat-form-field>
         <mat-form-field class="field mat-field" appearance="outline">
           <mat-label>Phone</mat-label>
-          <input matInput type="text" formControlName="contactPhone" placeholder="Phone *" />
+          <input matInput type="text" formControlName="contactPhone" placeholder="Phone" />
           @if (hasControlError('contactPhone')) {
             <mat-error>{{ getControlError('contactPhone', 'Phone') }}</mat-error>
           }
         </mat-form-field>
         <mat-form-field class="field mat-field" appearance="outline">
           <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="contactEmail" placeholder="Email *" />
+          <input matInput type="email" formControlName="contactEmail" placeholder="Email" />
           @if (hasControlError('contactEmail')) {
             <mat-error>{{ getControlError('contactEmail', 'Email') }}</mat-error>
           }
         </mat-form-field>
         <mat-form-field class="field mat-field" appearance="outline">
           <mat-label>Designation</mat-label>
-          <input matInput type="text" formControlName="contactDesignation" placeholder="Designation *" />
+          <input matInput type="text" formControlName="contactDesignation" placeholder="Designation" />
           @if (hasControlError('contactDesignation')) {
             <mat-error>{{ getControlError('contactDesignation', 'Designation') }}</mat-error>
           }

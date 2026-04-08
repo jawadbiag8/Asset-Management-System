@@ -320,7 +320,94 @@ export interface PutServiceStepRequest {
   description: string;
   displayOrder: number;
 }
+export interface VendorOffering {
+  id: number;
+  name: string;
+}
 
+export interface VendorListItem {
+  id: number;
+  vendorName: string;
+  vendorWebsite: string;
+  vendorTypeId: number;
+  vendorTypeName: string;
+  vendorStatusId: number;
+  vendorStatusName: string;
+  offerings: VendorOffering[];
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
+
+export interface VendorSummary {
+  totalVendors: number;
+  totalActiveVendors: number;
+  totalInactiveVendors: number;
+  totalAssetsManagedByVendors: number;
+  totalAssetsDevelopedByVendors: number;
+  activeVendorsWithNoAssets: number;
+}
+
+export interface VendorListData {
+  summary: VendorSummary;
+  data: VendorListItem[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+export interface CommonLookupItem {
+  id: number;
+  name: string;
+}
+
+export interface CreateVendorRequest {
+  vendorName: string;
+  vendorWebsite: string;
+  vendorTypeId: number;
+  vendorStatusId: number;
+  offeringIds: number[];
+}
+
+export interface VendorProfileSummary {
+  totalAssetsLinkedDistinct: number;
+  developedAssetsCount: number;
+  managedAssetsCount: number;
+  distinctMinistriesCount: number;
+  distinctDepartmentsCount: number;
+}
+
+export interface VendorProfileAssetItem {
+  assetId: number;
+  assetName: string;
+  assetUrl: string;
+  ministryId: number | null;
+  ministryName: string | null;
+  departmentId: number | null;
+  departmentName: string | null;
+  isDevelopmentVendor: boolean;
+  isManagingVendor: boolean;
+}
+
+export interface VendorProfileAssetsData {
+  data: VendorProfileAssetItem[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+export interface VendorProfileData {
+  summary: VendorProfileSummary;
+  vendor: VendorListItem;
+  assets: VendorProfileAssetsData;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -656,6 +743,48 @@ export class ApiService {
   getAllVendors(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.baseUrl}/Vendor`, {
       headers: { Accept: 'application/json' },
+    });
+  }
+
+  /** GET /Vendor */
+  getVendors(): Observable<ApiResponse<VendorListData>> {
+    return this.http.get<ApiResponse<VendorListData>>(`${this.baseUrl}/Vendor`, {
+      headers: { Accept: 'text/plain' },
+    });
+  }
+
+  /** GET /CommonLookup/type/{typeName} */
+  getCommonLookupByType(typeName: string): Observable<ApiResponse<CommonLookupItem[]>> {
+    return this.http.get<ApiResponse<CommonLookupItem[]>>(`${this.baseUrl}/CommonLookup/type/${typeName}`, {
+      headers: { Accept: 'text/plain' },
+    });
+  }
+
+  /** POST /Vendor */
+  createVendor(payload: CreateVendorRequest): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/Vendor`, payload, {
+      headers: { Accept: 'text/plain', 'Content-Type': 'application/json' },
+    });
+  }
+
+  /** PUT /Vendor/{id} */
+  updateVendor(vendorId: number, payload: CreateVendorRequest): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/Vendor/${vendorId}`, payload, {
+      headers: { Accept: 'text/plain', 'Content-Type': 'application/json' },
+    });
+  }
+
+  /** DELETE /Vendor/{id} */
+  deleteVendor(vendorId: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/Vendor/${vendorId}`, {
+      headers: { Accept: 'text/plain' },
+    });
+  }
+
+  /** GET /Vendor/{id}/profile */
+  getVendorProfile(vendorId: number): Observable<ApiResponse<VendorProfileData>> {
+    return this.http.get<ApiResponse<VendorProfileData>>(`${this.baseUrl}/Vendor/${vendorId}/profile`, {
+      headers: { Accept: 'text/plain' },
     });
   }
 
@@ -1132,6 +1261,29 @@ export class ApiService {
       options,
     );
   }
+
+  /**
+   * GET /core-reports/categories/{categoryId}/pdf
+   * Optional query params: ministryId, departmentId, assetId.
+   * Returns PDF/blob response.
+   */
+  getCoreReportCategoryPdf(
+    categoryId: number,
+    filters?: { ministryId?: number; departmentId?: number; assetId?: number | string },
+  ): Observable<Blob> {
+    let params = new HttpParams();
+    if (filters?.ministryId != null) {
+      params = params.set('ministryId', String(filters.ministryId));
+    }
+    if (filters?.departmentId != null) {
+      params = params.set('departmentId', String(filters.departmentId));
+    }
+    if (filters?.assetId != null && filters.assetId !== '') {
+      params = params.set('assetId', String(filters.assetId));
+    }
+    const options = params.keys().length > 0 ? { params, responseType: 'blob' as const } : { responseType: 'blob' as const };
+    return this.http.get(`${this.baseUrl}/core-reports/categories/${categoryId}/pdf`, options);
+  }
 }
 
 /** Item from GET /core-reports/categories */
@@ -1157,3 +1309,7 @@ export interface SetupDashboardSummary {
   totalVendorsCount: number;
   hostingTypesCount: number;
 }
+
+
+
+

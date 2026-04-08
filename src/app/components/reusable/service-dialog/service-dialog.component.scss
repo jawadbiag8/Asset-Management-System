@@ -159,4 +159,20 @@ $manage-teal: #04bfbf80;
   .mat-mdc-select-value-text span {
     color: #ffffff !important;
   }
+
+  /* Multi-select checkbox color (Assets field) */
+  .mat-pseudo-checkbox {
+    border-color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  .mat-pseudo-checkbox-checked,
+  .mat-pseudo-checkbox-indeterminate {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.95) !important;
+  }
+
+  .mat-pseudo-checkbox-checked::after,
+  .mat-pseudo-checkbox-indeterminate::after {
+    color: #111 !important;
+  }
 }

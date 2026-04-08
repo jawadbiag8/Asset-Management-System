@@ -43,10 +43,10 @@ export class SetupMinistryFormComponent implements OnInit {
   form = this.fb.group({
     ministryName: ['', [Validators.required, Validators.maxLength(150)]],
     description: ['', [Validators.maxLength(500)]],
-    contactName: ['', [Validators.required, Validators.maxLength(100)]],
-    contactDesignation: ['', [Validators.required, Validators.maxLength(100)]],
-    contactEmail: ['', [Validators.required, Validators.email, Validators.maxLength(150)]],
-    contactPhone: ['', [Validators.required, Validators.maxLength(30), Validators.pattern(/^[0-9+\-() ]+$/)]],
+    contactName: ['', [Validators.maxLength(100)]],
+    contactDesignation: ['', [Validators.maxLength(100)]],
+    contactEmail: ['', [Validators.email, Validators.maxLength(150)]],
+    contactPhone: ['', [Validators.maxLength(30), Validators.pattern(/^[0-9+\-() ]+$/)]],
   });
 
   constructor(

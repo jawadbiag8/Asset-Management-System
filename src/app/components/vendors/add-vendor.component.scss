@@ -1,0 +1,246 @@
+$card-bg: rgba(0, 0, 0, 0.25);
+$card-border: rgba(255, 255, 255, 0.12);
+$teal: #04bfbf80;
+
+.add-vendor-page {
+  min-height: 100vh;
+  color: #fff;
+}
+
+.crumb-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: rgba(188, 224, 220, 0.75);
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #71e3d0;
+  cursor: pointer;
+  padding: 0;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.page-subtitle {
+  margin: 8px 0 20px;
+  color: rgba(204, 227, 225, 0.65);
+  font-size: 15px;
+}
+
+.form-card {
+  background: $card-bg;
+  border: 1px solid $card-border;
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.form-section {
+  .row.g-3 > [class*='col-'] {
+    margin-bottom: 6px;
+  }
+}
+
+.section-title {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.info-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: rgba(220, 236, 238, 0.9);
+  font-size: 14px;
+  border: 1px solid rgba(0, 191, 178, 0.45);
+  background: rgba(1, 70, 66, 0.42);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.info-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: #2dd4bf;
+}
+
+.offerings-section {
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 14px;
+}
+
+.offerings-title {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.required {
+  color: #ff7b7b;
+}
+
+.offering-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  font-size: 13px;
+  color: rgba(230, 242, 240, 0.95);
+}
+
+.offering-item input {
+  width: 14px;
+  height: 14px;
+  accent-color: #10b981;
+}
+
+.offerings-error {
+  margin-top: 6px;
+  color: #fca5a5;
+  font-size: 12px;
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 16px;
+}
+
+.btn-cancel,
+.btn-submit {
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Match Add Asset field theming exactly */
+.add-vendor-page ::ng-deep {
+  .mat-mdc-form-field {
+    .mat-mdc-text-field-wrapper {
+      background-color: rgba(255, 255, 255, 0.06) !important;
+      border-radius: 8px;
+    }
+
+    &.mat-focused .mat-mdc-text-field-wrapper {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      margin-top: 4px;
+    }
+  }
+
+  .mat-mdc-form-field-appearance-outline {
+    .mdc-notched-outline .mdc-notched-outline__leading {
+      border-right: none !important;
+    }
+    .mdc-notched-outline .mdc-notched-outline__notch {
+      border-left: none !important;
+      border-right: none !important;
+    }
+    .mdc-notched-outline .mdc-notched-outline__trailing {
+      border-left: none !important;
+    }
+    .mat-mdc-form-field-outline,
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      color: rgba(255, 255, 255, 0.25) !important;
+      border-radius: 8px;
+    }
+
+    &.mat-focused .mat-mdc-form-field-outline-thick,
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__leading,
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__notch,
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__trailing {
+      border-color: $teal !important;
+      color: $teal !important;
+    }
+
+    .mat-mdc-form-field-label,
+    .mat-mdc-floating-label,
+    .mdc-floating-label,
+    .mdc-floating-label--float-above,
+    .mat-mdc-form-field.mat-mdc-form-field .mat-mdc-floating-label,
+    .mat-mdc-form-field .mdc-floating-label--float-above {
+      color: #ffffffab !important;
+    }
+  }
+
+  .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label--float-above,
+  .mat-mdc-form-field .mat-mdc-form-field-label,
+  .mat-mdc-form-field .mdc-floating-label {
+    color: #ffffffab !important;
+  }
+
+  .mat-mdc-input-element::placeholder,
+  input.mat-mdc-input-element::placeholder,
+  textarea.mat-mdc-input-element::placeholder {
+    color: #ffffffab !important;
+  }
+
+  .mat-mdc-input-element,
+  .mat-mdc-select-value,
+  .mat-mdc-select-placeholder {
+    color: #fff !important;
+  }
+
+  .mat-mdc-form-field-hint {
+    color: rgba(204, 227, 225, 0.65) !important;
+    font-size: 12px;
+  }
+
+  .mat-mdc-form-field-error {
+    color: #f87171 !important;
+    font-size: 12px;
+  }
+
+  .mat-mdc-select-arrow {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #e4f2ef;
+}
+
+.btn-submit {
+  border: 1px solid rgba(20, 184, 166, 0.45);
+  color: #d8fff6;
+  background: $teal;
+
+  &:hover:not(:disabled) {
+    background: rgba(20, 184, 166, 0.48);
+    border-color: rgba(45, 212, 191, 0.8);
+  }
+}

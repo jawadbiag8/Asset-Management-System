@@ -1,0 +1,148 @@
+<div class="vendors-page">
+  <div class="vendors-header">
+    <div class="vendors-title-wrap">
+      <h1 class="vendors-title">Vendors</h1>
+      <div class="search-wrap">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          class="search-input"
+          [value]="searchTerm()"
+          (input)="onSearchChange(($any($event.target)).value)"
+          placeholder="Search" />
+      </div>
+    </div>
+
+    <button type="button" class="btn-add-vendor" [routerLink]="['/setup/vendors/new']">
+      <mat-icon>add</mat-icon>
+      Add Vendor
+    </button>
+  </div>
+
+  <div class="summary-grid">
+    <article class="summary-card">
+      <span class="summary-icon summary-icon--all" aria-hidden="true">
+        <mat-icon>groups</mat-icon>
+      </span>
+      <div class="summary-value">{{ summary()?.totalVendors ?? 0 }}</div>
+      <div class="summary-label">All Vendors</div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon summary-icon--active" aria-hidden="true">
+        <mat-icon>fiber_manual_record</mat-icon>
+      </span>
+      <div class="summary-value">{{ summary()?.totalActiveVendors ?? 0 }}</div>
+      <div class="summary-label">Active Vendors</div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon summary-icon--inactive" aria-hidden="true">
+        <mat-icon>fiber_manual_record</mat-icon>
+      </span>
+      <div class="summary-value">{{ summary()?.totalInactiveVendors ?? 0 }}</div>
+      <div class="summary-label">Inactive Vendors</div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon summary-icon--assets" aria-hidden="true">
+        <svg
+          class="summary-icon-svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path d="M15.5357 11.2928C15.3482 11.4804 15.2429 11.7347 15.2429 11.9998C15.2429 12.265 15.3482 12.5193 15.5357 12.7068L17.9117 15.0838C18.0992 15.2713 18.3535 15.3766 18.6187 15.3766C18.8839 15.3766 19.1382 15.2713 19.3257 15.0838L21.7027 12.7068C21.8902 12.5193 21.9955 12.265 21.9955 11.9998C21.9955 11.7347 21.8902 11.4804 21.7027 11.2928L19.3257 8.91583C19.1382 8.72836 18.8839 8.62305 18.6187 8.62305C18.3535 8.62305 18.0992 8.72836 17.9117 8.91583L15.5357 11.2928Z" stroke="#FFC800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2.29669 11.2928C2.10922 11.4804 2.00391 11.7347 2.00391 11.9998C2.00391 12.265 2.10922 12.5193 2.29669 12.7068L4.67369 15.0838C4.86122 15.2713 5.11553 15.3766 5.38069 15.3766C5.64586 15.3766 5.90016 15.2713 6.08769 15.0838L8.46469 12.7068C8.65216 12.5193 8.75748 12.265 8.75748 11.9998C8.75748 11.7347 8.65216 11.4804 8.46469 11.2928L6.08769 8.91583C5.90016 8.72836 5.64586 8.62305 5.38069 8.62305C5.11553 8.62305 4.86122 8.72836 4.67369 8.91583L2.29669 11.2928Z" stroke="#FFC800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8.91585 17.9117C8.82287 18.0046 8.74911 18.1149 8.69879 18.2363C8.64846 18.3577 8.62256 18.4878 8.62256 18.6192C8.62256 18.7506 8.64846 18.8807 8.69879 19.0021C8.74911 19.1235 8.82287 19.2338 8.91585 19.3267L11.2928 21.7027C11.4804 21.8902 11.7347 21.9955 11.9998 21.9955C12.265 21.9955 12.5193 21.8902 12.7068 21.7027L15.0838 19.3267C15.1768 19.2338 15.2506 19.1235 15.3009 19.0021C15.3512 18.8807 15.3771 18.7506 15.3771 18.6192C15.3771 18.4878 15.3512 18.3577 15.3009 18.2363C15.2506 18.1149 15.1768 18.0046 15.0838 17.9117L12.7068 15.5357C12.5193 15.3482 12.265 15.2429 11.9998 15.2429C11.7347 15.2429 11.4804 15.3482 11.2928 15.5357L8.91585 17.9117Z" stroke="#FFC800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8.91583 4.67369C8.72836 4.86122 8.62305 5.11553 8.62305 5.38069C8.62305 5.64586 8.72836 5.90016 8.91583 6.08769L11.2928 8.46369C11.4804 8.65116 11.7347 8.75648 11.9998 8.75648C12.265 8.75648 12.5193 8.65116 12.7068 8.46369L15.0838 6.08769C15.2713 5.90016 15.3766 5.64586 15.3766 5.38069C15.3766 5.11553 15.2713 4.86122 15.0838 4.67369L12.7068 2.29669C12.5193 2.10922 12.265 2.00391 11.9998 2.00391C11.7347 2.00391 11.4804 2.10922 11.2928 2.29669L8.91583 4.67369Z" stroke="#FFC800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <div class="summary-value">{{ summary()?.totalAssetsManagedByVendors ?? 0 }}</div>
+      <div class="summary-label">Vendors with Assets</div>
+    </article>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="state-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="state-msg">Loading vendors...</div>
+  } @else if (totalFiltered() === 0) {
+    <div class="state-msg">No vendor data found.</div>
+  } @else {
+    <div class="table-wrap">
+      <table class="vendors-table">
+        <thead>
+          <tr>
+            <th>Vendor Name</th>
+            <th>Website</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Category</th>
+            <th class="th-action">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of pagedVendors(); track v.id) {
+            <tr>
+              <td>{{ v.vendorName }}</td>
+              <td>
+                <a class="vendor-link" [href]="v.vendorWebsite" target="_blank" rel="noopener noreferrer">
+                  {{ v.vendorWebsite }}
+                </a>
+              </td>
+              <td>{{ v.vendorTypeName || 'N/A' }}</td>
+              <td>
+                <span class="status-pill" [class.status-pill--active]="isActive(v.vendorStatusName)">
+                  {{ v.vendorStatusName || 'Unknown' }}
+                </span>
+              </td>
+              <td>{{ vendorCategory(v) }}</td>
+              <td class="td-action">
+                <button
+                  type="button"
+                  class="action-btn"
+                  [matMenuTriggerFor]="vendorActionMenu"
+                  aria-label="More actions">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #vendorActionMenu="matMenu" panelClass="vendor-action-menu" xPosition="before">
+                  <button mat-menu-item (click)="onViewVendor(v)">
+                    <mat-icon>visibility</mat-icon>
+                    <span>View Profile</span>
+                  </button>
+                  <button mat-menu-item (click)="onEditVendor(v)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button mat-menu-item (click)="onDeleteVendor(v)">
+                    <mat-icon>delete</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </mat-menu>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span class="pagination-info">{{ paginationStart() }}-{{ paginationEnd() }} of {{ totalFiltered() }}</span>
+      <div class="page-controls">
+        <button type="button" class="page-btn" [disabled]="pageIndex() <= 0" (click)="onPageChange(pageIndex() - 1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="page-index">{{ pageIndex() + 1 }} / {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginationEnd() >= totalFiltered()"
+          (click)="onPageChange(pageIndex() + 1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+</div>
+

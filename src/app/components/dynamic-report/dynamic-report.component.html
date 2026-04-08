@@ -135,9 +135,14 @@
         </mat-form-field>
       }
     </div>
-    <button type="button" class="btn-generate-report" mat-flat-button (click)="refreshReport()">
+    <button
+      type="button"
+      class="btn-generate-report"
+      mat-flat-button
+      [disabled]="reportGenerating()"
+      (click)="onGenerateReport()">
       <mat-icon>description</mat-icon>
-      Generate Report
+      {{ reportGenerating() ? 'Generating...' : 'Generate Report' }}
     </button>
   </div>
 

@@ -36,6 +36,7 @@ import { of, catchError, map, tap, startWith } from 'rxjs';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ApiService, ApiResponse } from '../../services/api.service';
+import { ToastrService } from 'ngx-toastr';
 import * as Highcharts from 'highcharts';
 import 'highcharts/highcharts-more';
 import 'highcharts/modules/solid-gauge';
@@ -104,6 +105,7 @@ const DEFAULT_CHART_COLORS = ['#10B981', '#F59E0B', '#EF4444', '#008080', '#6366
 })
 export class DynamicReportComponent implements OnInit, AfterViewInit {
   private readonly api = inject(ApiService);
+  private readonly toastr = inject(ToastrService);
   readonly Highcharts = Highcharts;
 
   /** Optional filters for GET data-points (ministry / department / asset). */
@@ -146,6 +148,7 @@ export class DynamicReportComponent implements OnInit, AfterViewInit {
   subCategoriesError = signal<string | null>(null);
   dataPointsLoading = signal(false);
   dataPointsError = signal<string | null>(null);
+  reportGenerating = signal(false);
   ministriesLoading = signal(false);
   ministriesError = signal<string | null>(null);
   departmentsLoading = signal(false);
@@ -1258,6 +1261,41 @@ export class DynamicReportComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.updateChartView(), 0);
   }
 
+  onGenerateReport(): void {
+    const categoryId = this.selectedCategory()?.id;
+    if (!categoryId) {
+      this.toastr.warning('Please select a report category first.', 'Generate Report');
+      return;
+    }
+    const filters = this.getGenerateReportFilters();
+    const reportTab = window.open('', '_blank');
+    this.reportGenerating.set(true);
+    this.api.getCoreReportCategoryPdf(categoryId, filters).subscribe({
+      next: (blob) => {
+        this.reportGenerating.set(false);
+        if (!blob || blob.size === 0) {
+          reportTab?.close();
+          this.toastr.error('Report file is empty.', 'Generate Report');
+          return;
+        }
+        const objectUrl = URL.createObjectURL(blob);
+        if (reportTab) {
+          reportTab.location.href = objectUrl;
+        } else {
+          // Fallback if browser blocks opening a new tab.
+          window.location.assign(objectUrl);
+        }
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      },
+      error: (err) => {
+        this.reportGenerating.set(false);
+        reportTab?.close();
+        const message = err?.error?.message || err?.message || 'Failed to generate report.';
+        this.toastr.error(message, 'Generate Report');
+      },
+    });
+  }
+
   isSubCategoryActive(sub: SubCategory): boolean {
     return this.selectedSubCategory()?.id === sub.id;
   }
@@ -1272,6 +1310,31 @@ export class DynamicReportComponent implements OnInit, AfterViewInit {
     if (sub) {
       this.loadDataPointsForSubCategory(sub.id);
     }
+  }
+
+  private getGenerateReportFilters():
+    | { ministryId?: number; departmentId?: number; assetId?: number | string }
+    | undefined {
+    const f: { ministryId?: number; departmentId?: number; assetId?: number | string } = {};
+    if (this.showMinistryDropdown()) {
+      const ministryId = this.selectedMinistry()?.id;
+      if (ministryId != null) {
+        f.ministryId = ministryId;
+      }
+    }
+    if (this.showDepartmentDropdown()) {
+      const departmentId = this.selectedDepartment()?.id;
+      if (departmentId != null) {
+        f.departmentId = departmentId;
+      }
+    }
+    if (this.showAssetDropdown()) {
+      const assetId = this.selectedAsset()?.id;
+      if (assetId != null) {
+        f.assetId = assetId;
+      }
+    }
+    return Object.keys(f).length > 0 ? f : undefined;
   }
 
   formatMetricValue(dp: DataPoint): string {

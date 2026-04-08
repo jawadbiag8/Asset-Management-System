@@ -17,6 +17,7 @@ export class SetupComponent {
   sidebarItems: SetupSidebarItem[] = [
     { label: 'Dashboard', route: '/setup', icon: 'grid' },
     { label: 'Ministries', route: '/setup/ministries', icon: 'building' },
+    { label: 'Vendors', route: '/setup/vendors', icon: 'users' },
   ];
 
   constructor(private utilsService: UtilsService) {

@@ -5,6 +5,7 @@ import { HttpParams } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 import {
   TableConfig,
   TableColumn,
@@ -255,6 +256,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private breadcrumbService: BreadcrumbService,
     private dialog: MatDialog,
+    private toastr: ToastrService,
   ) {}
 
   tableConfig = signal<TableConfig>({
@@ -1325,13 +1327,21 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
     this.apiService.createService(payload).subscribe({
       next: (response: ApiResponse<any>) => {
         if (!response?.isSuccessful) {
-          this.servicesError.set(response?.message ?? 'Failed to create service');
+          const message = response?.message ?? 'Failed to create service';
+          this.servicesError.set(null);
+          this.toastr.error(message, 'Add Service');
+          this.refreshServicesSection();
           return;
         }
-        this.loadServices();
+        this.servicesError.set(null);
+        this.toastr.success(response?.message ?? 'Service created successfully.', 'Add Service');
+        this.refreshServicesSection();
       },
       error: (err) => {
-        this.servicesError.set(err?.message ?? 'Failed to create service');
+        const message = this.extractApiErrorMessage(err, 'Failed to create service');
+        this.servicesError.set(null);
+        this.toastr.error(message, 'Add Service');
+        this.refreshServicesSection();
       },
     });
   }
@@ -1350,14 +1360,33 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
     this.apiService.updateService(serviceId, payload).subscribe({
       next: (response: ApiResponse<any>) => {
         if (!response?.isSuccessful) {
-          this.servicesError.set(response?.message ?? 'Failed to update service');
+          const message = response?.message ?? 'Failed to update service';
+          this.servicesError.set(null);
+          this.toastr.error(message, 'Update Service');
+          this.refreshServicesSection();
           return;
         }
-        this.loadServices();
+        this.servicesError.set(null);
+        this.toastr.success(response?.message ?? 'Service updated successfully.', 'Update Service');
+        this.refreshServicesSection();
       },
       error: (err) => {
-        this.servicesError.set(err?.message ?? 'Failed to update service');
+        const message = this.extractApiErrorMessage(err, 'Failed to update service');
+        this.servicesError.set(null);
+        this.toastr.error(message, 'Update Service');
+        this.refreshServicesSection();
       },
     });
   }
+
+  private refreshServicesSection(): void {
+    this.loadServices();
+    this.loadSummaryCards();
+  }
+
+  private extractApiErrorMessage(err: any, fallback: string): string {
+    const msg = err?.error?.message ?? err?.message;
+    return typeof msg === 'string' && msg.trim().length > 0 ? msg : fallback;
+  }
+
 }

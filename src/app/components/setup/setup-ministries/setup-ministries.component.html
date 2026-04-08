@@ -26,7 +26,9 @@
       (click)="setFilter('all')"
     >
       <span class="tile-icon tile-icon-neutral" aria-hidden="true">
-        <mat-icon>apartment</mat-icon>
+        <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.5 20.5V2.5C4.5 1.96957 4.71071 1.46086 5.08579 1.08579C5.46086 0.710714 5.96957 0.5 6.5 0.5H14.5C15.0304 0.5 15.5391 0.710714 15.9142 1.08579C16.2893 1.46086 16.5 1.96957 16.5 2.5V20.5M4.5 20.5H16.5M4.5 20.5H2.5C1.96957 20.5 1.46086 20.2893 1.08579 19.9142C0.710714 19.5391 0.5 19.0304 0.5 18.5V12.5C0.5 11.9696 0.710714 11.4609 1.08579 11.0858C1.46086 10.7107 1.96957 10.5 2.5 10.5H4.5M16.5 20.5H18.5C19.0304 20.5 19.5391 20.2893 19.9142 19.9142C20.2893 19.5391 20.5 19.0304 20.5 18.5V9.5C20.5 8.96957 20.2893 8.46086 19.9142 8.08579C19.5391 7.71071 19.0304 7.5 18.5 7.5H16.5M8.5 4.5H12.5M8.5 8.5H12.5M8.5 12.5H12.5M8.5 16.5H12.5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </span>
       <div class="value">{{ totalMinistries() }}</div>
       <div class="label">All Ministries</div>
@@ -164,12 +166,13 @@
 
     <div class="page-controls">
       <label class="page-size">
-        <span>Rows</span>
+        <span>Rows per page:</span>
         <select [ngModel]="pageSize()" (ngModelChange)="changePageSize($event)">
           <option [value]="5">5</option>
           <option [value]="10">10</option>
-          <option [value]="20">20</option>
+          <option [value]="25">25</option>
           <option [value]="50">50</option>
+          <option [value]="100">100</option>
         </select>
       </label>
 

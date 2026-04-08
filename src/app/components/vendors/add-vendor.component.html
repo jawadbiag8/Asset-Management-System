@@ -1,0 +1,93 @@
+<div class="add-vendor-page container-fluid p-4">
+  <div class="crumb-row">
+    <button type="button" class="back-btn" (click)="onCancel()">&larr; Back</button>
+    <span class="crumb-sep">/</span>
+    <span class="crumb-link">Vendors</span>
+    <span class="crumb-sep">/</span>
+    <span class="crumb-current">{{ isEditMode() ? 'Edit Vendor' : 'Add Vendor' }}</span>
+  </div>
+
+  <h1 class="page-title">{{ pageTitle }}</h1>
+  <p class="page-subtitle">{{ pageSubtitle }}</p>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <div class="col-md-2 col-sm-12"></div>
+      <div class="col-md-8 col-sm-12">
+        <div class="form-card">
+          <div class="form-section">
+            <h2 class="section-title">Basic Information</h2>
+            <div class="info-box">
+              <mat-icon class="info-icon">info</mat-icon>
+              <span class="info-text">Provide the essential details to identify and categorize your vendor.</span>
+            </div>
+
+            <div class="row g-3 mt-3">
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Vendor Name"
+                  type="text"
+                  placeholder="Vendor Name"
+                  hint="Enter the vendor name"
+                  [control]="getControl('vendorName')">
+                </app-reusable-input>
+              </div>
+
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Website"
+                  type="text"
+                  placeholder="Website"
+                  hint="Enter the vendor website"
+                  [control]="getControl('vendorWebsite')">
+                </app-reusable-input>
+              </div>
+
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Vendor Type"
+                  type="select"
+                  placeholder="Vendor Type"
+                  hint="Select the vendor type"
+                  [options]="vendorTypeOptions"
+                  [control]="getControl('vendorTypeId')">
+                </app-reusable-input>
+              </div>
+
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Vendor Status"
+                  type="select"
+                  placeholder="Vendor Status"
+                  hint="Select the vendor status"
+                  [options]="vendorStatusOptions"
+                  [control]="getControl('vendorStatusId')">
+                </app-reusable-input>
+              </div>
+            </div>
+          </div>
+          <div class="offerings-section">
+            <div class="offerings-title">Vendor Category / Offerings <span class="required">*</span></div>
+            @for (off of offeringOptions; track off.id) {
+              <label class="offering-item">
+                <input
+                  type="checkbox"
+                  [checked]="isOfferingSelected(off.id)"
+                  (change)="onToggleOffering(off.id, $any($event.target).checked)" />
+                <span>{{ off.name }}</span>
+              </label>
+            }
+            @if (getControl('offeringIds').touched && getControl('offeringIds').invalid) {
+              <div class="offerings-error">Please select at least one offering.</div>
+            }
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="submitting()">Cancel</button>
+            <button type="submit" class="btn-submit" [disabled]="submitting() || loadingLookups()">{{ submitLabel }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

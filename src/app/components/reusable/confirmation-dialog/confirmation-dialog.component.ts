@@ -6,6 +6,7 @@ export interface ConfirmationDialogData {
   message: string;
   confirmButtonText?: string;
   cancelButtonText?: string;
+  showConfirmButton?: boolean;
 }
 
 @Component({
@@ -25,6 +26,9 @@ export class ConfirmationDialogComponent {
     }
     if (!this.data.cancelButtonText) {
       this.data.cancelButtonText = 'Cancel';
+    }
+    if (this.data.showConfirmButton === undefined) {
+      this.data.showConfirmButton = true;
     }
   }
 

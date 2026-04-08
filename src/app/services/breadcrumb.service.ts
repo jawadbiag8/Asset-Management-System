@@ -29,6 +29,9 @@ const BREADCRUMB_CONFIG: { path: string; config: BreadcrumbConfig }[] = [
   { path: '/incidents/', config: { label: 'Incident Details', parentPath: '/incidents' } },
   { path: '/incidents', config: { label: 'Incidents', parentPath: '/dashboard' } },
   { path: '/pm-dashboard', config: { label: 'Executive Dashboard', parentPath: '/dashboard' } },
+  { path: '/setup/vendors/new', config: { label: 'Add Vendor', parentPath: '/setup/vendors' } },
+  { path: '/setup/vendors/', config: { label: 'Vendor Detail', parentPath: '/setup/vendors' } },
+  { path: '/setup/vendors', config: { label: 'Vendors', parentPath: '/setup' } },
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -147,3 +150,6 @@ export class BreadcrumbService {
     return prefix?.config;
   }
 }
+
+
+

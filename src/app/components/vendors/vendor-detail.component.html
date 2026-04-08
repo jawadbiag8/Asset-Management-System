@@ -1,0 +1,101 @@
+<div class="vendor-detail-page">
+  @if (loading()) {
+    <div class="state-msg">Loading vendor profile...</div>
+  } @else if (error()) {
+    <div class="state-error">{{ error() }}</div>
+    <button type="button" class="btn-outline" (click)="goBack()">Back</button>
+  } @else if (detail()) {
+    @let v = vendor()!;
+    @let s = summary()!;
+
+    <div class="crumb-row">
+      <button type="button" class="crumb-back" (click)="goBack()">&larr; Back</button>
+      <span>/</span>
+      <span>Vendors</span>
+      <span>/</span>
+      <span class="crumb-current">{{ v.vendorName }}</span>
+    </div>
+
+    <div class="head-row">
+      <h1 class="page-title">{{ v.vendorName }}</h1>
+      <button type="button" class="btn-edit" (click)="editVendor()">
+        <mat-icon>edit</mat-icon>
+        Edit Vendor
+      </button>
+    </div>
+
+    <div class="summary-grid">
+      <article class="summary-card">
+        <div class="summary-value">{{ s.developedAssetsCount }}</div>
+        <div class="summary-label">Developed Assets</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ s.managedAssetsCount }}</div>
+        <div class="summary-label">Managed Assets</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ v.offerings.length || 0 }}</div>
+        <div class="summary-label">Service Category</div>
+      </article>
+    </div>
+
+    <div class="vendor-meta-card">
+      <div class="meta-item">
+        <div class="meta-label">Vendor Name</div>
+        <div class="meta-value">{{ v.vendorName }}</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Website</div>
+        <div class="meta-value">{{ v.vendorWebsite }}</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Type</div>
+        <div class="meta-value">{{ v.vendorTypeName }}</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Status</div>
+        <div class="meta-value"><span class="status-pill">{{ v.vendorStatusName }}</span></div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Category</div>
+        <div class="meta-value">{{ v.offerings.length || 0 }}</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Created By</div>
+        <div class="meta-value">{{ v.createdBy || '-' }}</div>
+      </div>
+    </div>
+
+    <div class="assets-grid">
+      <section class="assets-panel">
+        <h3>Developed Assets</h3>
+        <div class="assets-list">
+          @for (a of developedAssets(); track a.assetId) {
+            <article class="asset-card">
+              <div class="asset-name">{{ a.assetName }}</div>
+              <div class="asset-sub">{{ assetSubLine(a) }}</div>
+              <a class="asset-link" [href]="a.assetUrl" target="_blank" rel="noopener noreferrer">{{ a.assetUrl }}</a>
+            </article>
+          } @empty {
+            <div class="empty-txt">No developed assets.</div>
+          }
+        </div>
+      </section>
+
+      <section class="assets-panel">
+        <h3>Managed/Hosted Assets</h3>
+        <div class="assets-list">
+          @for (a of managedAssets(); track a.assetId) {
+            <article class="asset-card">
+              <div class="asset-name">{{ a.assetName }}</div>
+              <div class="asset-sub">{{ assetSubLine(a) }}</div>
+              <a class="asset-link" [href]="a.assetUrl" target="_blank" rel="noopener noreferrer">{{ a.assetUrl }}</a>
+            </article>
+          } @empty {
+            <div class="empty-txt">No managed assets.</div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</div>

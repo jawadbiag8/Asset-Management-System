@@ -52,6 +52,9 @@ import { ServiceDialogComponent } from './components/reusable/service-dialog/ser
 import { ServiceDetailComponent } from './components/service-detail/service-detail.component';
 import { IntegrateApiDialogComponent } from './components/reusable/integrate-api-dialog/integrate-api-dialog.component';
 import { AddManualStepDialogComponent } from './components/reusable/add-manual-step-dialog/add-manual-step-dialog.component';
+import { VendorsComponent } from './components/vendors/vendors.component';
+import { AddVendorComponent } from './components/vendors/add-vendor.component';
+import { VendorDetailComponent } from './components/vendors/vendor-detail.component';
 
 @NgModule({
   declarations: [
@@ -84,6 +87,9 @@ import { AddManualStepDialogComponent } from './components/reusable/add-manual-s
     ServiceDetailComponent,
     IntegrateApiDialogComponent,
     AddManualStepDialogComponent,
+    VendorsComponent,
+    AddVendorComponent,
+    VendorDetailComponent,
   ],
   imports: [
     BrowserModule,
@@ -140,3 +146,6 @@ import { AddManualStepDialogComponent } from './components/reusable/add-manual-s
   bootstrap: [AppComponent],
 })
 export class AppModule { }
+
+
+

@@ -165,3 +165,4 @@ export class HeaderComponent {
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }
+

@@ -24,6 +24,9 @@ import { SetupMinistryFormComponent } from './components/setup/setup-ministry-fo
 import { SetupMinistryHistoryComponent } from './components/setup/setup-ministry-history/setup-ministry-history.component';
 import { ManageServicesComponent } from './components/manage-services/manage-services.component';
 import { ServiceDetailComponent } from './components/service-detail/service-detail.component';
+import { VendorsComponent } from './components/vendors/vendors.component';
+import { AddVendorComponent } from './components/vendors/add-vendor.component';
+import { VendorDetailComponent } from './components/vendors/vendor-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -127,9 +130,15 @@ export const routes: Routes = [
       { path: 'ministries/new', component: SetupMinistryFormComponent },
       { path: 'ministries/:id/history', component: SetupMinistryHistoryComponent },
       { path: 'ministries/:id/edit', component: SetupMinistryFormComponent },
+      { path: 'vendors', component: VendorsComponent },
+      { path: 'vendors/new', component: AddVendorComponent },
+      { path: 'vendors/:id/profile', component: VendorDetailComponent },
       // Future:
       // { path: 'users', component: SetupUsersComponent },
       // { path: 'roles', component: SetupRolesComponent },
     ],
   },
 ];
+
+
+

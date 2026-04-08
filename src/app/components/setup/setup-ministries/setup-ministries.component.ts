@@ -225,7 +225,7 @@ export class SetupMinistriesComponent implements OnInit {
   }
 
   private normalizeMinistryItem(item: any): MinistryApiItem {
-    const canDeleteRaw = item?.canDelete ?? item?.CanDelete;
+    const canDeleteRaw = item?.canDelete ?? item?.CanDelete ?? item?.isDeleteable ?? item?.IsDeleteable;
     return {
       id: item.id ?? item.Id,
       ministryName: item.ministryName ?? item.MinistryName ?? '',
@@ -244,11 +244,19 @@ export class SetupMinistriesComponent implements OnInit {
     event?.preventDefault();
     event?.stopPropagation();
     if (m.canDelete === false) {
-      this.utils.showToast(
-        'You cannot delete this ministry because some assets or departments are linked with it.',
-        'Cannot delete',
-        'warning',
-      );
+      const blockedData: ConfirmationDialogData = {
+        title: 'Cannot delete ministry',
+        message:
+          'This ministry cannot be deleted because assets or departments are linked with it. If you want to delete it, please unlink them first.',
+        cancelButtonText: 'Close',
+        showConfirmButton: false,
+      };
+      this.dialog.open(ConfirmationDialogComponent, {
+        width: '430px',
+        data: blockedData,
+        disableClose: false,
+        panelClass: 'app-confirmation-dialog-dark',
+      });
       return;
     }
     const data: ConfirmationDialogData = {
