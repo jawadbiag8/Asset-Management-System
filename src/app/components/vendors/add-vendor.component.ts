@@ -173,7 +173,7 @@ export class AddVendorComponent implements OnInit {
         next: (res) => {
           this.submitting.set(false);
           if (res.isSuccessful) {
-            this.toastr.success(res.message || 'Vendor updated successfully.');
+            this.toastr.success( 'Vendor updated successfully.');
             this.router.navigate(['/setup/vendors']);
           } else {
             this.toastr.error(res.message || 'Could not update vendor.');
@@ -191,7 +191,7 @@ export class AddVendorComponent implements OnInit {
       next: (res) => {
         this.submitting.set(false);
         if (res.isSuccessful) {
-          this.toastr.success(res.message || 'Vendor added successfully.');
+          this.toastr.success('Vendor added successfully.');
           this.router.navigate(['/setup/vendors']);
         } else {
           this.toastr.error(res.message || 'Could not add vendor.');

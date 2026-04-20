@@ -29,6 +29,8 @@ const BREADCRUMB_CONFIG: { path: string; config: BreadcrumbConfig }[] = [
   { path: '/incidents/', config: { label: 'Incident Details', parentPath: '/incidents' } },
   { path: '/incidents', config: { label: 'Incidents', parentPath: '/dashboard' } },
   { path: '/pm-dashboard', config: { label: 'Executive Dashboard', parentPath: '/dashboard' } },
+  { path: '/setup/ministries/new', config: { label: 'Add Ministry', parentPath: '/setup/ministries' } },
+  { path: '/setup/ministries', config: { label: 'Ministries', parentPath: '/setup' } },
   { path: '/setup/vendors/new', config: { label: 'Add Vendor', parentPath: '/setup/vendors' } },
   { path: '/setup/vendors/', config: { label: 'Vendor Detail', parentPath: '/setup/vendors' } },
   { path: '/setup/vendors', config: { label: 'Vendors', parentPath: '/setup' } },
@@ -141,6 +143,9 @@ export class BreadcrumbService {
 
   private getConfigForPath(path: string): BreadcrumbConfig | undefined {
     const normalized = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
+    if (/^\/setup\/ministries\/\d+\/history$/.test(normalized)) {
+      return { label: 'Ministry Audit Log', parentPath: '/setup/ministries' };
+    }
     const exact = BREADCRUMB_CONFIG.find((c) => c.path === normalized);
     if (exact) return exact.config;
     // Prefix match: for config paths ending with / use startsWith(path), else startsWith(path + '/')

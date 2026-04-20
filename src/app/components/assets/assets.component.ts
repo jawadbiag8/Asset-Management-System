@@ -71,6 +71,8 @@ export class AssetsComponent implements OnInit {
         header: 'Assets',
         cellType: 'two-line',
         primaryField: 'websiteApplication',
+        showPrimaryStatusIcon: true,
+        primaryStatusField: 'assetLifecycleStatus',
         secondaryField: 'assetUrl',
         linkField: 'assetUrl',
         sortable: true,
@@ -379,6 +381,14 @@ export class AssetsComponent implements OnInit {
 
       return {
         ...asset,
+        assetLifecycleStatus:
+          (asset as any).statusName ??
+          (asset as any).assetLifecycleStatus ??
+          (asset as any).assetStatusName ??
+          (asset as any).assetStatus ??
+          (asset as any).verificationStatus ??
+          (asset as any).discoveryStatus ??
+          '',
         currentStatusDisplay,
         healthStatusDisplay,
         healthIcon: getHealthIcon(asset.healthStatus),

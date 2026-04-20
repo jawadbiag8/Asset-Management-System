@@ -136,9 +136,11 @@ export class ServiceDetailComponent implements OnInit, OnDestroy {
     this.api.getServiceStepOrderLimits(this.serviceId).subscribe({
       next: (res) => {
         const max =
-          res.isSuccessful && res.data?.maxAvailableDisplayOrder && res.data.maxAvailableDisplayOrder > 0
-            ? res.data.maxAvailableDisplayOrder
-            : 3;
+          res.isSuccessful && res.data?.mergedStepCount && res.data.mergedStepCount > 0
+            ? res.data.mergedStepCount
+            : res.isSuccessful && res.data?.maxAvailableDisplayOrder && res.data.maxAvailableDisplayOrder > 0
+              ? res.data.maxAvailableDisplayOrder
+              : 3;
         const base = Array.from({ length: max }, (_, i) => i + 1);
         this.openManualStepDialog(this.mergePlacementWithCurrent(base, currentOrder), {
           step,

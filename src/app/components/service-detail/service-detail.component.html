@@ -34,8 +34,7 @@
             <div class="summary-card-value">{{ card.value }}</div>
             <h3 class="summary-card-title">{{ card.title }}</h3>
             <p class="summary-card-desc">{{ card.subTitle }}</p>
-            <div class="summary-card-rule"></div>
-            <button type="button" class="summary-card-link">View details</button>
+            <!-- <div class="summary-card-rule"></div> -->
           </article>
         }
       </div>
@@ -93,10 +92,10 @@
                       <div class="header-bar-track header-bar-track--wide">
                         <div
                           class="header-bar-fill header-bar-fill--completion"
-                          [style.width.%]="parsePercentWidth(step.metrics.overallSuccessRate)"></div>
+                          [style.width.%]="parsePercentWidth(step.metrics.completionRate)"></div>
                       </div>
                       <span class="header-bar-pct header-bar-pct--completion">{{
-                        step.metrics.overallSuccessRate
+                        step.metrics.completionRate
                       }}</span>
                     </div>
                   </div>
@@ -122,50 +121,49 @@
 
           @if (isExpanded(step.id)) {
             <div class="step-body">
-              <div class="step-table-panel">
-                <table class="step-table">
+              <div class="step-metrics-table-wrap">
+                <table class="step-metrics-table">
                   <thead>
                     <tr>
-                      <th>Event Name</th>
-                      <th>Occurrences</th>
+                      <th>Occurrence</th>
                       <th>Started</th>
                       <th>Submitted</th>
-                      <th>Avg. Time</th>
-                      <th class="text-end">Success Rate</th>
+                      <th>Completion Rate</th>
+                      <th>Average Time</th>
+                      <th>Success Rate</th>
                     </tr>
                   </thead>
                   <tbody>
-                    @if (isStepEventsLoading(step.id)) {
-                      <tr>
-                        <td colspan="6" class="cell-muted">Loading events…</td>
-                      </tr>
-                    } @else if (getStepEventError(step.id)) {
-                      <tr>
-                        <td colspan="6" class="cell-error">{{ getStepEventError(step.id) }}</td>
-                      </tr>
-                    } @else if (getStepEventRows(step.id).length === 0) {
-                      <tr>
-                        <td colspan="6" class="cell-muted">No event metrics for this step.</td>
-                      </tr>
-                    } @else {
-                      @for (ev of getStepEventRows(step.id); track ev.eventName + '-' + $index) {
-                        <tr>
-                          <td>
-                            <div class="event-name-cell">
-                              <span class="event-num">{{ $index + 1 }}</span>
-                              <span class="event-text">{{ formatEventName(ev.eventName) }}</span>
-                            </div>
-                          </td>
-                          <td>{{ ev.totalOccurrences | number }}</td>
-                          <td>{{ ev.startedCount | number }}</td>
-                          <td>{{ ev.submittedCount | number }}</td>
-                          <td>{{ formatAvgTime(ev.avgTimeMs) }}</td>
-                          <td class="cell-success text-end">{{ ev.successRate }}</td>
-                        </tr>
-                      }
-                    }
+                    <tr>
+                      <td>{{ step.metrics.overallOccurrences | number }}</td>
+                      <td>{{ step.metrics.startedCount | number }}</td>
+                      <td>{{ step.metrics.submittedCount | number }}</td>
+                      <td>{{ step.metrics.completionRate }}</td>
+                      <td>{{ formatAvgTime(step.metrics.avgTimeMs) }}</td>
+                      <td class="cell-success">{{ step.metrics.overallSuccessRate }}</td>
+                    </tr>
                   </tbody>
                 </table>
+              </div>
+
+              <div class="events-section">
+                <div class="events-title">Form Events</div>
+                @if (isStepEventsLoading(step.id)) {
+                  <div class="cell-muted">Loading events…</div>
+                } @else if (getStepEventError(step.id)) {
+                  <div class="cell-error">{{ getStepEventError(step.id) }}</div>
+                } @else if (getStepEventRows(step.id).length === 0) {
+                  <div class="cell-muted">No event metrics for this step.</div>
+                } @else {
+                  <div class="events-grid">
+                    @for (ev of getStepEventRows(step.id); track ev.eventName + '-' + $index) {
+                      <article class="event-tile">
+                        <div class="event-tile-name">{{ formatEventName(ev.eventName) }}</div>
+                        <div class="event-tile-count">{{ ev.totalOccurrences | number }}</div>
+                      </article>
+                    }
+                  </div>
+                }
               </div>
             </div>
           }

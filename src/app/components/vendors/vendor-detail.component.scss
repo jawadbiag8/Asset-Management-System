@@ -54,15 +54,17 @@
   font-weight: 700;
 }
 
-.btn-edit {
+.btn-edit-vendor {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  border: 1px solid rgba(94, 234, 212, 0.45);
-  color: #c8fff2;
-  background: rgba(13, 148, 136, 0.2);
-  border-radius: 8px;
-  padding: 8px 14px;
+  gap: 8px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
 }
 
 .summary-grid {

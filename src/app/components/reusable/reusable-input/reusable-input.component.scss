@@ -20,4 +20,20 @@
             display: block;
         }
     }
+
+    /* Multi-select checkbox color inside overlay panels (e.g., Service dialog Assets) */
+    .reusable-input-select-panel .mat-pseudo-checkbox {
+        border-color: #ffffff !important;
+    }
+
+    .reusable-input-select-panel .mat-pseudo-checkbox-checked,
+    .reusable-input-select-panel .mat-pseudo-checkbox-indeterminate {
+        background: #ffffff !important;
+        border-color: #ffffff !important;
+    }
+
+    .reusable-input-select-panel .mat-pseudo-checkbox-checked::after,
+    .reusable-input-select-panel .mat-pseudo-checkbox-indeterminate::after {
+        color: #111111 !important;
+    }
 }

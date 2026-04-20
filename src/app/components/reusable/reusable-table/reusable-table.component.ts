@@ -470,6 +470,10 @@ export interface TableColumn {
   primaryLineClassFn?: (row: any) => string;
   /** For 'two-line' cells: optional CSS class for the secondary line based on row (e.g. highlight Critical Severity when > 0). */
   secondaryLineClassFn?: (row: any) => string;
+  /** For 'two-line' cells: show lifecycle/status icon next to primary line text. */
+  showPrimaryStatusIcon?: boolean;
+  /** Optional explicit field for lifecycle/status value (e.g. Discovered/Verified/Retired/Suspended). */
+  primaryStatusField?: string;
 
   // For 'text-with-color' cells
   textColor?: string | ((row: any) => string); // Color class name (e.g., 'success', 'warning', 'danger') or function that returns color class
@@ -1054,6 +1058,45 @@ export class ReusableTableComponent
 
   getCellValue(row: any, field: string): any {
     return field ? this.getNestedValue(row, field) : '';
+  }
+
+  getPrimaryStatusIconKind(
+    row: any,
+    column: TableColumn,
+  ): 'discovered' | 'verified' | 'retired' | 'suspended' | null {
+    const explicit = column.primaryStatusField ? this.getCellValue(row, column.primaryStatusField) : null;
+    const raw =
+      explicit ??
+      row?.statusName ??
+      row?.assetLifecycleStatus ??
+      row?.assetLifecycleStatusName ??
+      row?.assetStatusName ??
+      row?.assetStatus ??
+      row?.assetStatusId ??
+      row?.statusId ??
+      row?.status ??
+      row?.isVerified ??
+      row?.verificationStatus ??
+      row?.discoveryStatus ??
+      null;
+    if (typeof raw === 'number' && Number.isFinite(raw)) {
+      if (raw === 2) return 'verified';
+      if (raw === 3) return 'retired';
+      if (raw === 4) return 'suspended';
+      return 'discovered';
+    }
+    if (typeof raw === 'boolean') {
+      return raw ? 'verified' : 'discovered';
+    }
+    const normalized = String(raw ?? '').trim().toLowerCase();
+    if (!normalized) return 'discovered';
+    if (normalized.includes('discover')) return 'discovered';
+    if (normalized.includes('verif')) return 'verified';
+    if (normalized.includes('retir')) return 'retired';
+    if (normalized.includes('suspend')) return 'suspended';
+    if (normalized === 'true') return 'verified';
+    if (normalized === 'false') return 'discovered';
+    return 'discovered';
   }
 
   isRouterLink(link: any): boolean {

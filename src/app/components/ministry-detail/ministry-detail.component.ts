@@ -27,6 +27,7 @@ export interface AssetDetail {
   department: string;
   websiteName: string;
   websiteUrl: string;
+  assetLifecycleStatus?: string;
   currentStatus: string;
   currentStatusChecked: string;
   lastOutage: string;
@@ -270,6 +271,8 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
         header: 'Assets',
         cellType: 'two-line',
         primaryField: 'websiteApplication',
+        showPrimaryStatusIcon: true,
+        primaryStatusField: 'assetLifecycleStatus',
         secondaryField: 'assetUrl',
         linkField: 'assetUrl',
         sortable: true,
@@ -982,6 +985,14 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
         department: department,
         websiteName: websiteApplication,
         websiteUrl: websiteUrl,
+        assetLifecycleStatus:
+          item.statusName ??
+          item.assetLifecycleStatus ??
+          item.assetStatusName ??
+          item.assetStatus ??
+          item.verificationStatus ??
+          item.discoveryStatus ??
+          '',
         currentStatus: currentStatus,
         currentStatusChecked: currentStatusChecked,
         lastOutage: lastOutage,
@@ -1134,6 +1145,7 @@ export class MinistryDetailComponent implements OnInit, OnDestroy {
       disableClose: true,
       data: {
         mode,
+        ministryId: this.ministryId ?? 0,
         service: service
           ? { ...service, assetIds: Array.isArray(service.assetIds) ? service.assetIds : [] }
           : undefined,

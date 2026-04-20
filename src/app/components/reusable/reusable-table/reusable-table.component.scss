@@ -368,10 +368,45 @@
     }
 
     .line-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         font-weight: 500;
         font-size: 14px;
         color: var(--color-text-primary);
         line-height: 1.4;
+    }
+
+    .line-primary-text {
+        min-width: 0;
+    }
+
+    .asset-status-icon {
+        display: inline-flex;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    .asset-status-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .asset-status-icon--discovered {
+        color: rgba(255, 255, 255, 0.55);
+    }
+
+    .asset-status-icon--verified {
+        color: #5fad33;
+    }
+
+    .asset-status-icon--retired {
+        color: #ff4444;
+    }
+
+    .asset-status-icon--suspended {
+        color: #f59e0b;
     }
 
     .link-text {
@@ -402,6 +437,9 @@
     }
 
     .line-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         font-weight: 600;
         font-size: 15px;
         color: var(--color-green-teal);

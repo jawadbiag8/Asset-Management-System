@@ -237,6 +237,9 @@ export interface ServiceStepMetricByAsset {
 
 export interface ServiceStepMetrics {
   overallOccurrences: number;
+  startedCount: number;
+  submittedCount: number;
+  completionRate: string;
   avgTimeMs: string;
   overallSuccessRate: string;
   lastEventAt: string | null;
@@ -301,6 +304,14 @@ export interface ServiceStepOrderLimitsData {
   mergedStepCount: number;
   minDisplayOrder: number;
   maxAvailableDisplayOrder: number;
+}
+
+/** GET /Service/validate-name-unique */
+export interface ValidateServiceNameUniqueData {
+  ministryId: number;
+  serviceName: string;
+  normalizedServiceName?: string;
+  isUnique: boolean;
 }
 
 /** POST /Service/{id}/steps — add manual step(s) */
@@ -1029,6 +1040,22 @@ export class ApiService {
     return this.http.get<ApiResponse<ServiceDetailData>>(`${this.baseUrl}/Service/${serviceId}`, {
       headers: { Accept: 'text/plain' },
     });
+  }
+
+  /**
+   * GET /Service/validate-name-unique?ministryId={id}&serviceName={name}
+   */
+  validateServiceNameUnique(
+    ministryId: number,
+    serviceName: string,
+  ): Observable<ApiResponse<ValidateServiceNameUniqueData>> {
+    const params = new HttpParams()
+      .set('ministryId', String(ministryId))
+      .set('serviceName', serviceName);
+    return this.http.get<ApiResponse<ValidateServiceNameUniqueData>>(
+      `${this.baseUrl}/Service/validate-name-unique`,
+      { params, headers: { Accept: 'text/plain' } },
+    );
   }
 
   /**

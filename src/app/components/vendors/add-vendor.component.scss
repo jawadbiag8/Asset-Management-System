@@ -235,12 +235,7 @@ $teal: #04bfbf80;
 }
 
 .btn-submit {
-  border: 1px solid rgba(20, 184, 166, 0.45);
-  color: #d8fff6;
-  background: $teal;
-
-  &:hover:not(:disabled) {
-    background: rgba(20, 184, 166, 0.48);
-    border-color: rgba(45, 212, 191, 0.8);
-  }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }

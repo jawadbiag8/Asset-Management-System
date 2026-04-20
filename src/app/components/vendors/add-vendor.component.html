@@ -1,19 +1,11 @@
 <div class="add-vendor-page container-fluid p-4">
-  <div class="crumb-row">
-    <button type="button" class="back-btn" (click)="onCancel()">&larr; Back</button>
-    <span class="crumb-sep">/</span>
-    <span class="crumb-link">Vendors</span>
-    <span class="crumb-sep">/</span>
-    <span class="crumb-current">{{ isEditMode() ? 'Edit Vendor' : 'Add Vendor' }}</span>
-  </div>
-
-  <h1 class="page-title">{{ pageTitle }}</h1>
-  <p class="page-subtitle">{{ pageSubtitle }}</p>
-
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    
     <div class="row">
       <div class="col-md-2 col-sm-12"></div>
       <div class="col-md-8 col-sm-12">
+        <h1 class="page-title">{{ pageTitle }}</h1>
+        <p class="page-subtitle">{{ pageSubtitle }}</p>
         <div class="form-card">
           <div class="form-section">
             <h2 class="section-title">Basic Information</h2>
@@ -84,7 +76,7 @@
 
           <div class="actions">
             <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="submitting()">Cancel</button>
-            <button type="submit" class="btn-submit" [disabled]="submitting() || loadingLookups()">{{ submitLabel }}</button>
+            <button type="submit" class="btn btn-primary btn-submit" [disabled]="submitting() || loadingLookups()">{{ submitLabel }}</button>
           </div>
         </div>
       </div>

@@ -53,13 +53,14 @@
 .btn-add-vendor {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  border: 1px solid rgba(94, 234, 212, 0.45);
-  border-radius: 10px;
-  padding: 9px 14px;
-  color: #c8fff2;
-  background: rgba(13, 148, 136, 0.18);
-  cursor: pointer;
+  gap: 8px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
 }
 
 .summary-grid {
@@ -156,7 +157,7 @@
     color: rgba(195, 214, 212, 0.75);
     font-size: 11px;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
+    text-transform: none;
     font-weight: 700;
   }
 

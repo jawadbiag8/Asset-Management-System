@@ -12,6 +12,9 @@
         label="Service Name"
         type="text"
         placeholder="Service Name"
+        [errorMessages]="{
+          notUnique: 'Service name already exists for this ministry.'
+        }"
         [control]="getControl('serviceName')">
       </app-reusable-input>
 

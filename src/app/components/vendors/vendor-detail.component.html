@@ -8,17 +8,10 @@
     @let v = vendor()!;
     @let s = summary()!;
 
-    <div class="crumb-row">
-      <button type="button" class="crumb-back" (click)="goBack()">&larr; Back</button>
-      <span>/</span>
-      <span>Vendors</span>
-      <span>/</span>
-      <span class="crumb-current">{{ v.vendorName }}</span>
-    </div>
 
     <div class="head-row">
       <h1 class="page-title">{{ v.vendorName }}</h1>
-      <button type="button" class="btn-edit" (click)="editVendor()">
+      <button type="button" class="btn btn-primary btn-edit-vendor" (click)="editVendor()">
         <mat-icon>edit</mat-icon>
         Edit Vendor
       </button>

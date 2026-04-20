@@ -4,33 +4,6 @@
   margin: 0 auto;
 }
 
-.breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  margin-bottom: 16px;
-
-  .crumb-link {
-    color: rgba(121, 200, 221, 0.95);
-    text-decoration: none;
-
-    &:hover {
-      color: #9edced;
-      text-decoration: underline;
-    }
-  }
-
-  .crumb-slash {
-    color: rgba(153, 201, 214, 0.6);
-  }
-
-  .crumb-current {
-    color: rgba(240, 250, 255, 0.9);
-    font-weight: 600;
-  }
-}
-
 .title-wrap {
   margin-bottom: 16px;
 

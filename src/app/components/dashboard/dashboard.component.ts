@@ -27,6 +27,7 @@ export interface DigitalAsset {
   department: string;
   websiteApplication: string;
   assetUrl: string;
+  assetLifecycleStatus?: string;
   currentStatus: string;
   lastChecked: string | null;
   lastOutage: string;
@@ -150,6 +151,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         header: 'Asset',
         cellType: 'two-line',
         primaryField: 'websiteApplication',
+        showPrimaryStatusIcon: true,
+        primaryStatusField: 'assetLifecycleStatus',
         secondaryField: 'assetUrl',
         linkField: 'assetUrl',
         sortable: true,
