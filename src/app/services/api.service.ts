@@ -376,6 +376,27 @@ export interface CommonLookupItem {
   name: string;
 }
 
+export interface AssetDistributionHosting {
+  totalAssets: number;
+  onPremise: number;
+  cloud: number;
+  private: number;
+}
+
+export interface AssetDistributionVendor {
+  vendorName: string;
+  vendorType: string;
+  totalAssetsManaged: number;
+}
+
+export interface AssetDistributionData {
+  scope: string;
+  ministryId: number | null;
+  assetId: number | null;
+  hostingDistribution: AssetDistributionHosting;
+  vendorDistribution: AssetDistributionVendor[];
+}
+
 export interface CreateVendorRequest {
   vendorName: string;
   vendorWebsite: string;
@@ -995,6 +1016,20 @@ export class ApiService {
     return this.http.get<ApiResponse<any>>(url, {
       params: searchQuery,
     });
+  }
+
+  /**
+   * GET /Asset/distribution?ministryId={id}
+   */
+  getAssetDistributionByMinistry(ministryId: number): Observable<ApiResponse<AssetDistributionData>> {
+    const params = new HttpParams().set('ministryId', String(ministryId));
+    return this.http.get<ApiResponse<AssetDistributionData>>(
+      `${this.baseUrl}/Asset/distribution`,
+      {
+        params,
+        headers: { Accept: 'text/plain' },
+      },
+    );
   }
 
   /**

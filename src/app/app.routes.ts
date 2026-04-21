@@ -27,6 +27,7 @@ import { ServiceDetailComponent } from './components/service-detail/service-deta
 import { VendorsComponent } from './components/vendors/vendors.component';
 import { AddVendorComponent } from './components/vendors/add-vendor.component';
 import { VendorDetailComponent } from './components/vendors/vendor-detail.component';
+import { MinistryInfoCardComponent } from './components/ministry-info-card/ministry-info-card.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -50,6 +51,11 @@ export const routes: Routes = [
   {
     path: 'ministry-correspondence-history',
     component: MinistryCorrespondenceHistoryComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'ministry-info-card-preview',
+    component: MinistryInfoCardComponent,
     canActivate: [AuthGuard],
   },
   {

@@ -55,6 +55,7 @@ import { AddManualStepDialogComponent } from './components/reusable/add-manual-s
 import { VendorsComponent } from './components/vendors/vendors.component';
 import { AddVendorComponent } from './components/vendors/add-vendor.component';
 import { VendorDetailComponent } from './components/vendors/vendor-detail.component';
+import { MinistryInfoCardComponent } from './components/ministry-info-card/ministry-info-card.component';
 
 @NgModule({
   declarations: [
@@ -90,6 +91,7 @@ import { VendorDetailComponent } from './components/vendors/vendor-detail.compon
     VendorsComponent,
     AddVendorComponent,
     VendorDetailComponent,
+    MinistryInfoCardComponent,
   ],
   imports: [
     BrowserModule,

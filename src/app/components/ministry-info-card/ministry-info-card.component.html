@@ -1,0 +1,259 @@
+<section class="ministry-info-page">
+  @if (errorMessage) {
+    <div class="error-banner">{{ errorMessage }}</div>
+  }
+
+  <article class="ministry-card">
+    <div class="ministry-left">
+      <div class="ministry-logo">
+        @if (ministryLogoUrl) {
+          <img [src]="ministryLogoUrl" [alt]="ministryName + ' logo'" />
+        } @else {
+          <span>{{ (ministryName || 'M').charAt(0) }}</span>
+        }
+      </div>
+      <div class="ministry-meta">
+        <h2>{{ ministryName }}</h2>
+        <p>{{ ministryAddress }}</p>
+        <span class="digital-badge">{{ digitalMaturity }}</span>
+      </div>
+    </div>
+
+    <button type="button" class="add-service-btn">+ Add New Service</button>
+  </article>
+
+  <section class="stats-row">
+    @for (stat of summaryStats; track stat.label) {
+      <article class="stat-card" [class.stat-card-alert]="stat.isAlert">
+        <h3>{{ stat.value }}</h3>
+        <p>{{ stat.label }}</p>
+      </article>
+    }
+  </section>
+
+  <section class="tabs-section">
+    <div class="tabs">
+      @for (tab of tabs; track tab) {
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab === tab"
+          (click)="setActiveTab(tab)"
+        >
+          {{ tab }}
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (loading || loadingAssets) {
+    <div class="loading-text">Loading ministry data...</div>
+  }
+
+  @if (activeTab === 'Services') {
+  <section class="services-panel">
+    <div class="services-panel-header">All Services</div>
+    @if (serviceRows.length === 0) {
+    <div class="services-empty">No services found.</div>
+    } @else {
+    <div class="services-list">
+      @for (service of serviceRows; track service.id) {
+      <article class="service-card">
+        <div class="service-card-actions">
+          <button type="button" class="service-action-btn" (click)="onEditService(service.id)">
+            Edit
+          </button>
+        </div>
+        <div class="service-meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Service Name</div>
+            <div class="meta-value">{{ service.serviceName }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Service Type</div>
+            <div class="meta-value">{{ service.serviceType }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Service Mode</div>
+            <div class="meta-value">{{ service.serviceMode }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Status</div>
+            <span class="status-pill" [class.status-pill--active]="service.status === 'Active'"
+              [class.status-pill--inactive]="service.status !== 'Active'">
+              {{ service.status }}
+            </span>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Digital Maturity</div>
+            <div class="maturity-wrap">
+              <div class="maturity-track">
+                <div class="maturity-fill" [class.maturity-fill--active]="service.status === 'Active'"
+                  [class.maturity-fill--inactive]="service.status !== 'Active'"
+                  [style.width.%]="service.digitalMaturityValue ?? 0"></div>
+              </div>
+              <span class="maturity-value">{{ service.digitalMaturityText }}</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Assets Count</div>
+            <div class="meta-value">{{ service.assetsCount }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Steps Count</div>
+            <div class="meta-value">{{ service.stepsCount }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Created At</div>
+            <div class="meta-value">{{ service.createdAt }}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Created By</div>
+            <div class="meta-value">{{ service.createdBy }}</div>
+          </div>
+        </div>
+      </article>
+      }
+    </div>
+    }
+  </section>
+  } @else {
+  <section class="data-table-wrap">
+    <table class="asset-table">
+      <thead>
+        <tr>
+          <th><button type="button" class="sortable-th" (click)="onSort('asset')">Asset {{ getSortIndicator('asset') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('department')">Department {{ getSortIndicator('department') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('hostingVendor')">Hosting Vendor {{ getSortIndicator('hostingVendor') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('devVendor')">Dev Vendor {{ getSortIndicator('devVendor') }}</button></th>
+          @if (isExperienceTab()) {
+          <th><button type="button" class="sortable-th" (click)="onSort('successRate')">Success Rate % {{ getSortIndicator('successRate') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('failureRate')">Failure Rate % {{ getSortIndicator('failureRate') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('abandonedRate')">Abandoned Rate % {{ getSortIndicator('abandonedRate') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('totalOccurrences')">Total Occurrence {{ getSortIndicator('totalOccurrences') }}</button></th>
+          } @else {
+          <th><button type="button" class="sortable-th" (click)="onSort('status')">Status {{ getSortIndicator('status') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('health')">Health {{ getSortIndicator('health') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('performance')">Performance {{ getSortIndicator('performance') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('compliance')">Compliance {{ getSortIndicator('compliance') }}</button></th>
+          <th><button type="button" class="sortable-th" (click)="onSort('openIncidents')">Open Incidents {{ getSortIndicator('openIncidents') }}</button></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (assetRows.length === 0) {
+          <tr>
+            <td [attr.colspan]="isExperienceTab() ? 8 : 9">No assets found for {{ activeTab }}.</td>
+          </tr>
+        } @else {
+        @for (row of pagedAssetRows(); track $index) {
+          <tr>
+            <td class="asset-cell">
+              <div class="asset-title-row">
+                <span>{{ row.asset }}</span>
+                <span class="star">{{ row.favorite ? '★' : '☆' }}</span>
+              </div>
+              <small>{{ row.category }}</small>
+            </td>
+            <td>{{ row.department }}</td>
+            <td>{{ row.hostingVendor }}</td>
+            <td>{{ row.devVendor }}</td>
+            @if (isExperienceTab()) {
+            <td class="value-green">{{ row.successRate }}</td>
+            <td class="value-amber">{{ row.failureRate }}</td>
+            <td class="value-red">{{ row.abandonedRate }}</td>
+            <td>{{ row.totalOccurrences }}</td>
+            } @else {
+            <td>
+              <span class="status-wrap">
+                <span class="status-dot" [class.online]="row.status === 'online'" [class.offline]="row.status === 'offline'"
+                  [class.warning]="row.status === 'warning'"></span>
+                {{ getStatusLabel(row.status) }}
+              </span>
+            </td>
+            <td class="value-green">{{ row.health }}</td>
+            <td class="value-amber">{{ row.performance }}</td>
+            <td class="value-green">{{ row.compliance }}</td>
+            <td>
+              <div>{{ row.openIncidents }}</div>
+              <small>Severity: {{ row.severity }}</small>
+            </td>
+            }
+          </tr>
+        }
+        }
+      </tbody>
+    </table>
+    @if (assetRows.length > 0) {
+    <div class="table-pagination">
+      <span>{{ paginationStart() }}-{{ paginationEnd() }} of {{ totalAssetRows() }}</span>
+      <div class="pagination-controls">
+        <label>
+          Rows:
+          <select [value]="pageSize" (change)="onPageSizeChange(($any($event.target)).value)">
+            @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+        <button type="button" (click)="onPageChange(-1)" [disabled]="!canPrevPage()">Prev</button>
+        <button type="button" (click)="onPageChange(1)" [disabled]="!canNextPage()">Next</button>
+      </div>
+    </div>
+    }
+  </section>
+  }
+
+  @if (activeTab !== 'Services') {
+  <section class="bottom-grid">
+    <article class="panel-card">
+      <div class="panel-header">
+        <h3>Hosting Distribution</h3>
+        <button type="button" class="panel-btn">Generate Report</button>
+      </div>
+
+      <div class="hosting-bars">
+        @for (item of hostingDistribution; track item.type) {
+          <div class="bar-row">
+            <span>{{ item.type }}</span>
+            <div class="bar-track">
+              <div class="bar-fill" [class]="item.colorClass" [style.width.%]="item.width"></div>
+            </div>
+            <span>{{ item.count }}</span>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="panel-card">
+      <div class="panel-header">
+        <h3>Vendor Distribution</h3>
+        <button type="button" class="panel-btn">Generate Report</button>
+      </div>
+
+      <table class="vendor-table">
+        <thead>
+          <tr>
+            <th>Vendor</th>
+            <th>Type</th>
+            <th>Assets</th>
+            <th>Digital Maturity</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (vendor of vendorDistribution; track vendor.vendor) {
+            <tr>
+              <td>{{ vendor.vendor }}</td>
+              <td>
+                <span class="vendor-type">{{ vendor.type }}</span>
+              </td>
+              <td>{{ vendor.assets }}</td>
+              <td class="value-green">{{ vendor.digitalMaturityText }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </article>
+  </section>
+  }
+</section>

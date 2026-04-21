@@ -74,7 +74,7 @@
       <div class="accordion-header" (click)="toggleAccordion(m.ministryId, $event)" role="button" tabindex="0"
         (keydown.enter)="toggleAccordion(m.ministryId, $event)" (keydown.space)="toggleAccordion(m.ministryId, $event)">
         <div class="header-left">
-          <a class="ministry-name ministry-name-link" [routerLink]="['/ministry-detail']"
+          <a class="ministry-name ministry-name-link" [routerLink]="['/ministry-info-card-preview']"
             [queryParams]="{ ministryId: m.ministryId }" (click)="$event.stopPropagation()">
             {{ m.ministryName }}
           </a>
@@ -108,7 +108,7 @@
               <span>PDF</span>
             </button>
             <span class="btn-pdf-view-divider" aria-hidden="true"></span>
-            <a class="btn-pdf-view-view" [routerLink]="['/ministry-detail']"
+            <a class="btn-pdf-view-view" [routerLink]="['/ministry-info-card-preview']"
               [queryParams]="{ ministryId: m.ministryId }" (click)="$event.stopPropagation()" aria-label="View">
               <svg class="btn-pdf-view-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
