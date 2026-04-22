@@ -17,6 +17,8 @@ export interface BreadcrumbConfig {
 const BREADCRUMB_CONFIG: { path: string; config: BreadcrumbConfig }[] = [
   { path: '/dashboard', config: { label: 'Dashboards' } },
   { path: '/asset', config: { label: 'Assets', parentPath: '/dashboard' } },
+  { path: '/vendor', config: { label: 'Vendor', parentPath: '/dashboard' } },
+  { path: '/vendor/', config: { label: 'Vendor Detail', parentPath: '/vendor' } },
   { path: '/ministries', config: { label: 'Ministries', parentPath: '/dashboard' } },
   { path: '/ministry-correspondence-history', config: { label: 'Correspondence History', parentPath: '/dashboard' } },
   { path: '/ministry-detail', config: { label: 'Ministry Detail', parentPath: '/ministries' } },

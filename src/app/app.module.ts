@@ -56,6 +56,8 @@ import { VendorsComponent } from './components/vendors/vendors.component';
 import { AddVendorComponent } from './components/vendors/add-vendor.component';
 import { VendorDetailComponent } from './components/vendors/vendor-detail.component';
 import { MinistryInfoCardComponent } from './components/ministry-info-card/ministry-info-card.component';
+import { VendorManagementComponent } from './components/vendor-management/vendor-management.component';
+import { VendorManagementDetailComponent } from './components/vendor-management-detail/vendor-management-detail.component';
 
 @NgModule({
   declarations: [
@@ -92,6 +94,8 @@ import { MinistryInfoCardComponent } from './components/ministry-info-card/minis
     AddVendorComponent,
     VendorDetailComponent,
     MinistryInfoCardComponent,
+    VendorManagementComponent,
+    VendorManagementDetailComponent,
   ],
   imports: [
     BrowserModule,

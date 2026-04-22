@@ -1,0 +1,129 @@
+<section class="vendor-detail-page">
+  @if (errorMessage) {
+    <div class="state-message state-error">{{ errorMessage }}</div>
+  }
+
+  @if (loading) {
+    <div class="state-message">Loading vendor details...</div>
+  } @else if (vendor) {
+    <article class="vendor-summary-card">
+      <div class="vendor-meta">
+        <h2>{{ vendor.vendorName || 'N/A' }}</h2>
+        <p>{{ vendor.vendorWebsite || 'N/A' }}</p>
+        <span class="vendor-type-pill">{{ vendor.vendorTypeName || 'N/A' }}</span>
+      </div>
+
+      <div class="score-grid">
+        <div class="score-card score-card--website">
+          <div class="score-value" [ngClass]="getTopScoreToneClass(vendor.compositeWebsiteScore)">
+            {{ vendor.compositeWebsiteScore || 'N/A' }}
+          </div>
+          <div class="score-label">Website Composite Score</div>
+          <div class="score-subline">
+            <span class="score-subline-icon">◎</span>
+            {{ linkedAssetsCount() }} linked assets
+          </div>
+        </div>
+        <div class="score-card score-card--apps">
+          <div class="score-value" [ngClass]="getTopScoreToneClass(vendor.compossiteAppsScore)">
+            {{ vendor.compossiteAppsScore || 'N/A' }}
+          </div>
+          <div class="score-label">Web/App Composite Score</div>
+          <div class="score-subline">
+            <span class="score-subline-icon">▣</span>
+            {{ linkedAssetsCount() }} linked assets
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <section class="asset-section">
+      <h3>Developed Assets</h3>
+      <div class="table-wrap">
+        <table class="asset-table">
+          <thead>
+            <tr>
+              <th>Asset Name</th>
+              <th>Asset Type</th>
+              <th>Ministry</th>
+              <th>Department</th>
+              <th>Hosting Type</th>
+              <th>Overall Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (developedAssets.length === 0) {
+              <tr>
+                <td colspan="6">No developed assets found.</td>
+              </tr>
+            } @else {
+              @for (item of developedAssets; track $index) {
+                <tr>
+                  <td>{{ item.assetName || 'N/A' }}</td>
+                  <td>{{ item.assetType || 'N/A' }}</td>
+                  <td>{{ item.ministry || 'N/A' }}</td>
+                  <td>{{ item.department || 'N/A' }}</td>
+                  <td>
+                    <span class="hosting-pill" [ngClass]="getHostingTypeClass(item.assetHostingType)">
+                      {{ item.assetHostingType || 'N/A' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="score-pill" [ngClass]="getScoreClass(item.overallScore)">
+                      {{ item.overallScore || 'N/A' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="asset-section">
+      <h3>Hosted Assets</h3>
+      <div class="table-wrap">
+        <table class="asset-table">
+          <thead>
+            <tr>
+              <th>Asset Name</th>
+              <th>Asset Type</th>
+              <th>Ministry</th>
+              <th>Department</th>
+              <th>Hosting Type</th>
+              <th>Overall Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (hostingAssets.length === 0) {
+              <tr>
+                <td colspan="6">No hosting assets found.</td>
+              </tr>
+            } @else {
+              @for (item of hostingAssets; track $index) {
+                <tr>
+                  <td>{{ item.assetName || 'N/A' }}</td>
+                  <td>{{ item.assetType || 'N/A' }}</td>
+                  <td>{{ item.ministry || 'N/A' }}</td>
+                  <td>{{ item.department || 'N/A' }}</td>
+                  <td>
+                    <span class="hosting-pill" [ngClass]="getHostingTypeClass(item.assetHostingType)">
+                      {{ item.assetHostingType || 'N/A' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="score-pill" [ngClass]="getScoreClass(item.overallScore)">
+                      {{ item.overallScore || 'N/A' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</section>
+

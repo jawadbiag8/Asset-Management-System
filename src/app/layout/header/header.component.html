@@ -14,6 +14,7 @@
     <nav class="nav" [class.open]="menuOpen">
       <a href="/dashboard" (click)="onHeaderNav('/dashboard'); $event.preventDefault()" [class.active]="isDashboardActive()">Dashboard</a>
       <a href="/asset" (click)="onHeaderNav('/asset'); $event.preventDefault()" [class.active]="isAssetsActive()">Assets</a>
+      <a href="/vendor" (click)="onHeaderNav('/vendor'); $event.preventDefault()" [class.active]="isVendorActive()">Vendor</a>
       <a href="/ministries" (click)="onHeaderNav('/ministries'); $event.preventDefault()" [class.active]="isMinistriesActive()">Ministries</a>
       <a href="/incidents" (click)="onHeaderNav('/incidents'); $event.preventDefault()" [class.active]="isIncidentsActive()">Incidents</a>
       <a href="/reports" (click)="onHeaderNav('/reports'); $event.preventDefault()" [class.active]="isReportsActive()">Reports</a>

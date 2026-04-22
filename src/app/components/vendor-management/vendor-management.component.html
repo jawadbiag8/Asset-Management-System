@@ -1,0 +1,77 @@
+<section class="vendor-management-page">
+  <h2 class="page-title">Vendor Management</h2>
+
+  <div class="filter-tabs">
+    <button
+      type="button"
+      class="filter-tab"
+      [class.active]="activeFilter === 'all'"
+      (click)="setFilter('all')"
+    >
+      All
+    </button>
+    <button
+      type="button"
+      class="filter-tab"
+      [class.active]="activeFilter === 'development'"
+      (click)="setFilter('development')"
+    >
+      Development
+    </button>
+    <button
+      type="button"
+      class="filter-tab"
+      [class.active]="activeFilter === 'hosting'"
+      (click)="setFilter('hosting')"
+    >
+      Hosting
+    </button>
+  </div>
+
+  @if (errorMessage) {
+    <div class="state-message state-error">{{ errorMessage }}</div>
+  }
+
+  @if (loading) {
+    <div class="state-message">Loading vendors...</div>
+  } @else if (vendors.length === 0) {
+    <div class="state-message">No vendors found.</div>
+  } @else {
+    <div class="table-wrap">
+      <table class="vendor-table">
+        <thead>
+          <tr>
+            <th>Vendor Name</th>
+            <th>Type</th>
+            <th>Linked Assets</th>
+            <th>Overall Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (vendor of vendors; track vendor.id) {
+            <tr>
+              <td>
+                <button type="button" class="vendor-name-btn" (click)="onVendorNameClick(vendor.id)">
+                  {{ vendor.vendorName || 'N/A' }}
+                </button>
+                <div class="vendor-url">{{ vendor.vendorWebsite || 'N/A' }}</div>
+              </td>
+              <td>
+                <span class="vendor-type-pill" [ngClass]="getVendorTypeClass(vendor.vendorTypeName)">
+                  {{ vendor.vendorTypeName || 'N/A' }}
+                </span>
+              </td>
+              <td>{{ getLinkedAssets(vendor) }}</td>
+              <td>
+                <span class="score-pill" [ngClass]="getScoreClass(vendor)">
+                  {{ getOverallScore(vendor) }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+

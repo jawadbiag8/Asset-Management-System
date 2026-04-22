@@ -69,7 +69,13 @@ export class HeaderComponent {
   /** Active when on /asset or asset-related routes (add/edit/view), not on ministries. */
   isAssetsActive(): boolean {
     const path = this.currentRoute().split('?')[0];
-    if (path.includes('/ministries') || path.includes('/ministry-detail')) return false;
+    if (
+      path.includes('/ministries') ||
+      path.includes('/ministry-detail') ||
+      path.includes('/vendor')
+    ) {
+      return false;
+    }
     return (
       path === '/asset' ||
       path.startsWith('/asset/') ||
@@ -77,6 +83,11 @@ export class HeaderComponent {
       path.includes('/add-digital-assets') ||
       path.includes('/edit-digital-asset')
     );
+  }
+
+  isVendorActive(): boolean {
+    const path = this.currentRoute().split('?')[0];
+    return path === '/vendor' || path.startsWith('/vendor/');
   }
 
   /** Active when on /ministries or ministry-detail only. */

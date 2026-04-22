@@ -19,11 +19,16 @@ interface SummaryStat {
 }
 
 interface AssetRow {
+  id: number;
   asset: string;
   category: string;
   department: string;
   hostingVendor: string;
+  hostingType: string;
+  hostingTypeClass: 'hosting-pill--onprem' | 'hosting-pill--cloud' | 'hosting-pill--vendor' | 'hosting-pill--default';
   devVendor: string;
+  statusName: string;
+  websiteStatusKey: 'verified' | 'discovered' | 'retired' | 'suspended' | 'other';
   status: 'online' | 'offline' | 'warning';
   health: string;
   performance: string;
@@ -47,6 +52,7 @@ interface HostingDistributionRow {
 interface VendorDistributionRow {
   vendor: string;
   type: string;
+  typeClass: 'vendor-type--govt' | 'vendor-type--private' | 'vendor-type--default';
   assets: number;
   digitalMaturityText: string;
 }
@@ -68,15 +74,25 @@ interface MinistryAssetSummary {
 
 interface MinistryAssetListItem {
   id: number;
+  assetId?: number;
   department?: string;
   websiteApplication?: string;
   assetUrl?: string;
   currentStatus?: string;
+  statusName?: string;
+  assetLifecycleStatus?: string;
+  assetStatusName?: string;
+  assetStatus?: string;
+  verificationStatus?: string;
+  discoveryStatus?: string;
   healthStatus?: string;
   performanceStatus?: string;
   complianceStatus?: string;
   developmentVendorName?: string | null;
   managingVendorName?: string | null;
+  hostingTypeName?: string | null;
+  hostingClassification?: string | null;
+  hostingType?: string | null;
   openIncidents?: number;
   highSeverityIncidents?: number;
   favorite?: boolean;
@@ -143,19 +159,20 @@ export class MinistryInfoCardComponent implements OnInit {
   pageSizeOptions = [10, 25, 50];
   pageSize = 10;
   pageIndex = 0;
+  searchQuery = '';
   sortColumn: keyof AssetRow = 'asset';
   sortDirection: 'asc' | 'desc' = 'asc';
 
   hostingDistribution: HostingDistributionRow[] = [
     { type: 'On-Premises', count: 5, width: 76, colorClass: 'bar-red' },
-    { type: 'Cloud', count: 4, width: 62, colorClass: 'bar-blue' },
-    { type: 'Private', count: 3, width: 48, colorClass: 'bar-cyan' },
+    { type: 'Cloud (Private)', count: 4, width: 62, colorClass: 'bar-blue' },
+    { type: 'Vendor-Hosted', count: 3, width: 48, colorClass: 'bar-cyan' },
   ];
 
   vendorDistribution: VendorDistributionRow[] = [
-    { vendor: 'Mercurial Minds', type: 'Govt. Entity', assets: 7, digitalMaturityText: 'N/A' },
-    { vendor: 'NTC (PTCL)', type: 'Private Entity', assets: 5, digitalMaturityText: 'N/A' },
-    { vendor: 'Nayatel Cloud', type: 'Private Entity', assets: 4, digitalMaturityText: 'N/A' },
+    { vendor: 'Mercurial Minds', type: 'Govt. Entity', typeClass: 'vendor-type--govt', assets: 7, digitalMaturityText: 'N/A' },
+    { vendor: 'NTC (PTCL)', type: 'Private Entity', typeClass: 'vendor-type--private', assets: 5, digitalMaturityText: 'N/A' },
+    { vendor: 'Nayatel Cloud', type: 'Private Entity', typeClass: 'vendor-type--private', assets: 4, digitalMaturityText: 'N/A' },
   ];
 
   constructor(
@@ -208,7 +225,12 @@ export class MinistryInfoCardComponent implements OnInit {
   }
 
   totalAssetRows(): number {
-    return this.assetRows.length;
+    return this.getFilteredAssetRows().length;
+  }
+
+  onSearchQueryChange(value: string): void {
+    this.searchQuery = value ?? '';
+    this.pageIndex = 0;
   }
 
   paginationStart(): number {
@@ -374,12 +396,33 @@ export class MinistryInfoCardComponent implements OnInit {
   }
 
   private mapAssetRow(item: MinistryAssetListItem): AssetRow {
+    const statusName =
+      item.statusName?.trim() ||
+      item.assetLifecycleStatus?.trim() ||
+      item.assetStatusName?.trim() ||
+      item.assetStatus?.trim() ||
+      item.verificationStatus?.trim() ||
+      item.discoveryStatus?.trim() ||
+      item.currentStatus?.trim() ||
+      'N/A';
+    const rawHostingType =
+      item.hostingTypeName?.trim() ||
+      item.hostingClassification?.trim() ||
+      item.hostingType?.trim() ||
+      'N/A';
+    const hostingType = this.normalizeHostingTypeLabel(rawHostingType);
+
     return {
+      id: Number(item.id ?? item.assetId ?? 0),
       asset: item.websiteApplication?.trim() || 'N/A',
       category: item.assetUrl?.trim() || 'N/A',
       department: item.department?.trim() || 'N/A',
       hostingVendor: item.managingVendorName?.trim() || 'N/A',
+      hostingType,
+      hostingTypeClass: this.getHostingTypeClass(hostingType),
       devVendor: item.developmentVendorName?.trim() || 'N/A',
+      statusName,
+      websiteStatusKey: this.getWebsiteStatusKey(statusName),
       status: this.mapStatus(item.currentStatus),
       health: item.healthStatus?.trim() || 'N/A',
       performance: item.performanceStatus?.trim() || 'N/A',
@@ -392,6 +435,88 @@ export class MinistryInfoCardComponent implements OnInit {
       abandonedRate: this.toPercentDisplay(item.abandonedRate),
       totalOccurrences: this.toCountDisplay(item.totalOccurrences),
     };
+  }
+
+  private getHostingTypeClass(
+    hostingType: string,
+  ): 'hosting-pill--onprem' | 'hosting-pill--cloud' | 'hosting-pill--vendor' | 'hosting-pill--default' {
+    const normalized = hostingType.trim().toLowerCase();
+    if (normalized.includes('on-prem') || normalized.includes('on premise') || normalized.includes('onprem')) {
+      return 'hosting-pill--onprem';
+    }
+    if (normalized.includes('cloud')) {
+      return 'hosting-pill--cloud';
+    }
+    if (normalized.includes('vendor') || normalized.includes('private')) {
+      return 'hosting-pill--vendor';
+    }
+    return 'hosting-pill--default';
+  }
+
+  private normalizeHostingTypeLabel(hostingType: string): string {
+    const normalized = hostingType.trim().toLowerCase();
+    if (normalized === 'private') return 'Vendor-Hosted';
+    if (normalized === 'cloud') return 'Cloud (Private)';
+    return hostingType;
+  }
+
+  private getWebsiteStatusKey(
+    statusName: string,
+  ): 'verified' | 'discovered' | 'retired' | 'suspended' | 'other' {
+    const normalized = statusName.trim().toLowerCase();
+    if (normalized.includes('verified')) return 'verified';
+    if (normalized.includes('discovered')) return 'discovered';
+    if (normalized.includes('retired') || normalized.includes('retierd')) return 'retired';
+    if (normalized.includes('suspended') || normalized.includes('suspanded')) return 'suspended';
+    return 'other';
+  }
+
+  onAnalyzeAsset(assetId: number): void {
+    if (!assetId) return;
+    this.router.navigate(['/asset-control-panel'], {
+      queryParams: { assetId },
+    });
+  }
+
+  onAssetNameClick(assetId: number): void {
+    if (!assetId) return;
+    this.router.navigate(['/view-assets-detail'], {
+      queryParams: {
+        id: assetId,
+        ministryId: this.ministryId ?? '',
+      },
+    });
+  }
+
+  toggleFavorite(row: AssetRow): void {
+    const assetId = row.id;
+    if (!assetId) return;
+
+    const isFavorite = !!row.favorite;
+    const request$ = isFavorite
+      ? this.apiService.removeAssetFromFavorites(assetId)
+      : this.apiService.addAssetToFavorites(assetId);
+
+    request$.subscribe({
+      next: (response) => {
+        if (!response?.isSuccessful) {
+          this.errorMessage =
+            response?.message ??
+            (isFavorite
+              ? 'Could not remove from Watchlist.'
+              : 'Could not add to Watchlist.');
+          return;
+        }
+
+        this.errorMessage = '';
+        row.favorite = !isFavorite;
+      },
+      error: () => {
+        this.errorMessage = isFavorite
+          ? 'Could not remove from Watchlist.'
+          : 'Could not add to Watchlist.';
+      },
+    });
   }
 
   private mapServiceToCardRow(item: ApiMinistryServiceItem): ServiceCardRow {
@@ -460,13 +585,13 @@ export class MinistryInfoCardComponent implements OnInit {
         colorClass: 'bar-red',
       },
       {
-        type: 'Cloud',
+        type: 'Cloud (Private)',
         count: Number(hosting?.cloud ?? 0),
         width: pct(Number(hosting?.cloud ?? 0)),
         colorClass: 'bar-blue',
       },
       {
-        type: 'Private',
+        type: 'Vendor-Hosted',
         count: Number(hosting?.private ?? 0),
         width: pct(Number(hosting?.private ?? 0)),
         colorClass: 'bar-cyan',
@@ -479,9 +604,19 @@ export class MinistryInfoCardComponent implements OnInit {
     return vendors.map((v) => ({
       vendor: v.vendorName || 'N/A',
       type: v.vendorType || 'N/A',
+      typeClass: this.getVendorTypeClass(v.vendorType || 'N/A'),
       assets: Number(v.totalAssetsManaged ?? 0),
       digitalMaturityText: 'N/A',
     }));
+  }
+
+  private getVendorTypeClass(
+    type: string,
+  ): 'vendor-type--govt' | 'vendor-type--private' | 'vendor-type--default' {
+    const normalized = type.trim().toLowerCase();
+    if (normalized.includes('govt') || normalized.includes('government')) return 'vendor-type--govt';
+    if (normalized.includes('private')) return 'vendor-type--private';
+    return 'vendor-type--default';
   }
 
   private resetTableState(): void {
@@ -491,10 +626,24 @@ export class MinistryInfoCardComponent implements OnInit {
   }
 
   private getSortedAssetRows(): AssetRow[] {
-    const rows = [...this.assetRows];
+    const rows = [...this.getFilteredAssetRows()];
     const column = this.sortColumn;
     const dir = this.sortDirection === 'asc' ? 1 : -1;
     return rows.sort((a, b) => this.compareValues(a[column], b[column]) * dir);
+  }
+
+  private getFilteredAssetRows(): AssetRow[] {
+    const query = this.searchQuery.trim().toLowerCase();
+    if (!query) return this.assetRows;
+    return this.assetRows.filter((row) => {
+      return (
+        row.asset.toLowerCase().includes(query) ||
+        row.category.toLowerCase().includes(query) ||
+        row.department.toLowerCase().includes(query) ||
+        row.hostingVendor.toLowerCase().includes(query) ||
+        row.devVendor.toLowerCase().includes(query)
+      );
+    });
   }
 
   private compareValues(a: unknown, b: unknown): number {
@@ -524,6 +673,16 @@ export class MinistryInfoCardComponent implements OnInit {
         ministryId: this.ministryId,
         serviceId,
         mode: 'edit',
+      },
+    });
+  }
+
+  onOpenService(serviceId: number): void {
+    if (!this.ministryId || !serviceId) return;
+    this.router.navigate(['/service-detail'], {
+      queryParams: {
+        ministryId: this.ministryId,
+        serviceId,
       },
     });
   }

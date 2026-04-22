@@ -28,6 +28,8 @@ import { VendorsComponent } from './components/vendors/vendors.component';
 import { AddVendorComponent } from './components/vendors/add-vendor.component';
 import { VendorDetailComponent } from './components/vendors/vendor-detail.component';
 import { MinistryInfoCardComponent } from './components/ministry-info-card/ministry-info-card.component';
+import { VendorManagementComponent } from './components/vendor-management/vendor-management.component';
+import { VendorManagementDetailComponent } from './components/vendor-management-detail/vendor-management-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -118,6 +120,16 @@ export const routes: Routes = [
   {
     path: 'pm-dashboard',
     component: PmDashboardComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'vendor',
+    component: VendorManagementComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'vendor/:id',
+    component: VendorManagementDetailComponent,
     canActivate: [AuthGuard],
   },
   {

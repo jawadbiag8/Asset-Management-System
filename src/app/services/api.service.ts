@@ -371,6 +371,34 @@ export interface VendorListData {
   hasNextPage: boolean;
 }
 
+export interface VendorAssetScoreItem {
+  assetName: string;
+  assetType: string;
+  ministry: string;
+  department: string;
+  assetHostingType: string;
+  overallScore: string;
+}
+
+export interface VendorDetailData {
+  id: number;
+  vendorName: string;
+  vendorWebsite: string;
+  vendorTypeId: number;
+  vendorTypeName: string;
+  vendorStatusId: number;
+  vendorStatusName: string;
+  linkedAsset: number;
+  compositeWebsiteScore: string;
+  compossiteAppsScore: string;
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+  developedAssets: VendorAssetScoreItem[];
+  hostingAssets: VendorAssetScoreItem[];
+}
+
 export interface CommonLookupItem {
   id: number;
   name: string;
@@ -781,6 +809,25 @@ export class ApiService {
   /** GET /Vendor */
   getVendors(): Observable<ApiResponse<VendorListData>> {
     return this.http.get<ApiResponse<VendorListData>>(`${this.baseUrl}/Vendor`, {
+      headers: { Accept: 'text/plain' },
+    });
+  }
+
+  /** GET /Vendor?VendorRole={development|hosting} */
+  getVendorsByRole(vendorRole?: 'development' | 'hosting'): Observable<ApiResponse<VendorListData>> {
+    let params = new HttpParams();
+    if (vendorRole) {
+      params = params.set('VendorRole', vendorRole);
+    }
+    return this.http.get<ApiResponse<VendorListData>>(`${this.baseUrl}/Vendor`, {
+      params,
+      headers: { Accept: 'text/plain' },
+    });
+  }
+
+  /** GET /Vendor/{id} */
+  getVendorById(vendorId: number): Observable<ApiResponse<VendorDetailData>> {
+    return this.http.get<ApiResponse<VendorDetailData>>(`${this.baseUrl}/Vendor/${vendorId}`, {
       headers: { Accept: 'text/plain' },
     });
   }
