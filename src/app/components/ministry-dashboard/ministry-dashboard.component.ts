@@ -13,6 +13,8 @@ import { DASHBOARD_FILTER_MENU, FilterOptionsService } from '../../services/filt
 export interface MinistrySummary {
   ministryId: string;
   ministryName: string;
+  logoUrl?: string;
+  initials: string;
   departmentCount: number;
   assetCount: number;
   /** Total assets for this ministry (denominator in x / total) */
@@ -45,6 +47,7 @@ export class MinistryDashboardComponent implements OnInit {
   totalCount = signal<number>(0);
   pageSize = signal<number>(10);
   pageIndex = signal<number>(0);
+  private logosByMinistryId = signal<Record<string, string>>({});
 
   /** Page size options for dropdown (same as table). */
   readonly pageSizeOptions = [5, 10, 25, 50, 100];
@@ -84,6 +87,7 @@ export class MinistryDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.filterOptions.loadFilterOptions().subscribe();
+    this.loadMinistryLogos();
     this.loadMinistryDetails();
     const firstId = this.menuFilters[0]?.id ?? 'status';
     this.currentFilterId.set(firstId);
@@ -314,12 +318,16 @@ export class MinistryDashboardComponent implements OnInit {
 
           const summaries: MinistrySummary[] = [];
           const assetsMap: Record<string, AssetTile[]> = {};
+          const logosMap = this.logosByMinistryId();
 
           list.forEach((item: any) => {
             const mid = (item.ministryId ?? item.id)?.toString() ?? '';
+            const logoPath = item.logo ?? logosMap[mid] ?? '';
             summaries.push({
               ministryId: mid,
               ministryName: item.ministryName ?? item.name ?? 'N/A',
+              logoUrl: this.resolveLogoUrl(logoPath),
+              initials: this.getMinistryInitials(item.ministryName ?? item.name ?? 'N/A'),
               departmentCount: item.numberOfDepartments ?? item.departmentCount ?? 0,
               assetCount: item.numberOfAssets ?? item.assetCount ?? 0,
               totalAssets: item.totalAssets ?? item.numberOfAssets ?? item.assetCount ?? 0,
@@ -354,6 +362,66 @@ export class MinistryDashboardComponent implements OnInit {
         this.totalCount.set(0);
       },
     });
+  }
+
+  private loadMinistryLogos(): void {
+    this.apiService.getAllMinistries().subscribe({
+      next: (response: ApiResponse<any>) => {
+        const rows = Array.isArray(response?.data) ? response.data : [];
+        const map: Record<string, string> = {};
+        rows.forEach((item: any) => {
+          const id = String(item?.id ?? item?.ministryId ?? '').trim();
+          const logo = String(item?.logo ?? '').trim();
+          if (id) map[id] = logo;
+        });
+        this.logosByMinistryId.set(map);
+        this.patchMinistryLogosFromMap();
+      },
+      error: () => {
+        this.logosByMinistryId.set({});
+      },
+    });
+  }
+
+  private patchMinistryLogosFromMap(): void {
+    const logosMap = this.logosByMinistryId();
+    const current = this.ministries();
+    if (!current.length) return;
+    this.ministries.set(
+      current.map((m) => {
+        if (m.logoUrl) return m;
+        const logoPath = logosMap[m.ministryId] ?? '';
+        return {
+          ...m,
+          logoUrl: this.resolveLogoUrl(logoPath),
+          initials: m.initials || this.getMinistryInitials(m.ministryName),
+        };
+      }),
+    );
+  }
+
+  private getMinistryInitials(name: string): string {
+    const text = String(name ?? '').trim();
+    if (!text) return 'NA';
+    const words = text
+      .split(/\s+/)
+      .map((w) => w.replace(/[^A-Za-z0-9]/g, ''))
+      .filter(Boolean);
+    if (!words.length) return 'NA';
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return `${words[0][0]}${words[1][0]}`.toUpperCase();
+  }
+
+  private resolveLogoUrl(logoPath: string | null | undefined): string {
+    if (!logoPath) return '';
+    if (/^https?:\/\//i.test(logoPath)) return logoPath;
+    const cleanedLogoPath = String(logoPath).replace(/^\/+/, '');
+    try {
+      const apiBase = new URL(this.apiService.baseUrl);
+      return `${apiBase.protocol}//${apiBase.hostname}/${cleanedLogoPath}`;
+    } catch {
+      return cleanedLogoPath;
+    }
   }
 
   /** API filterType from currently active filter only (status uses filterType=Status, not status param). */

@@ -11,7 +11,7 @@
 
     <div class="head-row">
       <h1 class="page-title">{{ v.vendorName }}</h1>
-      <button type="button" class="btn btn-primary btn-edit-vendor" (click)="editVendor()">
+      <button type="button" class="btn btn-edit-vendor" (click)="editVendor()">
         <mat-icon>edit</mat-icon>
         Edit Vendor
       </button>
@@ -27,7 +27,7 @@
         <div class="summary-label">Managed Assets</div>
       </article>
       <article class="summary-card">
-        <div class="summary-value">{{ v.offerings.length || 0 }}</div>
+        <div class="summary-value">{{ v.offerings?.length ?? 0 }}</div>
         <div class="summary-label">Service Category</div>
       </article>
     </div>
@@ -44,14 +44,6 @@
       <div class="meta-item">
         <div class="meta-label">Type</div>
         <div class="meta-value">{{ v.vendorTypeName }}</div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">Status</div>
-        <div class="meta-value"><span class="status-pill">{{ v.vendorStatusName }}</span></div>
-      </div>
-      <div class="meta-item">
-        <div class="meta-label">Category</div>
-        <div class="meta-value">{{ v.offerings.length || 0 }}</div>
       </div>
       <div class="meta-item">
         <div class="meta-label">Created By</div>

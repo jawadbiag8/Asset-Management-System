@@ -1,16 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpParams } from '@angular/common/http';
+import { HttpParams, HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import {
   ApiResponse,
   ApiService,
   AssetDistributionData,
   AssetDistributionVendor,
   CommonLookupItem,
+  CreateServiceRequest,
   MinistryServiceItem as ApiMinistryServiceItem,
   MinistryServicesResponseData,
 } from '../../services/api.service';
+import {
+  ServiceDialogAssetOption,
+  ServiceDialogComponent,
+  ServiceDialogResult,
+} from '../reusable/service-dialog/service-dialog.component';
 
 interface SummaryStat {
   label: string;
@@ -105,6 +112,9 @@ interface MinistryAssetListItem {
 interface ServiceCardRow {
   id: number;
   serviceName: string;
+  serviceTypeId: number | null;
+  description: string;
+  assetIds: number[];
   serviceType: string;
   serviceMode: string;
   status: 'Active' | 'Inactive';
@@ -134,6 +144,8 @@ export class MinistryInfoCardComponent implements OnInit {
   ministryAddress = 'Address';
   digitalMaturity = '{{digitalMaturityLevel}}';
   ministryLogoUrl = '';
+  hostingReportGenerating = false;
+  reportGenerating = false;
   loading = false;
   loadingAssets = false;
   errorMessage = '';
@@ -155,6 +167,8 @@ export class MinistryInfoCardComponent implements OnInit {
 
   assetRows: AssetRow[] = [];
   serviceRows: ServiceCardRow[] = [];
+  serviceAssetOptions: ServiceDialogAssetOption[] = [];
+  serviceTypeOptions: { label: string; value: number }[] = [];
   private assetTypeIdsByTab: Partial<Record<string, number>> = {};
   pageSizeOptions = [10, 25, 50];
   pageSize = 10;
@@ -164,9 +178,9 @@ export class MinistryInfoCardComponent implements OnInit {
   sortDirection: 'asc' | 'desc' = 'asc';
 
   hostingDistribution: HostingDistributionRow[] = [
-    { type: 'On-Premises', count: 5, width: 76, colorClass: 'bar-red' },
-    { type: 'Cloud (Private)', count: 4, width: 62, colorClass: 'bar-blue' },
-    { type: 'Vendor-Hosted', count: 3, width: 48, colorClass: 'bar-cyan' },
+    { type: 'Private', count: 5, width: 76, colorClass: 'bar-cyan' },
+    { type: 'Cloud', count: 4, width: 62, colorClass: 'bar-blue' },
+    { type: 'On-Premise', count: 3, width: 48, colorClass: 'bar-red' },
   ];
 
   vendorDistribution: VendorDistributionRow[] = [
@@ -179,6 +193,7 @@ export class MinistryInfoCardComponent implements OnInit {
     private route: ActivatedRoute,
     private apiService: ApiService,
     private router: Router,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -193,6 +208,8 @@ export class MinistryInfoCardComponent implements OnInit {
       this.loadMinistrySummary(this.ministryId);
       this.loadAssetTypeLookups(this.ministryId);
       this.loadAssetDistribution(this.ministryId);
+      this.loadServiceTypeOptions();
+      this.loadServiceAssetOptions(this.ministryId);
     });
   }
 
@@ -208,6 +225,50 @@ export class MinistryInfoCardComponent implements OnInit {
     if (status === 'online') return 'Online';
     if (status === 'warning') return 'Warning';
     return 'Offline';
+  }
+
+  getHealthValueClass(value: string | null | undefined): string {
+    const normalized = String(value ?? '').trim().toLowerCase();
+    if (normalized === 'healthy') return 'value-green';
+    if (normalized === 'fair') return 'value-amber';
+    if (normalized === 'poor') return 'value-red';
+    return 'value-muted';
+  }
+
+  getPerformanceValueClass(value: string | null | undefined): string {
+    const normalized = String(value ?? '').trim().toLowerCase();
+    if (normalized === 'good') return 'value-green';
+    if (normalized === 'average') return 'value-amber';
+    if (normalized === 'bad' || normalized === 'poor' || normalized === 'below average') {
+      return 'value-red';
+    }
+    return 'value-muted';
+  }
+
+  getComplianceValueClass(value: string | null | undefined): string {
+    const normalized = String(value ?? '').trim().toLowerCase();
+    if (normalized === 'high') return 'value-green';
+    if (normalized === 'medium') return 'value-amber';
+    if (normalized === 'low') return 'value-red';
+    return 'value-muted';
+  }
+
+  getRateValueClass(value: string | null | undefined): string {
+    const normalized = String(value ?? '').replace('%', '').trim();
+    const parsed = Number(normalized);
+    if (!Number.isFinite(parsed)) return 'value-muted';
+    if (parsed > 90) return 'rate-good';
+    if (parsed >= 70) return 'rate-warning';
+    return 'rate-error';
+  }
+
+  getReverseRateValueClass(value: string | null | undefined): string {
+    const normalized = String(value ?? '').replace('%', '').trim();
+    const parsed = Number(normalized);
+    if (!Number.isFinite(parsed)) return 'value-muted';
+    if (parsed > 90) return 'rate-error';
+    if (parsed >= 70) return 'rate-warning';
+    return 'rate-good';
   }
 
   isExperienceTab(): boolean {
@@ -455,8 +516,11 @@ export class MinistryInfoCardComponent implements OnInit {
 
   private normalizeHostingTypeLabel(hostingType: string): string {
     const normalized = hostingType.trim().toLowerCase();
-    if (normalized === 'private') return 'Vendor-Hosted';
-    if (normalized === 'cloud') return 'Cloud (Private)';
+    if (normalized.includes('on-prem') || normalized.includes('on premise') || normalized.includes('onprem')) {
+      return 'On-Premise';
+    }
+    if (normalized === 'private') return 'Private';
+    if (normalized === 'cloud') return 'Cloud';
     return hostingType;
   }
 
@@ -529,6 +593,11 @@ export class MinistryInfoCardComponent implements OnInit {
     return {
       id: Number(item.id ?? 0),
       serviceName: item.serviceName ?? 'N/A',
+      serviceTypeId: item.serviceTypeId ?? null,
+      description: item.description ?? '',
+      assetIds: Array.isArray(item.assetIds)
+        ? item.assetIds.map((x) => Number(x)).filter((x) => Number.isFinite(x) && x > 0)
+        : [],
       serviceType: item.serviceTypeName ?? 'N/A',
       serviceMode: item.serviceModeName ?? 'N/A',
       status: isActive ? 'Active' : 'Inactive',
@@ -579,22 +648,22 @@ export class MinistryInfoCardComponent implements OnInit {
 
     return [
       {
-        type: 'On-Premises',
-        count: Number(hosting?.onPremise ?? 0),
-        width: pct(Number(hosting?.onPremise ?? 0)),
-        colorClass: 'bar-red',
+        type: 'Private',
+        count: Number(hosting?.private ?? 0),
+        width: pct(Number(hosting?.private ?? 0)),
+        colorClass: 'bar-cyan',
       },
       {
-        type: 'Cloud (Private)',
+        type: 'Cloud',
         count: Number(hosting?.cloud ?? 0),
         width: pct(Number(hosting?.cloud ?? 0)),
         colorClass: 'bar-blue',
       },
       {
-        type: 'Vendor-Hosted',
-        count: Number(hosting?.private ?? 0),
-        width: pct(Number(hosting?.private ?? 0)),
-        colorClass: 'bar-cyan',
+        type: 'On-Premise',
+        count: Number(hosting?.onPremise ?? 0),
+        width: pct(Number(hosting?.onPremise ?? 0)),
+        colorClass: 'bar-red',
       },
     ];
   }
@@ -668,27 +737,250 @@ export class MinistryInfoCardComponent implements OnInit {
 
   onEditService(serviceId: number): void {
     if (!this.ministryId || !serviceId) return;
-    this.router.navigate(['/service-detail'], {
-      queryParams: {
-        ministryId: this.ministryId,
-        serviceId,
+    const service = this.serviceRows.find((row) => row.id === serviceId);
+    if (!service) return;
+
+    const dialogRef = this.dialog.open(ServiceDialogComponent, {
+      panelClass: 'service-dialog-panel',
+      disableClose: true,
+      data: {
         mode: 'edit',
+        ministryId: this.ministryId,
+        service: {
+          serviceName: service.serviceName,
+          description: service.description,
+          serviceTypeId: service.serviceTypeId,
+          assetIds: service.assetIds,
+        },
+        assetOptions: this.serviceAssetOptions,
+        serviceTypeOptions: this.serviceTypeOptions,
       },
+    });
+
+    dialogRef.afterClosed().subscribe((result: ServiceDialogResult | null | undefined) => {
+      if (!result) return;
+      this.updateService(serviceId, result);
+    });
+  }
+
+  onAddService(): void {
+    if (!this.ministryId) return;
+    const dialogRef = this.dialog.open(ServiceDialogComponent, {
+      panelClass: 'service-dialog-panel',
+      disableClose: true,
+      data: {
+        mode: 'create',
+        ministryId: this.ministryId,
+        assetOptions: this.serviceAssetOptions,
+        serviceTypeOptions: this.serviceTypeOptions,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result: ServiceDialogResult | null | undefined) => {
+      if (!result) return;
+      this.createService(result);
     });
   }
 
   onOpenService(serviceId: number): void {
-    if (!this.ministryId || !serviceId) return;
+    if (!serviceId) return;
+    const queryParams: Record<string, string | number> = { serviceId };
+    if (this.ministryId) {
+      queryParams['ministryId'] = this.ministryId;
+    }
     this.router.navigate(['/service-detail'], {
+      queryParams,
+    });
+  }
+
+  onAnalyzeService(serviceId: number): void {
+    if (!serviceId) return;
+    this.router.navigate(['/service-analytics'], {
       queryParams: {
-        ministryId: this.ministryId,
         serviceId,
       },
     });
   }
 
+  onGenerateVendorDistributionReport(): void {
+    if (!this.ministryId || this.reportGenerating) return;
+    this.reportGenerating = true;
+    this.errorMessage = '';
+
+    this.apiService.getVendorDistributionPdf(this.ministryId).subscribe({
+      next: (response) => {
+        this.reportGenerating = false;
+        const blob = response.body;
+        if (!blob || blob.size === 0) {
+          this.errorMessage = 'No report content received from server.';
+          return;
+        }
+
+        const filename = this.getPdfFilenameFromResponse(
+          response,
+          `vendor-distribution-ministry-${this.ministryId}.pdf`,
+        );
+        const objectUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = objectUrl;
+        anchor.download = filename;
+        anchor.click();
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      },
+      error: () => {
+        this.reportGenerating = false;
+        this.errorMessage = 'Failed to generate vendor distribution report.';
+      },
+    });
+  }
+
+  onGenerateHostingDistributionReport(): void {
+    if (!this.ministryId || this.hostingReportGenerating) return;
+    this.hostingReportGenerating = true;
+    this.errorMessage = '';
+
+    this.apiService.getHostingDistributionPdf(this.ministryId).subscribe({
+      next: (response) => {
+        this.hostingReportGenerating = false;
+        const blob = response.body;
+        if (!blob || blob.size === 0) {
+          this.errorMessage = 'No report content received from server.';
+          return;
+        }
+
+        const filename = this.getPdfFilenameFromResponse(
+          response,
+          `hosting-distribution-ministry-${this.ministryId}.pdf`,
+        );
+        const objectUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = objectUrl;
+        anchor.download = filename;
+        anchor.click();
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      },
+      error: () => {
+        this.hostingReportGenerating = false;
+        this.errorMessage = 'Failed to generate hosting distribution report.';
+      },
+    });
+  }
+
+  private updateService(serviceId: number, result: ServiceDialogResult): void {
+    if (!this.ministryId) return;
+    const payload: CreateServiceRequest = {
+      ministryId: this.ministryId,
+      serviceName: result.serviceName,
+      description: result.description,
+      serviceTypeId: result.serviceTypeId,
+      assetIds: Array.isArray(result.assetIds) ? result.assetIds.map((x) => Number(x)) : [],
+      manualSteps: [],
+    };
+
+    this.apiService.updateService(serviceId, payload).subscribe({
+      next: (response: ApiResponse<any>) => {
+        if (!response?.isSuccessful) {
+          this.errorMessage = response?.message ?? 'Failed to update service.';
+          return;
+        }
+        this.errorMessage = '';
+        if (this.ministryId) {
+          this.refreshAfterServiceMutation(this.ministryId);
+        }
+      },
+      error: () => {
+        this.errorMessage = 'Failed to update service.';
+      },
+    });
+  }
+
+  private createService(result: ServiceDialogResult): void {
+    if (!this.ministryId) return;
+    const payload: CreateServiceRequest = {
+      ministryId: this.ministryId,
+      serviceName: result.serviceName,
+      description: result.description,
+      serviceTypeId: result.serviceTypeId,
+      assetIds: Array.isArray(result.assetIds) ? result.assetIds.map((x) => Number(x)) : [],
+      manualSteps: [],
+    };
+
+    this.apiService.createService(payload).subscribe({
+      next: (response: ApiResponse<any>) => {
+        if (!response?.isSuccessful) {
+          this.errorMessage = response?.message ?? 'Failed to create service.';
+          return;
+        }
+        this.errorMessage = '';
+        if (this.ministryId) {
+          this.refreshAfterServiceMutation(this.ministryId);
+        }
+      },
+      error: () => {
+        this.errorMessage = 'Failed to create service.';
+      },
+    });
+  }
+
+  private loadServiceTypeOptions(): void {
+    this.apiService.getCommonLookupByType('serviceType').subscribe({
+      next: (response) => {
+        const rows = Array.isArray(response?.data) ? response.data : [];
+        this.serviceTypeOptions = rows
+          .map((row) => ({
+            label: String(row.name ?? '').trim(),
+            value: Number(row.id),
+          }))
+          .filter((option) => !!option.label && Number.isFinite(option.value));
+      },
+      error: () => {
+        this.serviceTypeOptions = [];
+      },
+    });
+  }
+
+  private loadServiceAssetOptions(ministryId: number): void {
+    const params = new HttpParams().set('PageNumber', '1').set('PageSize', '300');
+    this.apiService.getAssestByMinistry(params, ministryId).subscribe({
+      next: (response: ApiResponse<any>) => {
+        const rows = Array.isArray(response?.data?.data)
+          ? response.data.data
+          : Array.isArray(response?.data)
+            ? response.data
+            : [];
+        this.serviceAssetOptions = rows
+          .map((item: any) => ({
+            label: String(item.assetName ?? item.websiteApplication ?? item.name ?? '').trim(),
+            value: Number(item.id ?? item.assetId),
+          }))
+          .filter(
+            (option: ServiceDialogAssetOption) =>
+              !!option.label && Number.isFinite(option.value) && option.value > 0,
+          );
+      },
+      error: () => {
+        this.serviceAssetOptions = [];
+      },
+    });
+  }
+
+  /** Keep page data consistent after create/edit service without requiring full reload. */
+  private refreshAfterServiceMutation(ministryId: number): void {
+    this.loadMinistrySummary(ministryId);
+    this.loadServiceAssetOptions(ministryId);
+    this.loadAssetDistribution(ministryId);
+    this.loadAssetsForActiveTab(ministryId);
+  }
+
   private toDisplayValue(value: number | null | undefined, fallback: string): string {
     return value == null ? fallback : String(value);
+  }
+
+  getDigitalBadgeLabel(): string {
+    const text = String(this.digitalMaturity ?? '').trim();
+    if (!text || text.includes('{{')) return 'N/A';
+    if (text.toLowerCase().includes('cdms')) return text;
+    return `${text} CDMS`;
   }
 
   private resolveLogoUrl(logoPath: string | null | undefined): string {
@@ -702,5 +994,28 @@ export class MinistryInfoCardComponent implements OnInit {
     } catch {
       return cleanedLogoPath;
     }
+  }
+
+  private getPdfFilenameFromResponse(response: HttpResponse<Blob>, fallbackFileName: string): string {
+    const contentDisposition = response.headers.get('Content-Disposition');
+    const headerFilename = this.parseFilenameFromContentDisposition(contentDisposition);
+    if (headerFilename) return headerFilename;
+    return fallbackFileName;
+  }
+
+  private parseFilenameFromContentDisposition(header: string | null): string | null {
+    if (!header) return null;
+
+    const starMatch = header.match(/filename\*=UTF-8''([^;\s]+)/i);
+    if (starMatch?.[1]) {
+      try {
+        return decodeURIComponent(starMatch[1].trim());
+      } catch {
+        return starMatch[1].trim();
+      }
+    }
+
+    const normalMatch = header.match(/filename=["']?([^"';]+)["']?/i);
+    return normalMatch?.[1]?.trim() || null;
   }
 }

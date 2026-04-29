@@ -69,6 +69,9 @@ export class HeaderComponent {
   /** Active when on /asset or asset-related routes (add/edit/view), not on ministries. */
   isAssetsActive(): boolean {
     const path = this.currentRoute().split('?')[0];
+    if (path.includes('/view-assets-detail')) {
+      return true;
+    }
     if (
       path.includes('/ministries') ||
       path.includes('/ministry-detail') ||
@@ -93,7 +96,13 @@ export class HeaderComponent {
   /** Active when on /ministries or ministry-detail only. */
   isMinistriesActive(): boolean {
     const path = this.currentRoute().split('?')[0];
-    return path === '/ministries' || path.startsWith('/ministries/') || path.includes('/ministry-detail');
+    return (
+      path === '/ministries' ||
+      path.startsWith('/ministries/') ||
+      path.includes('/ministry-detail') ||
+      path.includes('/ministry-info-card-preview') ||
+      path.includes('/ministry-correspondence-history')
+    );
   }
 
   isDashboardActive(): boolean {

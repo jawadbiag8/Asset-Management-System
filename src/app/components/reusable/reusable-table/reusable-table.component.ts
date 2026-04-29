@@ -510,6 +510,12 @@ export interface TableColumn {
     color?: string; // CSS color for icon or text
     disabled?: boolean | ((row: any) => boolean); // When true or function returns true, button is disabled
     showTooltip?: boolean; // When false, no tooltip on hover (default true)
+    menuItems?: Array<{
+      label: string;
+      iconName?: string;
+      disabled?: boolean | ((row: any) => boolean);
+      hidden?: boolean | ((row: any) => boolean);
+    }>;
   }>;
 }
 
@@ -555,6 +561,7 @@ export class ReusableTableComponent
 {
   @Input() config!: TableConfig;
   @Input() filters: FilterPill[] = []; // Filters controlled from parent (initial state)
+  @Input() showFilters: boolean = true; // Controls filter UI visibility
   @Input() totalItems?: number; // Total items count for server-side pagination
 
   @Output() searchQuery = new EventEmitter<HttpParams>(); // Emit search query parameter as HttpParams (for server-side)
@@ -673,6 +680,16 @@ export class ReusableTableComponent
      SERVER-SIDE MODE
      ========================= */
     if (this.config?.serverSideSearch) {
+      if (changes['config'] && this.config?.columns) {
+        this.displayedColumns = this.config.columns.map((col) => col.key);
+        const validKeys = new Set(this.displayedColumns);
+        Object.keys(this.sortState).forEach((key) => {
+          if (!validKeys.has(key)) {
+            delete this.sortState[key];
+          }
+        });
+      }
+
       // Sync filters from parent when parent updates (e.g. after KPI click or syncFiltersFromParams)
       if (changes['filters'] && changes['filters'].currentValue) {
         this.filters = changes['filters'].currentValue;
@@ -711,6 +728,9 @@ export class ReusableTableComponent
       this.config?.data &&
       Array.isArray(this.config.data)
     ) {
+      if (this.config?.columns) {
+        this.displayedColumns = this.config.columns.map((col) => col.key);
+      }
       this.originalData = [...this.config.data];
       this.sortedData = [...this.originalData];
 
@@ -1138,6 +1158,19 @@ export class ReusableTableComponent
 
   onActionLinkClick(row: any, actionLabel: string): void {
     this.actionClick.emit({ row, columnKey: actionLabel });
+  }
+
+  isActionHidden(
+    row: any,
+    action: { hidden?: boolean | ((row: any) => boolean) },
+  ): boolean {
+    if (action.hidden === undefined || action.hidden === null) return false;
+    if (typeof action.hidden === 'boolean') return action.hidden;
+    try {
+      return action.hidden(row) === true;
+    } catch {
+      return false;
+    }
   }
 
   private getNestedValue(obj: any, path: string): any {

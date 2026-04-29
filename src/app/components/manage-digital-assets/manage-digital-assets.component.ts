@@ -46,6 +46,7 @@ export interface DigitalAssetRequest {
   standalone: false,
 })
 export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanComponentDeactivate {
+  private readonly NONE_VENDOR_VALUE = '';
 
   pageInfo = signal<{
     pageState: 'add' | 'edit' | null;
@@ -70,7 +71,9 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
   citizenImpactLevelOptions: { label: string, value: number }[] = [];
   assetTypeOptions: { label: string, value: number }[] = [];
   hostingTypeOptions: { label: string, value: number }[] = [];
+  hostingClassificationOptions: { label: string, value: number | '' }[] = [];
   vendorOptions: { label: string, value: number }[] = [];
+  hostingVendorOptions: { label: string, value: number | '' }[] = [];
   /** Options for Asset Status dropdown (edit mode only); from API CommonLookup/type/AssetStatus */
   assetStatusOptions: { label: string, value: number }[] = [];
 
@@ -157,6 +160,9 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     this.digitalAssetForm.get('ministryId')?.valueChanges.subscribe((value: number) => {
       this.getDepartmentsByMinistry(value);
     });
+    this.digitalAssetForm.get('hostingTypeId')?.valueChanges.subscribe(() => {
+      this.updateHostingVendorRules();
+    });
 
     this.technicalOwnersArray.valueChanges.subscribe(() => {
       this.technicalOwnersArray.updateValueAndValidity();
@@ -167,6 +173,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     this.getAssetTypeOptions();
     this.getHostingTypeOptions();
     this.getVendorOptions();
+    this.updateHostingVendorRules();
   }
 
 
@@ -184,9 +191,9 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       // Compliance Configuration
       citizenImpactLevelId: ['', Validators.required],
       assetTypeId: ['', Validators.required],
-      hostingTypeId: ['', Validators.required],
+      hostingTypeId: [''],
       developmentVendorId: ['', Validators.required],
-      managingVendorId: ['', Validators.required],
+      managingVendorId: [''],
 
       // Additional Information
       description: ['', Validators.maxLength(500)],
@@ -309,6 +316,11 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       next: (res: ApiResponse) => {
         if (res.isSuccessful) {
           this.hostingTypeOptions = res.data.map((item: any) => ({ label: item.name, value: item.id })) || [];
+          this.hostingClassificationOptions = [
+            { label: 'None', value: this.NONE_VENDOR_VALUE },
+            ...this.hostingTypeOptions,
+          ];
+          this.updateHostingVendorRules();
         } else {
           this.utils.showToast(res.message, 'Error fetching hosting types', 'error');
         }
@@ -333,6 +345,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
           label: v.vendorName ?? v.name ?? `Vendor ${v.id}`,
           value: v.id,
         }));
+        this.updateHostingVendorRules();
       },
       error: (error: any) => {
         this.utils.showToast(error, 'Error fetching vendors', 'error');
@@ -392,6 +405,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
             primaryContactEmail: businessContact?.['contactEmail'] ?? '',
             primaryContactPhone: businessContact?.['contactNumber'] ?? '',
           });
+          this.updateHostingVendorRules();
 
           // Technical owners: one row per contact with type === "Technical"
           this.technicalOwnersArray.clear();
@@ -456,9 +470,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       description: raw['description'] as string,
       citizenImpactLevelId: raw['citizenImpactLevelId'] as number,
       assetTypeId: raw['assetTypeId'] as number,
-      hostingTypeId: raw['hostingTypeId'] as number,
       developmentVendorId: raw['developmentVendorId'] as number,
-      managingVendorId: raw['managingVendorId'] as number,
       primaryContactName: raw['primaryContactName'] as string,
       primaryContactEmail: raw['primaryContactEmail'] as string,
       primaryContactPhone: raw['primaryContactPhone'] as string,
@@ -466,6 +478,12 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     };
     if (raw['departmentId'] != null && raw['departmentId'] !== '') {
       payload.departmentId = raw['departmentId'] as number;
+    }
+    if (raw['hostingTypeId'] != null && raw['hostingTypeId'] !== '') {
+      payload.hostingTypeId = raw['hostingTypeId'] as number;
+    }
+    if (raw['managingVendorId'] != null && raw['managingVendorId'] !== '') {
+      payload.managingVendorId = raw['managingVendorId'] as number;
     }
     if (this.pageInfo().pageState === 'edit') {
       const contacts: AssetContactItem[] = [];
@@ -505,13 +523,17 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
         citizenImpactLevelId: payload.citizenImpactLevelId,
         statusId: raw['assetStatusId'] as number,
         assetTypeId: payload.assetTypeId as number,
-        hostingTypeId: payload.hostingTypeId as number,
         developmentVendorId: payload.developmentVendorId as number,
-        managingVendorId: payload.managingVendorId as number,
         RefId: (raw['refId'] as string) || '',
         Path: (raw['path'] as string) || '',
         Contacts: contacts,
       };
+      if (payload.managingVendorId != null) {
+        putBody.managingVendorId = payload.managingVendorId;
+      }
+      if (payload.hostingTypeId != null) {
+        putBody.hostingTypeId = payload.hostingTypeId;
+      }
       this.api.updateAsset(this.pageInfo().assetId, putBody).subscribe({
         next: (res: ApiResponse) => {
           if (res.isSuccessful) {
@@ -564,11 +586,15 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       citizenImpactLevelId: payload.citizenImpactLevelId,
       description: payload.description ?? '',
       assetTypeId: payload.assetTypeId as number,
-      hostingTypeId: payload.hostingTypeId as number,
       developmentVendorId: payload.developmentVendorId as number,
-      managingVendorId: payload.managingVendorId as number,
       contacts,
     };
+    if (payload.hostingTypeId != null) {
+      addBody.hostingTypeId = payload.hostingTypeId;
+    }
+    if (payload.managingVendorId != null) {
+      addBody.managingVendorId = payload.managingVendorId;
+    }
     if (payload.departmentId != null) {
       addBody.departmentId = payload.departmentId;
     }
@@ -733,6 +759,31 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     return true;
   }
 
+  private updateHostingVendorRules(): void {
+    const control = this.digitalAssetForm.get('managingVendorId');
+    if (!control) return;
+    const isOptional = this.isHostingClassificationNoneOrEmpty();
+    this.hostingVendorOptions = isOptional
+      ? [{ label: 'None', value: this.NONE_VENDOR_VALUE }, ...this.vendorOptions]
+      : [...this.vendorOptions];
+    if (isOptional) {
+      control.clearValidators();
+    } else {
+      control.setValidators([Validators.required]);
+    }
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private isHostingClassificationNoneOrEmpty(): boolean {
+    const hostingTypeId = this.digitalAssetForm.get('hostingTypeId')?.value;
+    if (hostingTypeId == null || hostingTypeId === '') {
+      return true;
+    }
+    const selectedOption = this.hostingTypeOptions.find((option) => option.value === hostingTypeId);
+    const selectedLabel = String(selectedOption?.label ?? '').trim().toLowerCase();
+    return selectedLabel === '' || selectedLabel === 'none';
+  }
+
   /**
    * Called when user clicks "Update Digital Asset" (edit mode).
    * Runs form validation first (including Technical Owners). If invalid, shows errors and does not open dialog.
@@ -784,9 +835,7 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
       description: raw['description'] as string,
       citizenImpactLevelId: raw['citizenImpactLevelId'] as number,
       assetTypeId: raw['assetTypeId'] as number,
-      hostingTypeId: raw['hostingTypeId'] as number,
       developmentVendorId: raw['developmentVendorId'] as number,
-      managingVendorId: raw['managingVendorId'] as number,
       primaryContactName: raw['primaryContactName'] as string,
       primaryContactEmail: raw['primaryContactEmail'] as string,
       primaryContactPhone: raw['primaryContactPhone'] as string,
@@ -794,6 +843,12 @@ export class ManageDigitalAssetsComponent implements OnInit, OnDestroy, CanCompo
     };
     if (raw['departmentId'] != null && raw['departmentId'] !== '') {
       payload.departmentId = raw['departmentId'] as number;
+    }
+    if (raw['hostingTypeId'] != null && raw['hostingTypeId'] !== '') {
+      payload.hostingTypeId = raw['hostingTypeId'] as number;
+    }
+    if (raw['managingVendorId'] != null && raw['managingVendorId'] !== '') {
+      payload.managingVendorId = raw['managingVendorId'] as number;
     }
     if (raw['assetStatusId'] != null && raw['assetStatusId'] !== '') {
       payload.assetStatusId = raw['assetStatusId'] as number;

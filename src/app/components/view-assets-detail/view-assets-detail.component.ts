@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { ApiService, ApiResponse } from '../../services/api.service';
 
 /** Single contact from GET Asset (contacts[]). */
@@ -83,7 +82,10 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
     assetName: '',
     url: '',
     ministry: '',
+    ministryAddress: '',
+    ministryLogoUrl: '',
     department: '',
+    assetType: '',
     citizenImpactLevel: '',
     currentStatus: '',
     lastOutage: '',
@@ -102,6 +104,29 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
 
   // Standards Compliance
   standardsCompliance: { name: string; status: string }[] = [];
+
+  isApplicationAsset = false;
+  applicationMetrics = {
+    overallScore: '0%',
+    availability: '0%',
+    adoption: '0%',
+    efficiency: '0%',
+    reliability: '0%',
+  };
+  formsAttached: Array<{
+    formId: string;
+    formName: string;
+    serviceName: string;
+    totalOccurrences: number;
+    completionRate: string;
+  }> = [];
+  servicesAttached: Array<{
+    serviceId: number;
+    serviceName: string;
+    serviceType: string;
+    serviceMode: string;
+    serviceStatus: string;
+  }> = [];
 
   // Ownership & Accountability
   ownership = {
@@ -141,92 +166,207 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    forkJoin({
-      dashboard: this.apiService.getAssetsDashboad(this.assetId),
-      asset: this.apiService.getAssetById(this.assetId),
-    }).subscribe({
-      next: ({ dashboard: response, asset: assetResponse }) => {
-        if (response.isSuccessful && response.data) {
-          const d = response.data;
-
-          // Map API response to assetDetails (dashboard header)
-          this.assetDetails = {
-            assetName: d.assetName ?? '',
-            url: d.assetUrl ?? '',
-            ministry: d.ministry ?? '',
-            department: d.department ?? '',
-            citizenImpactLevel: d.citizenImpactLevel ?? '',
-            currentStatus: d.currentStatus ?? '',
-            lastOutage: d.lastOutage ?? '',
-            currentHealth: d.currentHealth ?? '',
-            riskExposureIndex: d.riskExposureIndex ?? '',
-            favorite: Boolean(d.favorite),
-          };
-          this.breadcrumbService.setCurrentLabel(this.assetDetails.assetName || 'Asset Detail');
-
-          // Map API response to summary KPIs
-          this.summaryKpis = {
-            citizenHappiness: Number(d.citizenHappinessMetric) ?? 0,
-            overallCompliance: Number(d.overallComplianceMetric) ?? 0,
-            openIncidents: Number(d.openIncidents) ?? 0,
-            highSeverityOpenIncidents: Number(d.highSeverityOpenIncidents) ?? 0,
-          };
-
-          // Map API response to standards compliance (Compliance Overview)
-          this.standardsCompliance = [
-            {
-              name: 'Accessibility & Inclusivity',
-              status: d.accessibilityInclusivityStatus ?? 'N/A',
-            },
-            {
-              name: 'Availability & Reliability',
-              status: d.availabilityReliabilityStatus ?? 'N/A',
-            },
-            {
-              name: 'Navigation & Discoverability',
-              status: d.navigationDiscoverabilityStatus ?? 'N/A',
-            },
-            {
-              name: 'Performance & Efficiency',
-              status: d.performanceEfficiencyStatus ?? 'N/A',
-            },
-            {
-              name: 'Security, Trust & Privacy',
-              status: d.securityTrustPrivacyStatus ?? 'N/A',
-            },
-            {
-              name: 'User Experience & Journey Quality',
-              status: d.userExperienceJourneyQualityStatus ?? 'N/A',
-            },
-          ];
-
-          // Map API response to ownership (show N/A instead of NA for empty/NA values)
-          const na = (v: any) =>
-            v == null || String(v).trim() === '' || String(v).toUpperCase() === 'NA' ? 'N/A' : String(v).trim();
-          this.ownership = {
-            ownerName: d.ownerName?.trim() || 'Not Assigned',
-            ownerEmail: na(d.ownerEmail),
-            ownerContact: na(d.ownerContact),
-            technicalOwnerName: d.technicalOwnerName?.trim() || 'Not Assigned',
-            technicalOwnerEmail: na(d.technicalOwnerEmail),
-            technicalOwnerContact: na(d.technicalOwnerContact),
-          };
-        } else {
-          console.error('API Error:', response.message);
+    this.apiService.getAssetById(this.assetId).subscribe({
+      next: (assetResponse) => {
+        if (!assetResponse?.isSuccessful || !assetResponse?.data) {
+          this.assetContacts = [];
+          this.loadWebsiteAssetDashboard();
+          return;
         }
 
-        if (assetResponse?.isSuccessful && assetResponse?.data) {
-          const data = assetResponse.data as Record<string, unknown>;
-          const contacts = (data['contacts'] as AssetContact[]) ?? [];
-          this.assetContacts = Array.isArray(contacts) ? contacts : [];
+        const data = assetResponse.data as Record<string, unknown>;
+        const contacts = (data['contacts'] as AssetContact[]) ?? [];
+        this.assetContacts = Array.isArray(contacts) ? contacts : [];
+
+        const assetTypeName = String(data['assetTypeName'] ?? '').trim();
+        if (assetTypeName) {
+          this.assetDetails.assetType = assetTypeName;
+        }
+        this.assetDetails.assetName = String(data['assetName'] ?? this.assetDetails.assetName ?? '');
+        this.assetDetails.url = String(data['assetUrl'] ?? this.assetDetails.url ?? '');
+        this.assetDetails.ministry =
+          String(data['ministryName'] ?? this.assetDetails.ministry ?? '');
+        this.assetDetails.department =
+          String(data['departmentName'] ?? this.assetDetails.department ?? '');
+        this.assetDetails.ministryAddress = String(
+          data['ministryAddress'] ?? this.assetDetails.ministryAddress ?? '',
+        );
+        this.assetDetails.ministryLogoUrl = this.resolveLogoUrl(
+          String(data['logo'] ?? this.assetDetails.ministryLogoUrl ?? ''),
+        );
+
+        const assetMinistryId = Number(data['ministryId']);
+        const effectiveMinistryId =
+          this.ministryId && this.ministryId > 0
+            ? this.ministryId
+            : Number.isFinite(assetMinistryId) && assetMinistryId > 0
+              ? assetMinistryId
+              : null;
+        if (effectiveMinistryId) {
+          this.loadMinistryMeta(effectiveMinistryId);
+        }
+
+        const typeLower = assetTypeName.toLowerCase();
+        this.isApplicationAsset =
+          typeLower.includes('web application') ||
+          typeLower.includes('web app') ||
+          typeLower.includes('mobile application') ||
+          typeLower.includes('mobile app');
+
+        if (this.isApplicationAsset) {
+          this.loadApplicationAssetDetails();
         } else {
-          this.assetContacts = [];
+          this.loadWebsiteAssetDashboard();
         }
       },
       error: (error) => {
-        console.error('Error loading asset dashboard:', error);
+        console.error('Error loading asset:', error);
         this.assetContacts = [];
+        this.loadWebsiteAssetDashboard();
       },
+    });
+  }
+
+  private loadWebsiteAssetDashboard(): void {
+    if (!this.assetId) return;
+    this.apiService.getAssetsDashboad(this.assetId).subscribe({
+      next: (response) => {
+        if (!response?.isSuccessful || !response?.data) {
+          console.error('API Error:', response?.message);
+          return;
+        }
+        const d = response.data;
+        this.assetDetails = {
+          ...this.assetDetails,
+          assetName: d.assetName ?? this.assetDetails.assetName,
+          url: d.assetUrl ?? this.assetDetails.url,
+          ministry: d.ministry ?? this.assetDetails.ministry,
+          ministryAddress: d.ministryAddress ?? this.assetDetails.ministryAddress,
+          ministryLogoUrl: this.resolveLogoUrl(
+            d.ministryLogo ?? d.logo ?? this.assetDetails.ministryLogoUrl,
+          ),
+          department: d.department ?? this.assetDetails.department,
+          assetType: d.assetTypeName ?? d.assetType ?? this.assetDetails.assetType,
+          citizenImpactLevel: d.citizenImpactLevel ?? '',
+          currentStatus: d.currentStatus ?? '',
+          lastOutage: d.lastOutage ?? '',
+          currentHealth: d.currentHealth ?? '',
+          riskExposureIndex: d.riskExposureIndex ?? '',
+          favorite: Boolean(d.favorite),
+        };
+        this.breadcrumbService.setCurrentLabel(
+          this.assetDetails.assetName || 'Asset Detail',
+        );
+
+        this.summaryKpis = {
+          citizenHappiness: Number(d.citizenHappinessMetric) ?? 0,
+          overallCompliance: Number(d.overallComplianceMetric) ?? 0,
+          openIncidents: Number(d.openIncidents) ?? 0,
+          highSeverityOpenIncidents: Number(d.highSeverityOpenIncidents) ?? 0,
+        };
+
+        this.standardsCompliance = [
+          {
+            name: 'Accessibility & Inclusivity',
+            status: d.accessibilityInclusivityStatus ?? 'N/A',
+          },
+          {
+            name: 'Availability & Reliability',
+            status: d.availabilityReliabilityStatus ?? 'N/A',
+          },
+          {
+            name: 'Navigation & Discoverability',
+            status: d.navigationDiscoverabilityStatus ?? 'N/A',
+          },
+          {
+            name: 'Performance & Efficiency',
+            status: d.performanceEfficiencyStatus ?? 'N/A',
+          },
+          {
+            name: 'Security, Trust & Privacy',
+            status: d.securityTrustPrivacyStatus ?? 'N/A',
+          },
+          {
+            name: 'User Experience & Journey Quality',
+            status: d.userExperienceJourneyQualityStatus ?? 'N/A',
+          },
+        ];
+
+        const na = (v: any) =>
+          v == null || String(v).trim() === '' || String(v).toUpperCase() === 'NA'
+            ? 'N/A'
+            : String(v).trim();
+        this.ownership = {
+          ownerName: d.ownerName?.trim() || 'Not Assigned',
+          ownerEmail: na(d.ownerEmail),
+          ownerContact: na(d.ownerContact),
+          technicalOwnerName: d.technicalOwnerName?.trim() || 'Not Assigned',
+          technicalOwnerEmail: na(d.technicalOwnerEmail),
+          technicalOwnerContact: na(d.technicalOwnerContact),
+        };
+      },
+      error: (error) => {
+        console.error('Error loading website asset dashboard:', error);
+      },
+    });
+  }
+
+  private loadApplicationAssetDetails(): void {
+    if (!this.assetId) return;
+    this.apiService.getAssetApplicationDetails(this.assetId).subscribe({
+      next: (response) => {
+        if (!response?.isSuccessful || !response?.data) {
+          return;
+        }
+        const d = response.data as Record<string, any>;
+        const metrics = (d['applicationMetrics'] ?? {}) as Record<string, any>;
+        this.assetDetails = {
+          ...this.assetDetails,
+          assetName: d['assetName'] ?? this.assetDetails.assetName,
+          url: d['assetUrl'] ?? this.assetDetails.url,
+          ministry: d['ministryName'] ?? this.assetDetails.ministry,
+          ministryAddress: d['ministryAddress'] ?? this.assetDetails.ministryAddress,
+          ministryLogoUrl: this.resolveLogoUrl(
+            d['logo'] ?? this.assetDetails.ministryLogoUrl,
+          ),
+          department: d['departmentName'] ?? this.assetDetails.department,
+          assetType: d['assetTypeName'] ?? this.assetDetails.assetType,
+          favorite: Boolean(this.assetDetails.favorite),
+        };
+        this.breadcrumbService.setCurrentLabel(
+          this.assetDetails.assetName || 'Asset Detail',
+        );
+
+        this.applicationMetrics = {
+          overallScore: String(metrics['overallScore'] ?? '0%'),
+          availability: String(metrics['availability'] ?? '0%'),
+          adoption: String(metrics['successRate'] ?? '0%'),
+          efficiency: String(metrics['efficiency'] ?? '0%'),
+          reliability: String(metrics['reliability'] ?? '0%'),
+        };
+
+        const services = Array.isArray(d['servicesAttached']) ? d['servicesAttached'] : [];
+        this.servicesAttached = services.map((service: any) => ({
+          serviceId: Number(service.serviceId ?? 0),
+          serviceName: String(service.serviceName ?? 'N/A'),
+          serviceType: String(service.serviceType ?? 'N/A'),
+          serviceMode: String(service.serviceMode ?? 'N/A'),
+          serviceStatus: String(service.serviceStatus ?? 'Unknown'),
+        }));
+
+        const forms = Array.isArray(d['formsAttached']) ? d['formsAttached'] : [];
+        this.formsAttached = forms.map((form: any) => ({
+          formId: String(form.formId ?? ''),
+          formName: String(form.formName ?? 'N/A'),
+          serviceName: String(form.serviceName ?? 'N/A'),
+          totalOccurrences: Number(form?.last7Days?.totalOccurrences ?? 0),
+          completionRate: String(form?.last7Days?.completionRate ?? '0%'),
+        }));
+
+        const appContacts = Array.isArray(d['contacts']) ? d['contacts'] : [];
+        this.assetContacts = appContacts;
+      },
+      error: () => {},
     });
   }
 
@@ -234,6 +374,69 @@ export class ViewAssetsDetailComponent implements OnInit, OnDestroy {
   formatLastOutage(value: string | null | undefined): string {
     if (value == null || value === '') return 'N/A';
     return formatDateOrPassThrough(value);
+  }
+
+  getAssetTypeIconKind():
+    | 'website'
+    | 'web-application'
+    | 'mobile-application'
+    | 'other' {
+    const raw = String(this.assetDetails.assetType ?? '').trim().toLowerCase();
+    if (!raw) return 'other';
+    if (raw.includes('website')) return 'website';
+    if (raw.includes('web application') || raw.includes('web app'))
+      return 'web-application';
+    if (raw.includes('mobile application') || raw.includes('mobile app'))
+      return 'mobile-application';
+    return 'other';
+  }
+
+  getCircularProgressStyle(value: string | number | null | undefined): string {
+    return this.getCircularProgressStyleWithColor(value, '#facc15');
+  }
+
+  getCircularProgressStyleWithColor(
+    value: string | number | null | undefined,
+    color: string,
+  ): string {
+    const n = this.parsePercent(value);
+    const angle = Math.max(0, Math.min(100, n)) * 3.6;
+    return `conic-gradient(${color} ${angle}deg, rgba(255,255,255,0.16) ${angle}deg 360deg)`;
+  }
+
+  private parsePercent(value: string | number | null | undefined): number {
+    const n = Number(String(value ?? '0').replace('%', '').trim());
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  private loadMinistryMeta(ministryId: number): void {
+    this.apiService.getMinistryDetailById(ministryId).subscribe({
+      next: (res) => {
+        if (!res?.isSuccessful || !res?.data) return;
+        const data = res.data as Record<string, unknown>;
+        const address = String(data['address'] ?? '').trim();
+        const logoPath = String(data['logo'] ?? '').trim();
+        if (address) {
+          this.assetDetails.ministryAddress = address;
+        }
+        if (logoPath) {
+          this.assetDetails.ministryLogoUrl = this.resolveLogoUrl(logoPath);
+        }
+      },
+      error: () => {},
+    });
+  }
+
+  private resolveLogoUrl(logoPath: string | null | undefined): string {
+    if (!logoPath) return '';
+    if (/^https?:\/\//i.test(logoPath)) return logoPath;
+    const cleanedLogoPath = logoPath.replace(/^\/+/, '');
+    try {
+      const apiBase = new URL(this.apiService.baseUrl);
+      return `${apiBase.protocol}//${apiBase.hostname}/${cleanedLogoPath}`;
+    } catch {
+      return cleanedLogoPath;
+    }
   }
 
   /** Compliance Overview badge class (High/Medium/Low/N/A – case-insensitive). */

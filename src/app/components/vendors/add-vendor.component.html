@@ -37,6 +37,26 @@
 
               <div class="col-md-6">
                 <app-reusable-input
+                  label="Email"
+                  type="email"
+                  placeholder="Email ID"
+                  hint="Enter the Email id"
+                  [control]="getControl('vendorEmail')">
+                </app-reusable-input>
+              </div>
+
+              <div class="col-md-6">
+                <app-reusable-input
+                  label="Phone"
+                  type="text"
+                  placeholder="Enter Phone Number"
+                  hint="Enter phone number"
+                  [control]="getControl('vendorPhone')">
+                </app-reusable-input>
+              </div>
+
+              <div class="col-md-6">
+                <app-reusable-input
                   label="Vendor Type"
                   type="select"
                   placeholder="Vendor Type"
@@ -45,33 +65,7 @@
                   [control]="getControl('vendorTypeId')">
                 </app-reusable-input>
               </div>
-
-              <div class="col-md-6">
-                <app-reusable-input
-                  label="Vendor Status"
-                  type="select"
-                  placeholder="Vendor Status"
-                  hint="Select the vendor status"
-                  [options]="vendorStatusOptions"
-                  [control]="getControl('vendorStatusId')">
-                </app-reusable-input>
-              </div>
             </div>
-          </div>
-          <div class="offerings-section">
-            <div class="offerings-title">Vendor Category / Offerings <span class="required">*</span></div>
-            @for (off of offeringOptions; track off.id) {
-              <label class="offering-item">
-                <input
-                  type="checkbox"
-                  [checked]="isOfferingSelected(off.id)"
-                  (change)="onToggleOffering(off.id, $any($event.target).checked)" />
-                <span>{{ off.name }}</span>
-              </label>
-            }
-            @if (getControl('offeringIds').touched && getControl('offeringIds').invalid) {
-              <div class="offerings-error">Please select at least one offering.</div>
-            }
           </div>
 
           <div class="actions">

@@ -42,6 +42,7 @@ export class SetupMinistryFormComponent implements OnInit {
 
   form = this.fb.group({
     ministryName: ['', [Validators.required, Validators.maxLength(150)]],
+    address: ['', [Validators.maxLength(500)]],
     description: ['', [Validators.maxLength(500)]],
     contactName: ['', [Validators.maxLength(100)]],
     contactDesignation: ['', [Validators.maxLength(100)]],
@@ -87,6 +88,7 @@ export class SetupMinistryFormComponent implements OnInit {
         );
         this.form.patchValue({
           ministryName: data?.ministryName ?? '',
+          address: data?.address ?? '',
           description: data?.description ?? '',
           contactName: data?.contactName ?? '',
           contactDesignation: data?.contactDesignation ?? '',
@@ -175,12 +177,13 @@ export class SetupMinistryFormComponent implements OnInit {
       contactDesignation: this.form.value.contactDesignation?.trim() || '',
       contactEmail: this.form.value.contactEmail?.trim() || '',
       contactPhone: this.form.value.contactPhone?.trim() || '',
+      address: this.form.value.address?.trim() || '',
       description: this.form.value.description?.trim() || '',
     };
 
     return {
       ministryName: payload.ministryName,
-      address: '',
+      address: payload.address,
       contactName: payload.contactName,
       contactEmail: payload.contactEmail,
       contactPhone: payload.contactPhone,

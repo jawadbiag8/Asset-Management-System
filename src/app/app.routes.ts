@@ -30,6 +30,7 @@ import { VendorDetailComponent } from './components/vendors/vendor-detail.compon
 import { MinistryInfoCardComponent } from './components/ministry-info-card/ministry-info-card.component';
 import { VendorManagementComponent } from './components/vendor-management/vendor-management.component';
 import { VendorManagementDetailComponent } from './components/vendor-management-detail/vendor-management-detail.component';
+import { ServiceAnalyticsComponent } from './components/service-analytics/service-analytics.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -83,6 +84,11 @@ export const routes: Routes = [
   {
     path: 'service-detail',
     component: ServiceDetailComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'service-analytics',
+    component: ServiceAnalyticsComponent,
     canActivate: [AuthGuard],
   },
   {

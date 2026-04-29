@@ -23,6 +23,7 @@ const BREADCRUMB_CONFIG: { path: string; config: BreadcrumbConfig }[] = [
   { path: '/ministry-correspondence-history', config: { label: 'Correspondence History', parentPath: '/dashboard' } },
   { path: '/ministry-detail', config: { label: 'Ministry Detail', parentPath: '/ministries' } },
   { path: '/service-detail', config: { label: 'Service Detail', parentPath: '/ministry-detail' } },
+  { path: '/service-analytics', config: { label: 'Service Analytics', parentPath: '/service-detail' } },
   { path: '/asset-control-panel', config: { label: 'Asset Control Panel', parentPath: '/asset' } },
   { path: '/asset-audit-log', config: { label: 'Audit Logs', parentPath: '/asset' } },
   { path: '/view-assets-detail', config: { label: 'Asset Detail', parentPath: '/asset' } },
@@ -104,22 +105,22 @@ export class BreadcrumbService {
     const trail: BreadcrumbItem[] = [];
     const override = this.lastLabelOverride();
 
-    const config = this.getConfigForPath(path);
-    if (!config) {
+    const initialMatch = this.getConfigMatchForPath(path);
+    if (!initialMatch) {
       this.breadcrumbs.set([{ label: 'Dashboards', path: '/dashboard' }]);
       return;
     }
 
     const chain: { path: string; label: string }[] = [];
-    let current: BreadcrumbConfig | undefined = config;
-    let currentPath = path;
+    let current: BreadcrumbConfig | undefined = initialMatch.config;
+    let currentPath = initialMatch.path;
 
     while (current) {
       const label = chain.length === 0 && override ? override : current.label;
       chain.unshift({ path: currentPath, label });
       if (!current.parentPath) break;
       currentPath = current.parentPath;
-      current = this.getConfigForPath(currentPath);
+      current = this.getConfigMatchForPath(currentPath)?.config;
     }
 
     if (!chain.length) {
@@ -143,18 +144,25 @@ export class BreadcrumbService {
     this.breadcrumbs.set(trail);
   }
 
-  private getConfigForPath(path: string): BreadcrumbConfig | undefined {
+  private getConfigMatchForPath(path: string): { config: BreadcrumbConfig; path: string } | undefined {
     const normalized = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
     if (/^\/setup\/ministries\/\d+\/history$/.test(normalized)) {
-      return { label: 'Ministry Audit Log', parentPath: '/setup/ministries' };
+      return {
+        config: { label: 'Ministry Audit Log', parentPath: '/setup/ministries' },
+        path: '/setup/ministries/history',
+      };
     }
     const exact = BREADCRUMB_CONFIG.find((c) => c.path === normalized);
-    if (exact) return exact.config;
+    if (exact) return { config: exact.config, path: exact.path };
     // Prefix match: for config paths ending with / use startsWith(path), else startsWith(path + '/')
     const prefix = BREADCRUMB_CONFIG.find((c) =>
       c.path.endsWith('/') ? normalized.startsWith(c.path) : normalized.startsWith(c.path + '/'),
     );
-    return prefix?.config;
+    if (!prefix) return undefined;
+    return {
+      config: prefix.config,
+      path: prefix.path.endsWith('/') ? prefix.path.slice(0, -1) : prefix.path,
+    };
   }
 }
 

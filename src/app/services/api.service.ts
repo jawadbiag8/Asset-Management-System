@@ -299,6 +299,35 @@ export interface ServiceStepEventMetricsData {
   byEventType?: ServiceStepEventMetricRow[];
 }
 
+export interface ServiceSubmissionTrendPoint {
+  date: string;
+  success: number;
+  failure: number;
+}
+
+export interface ServiceTrafficTrendPoint {
+  date: string;
+  occurrences: number;
+}
+
+export interface ServiceAnalyticsData {
+  id: number;
+  serviceName: string;
+  ministryName: string;
+  ministryId: number;
+  assetMappedCount: number;
+  cdms: string;
+  adoption?: number;
+  adoptionCount?: number;
+  adoptionPercentage?: string;
+  adoptionTrend?: string;
+  reliability: string;
+  efficiency: string;
+  availability: string;
+  submissionEventsTrend: ServiceSubmissionTrendPoint[];
+  trafficTrend: ServiceTrafficTrendPoint[];
+}
+
 /** GET /Service/{id}/steps/order-limits */
 export interface ServiceStepOrderLimitsData {
   mergedStepCount: number;
@@ -344,7 +373,7 @@ export interface VendorListItem {
   vendorTypeName: string;
   vendorStatusId: number;
   vendorStatusName: string;
-  offerings: VendorOffering[];
+  offerings?: VendorOffering[] | null;
   createdAt: string;
   createdBy: string;
   updatedAt: string | null;
@@ -384,13 +413,19 @@ export interface VendorDetailData {
   id: number;
   vendorName: string;
   vendorWebsite: string;
+  vendorEmail?: string | null;
+  vendorPhone?: string | null;
   vendorTypeId: number;
   vendorTypeName: string;
   vendorStatusId: number;
   vendorStatusName: string;
-  linkedAsset: number;
-  compositeWebsiteScore: string;
-  compossiteAppsScore: string;
+  linkedAsset?: number;
+  linkedWebsiteCount?: number;
+  linkedAppsCount?: number;
+  overallHostingScore?: string;
+  overallDevelopmentScore?: string;
+  compositeWebsiteScore?: string;
+  compossiteAppsScore?: string;
   createdAt?: string;
   createdBy?: string;
   updatedAt?: string;
@@ -429,8 +464,10 @@ export interface CreateVendorRequest {
   vendorName: string;
   vendorWebsite: string;
   vendorTypeId: number;
-  vendorStatusId: number;
-  offeringIds: number[];
+  vendorEmail: string;
+  vendorPhone: string;
+  vendorStatusId?: number;
+  offeringIds?: number[];
 }
 
 export interface VendorProfileSummary {
@@ -895,6 +932,13 @@ export class ApiService {
     return this.http.get<ApiResponse<any>>(url);
   }
 
+  getAssetApplicationDetails(assetId: number): Observable<ApiResponse<any>> {
+    const url = `${this.baseUrl}/Asset/${assetId}/application-details`;
+    return this.http.get<ApiResponse<any>>(url, {
+      headers: { Accept: 'text/plain' },
+    });
+  }
+
   /**
    * GET Asset/bulk-upload/template — returns template file for bulk upload (e.g. Excel/CSV).
    * Use responseType blob and optionally read Content-Disposition for filename.
@@ -1068,15 +1112,52 @@ export class ApiService {
   /**
    * GET /Asset/distribution?ministryId={id}
    */
-  getAssetDistributionByMinistry(ministryId: number): Observable<ApiResponse<AssetDistributionData>> {
-    const params = new HttpParams().set('ministryId', String(ministryId));
+  getAssetDistributionByMinistry(ministryId?: number): Observable<ApiResponse<AssetDistributionData>> {
+    let params = new HttpParams();
+    if (ministryId != null) {
+      params = params.set('ministryId', String(ministryId));
+    }
     return this.http.get<ApiResponse<AssetDistributionData>>(
       `${this.baseUrl}/Asset/distribution`,
       {
-        params,
+        params: params.keys().length > 0 ? params : undefined,
         headers: { Accept: 'text/plain' },
       },
     );
+  }
+
+  /**
+   * GET /Asset/distribution/vendor/pdf?ministryId={id}
+   * Returns vendor distribution report PDF as file/blob response.
+   */
+  getVendorDistributionPdf(ministryId?: number): Observable<HttpResponse<Blob>> {
+    let params = new HttpParams();
+    if (ministryId != null) {
+      params = params.set('ministryId', String(ministryId));
+    }
+    return this.http.get(`${this.baseUrl}/Asset/distribution/vendor/pdf`, {
+      params: params.keys().length > 0 ? params : undefined,
+      headers: { Accept: '*/*' },
+      responseType: 'blob',
+      observe: 'response',
+    });
+  }
+
+  /**
+   * GET /Asset/distribution/hosting/pdf?ministryId={id}
+   * Returns hosting distribution report PDF as file/blob response.
+   */
+  getHostingDistributionPdf(ministryId?: number): Observable<HttpResponse<Blob>> {
+    let params = new HttpParams();
+    if (ministryId != null) {
+      params = params.set('ministryId', String(ministryId));
+    }
+    return this.http.get(`${this.baseUrl}/Asset/distribution/hosting/pdf`, {
+      params: params.keys().length > 0 ? params : undefined,
+      headers: { Accept: '*/*' },
+      responseType: 'blob',
+      observe: 'response',
+    });
   }
 
   /**
@@ -1122,6 +1203,20 @@ export class ApiService {
     return this.http.get<ApiResponse<ServiceDetailData>>(`${this.baseUrl}/Service/${serviceId}`, {
       headers: { Accept: 'text/plain' },
     });
+  }
+
+  /**
+   * GET /Service/analytics?serviceId={id}
+   */
+  getServiceAnalytics(serviceId: number): Observable<ApiResponse<ServiceAnalyticsData>> {
+    const params = new HttpParams().set('serviceId', String(serviceId));
+    return this.http.get<ApiResponse<ServiceAnalyticsData>>(
+      `${this.baseUrl}/Service/analytics`,
+      {
+        params,
+        headers: { Accept: 'text/plain' },
+      },
+    );
   }
 
   /**

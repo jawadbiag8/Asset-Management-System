@@ -1,0 +1,76 @@
+<section class="service-analytics-page">
+  <article class="service-head-card">
+    <div>
+      <h2>{{ headerTitle() }}</h2>
+      <p>{{ serviceMetaLine() }}</p>
+    </div>
+    <span class="cdms-badge">{{ data()?.cdms || 'N/A' }} CDMS</span>
+  </article>
+
+  @if (errorMessage()) {
+    <div class="state-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="state-msg">Loading service analytics...</div>
+  } @else if (data()) {
+    <section class="summary-panel">
+      <section class="metrics-grid">
+        <article class="metric-card">
+          <div class="metric-head">
+            <span class="metric-label">Availability</span>
+            <span class="metric-value metric-value--primary">{{ data()?.availability || 'N/A' }}</span>
+          </div>
+          <div class="metric-track"><span class="metric-fill metric-fill--good" [style.width.%]="toPercent(data()?.availability)"></span></div>
+          <small>Service is live & accessible. Binary 100% = live, 0% = offline.</small>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-head">
+            <span class="metric-label">Adoption</span>
+            <span class="metric-value metric-value--warn">{{ adoptionPercentLabel() }}</span>
+          </div>
+          <div class="metric-track"><span class="metric-fill metric-fill--warn" [style.width.%]="adoptionProgress()"></span></div>
+          <small>{{ adoptionCountLabel() }} visitors/week. Traffic API or manual input.</small>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-head">
+            <span class="metric-label">Efficiency</span>
+            <span class="metric-value" [ngClass]="metricToneByPercent(data()?.efficiency)">
+              {{ data()?.efficiency || 'N/A' }}
+            </span>
+          </div>
+          <div class="metric-track"><span class="metric-fill metric-fill--good" [style.width.%]="toPercent(data()?.efficiency)"></span></div>
+          <small>Average completion success over total submissions.</small>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-head">
+            <span class="metric-label">Reliability</span>
+            <span class="metric-value metric-value--bad">{{ data()?.reliability || 'N/A' }}</span>
+          </div>
+          <div class="metric-track"><span class="metric-fill metric-fill--danger" [style.width.%]="toPercent(data()?.reliability)"></span></div>
+          <small>A drop of {{ data()?.reliability || 'N/A' }} suggests weak resilience. Urgent action needed.</small>
+        </article>
+      </section>
+    </section>
+
+    <section class="charts-grid">
+      <article class="chart-card">
+        <highcharts-chart
+          [options]="submissionChartOptions()"
+          style="width: 100%; display: block;"
+        ></highcharts-chart>
+      </article>
+
+      <article class="chart-card">
+        <highcharts-chart
+          [options]="trafficChartOptions()"
+          style="width: 100%; display: block;"
+        ></highcharts-chart>
+      </article>
+    </section>
+  }
+</section>
+

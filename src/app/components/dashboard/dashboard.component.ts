@@ -4,7 +4,13 @@ import {
   TableColumn,
   FilterPill,
 } from '../reusable/reusable-table/reusable-table.component';
-import { ApiResponse, ApiService, BulkUploadErrorData } from '../../services/api.service';
+import {
+  ApiResponse,
+  ApiService,
+  AssetDistributionData,
+  AssetDistributionVendor,
+  BulkUploadErrorData,
+} from '../../services/api.service';
 import { FilterOptionsService } from '../../services/filter-options.service';
 import { HttpParams } from '@angular/common/http';
 import {
@@ -63,6 +69,21 @@ export interface CorrespondenceItem {
   ministryName: string;
   time: string;
   status: 'Dispatched' | 'Draft';
+}
+
+interface HostingDistributionRow {
+  type: string;
+  count: number;
+  width: number;
+  colorClass: string;
+}
+
+interface VendorDistributionRow {
+  vendor: string;
+  type: string;
+  typeClass: 'vendor-type--govt' | 'vendor-type--private' | 'vendor-type--default';
+  assets: number;
+  digitalMaturityText: string;
 }
 
 function formatCorrespondenceTime(iso: string | null | undefined): string {
@@ -311,6 +332,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   correspondenceLoading = signal<boolean>(false);
   /** ID of correspondence whose report is being downloaded */
   downloadingReportId = signal<number | null>(null);
+  hostingDistribution = signal<HostingDistributionRow[]>([]);
+  vendorDistribution = signal<VendorDistributionRow[]>([]);
+  hostingReportGenerating = signal<boolean>(false);
+  vendorReportGenerating = signal<boolean>(false);
 
   // Computed signal to keep table config in sync with data
   tableConfigWithData = computed<TableConfig>(() => {
@@ -526,6 +551,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadDashboardSummary();
     this.loadFavoriteAssets();
     this.loadCorrespondence();
+    this.loadGlobalAssetDistribution();
 
     this.signalR.joinTopic(this.summaryTopic).catch(() => {});
     this.signalR.onDataUpdated.pipe(takeUntil(this.destroy$)).subscribe((topic) => {
@@ -1001,6 +1027,144 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/ministry-correspondence-history'], {
       queryParams: { ministryId: -1 },
     });
+  }
+
+  loadGlobalAssetDistribution(): void {
+    this.apiService.getAssetDistributionByMinistry().subscribe({
+      next: (response: ApiResponse<AssetDistributionData>) => {
+        if (!response?.isSuccessful || !response?.data) {
+          this.hostingDistribution.set([]);
+          this.vendorDistribution.set([]);
+          return;
+        }
+        this.hostingDistribution.set(this.mapHostingDistribution(response.data));
+        this.vendorDistribution.set(this.mapVendorDistribution(response.data.vendorDistribution));
+      },
+      error: () => {
+        this.hostingDistribution.set([]);
+        this.vendorDistribution.set([]);
+      },
+    });
+  }
+
+  onGenerateHostingDistributionReport(): void {
+    if (this.hostingReportGenerating()) return;
+    this.hostingReportGenerating.set(true);
+    this.apiService.getHostingDistributionPdf().subscribe({
+      next: (response) => {
+        this.hostingReportGenerating.set(false);
+        const blob = response.body;
+        if (!blob || blob.size === 0) {
+          this.utils.showToast('No hosting report content received.', 'Hosting Distribution', 'error');
+          return;
+        }
+        this.downloadBlob(blob, this.getPdfFilenameFromResponse(response, 'hosting-distribution-global.pdf'));
+        this.utils.showToast('Hosting distribution report downloaded.', 'Hosting Distribution', 'success');
+      },
+      error: () => {
+        this.hostingReportGenerating.set(false);
+        this.utils.showToast('Failed to generate hosting distribution report.', 'Hosting Distribution', 'error');
+      },
+    });
+  }
+
+  onGenerateVendorDistributionReport(): void {
+    if (this.vendorReportGenerating()) return;
+    this.vendorReportGenerating.set(true);
+    this.apiService.getVendorDistributionPdf().subscribe({
+      next: (response) => {
+        this.vendorReportGenerating.set(false);
+        const blob = response.body;
+        if (!blob || blob.size === 0) {
+          this.utils.showToast('No vendor report content received.', 'Vendor Distribution', 'error');
+          return;
+        }
+        this.downloadBlob(blob, this.getPdfFilenameFromResponse(response, 'vendor-distribution-global.pdf'));
+        this.utils.showToast('Vendor distribution report downloaded.', 'Vendor Distribution', 'success');
+      },
+      error: () => {
+        this.vendorReportGenerating.set(false);
+        this.utils.showToast('Failed to generate vendor distribution report.', 'Vendor Distribution', 'error');
+      },
+    });
+  }
+
+  private downloadBlob(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  private getPdfFilenameFromResponse(response: { headers: { get(name: string): string | null } }, fallback: string): string {
+    const contentDisposition = response.headers.get('Content-Disposition');
+    const parsed = this.parseFilenameFromContentDisposition(contentDisposition);
+    return parsed || fallback;
+  }
+
+  private parseFilenameFromContentDisposition(header: string | null): string | null {
+    if (!header) return null;
+    const starMatch = header.match(/filename\*=UTF-8''([^;\s]+)/i);
+    if (starMatch?.[1]) {
+      try {
+        return decodeURIComponent(starMatch[1].trim());
+      } catch {
+        return starMatch[1].trim();
+      }
+    }
+    const normalMatch = header.match(/filename=["']?([^"';]+)["']?/i);
+    return normalMatch?.[1]?.trim() || null;
+  }
+
+  private mapHostingDistribution(data: AssetDistributionData): HostingDistributionRow[] {
+    const hosting = data.hostingDistribution;
+    const total = Number(hosting?.totalAssets ?? 0);
+    const pct = (count: number): number => {
+      if (!total || total <= 0) return 0;
+      return Math.max(0, Math.min(100, Math.round((count / total) * 100)));
+    };
+    return [
+      {
+        type: 'Private',
+        count: Number(hosting?.private ?? 0),
+        width: pct(Number(hosting?.private ?? 0)),
+        colorClass: 'bar-cyan',
+      },
+      {
+        type: 'Cloud',
+        count: Number(hosting?.cloud ?? 0),
+        width: pct(Number(hosting?.cloud ?? 0)),
+        colorClass: 'bar-blue',
+      },
+      {
+        type: 'On-Premise',
+        count: Number(hosting?.onPremise ?? 0),
+        width: pct(Number(hosting?.onPremise ?? 0)),
+        colorClass: 'bar-red',
+      },
+    ];
+  }
+
+  private mapVendorDistribution(vendors: AssetDistributionVendor[] | null | undefined): VendorDistributionRow[] {
+    if (!Array.isArray(vendors)) return [];
+    return vendors.map((v) => ({
+      vendor: v.vendorName || 'N/A',
+      type: v.vendorType || 'N/A',
+      typeClass: this.getVendorTypeClass(v.vendorType || 'N/A'),
+      assets: Number(v.totalAssetsManaged ?? 0),
+      digitalMaturityText: 'N/A',
+    }));
+  }
+
+  private getVendorTypeClass(
+    type: string,
+  ): 'vendor-type--govt' | 'vendor-type--private' | 'vendor-type--default' {
+    const normalized = type.trim().toLowerCase();
+    if (normalized.includes('govt') || normalized.includes('government')) return 'vendor-type--govt';
+    if (normalized.includes('private')) return 'vendor-type--private';
+    return 'vendor-type--default';
   }
 
   updateFilterOptions(

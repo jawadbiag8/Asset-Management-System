@@ -2,8 +2,14 @@ import { Component, signal, computed, OnInit, ViewChild, ElementRef } from '@ang
 import {
   TableConfig,
   FilterPill,
+  TableColumn,
 } from '../reusable/reusable-table/reusable-table.component';
-import { ApiResponse, ApiService, BulkUploadErrorData } from '../../services/api.service';
+import {
+  ApiResponse,
+  ApiService,
+  BulkUploadErrorData,
+  CommonLookupItem,
+} from '../../services/api.service';
 import { FilterOptionsService } from '../../services/filter-options.service';
 import { HttpParams } from '@angular/common/http';
 import { UtilsService } from '../../services/utils.service';
@@ -32,6 +38,13 @@ export interface DigitalAsset {
   citizenImpactLevel: string;
   openIncidents: number;
   highSeverityIncidents: number;
+  hostingTypeName?: string | null;
+  hostingClassification?: string | null;
+  hostingType?: string | null;
+  successRate?: string | number | null;
+  failureRate?: string | number | null;
+  abandonedRate?: string | number | null;
+  totalOccurrences?: string | number | null;
 }
 
 @Component({
@@ -41,6 +54,16 @@ export interface DigitalAsset {
   standalone: false,
 })
 export class AssetsComponent implements OnInit {
+  readonly assetTabs = [
+    { id: 'websites', label: 'Websites' },
+    { id: 'webApps', label: 'Web Apps' },
+    { id: 'mobileApps', label: 'Mobile Apps' },
+  ] as const;
+
+  activeAssetTab = signal<(typeof this.assetTabs)[number]['id']>('websites');
+  private readonly defaultWebsiteAssetTypeId = 18;
+  private assetTypeIdsByTab: Partial<Record<(typeof this.assetTabs)[number]['id'], number>> = {};
+
   constructor(
     private apiService: ApiService,
     private filterOptions: FilterOptionsService,
@@ -76,32 +99,41 @@ export class AssetsComponent implements OnInit {
         secondaryField: 'assetUrl',
         linkField: 'assetUrl',
         sortable: true,
-        width: '240px',
+        width: '290px',
         routerLinkFn: (row) => ({
           commands: ['/view-assets-detail'],
           queryParams: { id: row.id, ministryId: row.ministryId ?? '' },
         }),
-        trailingButtonLabel: 'Analyze',
-        trailingButtonClick: (row) =>
-          this.router.navigate(['/asset-control-panel'], {
-            queryParams: { assetId: row.id },
-          }),
-        leadingIconName: 'star',
-        leadingIconFilledFn: (row) => this.favoriteAssetIds().has(row.id),
-        leadingIconClick: (row) => this.toggleFavorite(row),
       },
       {
         key: 'ministryDepartment',
         header: 'Department',
-        cellType: 'two-line',
+        cellType: 'text',
         primaryField: 'ministryDepartment',
-        secondaryField: 'department',
         sortable: true,
-        width: '170px',
+        width: '185px',
         routerLinkFn: (row) => ({
           commands: ['/ministry-detail'],
           queryParams: { ministryId: row.ministryId ?? '' },
         }),
+      },
+      {
+        key: 'hostingVendor',
+        header: 'Hosting Vendor',
+        cellType: 'two-line',
+        primaryField: 'hostingVendor',
+        secondaryField: 'hostingType',
+        sortable: true,
+        width: '145px',
+        secondaryLineClassFn: (row: any) => row.hostingTypeClass ?? '',
+      },
+      {
+        key: 'devVendor',
+        header: 'Dev Vendor',
+        cellType: 'text',
+        primaryField: 'devVendor',
+        sortable: true,
+        width: '125px',
       },
       {
         key: 'currentStatus',
@@ -136,7 +168,7 @@ export class AssetsComponent implements OnInit {
         primaryField: 'performanceStatusDisplay',
         secondaryField: 'performancePercentage',
         sortable: true,
-        width: '100px',
+        width: '120px',
         textColor: (row: any) => {
           const status = (row.performanceStatus || '').toLowerCase();
           if (
@@ -171,7 +203,7 @@ export class AssetsComponent implements OnInit {
         primaryField: 'complianceStatusDisplay',
         secondaryField: 'compliancePercentage',
         sortable: true,
-        width: '100px',
+        width: '120px',
         textColor: (row: any) => {
           const status = (row.complianceStatus || '').toLowerCase();
           if (status.includes('high compliance') || status.includes('high'))
@@ -194,65 +226,39 @@ export class AssetsComponent implements OnInit {
         },
       },
       {
-        key: 'riskExposureIndex',
-        header: 'Risk',
-        cellType: 'metric-with-trend',
-        primaryField: 'riskExposureDisplay',
-        secondaryField: '',
-        sortable: true,
-        width: '95px',
-        textColor: (row: any) => {
-          const risk = (row.riskExposureIndex || '').toUpperCase();
-          if (risk === 'LOW RISK' || risk.includes('LOW')) return 'success';
-          if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) return 'warning';
-          if (risk === 'HIGH RISK' || risk.includes('HIGH')) return 'danger';
-          return 'unknown';
-        },
-        trendIcon: (row: any) => {
-          const risk = (row.riskExposureIndex || '').toUpperCase();
-          if (risk === 'LOW RISK' || risk.includes('LOW')) return 'down';
-          if (risk === 'MEDIUM RISK' || risk.includes('MEDIUM')) return 'right';
-          if (risk === 'HIGH RISK' || risk.includes('HIGH')) return 'up';
-          return 'unknown';
-        },
-      },
-      {
-        key: 'citizenImpactLevel',
-        header: 'Citizen Impact',
-        cellType: 'metric-with-trend',
-        primaryField: 'citizenImpactLevel',
-        secondaryField: '',
-        sortable: true,
-        width: '105px',
-        textColor: (row: any) => {
-          const impact = row.citizenImpactLevel?.toUpperCase();
-          if (impact?.includes('LOW')) return 'success';
-          if (impact?.includes('MEDIUM')) return 'warning';
-          if (impact?.includes('HIGH')) return 'danger';
-          return 'unknown';
-        },
-        trendIcon: (row: any) => {
-          const impact = row.citizenImpactLevel?.toUpperCase();
-          if (impact?.includes('LOW')) return 'down';
-          if (impact?.includes('MEDIUM')) return 'right';
-          if (impact?.includes('HIGH')) return 'up';
-          return 'unknown';
-        },
-      },
-      {
-        key: 'openIncidents',
-        header: 'Open Incidents',
-        cellType: 'two-line',
-        primaryField: 'openIncidentsDisplay',
-        secondaryField: 'highSeverityText',
-        sortable: true,
-        width: '110px',
-        onClick: (row: any) => this.navigateToIncidentsWithFilters(row),
-        // Only lower line (Critical Severity) in red when > 0; upper line stays default
-        secondaryLineClassFn: (row: any) =>
-          (row.highSeverityIncidents ?? 0) > 0
-            ? 'open-incidents-value-red'
-            : '',
+        key: 'actions',
+        header: 'Action',
+        cellType: 'actions',
+        sortable: false,
+        width: '70px',
+        actionLinks: [
+          {
+            label: 'Actions',
+            display: 'icon',
+            iconName: 'more_vert',
+            color: 'rgba(255, 255, 255, 0.74)',
+            showTooltip: false,
+            menuItems: [
+              { label: 'View', iconName: 'visibility' },
+              {
+                label: 'Favourite',
+                iconName: 'star',
+                hidden: (row: any) => !this.favoriteAssetIds().has(Number(row?.id)),
+              },
+              {
+                label: 'Favourite',
+                iconName: 'star_border',
+                hidden: (row: any) => this.favoriteAssetIds().has(Number(row?.id)),
+              },
+              {
+                label: 'Analyze',
+                iconName: 'description',
+                hidden: () => this.activeAssetTab() !== 'websites',
+              },
+              { label: 'Edit', iconName: 'edit' },
+            ],
+          },
+        ],
       },
     ],
     data: [],
@@ -325,28 +331,6 @@ export class AssetsComponent implements OnInit {
       const formatCompliancePercentage = (index: number): string =>
         formatPercentage(index);
 
-      const formatRiskDisplay = (value: string | null | undefined): string => {
-        if (!value) return value ?? '';
-        const u = value.trim().toUpperCase();
-        if (u === 'LOW RISK' || u.includes('LOW')) return 'Low';
-        if (u === 'MEDIUM RISK' || u.includes('MEDIUM')) return 'Medium';
-        if (u === 'HIGH RISK' || u.includes('HIGH')) return 'High';
-        return value.trim().charAt(0).toUpperCase() + value.trim().slice(1).toLowerCase();
-      };
-
-      const formatHighSeverityText = (highSeverity: number): string => {
-        const n = highSeverity ?? 0;
-        return `Critical Severity: ${n}`;
-      };
-
-      const openIncidentsDisplay = ((): number => {
-        const v = asset.openIncidents as number | string | null | undefined;
-        if (v == null || (typeof v === 'string' && v.trim() === '')) return 0;
-        if (typeof v === 'string' && v.toUpperCase() === 'N/Q') return 0;
-        const n = Number(v);
-        return Number.isNaN(n) ? 0 : n;
-      })();
-
       const performanceStatusDisplay = ((): string => {
         const s = (asset.performanceStatus || '').toLowerCase();
         if (s.includes('well') || s.includes('good')) return 'Good';
@@ -379,6 +363,20 @@ export class AssetsComponent implements OnInit {
         return 'Unknown';
       })();
 
+      const toPercent = (value: string | number | null | undefined): string => {
+        if (value == null || value === '') return 'N/A';
+        const text = String(value).trim();
+        if (!text) return 'N/A';
+        return text.includes('%') ? text : `${text}%`;
+      };
+
+      const rawHostingType =
+        (asset as any).hostingTypeName?.trim() ||
+        (asset as any).hostingClassification?.trim() ||
+        (asset as any).hostingType?.trim() ||
+        'N/A';
+      const hostingType = this.normalizeHostingTypeLabel(rawHostingType);
+
       return {
         ...asset,
         assetLifecycleStatus:
@@ -390,6 +388,16 @@ export class AssetsComponent implements OnInit {
           (asset as any).discoveryStatus ??
           '',
         currentStatusDisplay,
+        hostingVendor:
+          (asset as any).managingVendorName?.trim() ||
+          (asset as any).hostingVendor?.trim() ||
+          'N/A',
+        devVendor:
+          (asset as any).developmentVendorName?.trim() ||
+          (asset as any).devVendor?.trim() ||
+          'N/A',
+        hostingType,
+        hostingTypeClass: this.getHostingTypeClass(hostingType),
         healthStatusDisplay,
         healthIcon: getHealthIcon(asset.healthStatus),
         healthPercentage: formatHealthPercentage(
@@ -402,9 +410,14 @@ export class AssetsComponent implements OnInit {
         compliancePercentage: formatCompliancePercentage(asset.complianceIndex),
         lastCheckedFormatted: formatLastChecked(asset.lastChecked),
         lastOutageFormatted: formatLastOutageDisplay(asset.lastOutage),
-        riskExposureDisplay: formatRiskDisplay(asset.riskExposureIndex),
-        openIncidentsDisplay,
-        highSeverityText: formatHighSeverityText(asset.highSeverityIncidents),
+        successRateDisplay: toPercent((asset as any).successRate),
+        failureRateDisplay: toPercent((asset as any).failureRate),
+        abandonedRateDisplay: toPercent((asset as any).abandonedRate),
+        totalOccurrencesDisplay:
+          (asset as any).totalOccurrences == null ||
+          (asset as any).totalOccurrences === ''
+            ? 'N/A'
+            : String((asset as any).totalOccurrences),
         citizenImpactLevel: (asset.citizenImpactLevel || '').split('-')[0]?.trim() || 'Unknown',
         citizenImpactLevelSubtext: (asset.citizenImpactLevel || '').split('-')[1]?.trim() || '',
       };
@@ -412,9 +425,91 @@ export class AssetsComponent implements OnInit {
 
     return {
       ...this.tableConfig(),
+      columns: this.getColumnsForActiveTab(),
       data: processedData,
     };
   });
+
+  private isDefinedColumn(column: TableColumn | undefined): column is TableColumn {
+    return !!column;
+  }
+
+  private getColumnsForActiveTab(): TableColumn[] {
+    const allColumns = this.tableConfig().columns;
+    const pick = (key: string): TableColumn | undefined =>
+      allColumns.find((column) => column.key === key);
+
+    const fixedColumns = [
+      pick('websiteApplication'),
+      pick('ministryDepartment'),
+      pick('hostingVendor'),
+      pick('devVendor'),
+    ].filter(this.isDefinedColumn);
+
+    const actionColumn = pick('actions');
+
+    const websiteColumns = [
+      ...fixedColumns,
+      pick('currentStatus'),
+      pick('healthstatus'),
+      pick('performanceStatus'),
+      pick('complianceStatus'),
+      actionColumn,
+    ].filter(this.isDefinedColumn);
+
+    if (this.activeAssetTab() === 'websites') {
+      return websiteColumns;
+    }
+
+    const appExperienceColumns: TableColumn[] = [
+      {
+        key: 'successRate',
+        header: 'Success Rate',
+        cellType: 'text-with-color',
+        primaryField: 'successRateDisplay',
+        secondaryField: '',
+        textColor: (row: any) => this.getRateColorClass(row.successRateDisplay),
+        sortable: true,
+        width: '110px',
+      },
+      {
+        key: 'failureRate',
+        header: 'Failure Rate',
+        cellType: 'text-with-color',
+        primaryField: 'failureRateDisplay',
+        secondaryField: '',
+        textColor: (row: any) =>
+          this.getReverseRateColorClass(row.failureRateDisplay),
+        sortable: true,
+        width: '110px',
+      },
+      {
+        key: 'abandonedRate',
+        header: 'Abandoned Rate',
+        cellType: 'text-with-color',
+        primaryField: 'abandonedRateDisplay',
+        secondaryField: '',
+        textColor: (row: any) =>
+          this.getReverseRateColorClass(row.abandonedRateDisplay),
+        sortable: true,
+        width: '130px',
+      },
+      {
+        key: 'totalOccurrences',
+        header: 'Total Occurrence',
+        cellType: 'text',
+        primaryField: 'totalOccurrencesDisplay',
+        sortable: true,
+        width: '130px',
+      },
+    ];
+
+    return [
+      ...fixedColumns,
+      ...appExperienceColumns,
+      actionColumn,
+    ].filter(this.isDefinedColumn);
+  }
 
   private lastSearchParams: HttpParams = new HttpParams()
     .set('PageNumber', '1')
@@ -422,8 +517,20 @@ export class AssetsComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeFilters();
+    this.loadAssetTypeLookups();
     this.applyInitialQueryParams();
     this.loadFavoriteAssets();
+  }
+
+  setActiveAssetTab(tabId: (typeof this.assetTabs)[number]['id']): void {
+    if (this.activeAssetTab() === tabId) return;
+    this.activeAssetTab.set(tabId);
+    const nextParams = this.applyActiveAssetType(
+      this.lastSearchParams.set('PageNumber', '1'),
+    );
+    this.lastSearchParams = nextParams;
+    this.loadAssets(nextParams);
+    this.syncUrlFromFilters();
   }
 
   loadFavoriteAssets(): void {
@@ -482,6 +589,12 @@ export class AssetsComponent implements OnInit {
 
   private applyInitialQueryParams(): void {
     const qp = this.activatedRoute.snapshot.queryParams as Record<string, string>;
+    const tabFromQuery = (qp['assetTab'] ?? '').trim();
+    const hasTab = this.assetTabs.some((tab) => tab.id === tabFromQuery);
+    if (hasTab) {
+      this.activeAssetTab.set(tabFromQuery as (typeof this.assetTabs)[number]['id']);
+    }
+
     const paramKeys = [
       'ministryId',
       'currentStatus',
@@ -514,6 +627,55 @@ export class AssetsComponent implements OnInit {
         };
       }),
     );
+  }
+
+  private loadAssetTypeLookups(): void {
+    this.apiService.getCommonLookupByType('assetType').subscribe({
+      next: (response: ApiResponse<CommonLookupItem[]>) => {
+        const lookups = Array.isArray(response?.data) ? response.data : [];
+        this.assetTypeIdsByTab = {
+          websites:
+            this.findLookupIdByName(lookups, 'website') ??
+            this.defaultWebsiteAssetTypeId,
+          webApps: this.findLookupIdByName(lookups, 'web app'),
+          mobileApps: this.findLookupIdByName(lookups, 'mobile app'),
+        };
+        this.reloadActiveTabData();
+      },
+      error: () => {
+        this.assetTypeIdsByTab = {
+          websites: this.defaultWebsiteAssetTypeId,
+        };
+        this.reloadActiveTabData();
+      },
+    });
+  }
+
+  private reloadActiveTabData(): void {
+    const params = this.applyActiveAssetType(
+      this.lastSearchParams.set('PageNumber', '1'),
+    );
+    this.lastSearchParams = params;
+    this.loadAssets(params);
+  }
+
+  private findLookupIdByName(
+    lookups: CommonLookupItem[],
+    lookupName: string,
+  ): number | undefined {
+    const normalizedName = lookupName.toLowerCase();
+    return lookups.find((item) =>
+      item.name?.toLowerCase().includes(normalizedName),
+    )?.id;
+  }
+
+  private applyActiveAssetType(params: HttpParams): HttpParams {
+    const tab = this.activeAssetTab();
+    const assetTypeId =
+      this.assetTypeIdsByTab[tab] ??
+      (tab === 'websites' ? this.defaultWebsiteAssetTypeId : undefined);
+    if (!assetTypeId) return params.delete('AssetTypeId');
+    return params.set('AssetTypeId', String(assetTypeId));
   }
 
   initializeFilters(): void {
@@ -648,11 +810,12 @@ export class AssetsComponent implements OnInit {
   }
 
   onSearchQuery(params: HttpParams): void {
-    this.lastSearchParams = params;
+    const paramsWithType = this.applyActiveAssetType(params);
+    this.lastSearchParams = paramsWithType;
     const searchTerm = params.get('SearchTerm') ?? '';
     this.headerSearchValue.set(searchTerm);
-    this.syncFiltersFromParams(params);
-    this.loadAssets(params);
+    this.syncFiltersFromParams(paramsWithType);
+    this.loadAssets(paramsWithType);
     this.syncUrlFromFilters();
   }
 
@@ -668,13 +831,16 @@ export class AssetsComponent implements OnInit {
     } else {
       params = params.delete('SearchTerm').set('PageNumber', '1');
     }
-    this.lastSearchParams = params;
-    this.loadAssets(params);
+    const paramsWithType = this.applyActiveAssetType(params);
+    this.lastSearchParams = paramsWithType;
+    this.loadAssets(paramsWithType);
     this.syncUrlFromFilters();
   }
 
   private getCurrentQueryParamsForReturn(): Record<string, string> {
-    const queryParams: Record<string, string> = {};
+    const queryParams: Record<string, string> = {
+      assetTab: this.activeAssetTab(),
+    };
     this.tableFilters().forEach((f) => {
       if (f.paramKey && f.value && f.value !== '' && f.value !== 'All') {
         queryParams[f.paramKey] = f.value;
@@ -778,9 +944,92 @@ export class AssetsComponent implements OnInit {
   }
 
   onActionClick(event: { row: any; columnKey: string }): void {
+    if (event.columnKey === 'View' || event.columnKey === 'Open Asset') {
+      this.onAssetMenuClick(event.row);
+      return;
+    }
+    if (event.columnKey === 'Favourite') {
+      this.toggleFavorite(event.row);
+      return;
+    }
+    if (event.columnKey === 'Analyze') {
+      this.navigateToIncidentsWithFilters(event.row);
+      return;
+    }
     if (event.columnKey === 'Edit Asset') {
       this.onEditClick(event.row);
+      return;
     }
+    if (event.columnKey === 'Edit') {
+      this.onEditClick(event.row);
+    }
+  }
+
+  private onAssetMenuClick(row: any): void {
+    if (!row?.id) return;
+    this.router.navigate(['/view-assets-detail'], {
+      queryParams: { id: row.id, ministryId: row.ministryId ?? '' },
+    });
+  }
+
+  private getHostingTypeClass(
+    hostingType: string,
+  ):
+    | 'hosting-pill--onprem'
+    | 'hosting-pill--cloud'
+    | 'hosting-pill--vendor'
+    | 'hosting-pill--default' {
+    const normalized = hostingType.trim().toLowerCase();
+    if (
+      normalized.includes('on-prem') ||
+      normalized.includes('on premise') ||
+      normalized.includes('onprem')
+    ) {
+      return 'hosting-pill--onprem';
+    }
+    if (normalized.includes('cloud')) return 'hosting-pill--cloud';
+    if (normalized.includes('vendor') || normalized.includes('private')) {
+      return 'hosting-pill--vendor';
+    }
+    return 'hosting-pill--default';
+  }
+
+  private normalizeHostingTypeLabel(hostingType: string): string {
+    const normalized = hostingType.trim().toLowerCase();
+    if (
+      normalized.includes('on-prem') ||
+      normalized.includes('on premise') ||
+      normalized.includes('onprem')
+    ) {
+      return 'On-Premise';
+    }
+    if (normalized === 'private') return 'Private';
+    if (normalized === 'cloud') return 'Cloud';
+    return hostingType;
+  }
+
+  private getRateColorClass(value: string | null | undefined): string {
+    const parsed = this.parsePercentValue(value);
+    if (parsed == null) return 'unknown';
+    if (parsed > 90) return 'success';
+    if (parsed >= 70) return 'warning';
+    return 'danger';
+  }
+
+  private getReverseRateColorClass(value: string | null | undefined): string {
+    const parsed = this.parsePercentValue(value);
+    if (parsed == null) return 'unknown';
+    if (parsed > 90) return 'danger';
+    if (parsed >= 70) return 'warning';
+    return 'success';
+  }
+
+  private parsePercentValue(value: string | null | undefined): number | null {
+    const normalized = String(value ?? '')
+      .replace('%', '')
+      .trim();
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   onEditClick(row: any): void {

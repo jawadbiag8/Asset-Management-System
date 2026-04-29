@@ -37,9 +37,9 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ApiService, ApiResponse } from '../../services/api.service';
 import { ToastrService } from 'ngx-toastr';
-import * as Highcharts from 'highcharts';
-import 'highcharts/highcharts-more';
-import 'highcharts/modules/solid-gauge';
+import Highcharts from 'highcharts/esm/highcharts';
+import 'highcharts/esm/highcharts-more';
+import 'highcharts/esm/modules/solid-gauge';
 import { HighchartsChartDirective } from 'highcharts-angular';
 
 /** Category row (dropdown). */

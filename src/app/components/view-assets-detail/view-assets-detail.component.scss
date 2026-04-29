@@ -14,14 +14,261 @@ $detail-card-radius: 24px;
   color: var(--color-text-primary);
 }
 
-// Ministry name as main page title (like ministry detail – large, bold, white)
-.ministry-page-title {
+.ministry-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.ministry-strip-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ministry-strip-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
   font-weight: 700;
-  font-size: 32px;
-  line-height: 1;
-  letter-spacing: 0;
-  margin: 0 0 1rem 0;
-  color: var(--color-text-primary, #ffffff);
+  color: #e6f7ff;
+  border: 1px solid rgba(45, 212, 191, 0.5);
+  background: rgba(16, 76, 66, 0.45);
+}
+
+.ministry-strip-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.ministry-strip-meta {
+  min-width: 0;
+}
+
+.ministry-strip-title {
+  color: #f2f7fb;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.ministry-strip-subtitle {
+  color: rgba(226, 237, 243, 0.88);
+  font-size: 12px;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ministry-location-icon {
+  flex-shrink: 0;
+}
+
+.btn-asset-revoke {
+  border: 1px solid rgba(45, 212, 191, 0.42);
+  background: rgba(0, 207, 207, 0.2);
+  color: #dffcff;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.asset-type-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.asset-type-icon svg {
+  display: block;
+}
+
+.app-overall-score {
+  border: 1px solid rgba(0, 207, 207, 0.35);
+  border-radius: 12px;
+  padding: 14px;
+  background: rgba(13, 29, 29, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-overall-score-title {
+  color: rgba(226, 237, 243, 0.92);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.app-overall-ring,
+.usage-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-overall-ring-inner,
+.usage-ring-inner {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #0a1618;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.usage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.usage-card {
+  border: 1px solid rgba(0, 207, 207, 0.22);
+  border-radius: 12px;
+  background: rgba(6, 22, 25, 0.7);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.usage-label {
+  color: #e5edf3;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.forms-list {
+  display: grid;
+  gap: 10px;
+}
+
+.form-row {
+  border: 1px solid rgba(0, 207, 207, 0.2);
+  border-radius: 12px;
+  background: rgba(6, 22, 25, 0.68);
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.form-service {
+  color: rgba(185, 205, 214, 0.72);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.form-name {
+  color: #f3f8fb;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.form-right {
+  display: inline-flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.form-stat {
+  min-width: 100px;
+  text-align: right;
+}
+
+.form-stat span {
+  display: block;
+  color: rgba(183, 202, 210, 0.72);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.form-stat strong {
+  color: #f0f8ff;
+  font-size: 16px;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.service-card-app {
+  border: 1px solid rgba(0, 207, 207, 0.3);
+  border-radius: 12px;
+  background: rgba(6, 22, 25, 0.68);
+  padding: 12px;
+}
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #e9f6fb;
+  font-size: 12px;
+}
+
+.service-status-pill {
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #86efac;
+  font-size: 11px;
+}
+
+.service-status-pill--inactive {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+}
+
+.service-meta {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.service-type-pill,
+.service-mode-pill {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+.service-type-pill {
+  background: rgba(34, 197, 94, 0.16);
+  color: #a7f3d0;
+}
+
+.service-mode-pill {
+  background: rgba(59, 130, 246, 0.2);
+  color: #bfdbfe;
 }
 
 .card-inner-title {

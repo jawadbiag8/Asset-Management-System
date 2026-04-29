@@ -77,8 +77,6 @@
             <th>Vendor Name</th>
             <th>Website</th>
             <th>Type</th>
-            <th>Status</th>
-            <th>Category</th>
             <th class="th-action">Action</th>
           </tr>
         </thead>
@@ -92,12 +90,6 @@
                 </a>
               </td>
               <td>{{ v.vendorTypeName || 'N/A' }}</td>
-              <td>
-                <span class="status-pill" [class.status-pill--active]="isActive(v.vendorStatusName)">
-                  {{ v.vendorStatusName || 'Unknown' }}
-                </span>
-              </td>
-              <td>{{ vendorCategory(v) }}</td>
               <td class="td-action">
                 <button
                   type="button"

@@ -16,10 +16,27 @@
       <app-reusable-table
         [config]="tableConfigWithData()"
         [filters]="tableFilters()"
+        [showFilters]="false"
         (searchQuery)="onSearchQuery($event)"
         [totalItems]="totalItems()"
         (actionClick)="onActionClick($event)"
       >
+      <ng-container toolbarLeft>
+        <div class="assets-tabs-wrap assets-tabs-wrap--toolbar">
+          <div class="assets-tabs">
+            @for (tab of assetTabs; track tab.id) {
+              <button
+                type="button"
+                class="assets-tab-btn"
+                [class.assets-tab-btn--active]="activeAssetTab() === tab.id"
+                (click)="setActiveAssetTab(tab.id)"
+              >
+                {{ tab.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </ng-container>
       <ng-container headerActions>
         <!-- <input
           #bulkUploadInput

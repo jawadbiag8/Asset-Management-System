@@ -43,8 +43,10 @@
           <tr>
             <th>Vendor Name</th>
             <th>Type</th>
-            <th>Linked Assets</th>
-            <th>Overall Score</th>
+            <th>Linked Websites</th>
+            <th>Linked Apps</th>
+            <th>Overall Development Score</th>
+            <th>Overall Hosting Score</th>
           </tr>
         </thead>
         <tbody>
@@ -61,10 +63,16 @@
                   {{ vendor.vendorTypeName || 'N/A' }}
                 </span>
               </td>
-              <td>{{ getLinkedAssets(vendor) }}</td>
+              <td>{{ getLinkedWebsites(vendor) }}</td>
+              <td>{{ getLinkedApps(vendor) }}</td>
               <td>
-                <span class="score-pill" [ngClass]="getScoreClass(vendor)">
-                  {{ getOverallScore(vendor) }}
+                <span class="score-pill" [ngClass]="getScoreClass(getDevelopmentScore(vendor))">
+                  {{ getDevelopmentScore(vendor) }}
+                </span>
+              </td>
+              <td>
+                <span class="score-pill" [ngClass]="getScoreClass(getHostingScore(vendor))">
+                  {{ getHostingScore(vendor) }}
                 </span>
               </td>
             </tr>

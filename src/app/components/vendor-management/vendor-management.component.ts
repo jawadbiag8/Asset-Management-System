@@ -36,9 +36,13 @@ export class VendorManagementComponent implements OnInit {
     this.router.navigate(['/vendor', vendorId]);
   }
 
-  getLinkedAssets(vendor: VendorListItem): number {
+  getLinkedWebsites(vendor: VendorListItem): number {
     const row = vendor as unknown as Record<string, unknown>;
     const value =
+      row['linkedWebsiteCount'] ??
+      row['linkedWebsitesCount'] ??
+      row['websiteLinkedCount'] ??
+      row['websitesCount'] ??
       row['linkedAsset'] ??
       row['linkedAssets'] ??
       row['linkedAssetsCount'] ??
@@ -56,13 +60,51 @@ export class VendorManagementComponent implements OnInit {
     return Number.isFinite(parsed) ? parsed : 0;
   }
 
-  getOverallScore(vendor: VendorListItem): string {
+  getLinkedApps(vendor: VendorListItem): number {
     const row = vendor as unknown as Record<string, unknown>;
     const value =
-      row['overallScore'] ??
-      row['score'] ??
-      row['digitalMaturity'] ??
-      row['digitalMaturityText'] ??
+      row['linkedAppsCount'] ??
+      row['linkedApplicationsCount'] ??
+      row['appLinkedCount'] ??
+      row['appsCount'] ??
+      row['linkedAsset'] ??
+      row['linkedAssets'] ??
+      row['linkedAssetsCount'] ??
+      row['linkedAssetCount'] ??
+      row['totalLinkedAssets'] ??
+      row['totalLinkedAsset'] ??
+      row['LinkedAssets'] ??
+      row['LinkedAsset'] ??
+      row['linked_Assets'] ??
+      row['totalAssetsLinked'] ??
+      row['assetsCount'] ??
+      row['totalAssetsManaged'] ??
+      0;
+    const parsed = Number(String(value).replace(/[^\d.-]/g, ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  getDevelopmentScore(vendor: VendorListItem): string {
+    const row = vendor as unknown as Record<string, unknown>;
+    const value =
+      row['overallDevelopmentScore'] ??
+      row['developmentScore'] ??
+      row['overallDevScore'] ??
+      row['compositeWebsiteScore'] ??
+      row['websiteCompositeScore'] ??
+      'N/A';
+    return String(value);
+  }
+
+  getHostingScore(vendor: VendorListItem): string {
+    const row = vendor as unknown as Record<string, unknown>;
+    const value =
+      row['overallHostingScore'] ??
+      row['hostingScore'] ??
+      row['overallHostScore'] ??
+      row['compossiteAppsScore'] ??
+      row['compositeAppsScore'] ??
+      row['webAppCompositeScore'] ??
       'N/A';
     return String(value);
   }
@@ -78,8 +120,8 @@ export class VendorManagementComponent implements OnInit {
     return 'vendor-type-pill--default';
   }
 
-  getScoreClass(vendor: VendorListItem): string {
-    const scoreText = this.getOverallScore(vendor).replace('%', '').trim();
+  getScoreClass(scoreValue: string): string {
+    const scoreText = String(scoreValue ?? '').replace('%', '').trim();
     const score = Number(scoreText);
     if (!Number.isFinite(score)) return 'score-default';
     if (score >= 80) return 'score-good';

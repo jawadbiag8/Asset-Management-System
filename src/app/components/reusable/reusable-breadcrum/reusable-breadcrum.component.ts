@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
 
 export interface BreadcrumbItem {
   label: string;
@@ -16,4 +15,8 @@ export interface BreadcrumbItem {
 export class ReusableBreadcrumComponent {
   @Input() breadcrumbs: BreadcrumbItem[] = [];
   @Input() pageTitle?: string; // Optional page title to display below breadcrumb
+
+  isBackItem(item: BreadcrumbItem): boolean {
+    return item.label.trim().toLowerCase() === 'back';
+  }
 }

@@ -1,6 +1,40 @@
 <div class="container-fluid p-4 view-assets-detail-page">
-  <!-- Ministry name as main page title (like ministry detail / image) -->
-  <h1 class="ministry-page-title">{{ assetDetails.ministry || 'Health Dashboard' }}</h1>
+  <div class="ministry-strip">
+    <div class="ministry-strip-left">
+      <div class="ministry-strip-logo">
+        @if (assetDetails.ministryLogoUrl) {
+          <img
+            [src]="assetDetails.ministryLogoUrl"
+            [alt]="(assetDetails.ministry || 'Ministry') + ' logo'"
+          />
+        } @else {
+          {{ (assetDetails.ministry || 'M').charAt(0) }}
+        }
+      </div>
+      <div class="ministry-strip-meta">
+        <div class="ministry-strip-title">{{ assetDetails.ministry || 'Ministry' }}</div>
+        <div class="ministry-strip-subtitle">
+          <svg
+            class="ministry-location-icon"
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M7 1.16675C4.74384 1.16675 2.91667 2.99392 2.91667 5.25008C2.91667 8.31258 7 12.8334 7 12.8334C7 12.8334 11.0833 8.31258 11.0833 5.25008C11.0833 2.99392 9.25616 1.16675 7 1.16675ZM7 6.70842C6.19459 6.70842 5.54167 6.0555 5.54167 5.25008C5.54167 4.44467 6.19459 3.79175 7 3.79175C7.80542 3.79175 8.45834 4.44467 8.45834 5.25008C8.45834 6.0555 7.80542 6.70842 7 6.70842Z"
+              fill="#0EA6A6"
+            />
+          </svg>
+          <span>
+            {{ assetDetails.ministryAddress || assetDetails.department || 'Address not available' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Health Dashboard Card (structure same as asset-control-panel) -->
   <div class="card shadow-sm mt-4 header-card">
@@ -10,11 +44,11 @@
       <!-- Asset Details and Status Section -->
       <div class="row g-4 header-row">
         <!-- Left: Asset Details (URL, Ministry, Department, actions – left-aligned) -->
-        <div class="col-12 col-md-5 asset-details-col">
+        <div class="col-12" [class.col-md-5]="!isApplicationAsset" [class.col-md-9]="isApplicationAsset">
           <div class="asset-details-row">
             <div class="asset-detail-block">
               <label class="text-muted small fw-medium mb-1 d-block">Url</label>
-              <a [href]="'https://' + assetDetails.url" target="_blank" class="link">
+              <a [href]="assetDetails.url" target="_blank" class="link">
                 {{ assetDetails.url }}
               </a>
             </div>
@@ -26,10 +60,37 @@
               <label class="text-muted small fw-medium mb-1 d-block">Department</label>
               <span class="d-block fw-semibold">{{ assetDetails.department || 'N/A' }}</span>
             </div>
+            <div class="asset-detail-block">
+              <label class="text-muted small fw-medium mb-1 d-block">Asset Type</label>
+              <span class="d-block fw-semibold">
+                <span class="asset-type-icon" aria-hidden="true">
+                  @if (getAssetTypeIconKind() === 'website') {
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M22 12C22 17.5228 17.5228 22 12 22M22 12C22 6.47715 17.5228 2 12 2M22 12C22 10.3431 17.5228 9 12 9C6.47715 9 2 10.3431 2 12M22 12C22 13.6569 17.5228 15 12 15C6.47715 15 2 13.6569 2 12M12 22C6.47715 22 2 17.5228 2 12M12 22C14.2091 22 16 17.5228 16 12C16 6.47715 14.2091 2 12 2M12 22C9.79086 22 8 17.5228 8 12C8 6.47715 9.79086 2 12 2M2 12C2 6.47715 6.47715 2 12 2" stroke="white" stroke-width="1.5"/>
+                    </svg>
+                  } @else if (getAssetTypeIconKind() === 'web-application') {
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0.75 14.25V1.35C0.75 1.01863 1.01863 0.75 1.35 0.75H20.15C20.4814 0.75 20.75 1.01863 20.75 1.35V14.25M0.75 14.25V16.15C0.75 16.4814 1.01863 16.75 1.35 16.75H20.15C20.4814 16.75 20.75 16.4814 20.75 16.15V14.25M0.75 14.25H20.75M7.75 20.75H9.25M9.25 20.75V16.75M9.25 20.75H12.25M12.25 20.75H13.75M12.25 20.75L12.25 16.75" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  } @else if (getAssetTypeIconKind() === 'mobile-application') {
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="5" y="2" width="14" height="20" rx="3" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                      <path d="M11 19H13" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  } @else {
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 3L20 8V16L12 21L4 16V8L12 3Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                      <path d="M12 7V21" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  }
+                </span>
+                {{ assetDetails.assetType || 'N/A' }}
+              </span>
+            </div>
           </div>
           <div class="asset-details-actions mt-3">
-            <button type="button" class="btn btn-analyze" (click)="onAnalyze()">Analyze</button>
-            <button type="button" class="btn btn-check-status" (click)="onCheckCurrentStatus()">Check Current Status</button>
+            <button *ngIf="!isApplicationAsset" type="button" class="btn btn-analyze" (click)="onAnalyze()">Analyze</button>
+            <button *ngIf="!isApplicationAsset" type="button" class="btn btn-check-status" (click)="onCheckCurrentStatus()">Check Current Status</button>
             <button type="button" class="btn btn-edit" (click)="onEdit()">Edit</button>
             <a [routerLink]="['/asset-audit-log']" [queryParams]="assetId != null ? { assetId } : {}" class="btn btn-audit-log" aria-label="Audit Log">
               <mat-icon class="audit-log-icon">history</mat-icon>
@@ -42,7 +103,7 @@
         </div>
 
         <!-- Middle: Metrics Panel (teal border, 3 sections, value + indicator) -->
-        <div class="col-12 col-md-5">
+        <div *ngIf="!isApplicationAsset" class="col-12 col-md-5">
           <div class="metrics-panel">
             <div class="metric-section">
               <label class="metric-label">Citizen Impact Level</label>
@@ -83,7 +144,7 @@
         </div>
 
         <!-- Right: Status Panel (current status + dot, last outage) -->
-        <div class="col-12 col-md-2">
+        <div *ngIf="!isApplicationAsset" class="col-12 col-md-2">
           <div class="status-panel">
             <div class="current-status-box">
               <label class="metric-label">Current Status</label>
@@ -98,12 +159,86 @@
             </div>
           </div>
         </div>
+
+        <div *ngIf="isApplicationAsset" class="col-12 col-md-3">
+          <div class="app-overall-score">
+            <div class="app-overall-score-title">Overall Health Score</div>
+            <div class="app-overall-ring" [style.background]="getCircularProgressStyle(applicationMetrics.overallScore)">
+              <div class="app-overall-ring-inner">{{ applicationMetrics.overallScore }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="standards-section" *ngIf="isApplicationAsset">
+    <h2 class="section-title">Usage Matrices</h2>
+    <div class="section-separator"></div>
+    <div class="usage-grid">
+      <div class="usage-card">
+        <div class="usage-label">Availability</div>
+        <div class="usage-ring" [style.background]="getCircularProgressStyleWithColor(applicationMetrics.availability, '#facc15')">
+          <div class="usage-ring-inner">{{ applicationMetrics.availability }}</div>
+        </div>
+      </div>
+      <div class="usage-card">
+        <div class="usage-label">Adoption</div>
+        <div class="usage-ring" [style.background]="getCircularProgressStyleWithColor(applicationMetrics.adoption, '#65c94a')">
+          <div class="usage-ring-inner">{{ applicationMetrics.adoption }}</div>
+        </div>
+      </div>
+      <div class="usage-card">
+        <div class="usage-label">Efficiency</div>
+        <div class="usage-ring" [style.background]="getCircularProgressStyleWithColor(applicationMetrics.efficiency, '#ff5a5f')">
+          <div class="usage-ring-inner">{{ applicationMetrics.efficiency }}</div>
+        </div>
+      </div>
+      <div class="usage-card">
+        <div class="usage-label">Reliability</div>
+        <div class="usage-ring" [style.background]="getCircularProgressStyleWithColor(applicationMetrics.reliability, '#9ca3af')">
+          <div class="usage-ring-inner">{{ applicationMetrics.reliability }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="standards-section" *ngIf="isApplicationAsset">
+    <h2 class="section-title">List of Forms</h2>
+    <div class="section-separator"></div>
+    <div class="forms-list">
+      <div class="form-row" *ngFor="let form of formsAttached">
+        <div class="form-left">
+          <div class="form-service">{{ form.serviceName }}</div>
+          <div class="form-name">{{ form.formName }}</div>
+        </div>
+        <div class="form-right">
+          <div class="form-stat"><span>Occurrence</span><strong>{{ form.totalOccurrences }}</strong></div>
+          <div class="form-stat"><span>Completion Rate</span><strong>{{ form.completionRate }}</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="standards-section" *ngIf="isApplicationAsset">
+    <h2 class="section-title">List of Services</h2>
+    <div class="section-separator"></div>
+    <div class="services-grid">
+      <div class="service-card-app" *ngFor="let service of servicesAttached">
+        <div class="service-header">
+          <span>{{ service.serviceName }}</span>
+          <span class="service-status-pill" [class.service-status-pill--inactive]="service.serviceStatus.toLowerCase() !== 'active'">{{ service.serviceStatus }}</span>
+        </div>
+        <div class="service-meta">
+          <span class="service-type-pill">{{ service.serviceType }}</span>
+          <span class="service-mode-pill">{{ service.serviceMode }}</span>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Summary KPI Cards -->
-  <div class="kpi-cards-section">
+  <div class="kpi-cards-section" *ngIf="!isApplicationAsset">
     <div class="kpi-card">
       <div class="kpi-value">{{ summaryKpis.citizenHappiness }}%</div>
       <div class="kpi-label">Digital Experience Score</div>
@@ -123,7 +258,7 @@
   </div>
 
   <!-- Standards Compliance Overview -->
-  <div class="standards-section">
+  <div class="standards-section" *ngIf="!isApplicationAsset">
     <h2 class="section-title">Compliance Overview</h2>
     <div class="section-separator"></div>
     <div class="standards-cards">
@@ -140,7 +275,7 @@
   </div>
 
   <!-- Incidents Section (only for this asset via getIncidentByAssetId) -->
-  <div class="incidents-section" *ngIf="assetId">
+  <div class="incidents-section" *ngIf="assetId && !isApplicationAsset">
     <h2 class="section-title">Incidents</h2>
     <div class="section-separator"></div>
     <app-active-incidents
@@ -155,7 +290,7 @@
   </div>
 
   <!-- Ownership & Accountability Section (above Technical Contacts, same card style) -->
-  <div class="ownership-section">
+  <div class="ownership-section" *ngIf="!isApplicationAsset">
     <h2 class="section-title">Ownership & Accountability</h2>
     <div class="section-separator"></div>
     <div class="ownership-contacts-list">

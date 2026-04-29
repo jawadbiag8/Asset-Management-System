@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import {
   ApiService,
-  CommonLookupItem,
   CreateVendorRequest,
   VendorListItem,
 } from '../../services/api.service';
@@ -24,8 +23,6 @@ export class AddVendorComponent implements OnInit {
   editingVendorId = signal<number | null>(null);
 
   vendorTypeOptions: { label: string; value: number }[] = [];
-  vendorStatusOptions: { label: string; value: number }[] = [];
-  offeringOptions: CommonLookupItem[] = [];
 
   constructor(
     private readonly fb: FormBuilder,
@@ -36,9 +33,9 @@ export class AddVendorComponent implements OnInit {
     this.form = this.fb.group({
       vendorName: ['', Validators.required],
       vendorWebsite: ['', Validators.required],
+      vendorEmail: ['', [Validators.required, Validators.email]],
+      vendorPhone: ['', Validators.required],
       vendorTypeId: [null, Validators.required],
-      vendorStatusId: [null, Validators.required],
-      offeringIds: [[], Validators.required],
     });
   }
 
@@ -71,9 +68,9 @@ export class AddVendorComponent implements OnInit {
     this.form.patchValue({
       vendorName: vendor.vendorName ?? '',
       vendorWebsite: vendor.vendorWebsite ?? '',
+      vendorEmail: this.readVendorField(vendor, ['vendorEmail', 'email', 'contactEmail']),
+      vendorPhone: this.readVendorField(vendor, ['vendorPhone', 'vendorPhoneNumber', 'phoneNumber', 'phone', 'contactPhone']),
       vendorTypeId: vendor.vendorTypeId ?? null,
-      vendorStatusId: vendor.vendorStatusId ?? null,
-      offeringIds: (vendor.offerings ?? []).map((o) => Number(o.id)),
     });
   }
 
@@ -83,57 +80,14 @@ export class AddVendorComponent implements OnInit {
 
   private loadLookups(): void {
     this.loadingLookups.set(true);
-    let completed = 0;
-    const done = () => {
-      completed += 1;
-      if (completed >= 3) this.loadingLookups.set(false);
-    };
-
     this.api.getCommonLookupByType('VendorType').subscribe({
       next: (res) => {
         const items = Array.isArray(res.data) ? res.data : [];
         this.vendorTypeOptions = items.map((i) => ({ label: i.name, value: i.id }));
       },
       error: () => {},
-      complete: done,
+      complete: () => this.loadingLookups.set(false),
     });
-
-    this.api.getCommonLookupByType('VendorStatus').subscribe({
-      next: (res) => {
-        const items = Array.isArray(res.data) ? res.data : [];
-        this.vendorStatusOptions = items.map((i) => ({ label: i.name, value: i.id }));
-      },
-      error: () => {},
-      complete: done,
-    });
-
-    this.api.getCommonLookupByType('VendorOffering').subscribe({
-      next: (res) => {
-        this.offeringOptions = Array.isArray(res.data) ? res.data : [];
-      },
-      error: () => {},
-      complete: done,
-    });
-  }
-
-  onToggleOffering(offeringId: number, checked: boolean): void {
-    const current = Array.isArray(this.getControl('offeringIds').value)
-      ? ([...this.getControl('offeringIds').value] as number[])
-      : [];
-
-    if (checked && !current.includes(offeringId)) current.push(offeringId);
-    if (!checked) {
-      const idx = current.indexOf(offeringId);
-      if (idx >= 0) current.splice(idx, 1);
-    }
-
-    this.getControl('offeringIds').setValue(current);
-    this.getControl('offeringIds').markAsTouched();
-  }
-
-  isOfferingSelected(offeringId: number): boolean {
-    const current = this.getControl('offeringIds').value as number[];
-    return Array.isArray(current) && current.includes(offeringId);
   }
 
   onCancel(): void {
@@ -147,17 +101,17 @@ export class AddVendorComponent implements OnInit {
     const raw = this.form.value as {
       vendorName: string;
       vendorWebsite: string;
+      vendorEmail: string;
+      vendorPhone: string;
       vendorTypeId: number;
-      vendorStatusId: number;
-      offeringIds: number[];
     };
 
     const payload: CreateVendorRequest = {
       vendorName: raw.vendorName.trim(),
       vendorWebsite: raw.vendorWebsite.trim(),
+      vendorEmail: raw.vendorEmail.trim(),
+      vendorPhone: raw.vendorPhone.trim(),
       vendorTypeId: Number(raw.vendorTypeId),
-      vendorStatusId: Number(raw.vendorStatusId),
-      offeringIds: (raw.offeringIds ?? []).map((x) => Number(x)),
     };
 
     this.submitting.set(true);
@@ -202,5 +156,16 @@ export class AddVendorComponent implements OnInit {
         this.toastr.error('Could not add vendor.');
       },
     });
+  }
+
+  private readVendorField(vendor: VendorListItem, keys: string[]): string {
+    const row = vendor as unknown as Record<string, unknown>;
+    for (const key of keys) {
+      const value = row[key];
+      if (value == null) continue;
+      const text = String(value).trim();
+      if (text) return text;
+    }
+    return '';
   }
 }

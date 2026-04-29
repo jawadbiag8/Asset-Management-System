@@ -180,4 +180,73 @@
       </section>
     </div>
   </div>
+
+  <div class="dashboard-distribution-row row g-4 mt-1">
+    <div class="col-12 col-lg-6">
+      <section class="distribution-card">
+        <div class="distribution-header">
+          <h3>Hosting Distribution</h3>
+          <button
+            type="button"
+            class="distribution-btn"
+            [disabled]="hostingReportGenerating()"
+            (click)="onGenerateHostingDistributionReport()"
+          >
+            {{ hostingReportGenerating() ? 'Generating...' : 'Generate Report' }}
+          </button>
+        </div>
+        <div class="hosting-bars">
+          @for (item of hostingDistribution(); track item.type) {
+            <div class="bar-row">
+              <span>{{ item.type }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [class]="item.colorClass" [style.width.%]="item.width"></div>
+              </div>
+              <span>{{ item.count }}</span>
+            </div>
+          } @empty {
+            <p class="panel-muted">No hosting distribution data available.</p>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <section class="distribution-card">
+        <div class="distribution-header">
+          <h3>Vendor Distribution</h3>
+          <button
+            type="button"
+            class="distribution-btn"
+            [disabled]="vendorReportGenerating()"
+            (click)="onGenerateVendorDistributionReport()"
+          >
+            {{ vendorReportGenerating() ? 'Generating...' : 'Generate Report' }}
+          </button>
+        </div>
+        <table class="vendor-table">
+          <thead>
+            <tr>
+              <th>Vendor</th>
+              <th>Type</th>
+              <th>Assets</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (vendor of vendorDistribution(); track vendor.vendor) {
+              <tr>
+                <td>{{ vendor.vendor }}</td>
+                <td><span class="vendor-type" [ngClass]="vendor.typeClass">{{ vendor.type }}</span></td>
+                <td>{{ vendor.assets }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="panel-muted">No vendor distribution data available.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
 </div>

@@ -74,6 +74,13 @@
       <div class="accordion-header" (click)="toggleAccordion(m.ministryId, $event)" role="button" tabindex="0"
         (keydown.enter)="toggleAccordion(m.ministryId, $event)" (keydown.space)="toggleAccordion(m.ministryId, $event)">
         <div class="header-left">
+          <div class="ministry-avatar" aria-hidden="true">
+            @if (m.logoUrl) {
+              <img [src]="m.logoUrl" [alt]="m.ministryName + ' logo'" />
+            } @else {
+              <span>{{ m.initials }}</span>
+            }
+          </div>
           <a class="ministry-name ministry-name-link" [routerLink]="['/ministry-info-card-preview']"
             [queryParams]="{ ministryId: m.ministryId }" (click)="$event.stopPropagation()">
             {{ m.ministryName }}

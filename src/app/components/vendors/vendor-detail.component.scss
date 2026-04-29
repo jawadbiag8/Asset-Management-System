@@ -57,13 +57,32 @@
 .btn-edit-vendor {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  min-width: 163px;
+  height: 50px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 207, 207, 0.55);
+  background: rgba(0, 207, 207, 0.06);
+  color: #00cfcf;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+
+  &:hover {
+    background: rgba(0, 207, 207, 0.12);
+    border-color: rgba(0, 207, 207, 0.8);
+    color: #2dd4bf;
+  }
 
   mat-icon {
     font-size: 18px;
     width: 18px;
     height: 18px;
     line-height: 18px;
+    color: currentColor;
   }
 }
 

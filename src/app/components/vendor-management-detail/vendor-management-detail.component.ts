@@ -82,10 +82,40 @@ export class VendorManagementDetailComponent implements OnInit {
     return 'top-score-bad';
   }
 
-  linkedAssetsCount(): number {
-    const value = this.vendor?.linkedAsset;
+  getTopScoreBorderClass(score: string | null | undefined): string {
+    const tone = this.getTopScoreToneClass(score);
+    if (tone === 'top-score-good') return 'score-card-border-good';
+    if (tone === 'top-score-warn') return 'score-card-border-warn';
+    if (tone === 'top-score-bad') return 'score-card-border-bad';
+    return 'score-card-border-na';
+  }
+
+  linkedWebsiteCount(): number {
+    const value = this.vendor?.linkedWebsiteCount ?? this.vendor?.linkedAsset;
     const parsed = Number(value ?? 0);
     return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  linkedAppsCount(): number {
+    const value = this.vendor?.linkedAppsCount ?? this.vendor?.linkedAsset;
+    const parsed = Number(value ?? 0);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  websiteScore(): string {
+    return (
+      this.vendor?.compositeWebsiteScore ??
+      this.vendor?.overallDevelopmentScore ??
+      'N/A'
+    );
+  }
+
+  appsScore(): string {
+    return (
+      this.vendor?.compossiteAppsScore ??
+      this.vendor?.overallHostingScore ??
+      'N/A'
+    );
   }
 
   private loadVendor(vendorId: number): void {
