@@ -1,0 +1,145 @@
+<section class="groups-page">
+  <div class="page-header">
+    <div>
+      <h1>Groups (Roles) Management</h1>
+      <p>Create groups, attach ministries, and assign module permissions using dummy data.</p>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <article class="form-card">
+      <div class="stepper">
+        @for (step of steps; track step; let i = $index) {
+          <div class="step" [class.step-active]="i === currentStep()" [class.step-done]="i < currentStep()">
+            <span>{{ i + 1 }}</span>
+            <label>{{ step }}</label>
+          </div>
+        }
+      </div>
+
+      @if (currentStep() === 0) {
+        <div class="step-content">
+          <h2>Basic Information</h2>
+          <div class="field-grid">
+            <label class="field">
+              <span>Group Name <em>*</em></span>
+              <input
+                type="text"
+                [value]="groupName()"
+                (input)="groupName.set($any($event.target).value)"
+                placeholder="e.g. Ministry Data Officer" />
+            </label>
+            <label class="field">
+              <span>Description</span>
+              <textarea
+                rows="4"
+                [value]="description()"
+                (input)="description.set($any($event.target).value)"
+                placeholder="Short description for this role"></textarea>
+            </label>
+          </div>
+        </div>
+      }
+
+      @if (currentStep() === 1) {
+        <div class="step-content">
+          <h2>Select Ministries</h2>
+          <p class="sub-text">Choose one or multiple ministries to attach to this group.</p>
+          <div class="chips-wrap">
+            @for (ministry of availableMinistries; track ministry) {
+              <button type="button" class="chip" [class.chip-active]="hasMinistry(ministry)" (click)="toggleMinistry(ministry)">
+                {{ ministry }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (currentStep() === 2) {
+        <div class="step-content">
+          <h2>Assign Permissions</h2>
+          <p class="sub-text">Toggle permissions by module. Use module toggle for select all/none.</p>
+
+          <div class="permissions-table">
+            @for (module of permissionModules; track module.key) {
+              <div class="module-row">
+                <button type="button" class="module-toggle" (click)="toggleModule(module)">
+                  <span>{{ module.label }}</span>
+                  <span class="pill">{{ moduleAllSelected(module) ? 'All On' : 'Custom' }}</span>
+                </button>
+
+                <div class="module-actions">
+                  @for (action of module.actions; track action) {
+                    <label class="toggle">
+                      <span class="toggle-label">{{ action.replace('_', ' ') }}</span>
+                      <span class="toggle-switch">
+                        <input
+                          type="checkbox"
+                          [checked]="hasPermission(module.key, action)"
+                          (change)="togglePermission(module.key, action)" />
+                        <span class="toggle-slider"></span>
+                      </span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" (click)="prevStep()" [disabled]="currentStep() === 0">Back</button>
+        @if (currentStep() < steps.length - 1) {
+          <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canMoveNext()">Next</button>
+        } @else {
+          <button type="button" class="btn btn-primary" (click)="onSaveGroup()">Save Group</button>
+        }
+      </div>
+    </article>
+
+    <article class="list-card">
+      <div class="list-head">
+        <h2>Groups Listing</h2>
+        <label class="search-box">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            [value]="searchTerm()"
+            (input)="searchTerm.set($any($event.target).value)"
+            placeholder="Search groups..." />
+        </label>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Group Name</th>
+              <th>Ministries</th>
+              <th>Permissions</th>
+              <th class="th-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (g of filteredGroups(); track g.id) {
+              <tr>
+                <td>
+                  <strong>{{ g.name }}</strong>
+                  <small>{{ g.description || 'No description' }}</small>
+                </td>
+                <td>{{ g.ministries.length }}</td>
+                <td>{{ g.permissions.length }}</td>
+                <td class="td-actions">
+                  <button type="button" class="icon-btn" title="Delete" (click)="onDeleteGroup(g.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </div>
+</section>

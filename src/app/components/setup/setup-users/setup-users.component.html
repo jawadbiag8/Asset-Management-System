@@ -1,0 +1,162 @@
+<section class="users-page">
+  <div class="page-header">
+    <div>
+      <h1>Users Management</h1>
+      <p>Create users and assign one or multiple groups with inherited permissions preview.</p>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <article class="form-card">
+      <h2>Create New User</h2>
+      <p class="section-subtitle">Add profile details, assign group(s), and preview inherited access.</p>
+
+      <div class="field-grid">
+        <label class="field">
+          <span>Full Name <em>*</em></span>
+          <input
+            type="text"
+            [value]="fullName()"
+            (input)="fullName.set($any($event.target).value)"
+            placeholder="Enter full name" />
+        </label>
+        <label class="field">
+          <span>Email <em>*</em></span>
+          <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" placeholder="Enter email" />
+        </label>
+        <label class="field">
+          <span>Phone Number</span>
+          <input
+            type="text"
+            [value]="phone()"
+            (input)="phone.set($any($event.target).value)"
+            placeholder="Enter phone number" />
+        </label>
+        <label class="field">
+          <span>Address</span>
+          <textarea
+            rows="3"
+            [value]="address()"
+            (input)="address.set($any($event.target).value)"
+            placeholder="Enter address"></textarea>
+        </label>
+      </div>
+
+      <div class="group-block card-block">
+        <h3>Assign Groups <em>*</em></h3>
+        <div class="group-options">
+          @for (group of groupsCatalog; track group.id) {
+            <label class="group-option" [class.group-option-active]="isGroupSelected(group.id)">
+              <div class="group-meta">
+                <strong>{{ group.name }}</strong>
+                <small>{{ group.permissions.length }} permissions • {{ group.ministries.length }} ministries</small>
+              </div>
+              <span class="group-toggle-switch">
+                <input type="checkbox" [checked]="isGroupSelected(group.id)" (change)="toggleGroup(group.id)" />
+                <span class="group-toggle-slider"></span>
+              </span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="inheritance-preview card-block">
+        <h3>Inherited Access Preview</h3>
+        <p>Permissions: {{ inheritedPermissions().length }} | Ministries: {{ inheritedMinistries().length }}</p>
+
+        <div class="preview-row">
+          <h4>Selected Groups</h4>
+          <div class="chips chips-groups">
+            @for (group of selectedGroups(); track group.id) {
+              <span class="chip chip-group">{{ group.name }}</span>
+            } @empty {
+              <span class="empty-chip">No group selected</span>
+            }
+          </div>
+        </div>
+
+        <div class="preview-row">
+          <h4>Inherited Ministries</h4>
+          <div class="chips">
+            @for (ministry of inheritedMinistries(); track ministry) {
+              <span class="chip chip-ministry">{{ ministry }}</span>
+            } @empty {
+              <span class="empty-chip">No ministry scope</span>
+            }
+          </div>
+        </div>
+
+        <div class="preview-row">
+          <h4>Inherited Permissions</h4>
+        <div class="chips">
+          @for (permission of inheritedPermissions(); track permission) {
+            <span class="chip">{{ permission }}</span>
+          } @empty {
+            <span class="empty-chip">No permissions selected</span>
+          }
+        </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="onCreateUser()"
+          [disabled]="!fullName().trim() || !email().trim() || selectedGroups().length === 0">
+          Create User
+        </button>
+      </div>
+    </article>
+
+    <article class="list-card">
+      <div class="list-head">
+        <h2>Users Listing</h2>
+        <label class="search-box">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            [value]="searchTerm()"
+            (input)="searchTerm.set($any($event.target).value)"
+            placeholder="Search users..." />
+        </label>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Groups</th>
+              <th>Effective Permissions</th>
+              <th class="th-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of filteredUsers(); track u.id) {
+              <tr>
+                <td>
+                  <strong>{{ u.fullName }}</strong>
+                  <small>{{ u.email }}</small>
+                </td>
+                <td>
+                  <span class="count-pill">{{ u.groups.length }}</span>
+                  <small>{{ u.groups.join(', ') }}</small>
+                </td>
+                <td>
+                  <span class="count-pill">{{ u.effectivePermissions.length }}</span>
+                  <small>{{ u.effectivePermissions.slice(0, 2).join(', ') }}{{ u.effectivePermissions.length > 2 ? '...' : '' }}</small>
+                </td>
+                <td class="td-actions">
+                  <button type="button" class="icon-btn" title="Delete" (click)="onDeleteUser(u.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </div>
+</section>

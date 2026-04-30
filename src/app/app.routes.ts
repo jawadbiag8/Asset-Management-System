@@ -22,6 +22,8 @@ import { SetupConfigurationsComponent } from './components/setup/setup-configura
 import { SetupMinistriesComponent } from './components/setup/setup-ministries/setup-ministries.component';
 import { SetupMinistryFormComponent } from './components/setup/setup-ministry-form/setup-ministry-form.component';
 import { SetupMinistryHistoryComponent } from './components/setup/setup-ministry-history/setup-ministry-history.component';
+import { SetupGroupsComponent } from './components/setup/setup-groups/setup-groups.component';
+import { SetupUsersComponent } from './components/setup/setup-users/setup-users.component';
 import { ManageServicesComponent } from './components/manage-services/manage-services.component';
 import { ServiceDetailComponent } from './components/service-detail/service-detail.component';
 import { VendorsComponent } from './components/vendors/vendors.component';
@@ -157,9 +159,8 @@ export const routes: Routes = [
       { path: 'vendors', component: VendorsComponent },
       { path: 'vendors/new', component: AddVendorComponent },
       { path: 'vendors/:id/profile', component: VendorDetailComponent },
-      // Future:
-      // { path: 'users', component: SetupUsersComponent },
-      // { path: 'roles', component: SetupRolesComponent },
+      { path: 'groups', component: SetupGroupsComponent },
+      { path: 'users', component: SetupUsersComponent },
     ],
   },
 ];

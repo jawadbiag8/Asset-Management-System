@@ -18,6 +18,8 @@ export class SetupComponent {
     { label: 'Dashboard', route: '/setup', icon: 'grid' },
     { label: 'Ministries', route: '/setup/ministries', icon: 'building' },
     { label: 'Vendors', route: '/setup/vendors', icon: 'users' },
+    { label: 'Groups (Roles)', route: '/setup/groups', icon: 'settings' },
+    { label: 'Users', route: '/setup/users', icon: 'users' },
   ];
 
   constructor(private utilsService: UtilsService) {
