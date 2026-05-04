@@ -173,6 +173,9 @@ export class MinistryInfoCardComponent implements OnInit {
   pageSizeOptions = [10, 25, 50];
   pageSize = 10;
   pageIndex = 0;
+  servicePageSizeOptions = [4, 8, 12];
+  servicePageSize = 4;
+  servicePageIndex = 0;
   searchQuery = '';
   sortColumn: keyof AssetRow = 'asset';
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -289,6 +292,15 @@ export class MinistryInfoCardComponent implements OnInit {
     return this.getFilteredAssetRows().length;
   }
 
+  pagedServiceRows(): ServiceCardRow[] {
+    const start = this.servicePageIndex * this.servicePageSize;
+    return this.serviceRows.slice(start, start + this.servicePageSize);
+  }
+
+  totalServiceRows(): number {
+    return this.serviceRows.length;
+  }
+
   onSearchQueryChange(value: string): void {
     this.searchQuery = value ?? '';
     this.pageIndex = 0;
@@ -324,6 +336,38 @@ export class MinistryInfoCardComponent implements OnInit {
     if (!Number.isFinite(parsed) || parsed <= 0) return;
     this.pageSize = parsed;
     this.pageIndex = 0;
+  }
+
+  servicePaginationStart(): number {
+    if (this.totalServiceRows() === 0) return 0;
+    return this.servicePageIndex * this.servicePageSize + 1;
+  }
+
+  servicePaginationEnd(): number {
+    const end = (this.servicePageIndex + 1) * this.servicePageSize;
+    return Math.min(end, this.totalServiceRows());
+  }
+
+  canPrevServicePage(): boolean {
+    return this.servicePageIndex > 0;
+  }
+
+  canNextServicePage(): boolean {
+    return this.servicePaginationEnd() < this.totalServiceRows();
+  }
+
+  onServicePageChange(delta: number): void {
+    const targetPage = this.servicePageIndex + delta;
+    if (targetPage < 0) return;
+    const maxPage = Math.max(Math.ceil(this.totalServiceRows() / this.servicePageSize) - 1, 0);
+    this.servicePageIndex = Math.min(targetPage, maxPage);
+  }
+
+  onServicePageSizeChange(value: string): void {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) return;
+    this.servicePageSize = parsed;
+    this.servicePageIndex = 0;
   }
 
   onSort(column: keyof AssetRow): void {
@@ -401,6 +445,7 @@ export class MinistryInfoCardComponent implements OnInit {
           ? rows.map((item: MinistryAssetListItem) => this.mapAssetRow(item))
           : [];
         this.pageIndex = 0;
+        this.servicePageIndex = 0;
       },
       error: () => {
         this.loadingAssets = false;
@@ -419,6 +464,7 @@ export class MinistryInfoCardComponent implements OnInit {
         this.serviceRows = rows.map((item) => this.mapServiceToCardRow(item));
         this.assetRows = [];
         this.pageIndex = 0;
+        this.servicePageIndex = 0;
       },
       error: () => {
         this.loadingAssets = false;
@@ -690,6 +736,7 @@ export class MinistryInfoCardComponent implements OnInit {
 
   private resetTableState(): void {
     this.pageIndex = 0;
+    this.servicePageIndex = 0;
     this.sortColumn = 'asset';
     this.sortDirection = 'asc';
   }

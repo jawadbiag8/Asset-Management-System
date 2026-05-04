@@ -209,10 +209,11 @@
 
     td[data-column="hostingVendor"] {
       .line-secondary {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        margin-top: 4px;
-        border-radius: 3.25px;
+        width: fit-content;
+        margin-top: 6px;
+        border-radius: 999px;
         border: 1px solid transparent;
         padding: 2px 8px;
         font-size: 10px;

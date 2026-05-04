@@ -32,7 +32,7 @@
 .vendor-type-pill {
   display: inline-flex;
   border: 1px solid #1a6471;
-  border-radius: 6px;
+  border-radius: 999px;
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 600;
@@ -167,7 +167,7 @@
 
 .hosting-pill {
   display: inline-flex;
-  border-radius: 6px;
+  border-radius: 999px;
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 600;
@@ -200,32 +200,30 @@
 }
 
 .score-pill {
-  display: inline-flex;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
+  display: inline;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.1;
 }
 
 .score-good {
-  color: #eafff0;
-  background: #5fad33;
+  color: #5fad33;
 }
 
 .score-medium {
-  color: #111827;
-  background: #ffc800;
+  color: #ffc800;
 }
 
 .score-low {
-  color: #ffffff;
-  background: #ff4444;
+  color: #ff4444;
 }
 
 .score-default {
   color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.15);
 }
 
 .state-message {
