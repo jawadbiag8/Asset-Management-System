@@ -371,7 +371,7 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  border-radius: 6px;
+  border-radius: 999px;
   padding: 3px 8px;
   font-size: 11px;
   line-height: 1.25;
@@ -542,6 +542,12 @@
 .services-list {
   display: grid;
   gap: 10px;
+}
+
+.service-pagination {
+  margin-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 10px;
 }
 
 .service-card {
@@ -741,7 +747,7 @@
 }
 
 .vendor-type {
-  border-radius: 4px;
+  border-radius: 999px;
   padding: 1px 6px;
   font-size: 9px;
   border: 1px solid transparent;

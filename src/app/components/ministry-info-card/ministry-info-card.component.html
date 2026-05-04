@@ -76,7 +76,7 @@
     <div class="services-empty">No services found.</div>
     } @else {
     <div class="services-list">
-      @for (service of serviceRows; track service.id) {
+      @for (service of pagedServiceRows(); track service.id) {
       <article class="service-card" (click)="onOpenService(service.id)">
         <div class="service-meta-grid">
           <div class="meta-item">
@@ -144,6 +144,21 @@
         </div>
       </article>
       }
+    </div>
+    <div class="table-pagination service-pagination">
+      <span>{{ servicePaginationStart() }}-{{ servicePaginationEnd() }} of {{ totalServiceRows() }}</span>
+      <div class="pagination-controls">
+        <label>
+          Rows:
+          <select [value]="servicePageSize" (change)="onServicePageSizeChange(($any($event.target)).value)">
+            @for (size of servicePageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+        <button type="button" (click)="onServicePageChange(-1)" [disabled]="!canPrevServicePage()">Prev</button>
+        <button type="button" (click)="onServicePageChange(1)" [disabled]="!canNextServicePage()">Next</button>
+      </div>
     </div>
     }
   </section>

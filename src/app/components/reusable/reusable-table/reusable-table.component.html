@@ -183,7 +183,12 @@
                           >
                             <span class="line-primary-text">{{ getCellValue(row, column.primaryField || "") }}</span>
                             @if (column.showPrimaryStatusIcon && getPrimaryStatusIconKind(row, column); as iconKind) {
-                              <span class="asset-status-icon" [ngClass]="'asset-status-icon--' + iconKind" aria-hidden="true">
+                              <span
+                                class="asset-status-icon"
+                                [ngClass]="'asset-status-icon--' + iconKind"
+                                [matTooltip]="getPrimaryStatusIconLabel(row, column)"
+                                matTooltipPosition="above"
+                                aria-hidden="true">
                                 @if (iconKind === 'discovered') {
                                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M9 16.5C4.85775 16.5 1.5 13.1423 1.5 9C1.5 4.85775 4.85775 1.5 9 1.5C13.1423 1.5 16.5 4.85775 16.5 9C16.5 13.1423 13.1423 16.5 9 16.5ZM7.953 7.953L5.73525 12.2648L10.0478 10.047L12.2648 5.73525L7.95225 7.953H7.953Z" fill="currentColor" fill-opacity="0.5"/>
@@ -225,7 +230,12 @@
                           >
                             <span class="line-primary-text">{{ getCellValue(row, column.primaryField || "") }}</span>
                             @if (column.showPrimaryStatusIcon && getPrimaryStatusIconKind(row, column); as iconKind) {
-                              <span class="asset-status-icon" [ngClass]="'asset-status-icon--' + iconKind" aria-hidden="true">
+                              <span
+                                class="asset-status-icon"
+                                [ngClass]="'asset-status-icon--' + iconKind"
+                                [matTooltip]="getPrimaryStatusIconLabel(row, column)"
+                                matTooltipPosition="above"
+                                aria-hidden="true">
                                 @if (iconKind === 'discovered') {
                                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M9 16.5C4.85775 16.5 1.5 13.1423 1.5 9C1.5 4.85775 4.85775 1.5 9 1.5C13.1423 1.5 16.5 4.85775 16.5 9C16.5 13.1423 13.1423 16.5 9 16.5ZM7.953 7.953L5.73525 12.2648L10.0478 10.047L12.2648 5.73525L7.95225 7.953H7.953Z" fill="currentColor" fill-opacity="0.5"/>

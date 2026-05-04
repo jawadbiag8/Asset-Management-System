@@ -1119,6 +1119,15 @@ export class ReusableTableComponent
     return 'discovered';
   }
 
+  getPrimaryStatusIconLabel(row: any, column: TableColumn): string {
+    const kind = this.getPrimaryStatusIconKind(row, column);
+    if (!kind) return '';
+    if (kind === 'verified') return 'Verified';
+    if (kind === 'retired') return 'Retired';
+    if (kind === 'suspended') return 'Suspended';
+    return 'Discovered';
+  }
+
   isRouterLink(link: any): boolean {
     return !!(link && typeof link === 'string' && link.startsWith('/'));
   }

@@ -96,7 +96,7 @@
 .vendor-type-pill {
   display: inline-flex;
   border: 1px solid transparent;
-  border-radius: 3.25px;
+  border-radius: 999px;
   padding: 3px 10px;
   font-size: 11px;
   font-weight: 600;
@@ -121,35 +121,31 @@
 }
 
 .score-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 70px;
-  border-radius: 3.25px;
-  padding: 6px 12px;
-  font-size: 11px;
+  display: inline;
+  padding: 0;
+  min-width: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
 }
 
 .score-good {
-  color: #eafff0;
-  background: #5fad33;
+  color: #5fad33;
 }
 
 .score-medium {
-  color: #111827;
-  background: #ffc800;
+  color: #ffc800;
 }
 
 .score-low {
-  color: #ffffff;
-  background: #ff4444;
+  color: #ff4444;
 }
 
 .score-default {
   color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.15);
 }
 
 .state-message {
